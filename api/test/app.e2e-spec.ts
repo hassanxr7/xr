@@ -170,6 +170,51 @@ describe("SMSBridge API (e2e)", () => {
     expect(count).toBe(2);
   });
 
+  it("still allows pairing-code redemption when the caller happens to carry an unrelated owner session cookie", async () => {
+    // Regression test: /api/devices/pair must stay reachable even from a
+    // browser that also has a logged-in sid cookie (e.g. the owner testing
+    // pairing from the same browser as the dashboard) -- it must not be
+    // treated as a CSRF-protected session-authenticated route.
+    await createOwner("owner@example.com", "correct-password-1");
+    const { cookieHeader, csrfToken } = await loginAs("owner@example.com", "correct-password-1");
+    const server = app.getHttpServer();
+
+    const pairRes = await request(server)
+      .post("/api/devices/pairing-codes")
+      .set("Cookie", cookieHeader)
+      .set("X-CSRF-Token", csrfToken)
+      .send({ deviceName: "Same Browser Phone" })
+      .expect(201);
+
+    const redeemRes = await request(server)
+      .post("/api/devices/pair")
+      .set("Cookie", cookieHeader) // sid cookie present, no X-CSRF-Token header, like a real device would send
+      .send({ code: pairRes.body.code })
+      .expect(201);
+    expect(redeemRes.body.deviceName).toBe("Same Browser Phone");
+  });
+
+  it("does not require a CSRF header for device Bearer-token requests, even alongside a stray owner session cookie", async () => {
+    await createOwner("owner@example.com", "correct-password-1");
+    const { cookieHeader, csrfToken } = await loginAs("owner@example.com", "correct-password-1");
+    const server = app.getHttpServer();
+
+    const pairRes = await request(server)
+      .post("/api/devices/pairing-codes")
+      .set("Cookie", cookieHeader)
+      .set("X-CSRF-Token", csrfToken)
+      .send({ deviceName: "Bearer Test Phone" })
+      .expect(201);
+    const redeemRes = await request(server).post("/api/devices/pair").send({ code: pairRes.body.code }).expect(201);
+
+    await request(server)
+      .post("/api/devices/me/status")
+      .set("Cookie", cookieHeader) // stray sid cookie, no X-CSRF-Token
+      .set("Authorization", `Bearer ${redeemRes.body.deviceToken}`)
+      .send({ queueSize: 0 })
+      .expect(201);
+  });
+
   it("rejects a mutating request without a matching CSRF header", async () => {
     await createOwner("owner@example.com", "correct-password-1");
     const { cookieHeader } = await loginAs("owner@example.com", "correct-password-1");

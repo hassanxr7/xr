@@ -10,6 +10,7 @@ import { DevicesModule } from "./devices/devices.module";
 import { MessagesModule } from "./messages/messages.module";
 import { OverviewModule } from "./overview/overview.module";
 import { HealthModule } from "./health/health.module";
+import { RetentionModule } from "./retention/retention.module";
 import { CsrfMiddleware } from "./common/csrf.middleware";
 
 @Module({
@@ -26,6 +27,7 @@ import { CsrfMiddleware } from "./common/csrf.middleware";
     MessagesModule,
     OverviewModule,
     HealthModule,
+    RetentionModule,
   ],
   providers: [{ provide: APP_GUARD, useClass: ThrottlerGuard }],
 })
