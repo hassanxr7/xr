@@ -4,6 +4,7 @@ import * as argon2 from "argon2";
 import { randomUUID } from "crypto";
 import { createTestApp, extractCookies, resetDatabase } from "./test-utils";
 import { PrismaService } from "../src/prisma/prisma.service";
+import { sha256Hex } from "../src/common/crypto.util";
 
 describe("SMSBridge API (e2e)", () => {
   let app: INestApplication;
@@ -254,6 +255,27 @@ describe("SMSBridge API (e2e)", () => {
       .set("Authorization", `Bearer ${deviceToken}`)
       .send({})
       .expect(401);
+  });
+
+  it("rejects an expired pairing code", async () => {
+    const owner = await createOwner("owner@example.com", "correct-password-1");
+    await prisma.pairingCode.create({
+      data: {
+        ownerId: owner.id,
+        deviceName: "Expired Phone",
+        codeHash: sha256Hex("EXPIREDCODE"),
+        expiresAt: new Date(Date.now() - 60_000), // already expired
+      },
+    });
+
+    const res = await request(app.getHttpServer())
+      .post("/api/devices/pair")
+      .send({ code: "EXPIREDCODE" })
+      .expect(400);
+    expect(res.body.error.code).toBe("expired_or_used");
+
+    // No orphan device should have been created for the failed redemption.
+    expect(await prisma.device.count()).toBe(0);
   });
 
   it("prevents one owner from accessing another owner's devices or messages", async () => {

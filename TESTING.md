@@ -8,7 +8,7 @@ this environment doesn't have — exact manual steps are given instead).
 
 ## Automated: API end-to-end suite
 
-`cd api && npm run test:e2e` — 10/10 passing against a real local
+`cd api && npm run test:e2e` — 11/11 passing against a real local
 PostgreSQL instance (not mocked). Source: `api/test/app.e2e-spec.ts`.
 
 1. Login rejects a wrong password (rate-limited, timing-safe).
@@ -20,8 +20,10 @@ PostgreSQL instance (not mocked). Source: `api/test/app.e2e-spec.ts`.
    exists afterward. (**Maps to acceptance test #4.**)
 4. Two messages with identical sender/body/timestamp but different
    `clientUuid`s are both preserved as separate rows. (**#5.**)
-5. Reused/expired pairing codes are rejected (single-use enforced
-   atomically). (**#12.**)
+5. Reused pairing codes are rejected (single-use enforced atomically,
+   with the losing concurrent redemption's orphan device row rolled back
+   in the same transaction), and a separately-seeded already-expired code
+   is rejected with no device created. (**#12.**)
 6. A revoked device's bearer token is rejected on its very next request,
    with no grace period. (**#10, #12.**)
 7. Cross-owner isolation: owner B's session sees zero of owner A's
