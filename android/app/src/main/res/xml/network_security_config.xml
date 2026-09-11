@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Release builds: HTTPS only. `cleartextTrafficPermitted="false"` blocks
+  plain-HTTP calls to the paired server outright — this app only ever talks
+  to the owner's own server, and that connection should always be TLS.
+
+  Self-hosted servers commonly run behind a self-signed or internal-CA
+  certificate rather than a publicly trusted one, so user-added (device
+  "Trusted credentials" > "User") certificates are trusted in addition to
+  the system store. The owner installing their server's CA certificate on
+  the phone is the supported path for a self-signed setup; see README.md.
+-->
+<network-security-config>
+    <base-config cleartextTrafficPermitted="false">
+        <trust-anchors>
+            <certificates src="system" />
+            <certificates src="user" />
+        </trust-anchors>
+    </base-config>
+</network-security-config>

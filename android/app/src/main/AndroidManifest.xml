@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <!-- Outbound-only networking to the owner's own server. No inbound
+         ports are ever opened; this app never advertises a listening
+         socket of any kind. -->
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+
+    <!-- Requested at first run (see OnboardingScreen). Required for live
+         SMS capture, the core purpose of this app. -->
+    <uses-permission android:name="android.permission.RECEIVE_SMS" />
+
+    <!-- Requested lazily, only when the owner opts into historical import
+         or missed-message recovery (see HistoricalImportScreen). Never
+         requested at first run. -->
+    <uses-permission android:name="android.permission.READ_SMS" />
+
+    <!-- Requested lazily, only when the owner opens the QR scanner
+         (see QrScannerScreen). -->
+    <uses-permission android:name="android.permission.CAMERA" />
+
+    <!-- Requested lazily, only right before the app could actually post a
+         notification (see HomeScreen's permission checklist). Meaningless
+         below API 33, where notifications don't need runtime consent. -->
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+
+    <!-- WorkManager's own pre-Android-12 fallback path for "expedited" work
+         runs as a short-lived foreground service; targeting API 34+ requires
+         both the base permission and the typed one for that fallback. -->
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_DATA_SYNC" />
+
+    <uses-feature android:name="android.hardware.camera" android:required="false" />
+
+    <application
+        android:name=".SmsBridgeApp"
+        android:allowBackup="false"
+        android:label="@string/app_name"
+        android:icon="@mipmap/ic_launcher"
+        android:roundIcon="@mipmap/ic_launcher"
+        android:theme="@style/Theme.SmsBridge"
+        android:networkSecurityConfig="@xml/network_security_config"
+        tools:targetApi="36">
+
+        <activity
+            android:name=".ui.MainActivity"
+            android:exported="true"
+            android:label="@string/app_name"
+            android:theme="@style/Theme.SmsBridge"
+            android:launchMode="singleTop"
+            android:windowSoftInputMode="adjustResize">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+
+        <!-- Manifest-declared (not dynamically registered) so this fires even
+             when the app process isn't running, per
+             https://developer.android.com/reference/android/provider/Telephony.Sms.Intents#SMS_RECEIVED_ACTION.
+             Does the minimum possible work: persist to the Room queue, then
+             hand off to WorkManager — see SmsReceiver.kt. -->
+        <receiver
+            android:name=".receiver.SmsReceiver"
+            android:exported="true"
+            android:permission="android.permission.BROADCAST_SMS">
+            <intent-filter android:priority="500">
+                <action android:name="android.provider.Telephony.SMS_RECEIVED" />
+            </intent-filter>
+        </receiver>
+
+        <!-- We supply our own WorkManager Configuration (a custom
+             WorkerFactory that can hand workers the Room database and API
+             client — see SmsBridgeApp.kt), so WorkManager's default
+             on-startup initialization must be removed. -->
+        <provider
+            android:name="androidx.work.impl.WorkManagerInitializer"
+            android:authorities="${applicationId}.workmanager-init"
+            android:exported="false"
+            tools:node="remove" />
+
+    </application>
+</manifest>

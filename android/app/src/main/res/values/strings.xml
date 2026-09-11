@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- app_name is injected at build time from gradle.properties'
+         SMSBRIDGE_APP_NAME via android.defaultConfig.resValue — see
+         app/build.gradle.kts and README.md "Rebranding". Do not hardcode
+         a literal <string name="app_name"> here; it would silently shadow
+         the resValue. -->
+</resources>

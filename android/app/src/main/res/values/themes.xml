@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Window-level theme applied before Compose takes over (splash /
+         system bars). The actual Material3 color scheme used inside the app
+         lives in ui/theme/Theme.kt as a Compose MaterialTheme, not here. -->
+    <style name="Theme.SmsBridge" parent="android:Theme.Material.Light.NoActionBar">
+        <item name="android:statusBarColor">@android:color/white</item>
+        <item name="android:windowLightStatusBar">true</item>
+    </style>
+</resources>
