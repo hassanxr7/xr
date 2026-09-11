@@ -17,7 +17,13 @@ import { CsrfMiddleware } from "./common/csrf.middleware";
   imports: [
     ConfigModule.forRoot({ isGlobal: true }),
     ThrottlerModule.forRoot({
-      throttlers: [{ ttl: 60_000, limit: 120 }],
+      // Global safety-net limit for every route (the login/pairing
+      // endpoints layer a much stricter limit on top via @Throttle()).
+      // Configurable because a single dashboard actively polling/paginating
+      // a 100k+ message inbox, or a load test, can legitimately exceed a
+      // low default; the /auth/login and /devices/pair limits are what
+      // actually matter for resisting credential/code guessing.
+      throttlers: [{ ttl: 60_000, limit: Number(process.env.GLOBAL_RATE_LIMIT ?? 120) }],
     }),
     PrismaModule,
     AuditModule,

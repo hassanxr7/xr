@@ -1,0 +1,30 @@
+{$SMSBRIDGE_DOMAIN} {
+	encode gzip
+
+	# Everything under /api/* (including the SSE stream at /api/events) goes
+	# to the backend, same-origin -- this is what lets browser cookies, CSRF,
+	# and EventSource all work without any CORS configuration. flush_interval
+	# -1 disables response buffering, which matters for SSE: without it,
+	# Caddy can hold live events in a buffer instead of pushing them to the
+	# browser immediately.
+	handle /api/* {
+		reverse_proxy api:3001 {
+			flush_interval -1
+		}
+	}
+
+	handle {
+		reverse_proxy web:3000
+	}
+
+	header {
+		Strict-Transport-Security "max-age=31536000; includeSubDomains"
+		X-Content-Type-Options "nosniff"
+		Referrer-Policy "no-referrer"
+	}
+
+	log {
+		output stdout
+		format console
+	}
+}
