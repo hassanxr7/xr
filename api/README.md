@@ -3,7 +3,7 @@
 NestJS + Prisma + PostgreSQL backend. Owner auth via HttpOnly session
 cookie, device auth via hashed bearer tokens, live updates via
 authenticated SSE. Full interactive API docs (OpenAPI/Swagger) are served
-at `/api/docs` once the server is running.
+at `/api/docs` once the server is running (raw JSON spec at `/api/docs-json`).
 
 See `../deployment/README.md` for how to run this locally or in
 production. This file is a quick reference with sample requests against a
