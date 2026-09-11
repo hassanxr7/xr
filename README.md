@@ -119,7 +119,11 @@ before considering public Play Store distribution.
 
 ## Status / what's verified
 
-See `TESTING.md` for the acceptance-test results: what's covered by the
-automated API e2e suite (10/10 passing), what was verified with real
-browser automation (live SSE update, pairing, theming, mobile layout),
-and what remains manual-verification-only on real Android hardware.
+See `TESTING.md` for the acceptance-test results: the automated API e2e
+suite (11/11 passing), real browser automation of the live-SSE-update
+flow, a 100,000-message performance run, the Android app's pure-Kotlin
+`:core` module tests (65 passing, no Android SDK required), and exactly
+what remains manual-verification-only on real Android hardware (this
+sandbox has neither an Android SDK nor network access to Google's Maven
+repo, so the `:app` module — Compose/Room/WorkManager — is written and
+carefully reviewed but not itself build-verified here).

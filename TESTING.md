@@ -83,6 +83,29 @@ keyset (cursor) pagination design is doing its job — an OFFSET-based
 approach would have grown noticeably slower by page 500. The database was
 then dropped; this was a one-off load test, not a persistent fixture.
 
+## Automated: Android `:core` module
+
+The Android app is split into a pure-Kotlin `:core` module (multipart SMS
+reassembly, deterministic UUIDv5 derivation for historical imports,
+backoff/jitter, the local queue's state machine, wire DTOs) with zero
+Android dependency, specifically so it could be genuinely built and tested
+in this sandbox without an Android SDK. `cd android && ./gradlew
+:core:test --configure-on-demand` (the flag skips configuring the `:app`
+module, which does need the Android SDK this sandbox doesn't have) — 65
+tests, re-run and confirmed passing, including a UUIDv5 result
+cross-checked against the well-known RFC4122 DNS-namespace test vector and
+a case proving two same-broadcast, different-sender PDU groups are kept
+separate rather than merged.
+
+That last case is what a manual code review of the `:app` module (which
+can't be built/tested here) turned up a real bug in: `SmsReceiver.kt` was
+destructuring `groupAndReassemble`'s per-group result but then reading
+`sender`/`timestamp` from the whole broadcast's first PDU for every group
+— harmless in the overwhelmingly common one-message-per-broadcast case,
+but silently wrong for the rare case its own `:core` test already proved
+the grouping logic handles correctly. Fixed to use the group's own key;
+see git history for the commit.
+
 ## Unverified: requires real/emulator Android hardware
 
 These need a physical or emulated Android device this sandboxed
