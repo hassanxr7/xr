@@ -78,12 +78,18 @@ class SmsReceiver : BroadcastReceiver() {
 
         val reassembled = SmsReassembler.groupAndReassemble(pdus)
         var insertedAny = false
-        for ((_, message) in reassembled) {
+        for ((key, message) in reassembled) {
+            // Use the group's own key, not the first PDU of the whole
+            // broadcast: a single SMS_RECEIVED intent can (rarely) batch
+            // PDUs from more than one logical message, and groupAndReassemble
+            // already split them by (sender, timestamp) for exactly this
+            // reason -- reading pdus.first() here would silently attribute
+            // every group's message to the first PDU's sender/timestamp.
             val entity = QueueMessageEntity(
                 clientUuid = UUID.randomUUID().toString(), // LIVE capture always uses a fresh UUIDv4
-                sender = pdus.first().sender, // all PDUs in a group share one sender by construction
+                sender = key.sender,
                 body = message.body,
-                senderTimestampMillis = pdus.first().timestampMillis,
+                senderTimestampMillis = key.timestampMillis,
                 observedAtMillis = now,
                 sourceCategory = "LIVE",
                 simSlotIndex = simInfo.slotIndex,
