@@ -22,9 +22,17 @@ class ReconciliationWorker(
 ) : CoroutineWorker(appContext, params) {
 
     override suspend fun doWork(): Result {
-        drainPendingBatches()
-        resumeStalledImportIfAny()
-        sendStatusReport()
+        val paused = container.appPreferences.syncPaused.first()
+        // "Pause Sync must stop capture and uploading": the receiver already
+        // stops persisting new captures while paused (see SmsReceiver.kt);
+        // this backstop must equally not upload whatever's already queued
+        // while paused, or a paused device would still leak already-queued
+        // messages to the server every 15 minutes.
+        if (!paused) {
+            drainPendingBatches()
+            resumeStalledImportIfAny()
+        }
+        sendStatusReport(paused)
         return Result.success()
     }
 
@@ -50,8 +58,7 @@ class ReconciliationWorker(
         }
     }
 
-    private suspend fun sendStatusReport() {
-        val syncPaused = container.appPreferences.syncPaused.first()
+    private suspend fun sendStatusReport(syncPaused: Boolean) {
         val progress = container.database.importProgressDao().get()
         val snapshot = progress?.takeIf { it.state == "RUNNING" }?.let {
             ImportSnapshot(inProgress = true, processedCount = it.processedCount, estimatedTotal = it.estimatedTotal)

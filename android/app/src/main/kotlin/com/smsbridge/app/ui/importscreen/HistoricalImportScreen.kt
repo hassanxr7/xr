@@ -80,6 +80,37 @@ fun HistoricalImportScreen(container: AppContainer, modifier: Modifier = Modifie
                 Text("Cancel import")
             }
         } else {
+            Text("Quick ranges", style = MaterialTheme.typography.titleSmall)
+            val now = { System.currentTimeMillis() }
+            androidx.compose.foundation.layout.Row(
+                horizontalArrangement = androidx.compose.foundation.layout.Arrangement.spacedBy(8.dp),
+                modifier = Modifier.fillMaxWidth(),
+            ) {
+                OutlinedButton(
+                    onClick = { viewModel.startImport(now() - HOUR_MILLIS, now()) },
+                    modifier = Modifier.weight(1f),
+                ) { Text("Last hour") }
+                OutlinedButton(
+                    onClick = { viewModel.startImport(now() - DAY_MILLIS, now()) },
+                    modifier = Modifier.weight(1f),
+                ) { Text("Last 24h") }
+            }
+            androidx.compose.foundation.layout.Spacer(Modifier.padding(4.dp))
+            androidx.compose.foundation.layout.Row(
+                horizontalArrangement = androidx.compose.foundation.layout.Arrangement.spacedBy(8.dp),
+                modifier = Modifier.fillMaxWidth(),
+            ) {
+                OutlinedButton(
+                    onClick = { viewModel.startImport(now() - 7 * DAY_MILLIS, now()) },
+                    modifier = Modifier.weight(1f),
+                ) { Text("Last 7 days") }
+                OutlinedButton(
+                    onClick = { viewModel.startImport(0L, now()) },
+                    modifier = Modifier.weight(1f),
+                ) { Text("All available") }
+            }
+            androidx.compose.foundation.layout.Spacer(Modifier.padding(8.dp))
+            Text("Or pick a custom range", style = MaterialTheme.typography.titleSmall)
             DateRangePicker(state = dateRangeState, modifier = Modifier.fillMaxWidth())
             androidx.compose.foundation.layout.Spacer(Modifier.padding(8.dp))
             val start = dateRangeState.selectedStartDateMillis
@@ -100,3 +131,6 @@ fun HistoricalImportScreen(container: AppContainer, modifier: Modifier = Modifie
         }
     }
 }
+
+private const val HOUR_MILLIS = 60 * 60 * 1000L
+private const val DAY_MILLIS = 24 * HOUR_MILLIS

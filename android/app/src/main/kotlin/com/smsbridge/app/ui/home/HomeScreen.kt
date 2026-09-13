@@ -55,10 +55,22 @@ fun HomeScreen(container: AppContainer, modifier: Modifier = Modifier) {
     val recent by viewModel.recentMessages.collectAsState()
     val lastSync by viewModel.lastSyncAtMillis.collectAsState()
     val actionableError by viewModel.actionableError.collectAsState()
+    val lastUploadError by viewModel.lastUploadError.collectAsState()
 
     LifecycleResumeEffect(Unit) {
         viewModel.refreshPermissions()
         onPauseOrDispose { }
+    }
+
+    // While this screen is actually visible, heartbeat every 30s so "last
+    // contact" on the dashboard stays fresh without needing a persistent
+    // foreground service (see HomeViewModel.sendHeartbeatNow). Cancels
+    // automatically the moment the screen leaves composition.
+    LaunchedEffect(Unit) {
+        while (true) {
+            viewModel.sendHeartbeatNow()
+            kotlinx.coroutines.delay(30_000)
+        }
     }
 
     var pausedSinceMillis by remember { mutableStateOf<Long?>(null) }
@@ -83,6 +95,47 @@ fun HomeScreen(container: AppContainer, modifier: Modifier = Modifier) {
                             modifier = Modifier.padding(start = 8.dp),
                             color = MaterialTheme.colorScheme.error,
                         )
+                    }
+                }
+            }
+        }
+
+        // Shown only when there's no actionableError (that's the more severe,
+        // "needs re-pairing" case) — a transient network/server failure from
+        // the most recent upload attempt, so a stuck queue is never silently
+        // unexplained. Clears itself the moment an upload succeeds.
+        if (actionableError == null) {
+            lastUploadError?.let { error ->
+                item {
+                    Card(modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp)) {
+                        Row(modifier = Modifier.padding(12.dp)) {
+                            Icon(Icons.Filled.Warning, contentDescription = null)
+                            Column {
+                                Text("Last upload attempt failed", style = MaterialTheme.typography.titleSmall)
+                                Text(error, style = MaterialTheme.typography.bodySmall)
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        if (state.queued > 0 && !permissions.batteryOptimizationExempt) {
+            item {
+                Card(modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp)) {
+                    Row(
+                        modifier = Modifier.padding(12.dp),
+                        verticalAlignment = androidx.compose.ui.Alignment.CenterVertically,
+                    ) {
+                        Icon(Icons.Filled.Warning, contentDescription = null)
+                        Column(modifier = Modifier.padding(start = 8.dp).weight(1f)) {
+                            Text("Background sync may be restricted", style = MaterialTheme.typography.titleSmall)
+                            Text(
+                                "Messages are queued but this phone's battery saver may be delaying " +
+                                    "the upload. Exempting this app (below) usually fixes it.",
+                                style = MaterialTheme.typography.bodySmall,
+                            )
+                        }
                     }
                 }
             }
@@ -256,6 +309,13 @@ private fun RecentMessageRow(message: com.smsbridge.app.data.local.QueueMessageE
         Column(modifier = Modifier.padding(start = 8.dp).weight(1f)) {
             Text(message.sender, style = MaterialTheme.typography.bodyMedium)
             Text(statusLabel, style = MaterialTheme.typography.bodySmall)
+            if (message.status == QueueStatus.ERROR && message.lastError != null) {
+                Text(
+                    message.lastError,
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.error,
+                )
+            }
         }
     }
 }

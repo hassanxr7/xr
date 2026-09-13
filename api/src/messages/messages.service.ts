@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from "@nestjs/common";
+import { Injectable, Logger, NotFoundException } from "@nestjs/common";
 import type { Response } from "express";
 import { Prisma } from "@prisma/client";
 import { PrismaService } from "../prisma/prisma.service";
@@ -16,12 +16,17 @@ interface IngestContext {
 
 @Injectable()
 export class MessagesService {
+  private readonly logger = new Logger(MessagesService.name);
+
   constructor(
     private readonly prisma: PrismaService,
     private readonly audit: AuditService,
     private readonly bus: EventBusService,
   ) {}
 
+  // Logs counts/outcomes only -- never sender/body content -- so ingestion
+  // attempts are diagnosable server-side (docker compose logs api) without
+  // ever putting SMS content or credentials in the log stream.
   async ingest(ctx: IngestContext, messages: IngestMessageDto[]) {
     const results: Array<{ clientUuid: string; status: "created" | "duplicate" | "error"; serverId?: string; error?: string }> = [];
     let createdAny = false;
@@ -32,13 +37,21 @@ export class MessagesService {
         results.push(result);
         if (result.status === "created") createdAny = true;
       } catch (err) {
-        results.push({
-          clientUuid: msg.clientUuid,
-          status: "error",
-          error: err instanceof Error ? err.message : "Unknown error",
-        });
+        const message = err instanceof Error ? err.message : "Unknown error";
+        this.logger.error(
+          `Unhandled error ingesting one item for device ${ctx.deviceId}, clientUuid=${msg.clientUuid}: ${message}`,
+          err instanceof Error ? err.stack : undefined,
+        );
+        results.push({ clientUuid: msg.clientUuid, status: "error", error: message });
       }
     }
+
+    const created = results.filter((r) => r.status === "created").length;
+    const duplicate = results.filter((r) => r.status === "duplicate").length;
+    const errored = results.filter((r) => r.status === "error").length;
+    this.logger.log(
+      `Ingest batch from device ${ctx.deviceId}: ${messages.length} item(s) -> ${created} created, ${duplicate} duplicate, ${errored} error`,
+    );
 
     await this.prisma.device.update({
       where: { id: ctx.deviceId },
