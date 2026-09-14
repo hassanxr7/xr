@@ -1,0 +1,196 @@
+// SMSBridge database schema.
+// One owner account, many Android devices, many messages.
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum DeviceStatus {
+  ACTIVE
+  REVOKED
+}
+
+enum SourceCategory {
+  LIVE
+  HISTORICAL_IMPORT
+  RECOVERY
+}
+
+enum PairingCodeStatus {
+  PENDING
+  CONSUMED
+  EXPIRED
+}
+
+// Single owner account (v1 scope: exactly one owner).
+model Owner {
+  id                  String    @id @default(uuid())
+  email               String    @unique
+  passwordHash        String
+  timezone            String    @default("Africa/Mogadishu")
+  theme               String    @default("system") // "light" | "dark" | "system"
+  notificationSound   Boolean   @default(false)
+  retentionDays       Int? // null = keep forever (default)
+  createdAt           DateTime  @default(now())
+  passwordChangedAt   DateTime  @default(now())
+
+  sessions      Session[]
+  devices       Device[]
+  pairingCodes  PairingCode[]
+  auditEvents   AuditEvent[]
+  messages      Message[]
+}
+
+// Browser login session (HttpOnly cookie holds the opaque token; only its hash is stored).
+model Session {
+  id           String   @id @default(uuid())
+  ownerId      String
+  tokenHash    String   @unique
+  createdAt    DateTime @default(now())
+  expiresAt    DateTime
+  lastSeenAt   DateTime @default(now())
+  userAgent    String?
+  ipAddress    String?
+  revokedAt    DateTime?
+
+  owner Owner @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+
+  @@index([ownerId])
+}
+
+// A single-use, short-lived code used to bind a new Android device to the owner account.
+model PairingCode {
+  id           String            @id @default(uuid())
+  ownerId      String
+  codeHash     String            @unique
+  deviceName   String
+  status       PairingCodeStatus @default(PENDING)
+  createdAt    DateTime          @default(now())
+  expiresAt    DateTime
+  consumedAt   DateTime?
+  consumedByDeviceId String?
+
+  owner  Owner   @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  device Device? @relation(fields: [consumedByDeviceId], references: [id])
+
+  @@index([ownerId])
+  @@index([expiresAt])
+}
+
+// A paired Android device belonging to the owner.
+model Device {
+  id               String       @id @default(uuid())
+  ownerId          String
+  name             String
+  model            String?
+  androidVersion   String?
+  appVersion       String?
+  status           DeviceStatus @default(ACTIVE)
+  createdAt        DateTime     @default(now())
+  revokedAt        DateTime?
+
+  // Denormalized latest-status fields, overwritten by each status report.
+  lastContactAt       DateTime?
+  lastSyncAt           DateTime?
+  lastQueueSize         Int?
+  lastPermissionsJson   String? // JSON blob: { receiveSms, readSms, notifications }
+  lastBatteryPercent    Int?
+  lastSyncPaused        Boolean  @default(false)
+  lastImportInProgress  Boolean  @default(false)
+  lastImportProgress    Int?
+  lastImportTotal       Int?
+
+  owner       Owner            @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  credentials DeviceCredential[]
+  simSlots    SimSlot[]
+  messages    Message[]
+  pairingConsumptions PairingCode[]
+
+  @@index([ownerId])
+}
+
+// Hashed device bearer tokens. Rotating a device's credential revokes the old one but keeps history.
+model DeviceCredential {
+  id         String    @id @default(uuid())
+  deviceId   String
+  tokenHash  String    @unique
+  createdAt  DateTime  @default(now())
+  revokedAt  DateTime?
+
+  device Device @relation(fields: [deviceId], references: [id], onDelete: Cascade)
+
+  @@index([deviceId])
+}
+
+// Owner-managed SIM identity label per device+slot. Distinguishes manually entered data from "Unknown".
+model SimSlot {
+  id             String   @id @default(uuid())
+  deviceId       String
+  slotIndex      Int
+  subscriptionId String? // Android SubscriptionInfo id, when the OS exposes it
+  label          String? // owner-entered label, e.g. "Office SIM"
+  phoneNumber    String? // owner-entered, since carriers often don't expose this to apps
+  isManual       Boolean  @default(false)
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  device   Device    @relation(fields: [deviceId], references: [id], onDelete: Cascade)
+  messages Message[]
+
+  @@unique([deviceId, slotIndex])
+}
+
+// One logical SMS message (already reassembled from multipart parts on the Android side).
+model Message {
+  id               String         @id @default(uuid())
+  ownerId          String // denormalized from device.ownerId at ingestion, for fast/simple owner-scoped queries
+  deviceId         String
+  clientUuid       String // client-generated UUID, stable across retries
+  simSlotId        String?
+  simSlotIndexRaw  Int? // raw slot index reported at capture time (kept even if SimSlot is later deleted)
+  simLabelSnapshot String? // label as it was at ingestion time, "Unknown" if unavailable
+  sender           String // exactly as received: number, short code, or alphanumeric sender id
+  body             String
+  senderTimestamp  DateTime? // timestamp reported by the carrier/OS, if available
+  observedAt       DateTime // time the phone captured the message
+  receivedAt       DateTime       @default(now()) // time the server committed the row
+  sourceCategory   SourceCategory
+  sourceProviderId String? // Android Telephony provider row id, best-effort, informational only
+  partCount        Int            @default(1)
+  isRead           Boolean        @default(false)
+  isArchived       Boolean        @default(false)
+  deletedAt        DateTime?
+  createdAt        DateTime       @default(now())
+
+  owner   Owner    @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  device  Device   @relation(fields: [deviceId], references: [id], onDelete: Cascade)
+  simSlot SimSlot? @relation(fields: [simSlotId], references: [id])
+
+  @@unique([deviceId, clientUuid], name: "device_client_uuid")
+  @@index([ownerId, receivedAt])
+  @@index([ownerId, isRead])
+  @@index([ownerId, isArchived])
+  @@index([deviceId, receivedAt])
+  @@index([sender])
+}
+
+// Append-only audit trail for security-sensitive actions.
+model AuditEvent {
+  id        String   @id @default(uuid())
+  ownerId   String?
+  deviceId  String?
+  type      String // e.g. "pairing.created", "device.revoked", "auth.login", "message.export"
+  metadata  String? // JSON blob, never contains SMS bodies/passwords/tokens
+  ipAddress String?
+  createdAt DateTime @default(now())
+
+  owner Owner? @relation(fields: [ownerId], references: [id])
+
+  @@index([ownerId, createdAt])
+  @@index([type])
+}
