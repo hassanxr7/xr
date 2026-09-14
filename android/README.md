@@ -287,6 +287,29 @@ checked in. Building `:app` needs a normal Android SDK install
 one via Android Studio's SDK Manager, or `sdkmanager` directly, on a machine
 with unrestricted access to `dl.google.com`.
 
+## Real-device bug fixed: uploads never left the phone (2026-09-14)
+
+Symptom on real hardware: SMS captured and queued, "Waiting to upload"
+forever, `Uploaded: 0`, no request ever reached the API. Root cause: the
+manifest tried to disable WorkManager's auto-initialization by removing
+`androidx.work.impl.WorkManagerInitializer` -- a ContentProvider that no
+longer exists in WorkManager 2.11 (auto-init moved to `androidx.startup`
+in 2.6). The removal was therefore a no-op, WorkManager initialized itself
+with the *default* WorkerFactory before `Application.onCreate`, the custom
+factory was never consulted, and every `UploadWorker` failed to instantiate
+(it required an `AppContainer` constructor argument the default factory
+can't supply). The failure was silent from the user's point of view.
+
+Fix: workers now use the standard `(Context, WorkerParameters)` constructor
+and resolve their dependencies from `SmsBridgeApp` themselves, so nothing
+about WorkManager initialization can prevent them from running; the custom
+factory and the bogus manifest entry are gone. Additionally, "Sync now"
+and the SMS receiver now upload **directly, in-process** (WorkManager is
+only the durable retry), and the Home screen has a Diagnostics section
+showing the last attempt's trigger, endpoint, HTTP status, response body
+and exception. Logcat tags: `SyncRepository`, `SmsBridgeApi`,
+`SmsBridgeHttp`, `UploadWorker`, `SmsReceiver`, `HomeViewModel`.
+
 ## Build and test status
 
 **Read this section before trusting a green checkmark on this project.**

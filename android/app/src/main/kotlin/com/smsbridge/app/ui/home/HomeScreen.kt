@@ -56,6 +56,8 @@ fun HomeScreen(container: AppContainer, modifier: Modifier = Modifier) {
     val lastSync by viewModel.lastSyncAtMillis.collectAsState()
     val actionableError by viewModel.actionableError.collectAsState()
     val lastUploadError by viewModel.lastUploadError.collectAsState()
+    val diagnostics by viewModel.diagnostics.collectAsState()
+    val syncing by viewModel.syncing.collectAsState()
 
     LifecycleResumeEffect(Unit) {
         viewModel.refreshPermissions()
@@ -168,7 +170,9 @@ fun HomeScreen(container: AppContainer, modifier: Modifier = Modifier) {
                         viewModel.pauseSync()
                     }) { Text("Pause sync") }
                     androidx.compose.foundation.layout.Spacer(Modifier.padding(horizontal = 4.dp))
-                    Button(onClick = { viewModel.syncNow() }) { Text("Sync now") }
+                    Button(onClick = { viewModel.syncNow() }, enabled = !syncing) {
+                        Text(if (syncing) "Syncing…" else "Sync now")
+                    }
                 }
             }
         }
@@ -202,6 +206,29 @@ fun HomeScreen(container: AppContainer, modifier: Modifier = Modifier) {
             )
         }
 
+        item {
+            Text("Diagnostics", style = MaterialTheme.typography.titleMedium, modifier = Modifier.padding(top = 16.dp))
+            val session = state.session
+            DiagRow("Device token stored", if (session != null) "yes (id ${session.deviceToken.substringBefore('.').take(8)}…)" else "NO — re-pair")
+            DiagRow("Upload endpoint", session?.let { "${it.serverUrl.trimEnd('/')}/api/devices/me/messages" } ?: "—")
+            DiagRow("Last attempt", diagnostics.lastAttemptAtMillis?.let(::formatTimestamp) ?: "never")
+            DiagRow("Triggered by", diagnostics.lastTrigger ?: "—")
+            DiagRow("Batch size", diagnostics.lastBatchSize?.toString() ?: "—")
+            DiagRow("Outcome", diagnostics.lastOutcome ?: "—")
+            DiagRow("HTTP status", diagnostics.lastHttpStatus?.toString() ?: "— (no response)")
+            DiagRow("Exception", diagnostics.lastException ?: "none")
+            DiagRow("Worker last started", diagnostics.lastWorkerStartedAtMillis?.let(::formatTimestamp) ?: "never")
+            diagnostics.lastResponseBody?.let { body ->
+                Text("Response body", style = MaterialTheme.typography.bodySmall, modifier = Modifier.padding(top = 4.dp))
+                Text(
+                    body,
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    fontFamily = androidx.compose.ui.text.font.FontFamily.Monospace,
+                )
+            }
+        }
+
         if (recent.isNotEmpty()) {
             item { Text("Recent messages", style = MaterialTheme.typography.titleMedium, modifier = Modifier.padding(top = 16.dp)) }
             items(recent) { message -> RecentMessageRow(message, viewModel.statusLabel(message.status)) }
@@ -212,6 +239,20 @@ fun HomeScreen(container: AppContainer, modifier: Modifier = Modifier) {
                 Text("Disconnect this device")
             }
         }
+    }
+}
+
+@Composable
+private fun DiagRow(label: String, value: String) {
+    Row(modifier = Modifier.fillMaxWidth().padding(vertical = 2.dp), horizontalArrangement = Arrangement.SpaceBetween) {
+        Text(label, style = MaterialTheme.typography.bodySmall, modifier = Modifier.weight(1f))
+        Text(
+            value,
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            modifier = Modifier.weight(1.4f),
+            textAlign = androidx.compose.ui.text.style.TextAlign.End,
+        )
     }
 }
 

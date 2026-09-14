@@ -71,15 +71,11 @@
             </intent-filter>
         </receiver>
 
-        <!-- We supply our own WorkManager Configuration (a custom
-             WorkerFactory that can hand workers the Room database and API
-             client — see SmsBridgeApp.kt), so WorkManager's default
-             on-startup initialization must be removed. -->
-        <provider
-            android:name="androidx.work.impl.WorkManagerInitializer"
-            android:authorities="${applicationId}.workmanager-init"
-            android:exported="false"
-            tools:node="remove" />
+        <!-- WorkManager's default androidx.startup initialization is
+             deliberately left in place. Workers use the standard
+             (Context, WorkerParameters) constructor and resolve their
+             dependencies from SmsBridgeApp themselves, so no custom
+             WorkerFactory (and no fragile init-disabling) is needed. -->
 
     </application>
 </manifest>

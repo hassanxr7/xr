@@ -58,6 +58,16 @@ interface QueueMessageDao {
     )
     suspend fun markError(localId: Long, status: QueueStatus = QueueStatus.ERROR, error: String?)
 
+    /**
+     * Rows left mid-flight (process death, cancelled direct attempt) must never
+     * stay UPLOADING forever, since getBatchToUpload skips that status.
+     */
+    @Query("UPDATE queue_messages SET status = 'PENDING' WHERE status = 'UPLOADING'")
+    suspend fun resetAllUploadingToPending(): Int
+
+    @Query("UPDATE queue_messages SET status = 'PENDING' WHERE localId IN (:localIds) AND status = 'UPLOADING'")
+    suspend fun resetUploadingToPending(localIds: List<Long>): Int
+
     /** Every unsynced row moves to ACTION_REQUIRED when the device credential is revoked. */
     @Query(
         "UPDATE queue_messages SET status = 'ACTION_REQUIRED' WHERE status IN ('PENDING', 'UPLOADING', 'ERROR')",

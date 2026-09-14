@@ -12,11 +12,13 @@ import com.smsbridge.app.work.WorkScheduler
 import com.smsbridge.core.sms.IncomingPdu
 import com.smsbridge.core.sms.SmsReassembler
 import com.smsbridge.core.sync.QueueStatus
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withTimeoutOrNull
 import java.util.UUID
 
 /**
@@ -104,11 +106,29 @@ class SmsReceiver : BroadcastReceiver() {
         }
 
         if (insertedAny) {
+            Log.i(TAG, "Persisted ${reassembled.size} message(s); enqueuing upload work and attempting a direct upload.")
+            // Durable path first: survives process death, retried by WorkManager.
             WorkScheduler.enqueueImmediateUpload(context)
+            // Fast path: if the process is alive and online, upload right now,
+            // bounded so it always finishes inside the receiver's goAsync()
+            // budget. If it times out, the rows are reset to PENDING (see
+            // SyncRepository) and the WorkManager job above picks them up.
+            val direct = withTimeoutOrNull(DIRECT_UPLOAD_TIMEOUT_MS) {
+                try {
+                    container.syncRepository.uploadAllPending(trigger = "receiver", maxBatches = 2)
+                } catch (e: CancellationException) {
+                    throw e // let the timeout cancel cleanly; rows are reset to PENDING by SyncRepository
+                } catch (e: Exception) {
+                    Log.w(TAG, "Direct upload attempt failed; WorkManager will retry.", e)
+                    null
+                }
+            }
+            Log.i(TAG, "Direct upload outcome: ${direct?.javaClass?.simpleName ?: "timed out"}")
         }
     }
 
     companion object {
         private const val TAG = "SmsReceiver"
+        private const val DIRECT_UPLOAD_TIMEOUT_MS = 8_000L
     }
 }

@@ -1,9 +1,12 @@
 package com.smsbridge.app.ui.home
 
 import android.content.Context
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.smsbridge.app.data.DeviceSession
+import com.smsbridge.app.data.SyncDiagnostics
+import com.smsbridge.app.data.UploadCycleResult
 import com.smsbridge.app.data.local.QueueMessageEntity
 import com.smsbridge.app.di.AppContainer
 import com.smsbridge.app.ui.common.PermissionUtils
@@ -104,8 +107,38 @@ class HomeViewModel(private val container: AppContainer, private val appContext:
         }
     }
 
+    private val _syncing = MutableStateFlow(false)
+    val syncing: StateFlow<Boolean> = _syncing.asStateFlow()
+
+    val diagnostics: StateFlow<SyncDiagnostics> =
+        container.appPreferences.diagnostics
+            .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), SyncDiagnostics())
+
+    /**
+     * "Sync now" uploads everything queued right here, in-process, on this
+     * ViewModel's scope -- it does not depend on WorkManager scheduling a
+     * job at all. A WorkManager request is still enqueued afterwards purely
+     * as a durable retry if this direct pass didn't fully drain the queue.
+     */
     fun syncNow() {
-        WorkScheduler.enqueueImmediateUpload(appContext)
+        if (_syncing.value) return
+        viewModelScope.launch {
+            _syncing.value = true
+            try {
+                val queued = container.database.queueMessageDao().countUnsynced()
+                Log.i(TAG, "Sync now clicked: queued=$queued")
+                val outcome = runCatching {
+                    container.syncRepository.uploadAllPending(trigger = "sync-now")
+                }.onFailure { Log.e(TAG, "Sync now failed with an exception", it) }.getOrNull()
+                Log.i(TAG, "Sync now finished: ${outcome?.javaClass?.simpleName}")
+                val stillPending = container.database.queueMessageDao().countUnsynced()
+                if (stillPending > 0 && outcome !is UploadCycleResult.ActionRequired) {
+                    WorkScheduler.enqueueImmediateUpload(appContext)
+                }
+            } finally {
+                _syncing.value = false
+            }
+        }
     }
 
     /**
@@ -130,6 +163,10 @@ class HomeViewModel(private val container: AppContainer, private val appContext:
 
     fun disconnect() {
         viewModelScope.launch { container.syncRepository.disconnect() }
+    }
+
+    companion object {
+        private const val TAG = "HomeViewModel"
     }
 
     fun statusLabel(status: QueueStatus): String = when (status) {

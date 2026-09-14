@@ -1,9 +1,11 @@
 package com.smsbridge.app.work
 
 import android.content.Context
+import android.util.Log
 import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
 import com.smsbridge.app.data.UploadCycleResult
+import com.smsbridge.app.SmsBridgeApp
 import com.smsbridge.app.di.AppContainer
 import kotlinx.coroutines.delay
 
@@ -18,15 +20,23 @@ import kotlinx.coroutines.delay
 class UploadWorker(
     appContext: Context,
     params: WorkerParameters,
-    private val container: AppContainer,
 ) : CoroutineWorker(appContext, params) {
 
+    // Resolved from the Application rather than injected: WorkManager's
+    // default WorkerFactory instantiates workers reflectively via exactly
+    // this (Context, WorkerParameters) constructor, so a custom factory is
+    // no longer required for the worker to run at all.
+    private val container: AppContainer
+        get() = (applicationContext as SmsBridgeApp).container
+
     override suspend fun doWork(): Result {
+        Log.i(TAG, "UploadWorker started (runAttemptCount=$runAttemptCount)")
+        container.appPreferences.recordWorkerStarted()
         var attempt = runAttemptCount + 1
         var loopsWithoutBackoff = 0
 
         while (true) {
-            val outcome = container.syncRepository.uploadOneBatch(attempt)
+            val outcome = container.syncRepository.uploadOneBatch(attempt, trigger = "worker")
             when (outcome) {
                 is UploadCycleResult.NoWork -> return Result.success()
 
@@ -66,6 +76,7 @@ class UploadWorker(
     }
 
     companion object {
+        private const val TAG = "UploadWorker"
         private const val MAX_BATCHES_PER_RUN = 20
         private const val MAX_ATTEMPTS_BEFORE_YIELDING_TO_PERIODIC = 5
     }

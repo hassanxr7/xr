@@ -5,6 +5,7 @@ import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
 import com.smsbridge.app.data.ImportSnapshot
 import com.smsbridge.app.data.UploadCycleResult
+import com.smsbridge.app.SmsBridgeApp
 import com.smsbridge.app.di.AppContainer
 import kotlinx.coroutines.flow.first
 
@@ -18,8 +19,14 @@ import kotlinx.coroutines.flow.first
 class ReconciliationWorker(
     appContext: Context,
     params: WorkerParameters,
-    private val container: AppContainer,
 ) : CoroutineWorker(appContext, params) {
+
+    // Resolved from the Application rather than injected: WorkManager's
+    // default WorkerFactory instantiates workers reflectively via exactly
+    // this (Context, WorkerParameters) constructor, so a custom factory is
+    // no longer required for the worker to run at all.
+    private val container: AppContainer
+        get() = (applicationContext as SmsBridgeApp).container
 
     override suspend fun doWork(): Result {
         val paused = container.appPreferences.syncPaused.first()
@@ -38,7 +45,7 @@ class ReconciliationWorker(
 
     private suspend fun drainPendingBatches() {
         repeat(MAX_BATCHES_PER_RECONCILIATION) { attempt ->
-            val outcome = container.syncRepository.uploadOneBatch(attempt + 1)
+            val outcome = container.syncRepository.uploadOneBatch(attempt + 1, trigger = "periodic")
             when (outcome) {
                 is UploadCycleResult.NoWork -> return
                 is UploadCycleResult.ActionRequired -> return

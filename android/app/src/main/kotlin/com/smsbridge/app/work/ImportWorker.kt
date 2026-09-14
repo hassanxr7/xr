@@ -10,6 +10,7 @@ import androidx.work.WorkerParameters
 import com.smsbridge.app.data.local.HandledProviderIdEntity
 import com.smsbridge.app.data.local.ImportProgressEntity
 import com.smsbridge.app.data.local.QueueMessageEntity
+import com.smsbridge.app.SmsBridgeApp
 import com.smsbridge.app.di.AppContainer
 import com.smsbridge.core.sync.QueueStatus
 import com.smsbridge.core.util.historicalImportClientUuid
@@ -28,8 +29,14 @@ import com.smsbridge.core.util.historicalImportClientUuid
 class ImportWorker(
     appContext: Context,
     params: WorkerParameters,
-    private val container: AppContainer,
 ) : CoroutineWorker(appContext, params) {
+
+    // Resolved from the Application rather than injected: WorkManager's
+    // default WorkerFactory instantiates workers reflectively via exactly
+    // this (Context, WorkerParameters) constructor, so a custom factory is
+    // no longer required for the worker to run at all.
+    private val container: AppContainer
+        get() = (applicationContext as SmsBridgeApp).container
 
     override suspend fun doWork(): Result {
         val rangeStart = inputData.getLong(WorkScheduler.INPUT_RANGE_START_MILLIS, -1L)

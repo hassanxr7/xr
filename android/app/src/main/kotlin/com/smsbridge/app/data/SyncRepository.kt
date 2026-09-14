@@ -18,7 +18,11 @@ import com.smsbridge.core.sync.Backoff
 import com.smsbridge.core.sync.QueueStatus
 import com.smsbridge.core.sync.QueueTransitions
 import com.smsbridge.core.sync.MAX_INGEST_BATCH_SIZE
+import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.flow.firstOrNull
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
+import kotlinx.coroutines.withContext
 import java.time.Instant
 import java.time.format.DateTimeFormatter
 
@@ -102,23 +106,78 @@ class SyncRepository(
     // Upload
     // -------------------------------------------------------------------
 
-    suspend fun uploadOneBatch(attemptNumberForBackoff: Int): UploadCycleResult {
+    private val uploadMutex = Mutex()
+
+    /**
+     * Uploads everything currently queued, batch by batch, right now, in the
+     * calling coroutine -- no WorkManager involved. This is what "Sync now"
+     * calls directly, and what the SMS receiver attempts (bounded by a
+     * timeout) immediately after persisting a capture. WorkManager remains
+     * the durable backstop for when the process isn't alive to do this.
+     *
+     * Returns the last per-batch outcome so callers can decide whether a
+     * WorkManager retry is still needed.
+     */
+    suspend fun uploadAllPending(trigger: String, maxBatches: Int = 20): UploadCycleResult {
+        var last: UploadCycleResult = UploadCycleResult.NoWork
+        repeat(maxBatches) {
+            last = uploadOneBatch(attemptNumberForBackoff = 1, trigger = trigger)
+            when (val outcome = last) {
+                is UploadCycleResult.Progressed -> if (outcome.stillPending == 0) return last
+                else -> return last // NoWork, ActionRequired, ShouldBackoff: stop this pass
+            }
+        }
+        return last
+    }
+
+    suspend fun uploadOneBatch(attemptNumberForBackoff: Int, trigger: String = "worker"): UploadCycleResult =
+        uploadMutex.withLock { uploadOneBatchLocked(attemptNumberForBackoff, trigger) }
+
+    private suspend fun uploadOneBatchLocked(attemptNumberForBackoff: Int, trigger: String): UploadCycleResult {
+        val queuedBefore = queueDao.countUnsynced()
+        Log.i(TAG, "upload[$trigger]: starting, queued=$queuedBefore, attempt=$attemptNumberForBackoff")
+
         val session = tokenStore.load()
         if (session == null) {
-            Log.w(TAG, "uploadOneBatch: no paired session; nothing to do.")
+            Log.e(TAG, "upload[$trigger]: NO DEVICE CREDENTIAL in TokenStore -- cannot upload.")
+            if (queuedBefore > 0) {
+                appPreferences.setActionableError("Device credential missing, please re-pair.")
+                appPreferences.recordAttempt(trigger, "(no session)", 0)
+                appPreferences.recordAttemptResult(null, null, "no device credential stored", "no credential")
+            }
             return UploadCycleResult.NoWork
         }
+        val endpoint = ApiClient.buildUrl(session.serverUrl, ApiClient.INGEST_PATH)
+        // credentialId is the public half of the token (the part before the
+        // dot); the secret half after the dot is never logged.
+        Log.i(TAG, "upload[$trigger]: endpoint=$endpoint credentialId=${session.deviceToken.substringBefore('.')} deviceId=${session.deviceId}")
+
+        // Recover anything left UPLOADING by a previous attempt that died mid-flight.
+        val recovered = queueDao.resetAllUploadingToPending()
+        if (recovered > 0) Log.w(TAG, "upload[$trigger]: recovered $recovered row(s) stuck in UPLOADING")
+
         val batch = queueDao.getBatchToUpload(MAX_INGEST_BATCH_SIZE)
         if (batch.isEmpty()) {
-            Log.d(TAG, "uploadOneBatch: queue is empty.")
+            Log.d(TAG, "upload[$trigger]: queue is empty.")
             return UploadCycleResult.NoWork
         }
 
-        Log.i(TAG, "uploadOneBatch: sending ${batch.size} message(s), attempt=$attemptNumberForBackoff")
-        queueDao.setStatusForIds(batch.map { it.localId }, QueueStatus.UPLOADING)
+        Log.i(TAG, "upload[$trigger]: sending ${batch.size} message(s) to $endpoint")
+        appPreferences.recordAttempt(trigger, endpoint, batch.size)
+        val ids = batch.map { it.localId }
+        queueDao.setStatusForIds(ids, QueueStatus.UPLOADING)
 
-        val dtos = batch.map { it.toDto() }
-        val result = apiClient.ingestMessages(session.serverUrl, session.deviceToken, dtos)
+        val result = try {
+            apiClient.ingestMessages(session.serverUrl, session.deviceToken, batch.map { it.toDto() })
+        } catch (t: Throwable) {
+            // Includes CancellationException from a timed-out direct attempt:
+            // put the rows back so the worker can retry, then rethrow.
+            withContext(NonCancellable) {
+                queueDao.resetUploadingToPending(ids)
+                appPreferences.recordAttemptResult(null, null, "${t.javaClass.simpleName}: ${t.message}", "aborted")
+            }
+            throw t
+        }
 
         val outcome = when (result) {
             is ApiResult.Success -> {
@@ -136,27 +195,34 @@ class SyncRepository(
                         else -> Unit
                     }
                 }
+                // Anything the server didn't mention at all goes back to PENDING.
+                queueDao.resetUploadingToPending(ids)
                 appPreferences.recordSuccessfulSync()
-                Log.i(TAG, "uploadOneBatch: success, $uploaded uploaded, ${queueDao.countUnsynced()} still pending.")
-                UploadCycleResult.Progressed(uploaded, queueDao.countUnsynced())
+                appPreferences.setActionableError(null)
+                val stillPending = queueDao.countUnsynced()
+                appPreferences.recordAttemptResult(result.httpStatus, result.rawBody, null, "ok: $uploaded uploaded, $stillPending still pending")
+                Log.i(TAG, "upload[$trigger]: HTTP ${result.httpStatus} success, $uploaded uploaded, $stillPending still pending.")
+                UploadCycleResult.Progressed(uploaded, stillPending)
             }
 
             is ApiResult.Unauthorized -> {
                 val wasAlreadyFlagged = appPreferences.lastActionableError.firstOrNull() != null
                 queueDao.markAllActionRequired()
                 val message = "This device was disconnected by the owner (${result.errorCode}). Re-pair to resume."
-                Log.e(TAG, "uploadOneBatch: 401 $message")
+                Log.e(TAG, "upload[$trigger]: HTTP 401 $message body=${result.rawBody}")
                 appPreferences.setActionableError(message)
+                appPreferences.recordAttemptResult(401, result.rawBody, null, "unauthorized")
                 if (!wasAlreadyFlagged) NotificationHelper.notifyActionRequired(appContext, message)
                 UploadCycleResult.ActionRequired(message)
             }
 
             is ApiResult.RateLimited -> {
-                queueDao.setStatusForIds(batch.map { it.localId }, QueueStatus.PENDING)
+                queueDao.resetUploadingToPending(ids)
                 val delay = Backoff.delayRespectingRetryAfter(result.retryAfterSeconds, attemptNumberForBackoff)
-                val message = "Rate limited by server; retrying in ${delay / 1000}s."
-                Log.w(TAG, "uploadOneBatch: 429 $message")
+                val message = "Rate limited by server (HTTP 429); retrying in ${delay / 1000}s."
+                Log.w(TAG, "upload[$trigger]: $message")
                 appPreferences.setLastUploadError(message)
+                appPreferences.recordAttemptResult(429, result.rawBody, null, "rate limited")
                 UploadCycleResult.ShouldBackoff(delay, "Rate limited by server")
             }
 
@@ -165,10 +231,11 @@ class SyncRepository(
                 // it as an actionable error instead of looping forever.
                 val message = "Upload rejected (HTTP ${result.httpStatus}" +
                     (result.errorCode?.let { ", $it" } ?: "") + "): ${result.message}"
-                Log.e(TAG, "uploadOneBatch: $message")
-                queueDao.setStatusForIds(batch.map { it.localId }, QueueStatus.ERROR)
+                Log.e(TAG, "upload[$trigger]: $message body=${result.rawBody}")
+                queueDao.setStatusForIds(ids, QueueStatus.ERROR)
                 appPreferences.setActionableError(message)
                 appPreferences.setLastUploadError(message)
+                appPreferences.recordAttemptResult(result.httpStatus, result.rawBody, null, "rejected")
                 UploadCycleResult.ActionRequired(message)
             }
 
@@ -181,9 +248,10 @@ class SyncRepository(
                 } else {
                     "Couldn't reach the server: ${result.message ?: "unknown network error"}"
                 }
-                Log.e(TAG, "uploadOneBatch: $message")
-                queueDao.setStatusForIds(batch.map { it.localId }, QueueStatus.PENDING)
+                Log.e(TAG, "upload[$trigger]: $message body=${result.rawBody}")
+                queueDao.resetUploadingToPending(ids)
                 appPreferences.setLastUploadError(message)
+                appPreferences.recordAttemptResult(result.httpStatus, result.rawBody, result.exceptionType ?: result.message, "failed")
                 val delay = Backoff.computeDelayMillis(attemptNumberForBackoff)
                 UploadCycleResult.ShouldBackoff(delay, message)
             }
@@ -196,7 +264,7 @@ class SyncRepository(
         // get around to it. Best-effort: never lets a status-report failure
         // affect the upload outcome just computed above.
         runCatching { reportStatus(syncPaused = false, importSnapshot = null) }
-            .onFailure { Log.w(TAG, "uploadOneBatch: heartbeat piggyback failed", it) }
+            .onFailure { Log.w(TAG, "upload[$trigger]: heartbeat piggyback failed", it) }
 
         return outcome
     }
