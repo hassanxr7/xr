@@ -129,7 +129,7 @@ class ImportWorker(
                     progressDao.save(
                         ImportProgressEntity(rangeStart, rangeEnd, cursorTime, processed, estimatedTotal, "RUNNING"),
                     )
-                    WorkScheduler.enqueueImmediateUpload(applicationContext)
+                    uploadNowOrFallback()
                 }
             }
         }
@@ -137,8 +137,17 @@ class ImportWorker(
         progressDao.save(
             ImportProgressEntity(rangeStart, rangeEnd, rangeEnd, processed, maxOf(estimatedTotal, processed), "COMPLETED"),
         )
-        WorkScheduler.enqueueImmediateUpload(applicationContext)
+        uploadNowOrFallback()
         return Result.success()
+    }
+
+    /** Imported rows go to the server immediately; WorkManager only if that pass didn't finish. */
+    private suspend fun uploadNowOrFallback() {
+        val outcome = runCatching { container.syncRepository.uploadAllPending(trigger = "import") }.getOrNull()
+        val drained = outcome is com.smsbridge.app.data.UploadCycleResult.Progressed && outcome.stillPending == 0
+        if (!drained && container.syncRepository.hasPendingWork()) {
+            WorkScheduler.enqueueImmediateUpload(applicationContext)
+        }
     }
 
     private fun countRowsInRange(startMillis: Long, endMillis: Long): Int {

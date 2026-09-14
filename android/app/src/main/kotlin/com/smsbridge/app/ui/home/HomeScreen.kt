@@ -174,6 +174,24 @@ fun HomeScreen(container: AppContainer, modifier: Modifier = Modifier) {
                         Text(if (syncing) "Syncing…" else "Sync now")
                     }
                 }
+                // Plain-language result of the most recent upload attempt, right
+                // where the user just tapped, so success/failure is never ambiguous.
+                diagnostics.lastAttemptAtMillis?.let { at ->
+                    val ok = diagnostics.lastOutcome?.startsWith("ok") == true
+                    val inFlight = diagnostics.lastOutcome == "in flight"
+                    Text(
+                        (if (inFlight) "Sync in progress" else if (ok) "Last sync succeeded" else "Last sync failed") +
+                            " (${formatTimestamp(at)}): ${diagnostics.lastOutcome ?: "—"}" +
+                            (diagnostics.lastHttpStatus?.let { " — HTTP $it" } ?: "") +
+                            (diagnostics.lastException?.let { " — $it" } ?: ""),
+                        style = MaterialTheme.typography.bodySmall,
+                        color = when {
+                            inFlight -> MaterialTheme.colorScheme.onSurfaceVariant
+                            ok -> Color(0xFF2E7D32)
+                            else -> MaterialTheme.colorScheme.error
+                        },
+                    )
+                }
             }
         }
 
