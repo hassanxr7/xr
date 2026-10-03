@@ -12,9 +12,9 @@ It needs no database: PHP 7.4+ (8.x recommended), HTML, CSS and vanilla JavaScri
 3. In hPanel, make sure **SSL** is active for the domain. `.htaccess` forces HTTPS and removes `www`.
 4. Open your domain and check every page.
 
-## Before going live: set your domain
+## Domain
 
-The site assumes the domain `https://hubdexstore.com`. If yours is different, replace it in **3 places**:
+The site is set up for the domain `https://hubdexltd.com`. If you ever change domain, replace it in **3 places**:
 
 | File | What to change |
 |------|----------------|

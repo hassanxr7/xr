@@ -72,7 +72,7 @@ require __DIR__ . '/includes/header.php';
         <div class="hero-visual reveal" aria-hidden="true">
             <div class="visual-ring"></div>
             <div class="mock-window">
-                <div class="mock-bar"><span></span><span></span><span></span><em>hubdexstore.com</em></div>
+                <div class="mock-bar"><span></span><span></span><span></span><em>hubdexltd.com</em></div>
                 <div class="mock-body">
                     <div class="mock-banner">
                         <div>
