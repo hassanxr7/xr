@@ -156,8 +156,9 @@ $nav = [
     <meta name="twitter:image:alt" content="Hubdex Store - modern online shopping by Hubdex Store LTD">
 
     <!-- Icons -->
-    <link rel="icon" href="assets/img/favicon.svg" type="image/svg+xml">
+    <link rel="icon" href="assets/img/favicon-48.png" sizes="48x48" type="image/png">
     <link rel="icon" href="assets/img/favicon-32.png" sizes="32x32" type="image/png">
+    <link rel="icon" href="assets/img/icon-192.png" sizes="192x192" type="image/png">
     <link rel="apple-touch-icon" href="assets/img/apple-touch-icon.png">
     <link rel="manifest" href="site.webmanifest">
 
@@ -183,8 +184,7 @@ $nav = [
 <header class="site-header" id="top">
     <div class="container header-inner">
         <a class="brand" href="./" aria-label="Hubdex Store home">
-            <img class="brand-mark" src="assets/img/favicon.svg" width="40" height="40" alt="">
-            <span class="brand-text">Hubdex<span>Store</span></span>
+            <img class="brand-logo" src="assets/img/logo-full.png" width="600" height="180" alt="Hubdex Store LTD logo">
         </a>
 
         <button class="nav-toggle" type="button" aria-controls="site-nav" aria-expanded="false" aria-label="Open menu">

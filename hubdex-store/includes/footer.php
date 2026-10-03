@@ -9,8 +9,7 @@
     <div class="container footer-grid">
         <div class="footer-brand">
             <a class="brand" href="./" aria-label="Hubdex Store home">
-                <img class="brand-mark" src="assets/img/favicon.svg" width="40" height="40" alt="">
-                <span class="brand-text">Hubdex<span>Store</span></span>
+                <img class="brand-logo" src="assets/img/logo-full.png" width="600" height="180" alt="Hubdex Store LTD logo">
             </a>
             <p>Hubdex Store is a modern online shopping platform by <?= e(COMPANY_LEGAL_NAME) ?>, built to make discovering and ordering quality products simple, secure and enjoyable.</p>
             <ul class="social" aria-label="Hubdex Store on social media">

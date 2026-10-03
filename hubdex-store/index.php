@@ -80,7 +80,7 @@ require __DIR__ . '/includes/header.php';
                             <strong>Shop smarter<br>with Hubdex</strong>
                             <span class="mock-pill">Coming soon</span>
                         </div>
-                        <div class="mock-banner-art"><?= icon('bag', 56) ?></div>
+                        <div class="mock-banner-art"><img src="assets/img/logo-mark.png" width="76" height="76" alt=""></div>
                     </div>
                     <div class="mock-products">
                         <div class="mock-card"><div class="mock-thumb t1"></div><i></i><i class="short"></i><b></b></div>

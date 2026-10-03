@@ -21,7 +21,7 @@ define('COMPANY_LEGAL_NAME', 'Hubdex Store LTD');
 define('SITE_TAGLINE', 'A modern online shopping platform by Hubdex Store LTD.');
 define('SITE_LANG', 'en');
 define('SITE_LOCALE', 'en_GB');
-define('THEME_COLOR', '#5b3df5');
+define('THEME_COLOR', '#030c1d');
 
 // ---------------------------------------------------------------------
 // Contact details (shown on the contact page and in structured data)
@@ -64,5 +64,5 @@ define('DATA_DIR', dirname(__DIR__) . '/data');
 // Misc
 // ---------------------------------------------------------------------
 define('COPYRIGHT_YEAR', '2026');
-define('ASSET_VERSION', '1.0.0'); // bump to bust browser caches after edits
+define('ASSET_VERSION', '1.1.0'); // bump to bust browser caches after edits
 date_default_timezone_set('UTC');
