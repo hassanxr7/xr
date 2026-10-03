@@ -1,0 +1,2 @@
+# Form submissions (personal data) - never commit
+data/*.csv

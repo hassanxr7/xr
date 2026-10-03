@@ -1,0 +1,10 @@
+# robots.txt for Hubdex Store (Hubdex Store LTD)
+# Replace https://hubdexstore.com with your real domain if different.
+
+User-agent: *
+Allow: /
+Disallow: /includes/
+Disallow: /data/
+Disallow: /subscribe.php
+
+Sitemap: https://hubdexstore.com/sitemap.xml

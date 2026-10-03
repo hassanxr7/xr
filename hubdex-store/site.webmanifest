@@ -1,0 +1,13 @@
+{
+  "name": "Hubdex Store",
+  "short_name": "Hubdex",
+  "description": "A modern online shopping platform by Hubdex Store LTD.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0b0a1f",
+  "theme_color": "#5b3df5",
+  "icons": [
+    { "src": "assets/img/logo.png", "sizes": "512x512", "type": "image/png" },
+    { "src": "assets/img/apple-touch-icon.png", "sizes": "180x180", "type": "image/png" }
+  ]
+}
