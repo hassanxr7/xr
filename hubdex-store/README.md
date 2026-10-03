@@ -7,9 +7,9 @@ It needs no database: PHP 7.4+ (8.x recommended), HTML, CSS and vanilla JavaScri
 
 1. In hPanel open **Files → File Manager → `public_html`**.
 2. Upload the **contents** of this folder (not the folder itself) into `public_html`. You can upload
-   `hubdex-store-upload.zip` from the repository root and use **Extract** instead.
+   `hubdexltd-website.zip` from the repository root and use **Extract** instead.
    Make sure hidden files (`.htaccess`) are included.
-3. In hPanel, make sure **SSL** is active for the domain. `.htaccess` forces HTTPS and removes `www`.
+3. In hPanel go to **Security → SSL**, make sure the certificate is active, then switch on **Force HTTPS**. (`.htaccess` redirects `www` to the plain domain.)
 4. Open your domain and check every page.
 
 ## Domain
