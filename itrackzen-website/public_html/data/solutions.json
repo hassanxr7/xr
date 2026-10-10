@@ -1,0 +1,149 @@
+{
+  "intro": "Every industry moves differently. These are the ways ITrackZen is typically configured, from the alerts and sensors to the reports that matter most.",
+  "items": [
+    {
+      "id": "logistics",
+      "icon": "truck",
+      "title": "Logistics Companies",
+      "summary": "End-to-end visibility from warehouse to final destination.",
+      "points": [
+        "Live ETA visibility and proof of delivery trails",
+        "Geofences for depots, ports and customer sites",
+        "Fuel and idle-time control across mixed fleets",
+        "Customer-ready trip and delivery reports"
+      ]
+    },
+    {
+      "id": "transport",
+      "icon": "bus",
+      "title": "Transport Companies",
+      "summary": "Keep long-distance and regional transport on schedule.",
+      "points": [
+        "Route adherence and unauthorised-stop alerts",
+        "Driver ID and working-hours reporting",
+        "Maintenance reminders by distance and engine hours",
+        "Overspeed and harsh driving scoring"
+      ]
+    },
+    {
+      "id": "taxi",
+      "icon": "taxi",
+      "title": "Taxi & Ride-Hailing Fleets",
+      "summary": "Manage drivers, vehicles and trip integrity.",
+      "points": [
+        "Live availability and location of every vehicle",
+        "Trip history for dispute resolution",
+        "Driver ID and shift reports",
+        "Speed and safe-driving monitoring"
+      ]
+    },
+    {
+      "id": "delivery",
+      "icon": "delivery",
+      "title": "Delivery Companies",
+      "summary": "Faster dispatch and fewer missed drop-offs.",
+      "points": [
+        "Track vans and motorcycles in one view",
+        "Stop-by-stop route replay",
+        "Compact trackers for riders and bikes",
+        "Geofence alerts at customer locations"
+      ]
+    },
+    {
+      "id": "construction",
+      "icon": "construction",
+      "title": "Construction Fleets",
+      "summary": "Protect heavy equipment and control site costs.",
+      "points": [
+        "Asset and machinery tracking with battery trackers",
+        "Engine-hours based maintenance schedules",
+        "After-hours movement and theft alerts",
+        "Fuel usage reports per machine"
+      ]
+    },
+    {
+      "id": "tankers",
+      "icon": "tanker",
+      "title": "Fuel Tankers",
+      "summary": "High-value cargo needs high-level control.",
+      "points": [
+        "Fuel level and discharge monitoring where sensors are fitted",
+        "Door and valve sensor alerts",
+        "Strict route and geofence enforcement",
+        "Engine cut-off support on compatible installs"
+      ]
+    },
+    {
+      "id": "buses",
+      "icon": "bus",
+      "title": "Buses & Public Transport",
+      "summary": "Safer, more punctual passenger services.",
+      "points": [
+        "Schedule and stop adherence reporting",
+        "Driver behaviour and speed monitoring",
+        "In-cabin and road cameras for passenger safety",
+        "SOS alerts for emergencies"
+      ]
+    },
+    {
+      "id": "government",
+      "icon": "gov",
+      "title": "Government Fleets",
+      "summary": "Accountability and cost control for public-sector vehicles.",
+      "points": [
+        "Role-based access for departments and supervisors",
+        "Audit-ready trip, fuel and usage reports",
+        "Restricted-use and after-hours alerts",
+        "Clear driver accountability with ID support"
+      ]
+    },
+    {
+      "id": "security",
+      "icon": "security",
+      "title": "Security Companies",
+      "summary": "Coordinate patrols, escorts and rapid response.",
+      "points": [
+        "Live location of patrol and escort vehicles",
+        "SOS and panic alerts to control rooms",
+        "Geofenced patrol zones with compliance reports",
+        "Video evidence from AI dashcams"
+      ]
+    },
+    {
+      "id": "rental",
+      "icon": "rental",
+      "title": "Rental Car Companies",
+      "summary": "Know where your cars are and how they are used.",
+      "points": [
+        "Live location and recovery support",
+        "Geofence and territory limit alerts",
+        "Mileage and usage reports for billing",
+        "Ignition and engine cut-off support where fitted"
+      ]
+    },
+    {
+      "id": "personal",
+      "icon": "person",
+      "title": "Personal Vehicle Tracking",
+      "summary": "Peace of mind for family cars, bikes and valuables.",
+      "points": [
+        "Live location on your phone",
+        "Theft and unauthorised movement alerts",
+        "Compact, discreet trackers",
+        "Simple setup with guided support"
+      ]
+    },
+    {
+      "id": "cross-border",
+      "icon": "border",
+      "title": "Cross-Border Fleet Tracking in Africa",
+      "summary": "One account for trucks moving through multiple countries.",
+      "points": [
+        "Follow trucks across corridors and borders",
+        "Border and port geofences with dwell-time reports",
+        "Multi-country fleets and users in one dashboard",
+        "Hardware options for remote areas and variable coverage"
+      ]
+    }
+  ]
+}

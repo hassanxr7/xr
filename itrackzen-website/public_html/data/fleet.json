@@ -1,0 +1,99 @@
+{
+  "intro": "ITrackZen brings vehicles, drivers, fuel, maintenance and reports into one clear dashboard. Whether you manage ten vehicles or thousands, you see what is happening now and have the records to plan what comes next.",
+  "benefits": [
+    {
+      "icon": "fuel",
+      "title": "Lower fuel and running costs",
+      "text": "Spot idling, detours and fuel loss early and set realistic consumption targets per vehicle."
+    },
+    {
+      "icon": "shield",
+      "title": "Safer drivers, fewer accidents",
+      "text": "Behaviour scoring and alerts encourage safer habits and reduce risk and insurance claims."
+    },
+    {
+      "icon": "chart",
+      "title": "Higher vehicle utilisation",
+      "text": "See which vehicles are underused so you can plan jobs and routes more efficiently."
+    },
+    {
+      "icon": "lock",
+      "title": "Theft and misuse prevention",
+      "text": "Geofences, ignition alerts and engine cut-off support protect vehicles and cargo."
+    },
+    {
+      "icon": "clock",
+      "title": "Reliable delivery times",
+      "text": "Live positions and route history help dispatch, customer updates and proof of service."
+    },
+    {
+      "icon": "report",
+      "title": "Audit-ready records",
+      "text": "Keep trip, fuel and maintenance history ready for managers, customers and auditors."
+    }
+  ],
+  "modules": [
+    {
+      "icon": "map",
+      "title": "Live map & vehicle list",
+      "text": "Search, group and filter vehicles, view status at a glance and open details in one click."
+    },
+    {
+      "icon": "driver",
+      "title": "Driver management",
+      "text": "Assign drivers with RFID / iButton, track behaviour scores and compare performance."
+    },
+    {
+      "icon": "fuel",
+      "title": "Fuel centre",
+      "text": "Fuel level charts, consumption per trip and automatic alerts for sudden fuel drops."
+    },
+    {
+      "icon": "wrench",
+      "title": "Maintenance planner",
+      "text": "Service reminders by distance, engine hours or date, with history for every vehicle."
+    },
+    {
+      "icon": "bell",
+      "title": "Alerts centre",
+      "text": "Overspeed, geofence, ignition, route deviation, SOS and sensor alerts in one place."
+    },
+    {
+      "icon": "report",
+      "title": "Reports & exports",
+      "text": "Trip, stop, fuel, driver and summary reports on demand or on a schedule."
+    },
+    {
+      "icon": "users",
+      "title": "Users & roles",
+      "text": "Give managers, dispatchers and customers the exact access they need and nothing more."
+    },
+    {
+      "icon": "geofence",
+      "title": "Geofence manager",
+      "text": "Create zones for depots, ports, borders, customers and restricted areas."
+    }
+  ],
+  "steps": [
+    {
+      "n": "1",
+      "title": "Connect vehicles",
+      "text": "Add trackers and sensors to your vehicles, or connect compatible devices you already own."
+    },
+    {
+      "n": "2",
+      "title": "Configure rules",
+      "text": "Set speed limits, geofences, working hours and alert recipients for each group."
+    },
+    {
+      "n": "3",
+      "title": "Operate from one view",
+      "text": "Dispatch, monitor and respond using the live map, alerts centre and mobile access."
+    },
+    {
+      "n": "4",
+      "title": "Review and improve",
+      "text": "Use reports and driver scores to coach teams, cut costs and plan maintenance."
+    }
+  ]
+}

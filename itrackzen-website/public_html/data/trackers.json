@@ -1,0 +1,496 @@
+{
+  "notice": "ITrackZen supports many GPS tracker models and protocols. Contact us if your device is not listed.",
+  "disclaimer": "Brand and model names are trademarks of their respective owners and are used only to describe compatibility. The lists are representative, not exhaustive. Final compatibility depends on firmware version, configuration and network, and is confirmed by our team.",
+  "filters": [
+    {
+      "key": "all",
+      "label": "All devices"
+    },
+    {
+      "key": "4g",
+      "label": "4G LTE"
+    },
+    {
+      "key": "obd",
+      "label": "OBD"
+    },
+    {
+      "key": "moto",
+      "label": "Motorcycle"
+    },
+    {
+      "key": "asset",
+      "label": "Asset"
+    },
+    {
+      "key": "fuel",
+      "label": "Fuel sensor"
+    },
+    {
+      "key": "cam",
+      "label": "Dashcam"
+    },
+    {
+      "key": "truck",
+      "label": "Truck / CAN"
+    },
+    {
+      "key": "personal",
+      "label": "Personal"
+    },
+    {
+      "key": "ble",
+      "label": "Bluetooth sensors"
+    },
+    {
+      "key": "3g",
+      "label": "3G"
+    }
+  ],
+  "categories": [
+    {
+      "key": "obd",
+      "title": "OBD Trackers",
+      "art": "obd",
+      "text": "Plug-and-play OBD-II trackers installed in seconds with no wiring. Ideal for cars, vans and rental fleets."
+    },
+    {
+      "key": "4g",
+      "title": "4G GPS Trackers",
+      "art": "4g",
+      "text": "LTE trackers for faster, more reliable data as 2G networks are retired in many markets."
+    },
+    {
+      "key": "moto",
+      "title": "Motorcycle Trackers",
+      "art": "moto",
+      "text": "Compact, waterproof and tamper-resistant devices for boda-boda, delivery bikes and scooters."
+    },
+    {
+      "key": "asset",
+      "title": "Asset Trackers",
+      "art": "asset",
+      "text": "Battery-powered trackers for trailers, containers, generators and equipment."
+    },
+    {
+      "key": "fuel",
+      "title": "Fuel Sensor Compatible",
+      "art": "wired",
+      "text": "Devices with analog, RS232 or RS485 inputs that read fuel level sensors for monitoring and theft detection."
+    },
+    {
+      "key": "cam",
+      "title": "Dashcam GPS Devices",
+      "art": "cam",
+      "text": "AI dashcams and MDVR systems that combine video with GPS location and driver-safety events."
+    }
+  ],
+  "brands": [
+    {
+      "name": "Teltonika",
+      "protocol": "Teltonika Codec 8 / 8 Extended",
+      "desc": "Industry-leading professional trackers: FMB (2G), FMC (4G LTE Cat 1), FMM (LTE Cat M1 / NB-IoT), FMU (3G) series, asset trackers and DualCam video.",
+      "models": [
+        "FM1100",
+        "FM1120",
+        "FM1125",
+        "FM1202",
+        "FM2200",
+        "FM3200",
+        "FM4200",
+        "FM5300",
+        "FMA120",
+        "FMB001 [obd]",
+        "FMB003 [obd]",
+        "FMB010",
+        "FMB020",
+        "FMB110",
+        "FMB120 [truck]",
+        "FMB125 [fuel,truck]",
+        "FMB130 [fuel,truck]",
+        "FMB140 [fuel,truck]",
+        "FMB202",
+        "FMB204",
+        "FMB208",
+        "FMB225",
+        "FMB230 [truck]",
+        "FMB234 [truck]",
+        "FMB240 [truck]",
+        "FMB630",
+        "FMB640 [truck]",
+        "FMB900 [moto]",
+        "FMB920 [moto,asset]",
+        "FMB962 [ble]",
+        "FMB965 [ble]",
+        "FMC001 [4g,obd]",
+        "FMC003 [4g,obd]",
+        "FMC125 [4g,fuel,truck]",
+        "FMC130 [4g,fuel,truck]",
+        "FMC150 [4g,truck]",
+        "FMC225 [4g]",
+        "FMC230 [4g,truck]",
+        "FMC234 [4g,truck]",
+        "FMC920 [4g,moto,asset]",
+        "FMM001 [4g,obd]",
+        "FMM003 [4g,obd]",
+        "FMM125 [4g,fuel,truck]",
+        "FMM130 [4g,fuel,truck]",
+        "FMM150 [4g,truck]",
+        "FMM250 [4g]",
+        "FMT100 [moto]",
+        "FMU125 [3g,truck]",
+        "FMU130 [3g,fuel,truck]",
+        "TMT250 [asset,ble]",
+        "TAT100 [asset]",
+        "TAT140 [asset]",
+        "TST100 [asset]",
+        "DualCam [cam]"
+      ]
+    },
+    {
+      "name": "Concox",
+      "protocol": "Concox / GT06",
+      "desc": "Popular, cost-effective vehicle, motorcycle, asset and personal trackers from Concox (also sold under many brand names).",
+      "models": [
+        "GT06",
+        "GT06N",
+        "GT06E",
+        "GT02",
+        "GT02A",
+        "GT02D",
+        "GT100 [moto]",
+        "GT800",
+        "X3 [personal]",
+        "X5 [asset]",
+        "ET25 [moto]",
+        "ET100 [moto]",
+        "AT4 [asset]",
+        "AT6 [asset]",
+        "WeTrack2",
+        "WeTrack Lite [moto]",
+        "OB22 [obd]"
+      ]
+    },
+    {
+      "name": "GT06 / GT02 Protocol Family",
+      "protocol": "GT06 · GT02",
+      "desc": "Thousands of low-cost trackers use the GT06 and GT02 protocols. If your device is described as GT06, GT06N, GT02 or 'GT06 compatible', it is very likely supported.",
+      "models": [
+        "GT06",
+        "GT06N",
+        "GT06E",
+        "GT02",
+        "GT02A",
+        "GT02D",
+        "GT06-compatible 2G trackers",
+        "GT06-compatible 4G trackers",
+        "GT06-compatible OBD trackers [obd]",
+        "GT06-compatible motorcycle trackers [moto]"
+      ]
+    },
+    {
+      "name": "Queclink",
+      "protocol": "Queclink @Track",
+      "desc": "Reliable vehicle, asset and personal trackers with strong power-saving and fleet features.",
+      "models": [
+        "GV20 [moto]",
+        "GV25 [moto]",
+        "GV40",
+        "GV50",
+        "GV55",
+        "GV57",
+        "GV58 [4g]",
+        "GV65",
+        "GV65 Plus",
+        "GV75",
+        "GV100",
+        "GV200",
+        "GV300",
+        "GV300W",
+        "GV310LAU [4g]",
+        "GV320",
+        "GV350M [4g,truck]",
+        "GV355CEU [4g,truck]",
+        "GV500 [truck]",
+        "GV500MAP [4g,truck]",
+        "GL200 [asset]",
+        "GL300 [asset]",
+        "GL300W [asset]",
+        "GL305 [asset]",
+        "GL320 [asset]",
+        "GL320MG [asset]",
+        "GL500 [asset]",
+        "GL505 [asset,4g]",
+        "GB100 [personal]"
+      ]
+    },
+    {
+      "name": "Coban",
+      "protocol": "Coban / TK103",
+      "desc": "Widely used entry-level vehicle and motorcycle trackers in the GPS102 / GPS103 / GPS303 family.",
+      "models": [
+        "GPS102",
+        "GPS102B",
+        "GPS103A [moto]",
+        "GPS103B [moto]",
+        "GPS104",
+        "GPS105",
+        "GPS106",
+        "GPS303",
+        "GPS303F",
+        "GPS303G",
+        "GPS303H",
+        "TK103A [moto]",
+        "TK103B [moto]",
+        "TK104"
+      ]
+    },
+    {
+      "name": "Meitrack",
+      "protocol": "Meitrack",
+      "desc": "Fleet, personal and video trackers known for rugged build and fuel / sensor connectivity.",
+      "models": [
+        "T1",
+        "T3",
+        "T311",
+        "T322",
+        "T333",
+        "T355",
+        "T366",
+        "T366G",
+        "T399",
+        "T622",
+        "T633",
+        "T633L",
+        "T88",
+        "TC68",
+        "TC68S",
+        "P88L [personal]",
+        "P99G [personal]",
+        "P99L [personal]",
+        "MVT100",
+        "MVT340",
+        "MVT380",
+        "MVT600 [truck]",
+        "MVT800 [fuel,truck]"
+      ]
+    },
+    {
+      "name": "Ruptela",
+      "protocol": "Ruptela",
+      "desc": "European fleet telematics with CAN-bus, tachograph and fuel sensor integrations.",
+      "models": [
+        "FM-Eco4",
+        "FM-Eco4+",
+        "FM-Eco4 S",
+        "FM-Eco4 Light",
+        "FM-Pro3 [fuel,truck]",
+        "FM-Pro4 [fuel,truck]",
+        "FM-Tco4 HCV [truck]",
+        "FM-Tco4 LCV",
+        "Eco5 [4g]",
+        "Pro5 [4g,fuel,truck]",
+        "Pro5 Lite [4g,fuel]",
+        "Trace5 [4g,asset]",
+        "HCV5 [4g,truck]"
+      ]
+    },
+    {
+      "name": "Jimi IoT",
+      "protocol": "Jimi / Concox",
+      "desc": "Vehicle trackers, asset trackers and AI dashcams from Jimi IoT, including the JC series video telematics devices.",
+      "models": [
+        "JM-VL01",
+        "JM-VL02",
+        "JM-VL03 [obd]",
+        "JM-LL01 [asset]",
+        "JM-LL02 [asset]",
+        "JM-LL03 [asset]",
+        "VL103",
+        "VL103M [4g]",
+        "VL106",
+        "VL502 [4g]",
+        "VL512 [4g]",
+        "LL301 [asset]",
+        "LL302 [asset]",
+        "VT200-L [4g]",
+        "JC100 [cam]",
+        "JC200 [cam]",
+        "JC261 [cam,4g]",
+        "JC400 [cam,4g]",
+        "JC450 [cam,4g]"
+      ]
+    },
+    {
+      "name": "Suntech",
+      "protocol": "Suntech ST",
+      "desc": "Robust trackers widely used in fleet and anti-theft applications.",
+      "models": [
+        "ST210",
+        "ST215",
+        "ST300",
+        "ST300R",
+        "ST340",
+        "ST340LC",
+        "ST340UR",
+        "ST410",
+        "ST4300",
+        "ST4305",
+        "ST4310",
+        "ST4315",
+        "ST4340",
+        "ST4500 [moto]",
+        "ST600",
+        "ST650",
+        "ST900",
+        "ST940 [4g]"
+      ]
+    },
+    {
+      "name": "TopflyTech",
+      "protocol": "TopflyTech",
+      "desc": "Affordable vehicle, OBD and 4G trackers with fuel and sensor options.",
+      "models": [
+        "T8803",
+        "T8803 Pro",
+        "T8806",
+        "T8808",
+        "T8603",
+        "TLW1 [4g]",
+        "TLW2 [4g]",
+        "TLP1 [asset]",
+        "TLD1 [obd]"
+      ]
+    },
+    {
+      "name": "Xexun",
+      "protocol": "Xexun / TK103",
+      "desc": "Classic TK-series vehicle and personal trackers.",
+      "models": [
+        "TK102",
+        "TK102-2",
+        "TK103",
+        "TK103-2",
+        "TK104",
+        "TK201",
+        "TK202",
+        "TK203",
+        "TK206",
+        "XT009",
+        "XT107"
+      ]
+    },
+    {
+      "name": "Sinotrack",
+      "protocol": "H02 / Sinotrack",
+      "desc": "Compact, budget-friendly trackers popular for motorcycles, cars and small fleets.",
+      "models": [
+        "ST-901 [moto]",
+        "ST-901L [moto]",
+        "ST-902",
+        "ST-903",
+        "ST-905 [asset]",
+        "ST-906",
+        "ST-907",
+        "ST-915 [4g]",
+        "ST-810 [moto]"
+      ]
+    },
+    {
+      "name": "TKSTAR",
+      "protocol": "TKSTAR",
+      "desc": "Magnetic asset, vehicle and personal trackers, including 4G models.",
+      "models": [
+        "TK905 [asset]",
+        "TK905B [asset]",
+        "TK905-4G [asset,4g]",
+        "TK906 [asset]",
+        "TK909 [personal]",
+        "TK911 [personal]",
+        "TK913 [asset]",
+        "TK915 [asset]",
+        "TK918 [personal]",
+        "TK919 [personal]"
+      ]
+    },
+    {
+      "name": "Gosafe",
+      "protocol": "Gosafe",
+      "desc": "Vehicle and fleet trackers with sensor and camera support.",
+      "models": [
+        "G1S",
+        "G737",
+        "G79"
+      ]
+    },
+    {
+      "name": "Galileosky",
+      "protocol": "Galileosky",
+      "desc": "Advanced telematics terminals for heavy fleet monitoring.",
+      "models": [
+        "Galileosky 5.0 [truck]",
+        "Galileosky 7.0 [fuel,truck]",
+        "Galileosky 7.1 [fuel,truck]",
+        "Galileosky 10 [fuel,truck]"
+      ]
+    },
+    {
+      "name": "Totem",
+      "protocol": "Totem",
+      "desc": "Compact trackers for vehicles and assets.",
+      "models": [
+        "AT05",
+        "AT07",
+        "AT09"
+      ]
+    },
+    {
+      "name": "iStartek",
+      "protocol": "iStartek",
+      "desc": "Fleet trackers for vehicles and trailers.",
+      "models": [
+        "VT100",
+        "VT200"
+      ]
+    },
+    {
+      "name": "Dashcams & MDVR (JT/T 808)",
+      "protocol": "JT/T 808 · vendor protocols",
+      "desc": "AI dashcams and mobile DVRs that report GPS and events over standard protocols. Camera brand support varies by model and is confirmed on request.",
+      "models": [
+        "JT/T 808 dashcams [cam]",
+        "JT/T 808 MDVR systems [cam]",
+        "Streamax MDVR [cam]",
+        "Howen MDVR [cam]",
+        "Teltonika DualCam [cam]",
+        "Jimi JC-series AI dashcams [cam,4g]"
+      ]
+    },
+    {
+      "name": "Smartphones & Generic Protocols",
+      "protocol": "OsmAnd · H02 · NMEA · Wialon IPS",
+      "desc": "Use compatible smartphone tracking apps or any device that speaks a standard tracking protocol.",
+      "models": [
+        "Android smartphone tracking app [personal]",
+        "iOS smartphone tracking app [personal]",
+        "H02 protocol devices",
+        "TK103 protocol devices",
+        "Wialon IPS protocol devices",
+        "NMEA protocol devices",
+        "OsmAnd protocol devices"
+      ]
+    }
+  ],
+  "sensors": [
+    "Fuel level sensors (capacitive, ultrasonic and Bluetooth, on compatible devices)",
+    "Temperature sensors (1-Wire and Bluetooth)",
+    "RFID and iButton driver ID readers",
+    "Door, cargo and PTO sensors",
+    "Panic / SOS buttons",
+    "Relays for immobilisation and engine cut-off",
+    "CAN-bus data adapters",
+    "Bluetooth sensors such as Teltonika EYE-type beacons (on compatible devices)",
+    "Tyre pressure monitoring (on compatible devices)",
+    "Backup batteries and rugged enclosures"
+  ]
+}

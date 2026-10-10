@@ -1,0 +1,114 @@
+{
+  "intro": "These Terms and Conditions (\"Terms\") govern your access to and use of the ITrackZen website, web platform, mobile applications and related GPS tracking, fleet management and video telematics services (the \"Services\") provided by LibDex Ltd (\"ITrackZen\", \"we\", \"us\"). By using the Services you agree to these Terms.",
+  "sections": [
+    {
+      "h": "1. Eligibility and accounts",
+      "p": [
+        "You must be at least 18 years old and able to enter a binding agreement, or be acting on behalf of an organisation that is. You are responsible for the accuracy of your account information, for keeping credentials confidential, and for all activity under your account. Notify us immediately of any unauthorised access."
+      ]
+    },
+    {
+      "h": "2. The Services",
+      "p": [
+        "ITrackZen provides software for receiving, displaying and analysing data from GPS trackers, sensors and cameras. We may add, change or discontinue features. Some features depend on device model, firmware, SIM data plan, installation quality and network coverage, and may not be available for every device or location."
+      ]
+    },
+    {
+      "h": "3. Customer responsibilities",
+      "p": [
+        "You agree to:"
+      ],
+      "list": [
+        "use the Services only for lawful purposes and in compliance with applicable laws, including privacy, employment, surveillance and road-safety laws;",
+        "obtain any consents and give any notices required before tracking vehicles, drivers or employees or recording video and audio;",
+        "install and use devices correctly, ideally through qualified installers, and keep SIM data plans active;",
+        "not track any person or vehicle without proper authority;",
+        "manage user access and promptly remove access for people who should no longer have it."
+      ]
+    },
+    {
+      "h": "4. Acceptable use",
+      "p": [
+        "You must not misuse the Services. This includes attempting to gain unauthorised access, interfering with the platform, reverse engineering or copying the software, uploading malicious code, overloading our systems, reselling the Services without written permission, or using them to stalk, harass or unlawfully monitor others."
+      ]
+    },
+    {
+      "h": "5. Hardware and third-party devices",
+      "p": [
+        "Hardware supplied by us is subject to the warranty terms stated at the time of sale. Third-party trackers and sensors are provided by their manufacturers; we do not guarantee that every model or firmware will work. Brand and model names are trademarks of their owners and are used only to describe compatibility."
+      ]
+    },
+    {
+      "h": "6. Remote engine cut-off",
+      "p": [
+        "Engine cut-off or immobilisation features are available only on compatible devices with correctly installed relays. They must be used responsibly and lawfully, taking account of safety, for example only when a vehicle is stationary or at a safe low speed. You are solely responsible for the decision to use this feature and for any consequence of its use."
+      ]
+    },
+    {
+      "h": "7. Fees and payment",
+      "p": [
+        "Fees are set out in your quote, order form or plan. Unless agreed otherwise, subscriptions renew automatically for the same period, fees are payable in advance, and taxes are additional. Late payment may result in suspension. Fees already paid are non-refundable unless required by law or stated in your agreement."
+      ]
+    },
+    {
+      "h": "8. Service availability and limitations",
+      "p": [
+        "We work to keep the Services available and accurate, but GPS positions, sensor readings and alerts depend on satellites, mobile networks, power and hardware, and may be delayed, inaccurate or unavailable. Planned maintenance and circumstances beyond our control may interrupt the Services. The Services are a management aid and are not a substitute for emergency services or professional judgment."
+      ]
+    },
+    {
+      "h": "9. Data and privacy",
+      "p": [
+        "Our collection and use of personal information is described in our Privacy Policy, which forms part of these Terms. You retain ownership of the data you and your devices submit. You grant us the rights needed to host, process and display that data to provide the Services and to create anonymised, aggregated statistics."
+      ]
+    },
+    {
+      "h": "10. Intellectual property",
+      "p": [
+        "The ITrackZen name, logo, website, software and content are owned by LibDex Ltd or its licensors and are protected by law. We grant you a limited, non-exclusive, non-transferable right to use the Services for your internal business purposes while these Terms apply. All other rights are reserved."
+      ]
+    },
+    {
+      "h": "11. Disclaimers",
+      "p": [
+        "To the maximum extent permitted by law, the Services are provided \"as is\" and \"as available\" without warranties of any kind, whether express or implied, including merchantability, fitness for a particular purpose and non-infringement."
+      ]
+    },
+    {
+      "h": "12. Limitation of liability",
+      "p": [
+        "To the maximum extent permitted by law, LibDex Ltd is not liable for indirect, incidental, special or consequential loss, loss of profit, revenue, data or goodwill, or for loss arising from vehicle theft, accident, cargo loss or driver conduct. Our total liability for any claim relating to the Services is limited to the fees you paid for the Services in the three months before the event giving rise to the claim. Nothing in these Terms limits liability that cannot be limited by law."
+      ]
+    },
+    {
+      "h": "13. Indemnity",
+      "p": [
+        "You agree to indemnify LibDex Ltd against claims, losses and expenses arising from your breach of these Terms, your unlawful use of the Services, or your failure to obtain necessary consents for tracking or recording."
+      ]
+    },
+    {
+      "h": "14. Suspension and termination",
+      "p": [
+        "You may stop using the Services at any time subject to your agreement. We may suspend or terminate access if you breach these Terms, if required by law, or to protect the security of the platform. On termination, your right to use the Services ends and we will handle your data according to the Privacy Policy and your agreement."
+      ]
+    },
+    {
+      "h": "15. Governing law",
+      "p": [
+        "These Terms are governed by the laws of {jurisdiction}. Disputes will be resolved by the competent courts of that jurisdiction, unless your written agreement with us provides otherwise."
+      ]
+    },
+    {
+      "h": "16. Changes to these Terms",
+      "p": [
+        "We may update these Terms from time to time. Updated Terms take effect when posted on this page. Continued use of the Services after the effective date means you accept the updated Terms."
+      ]
+    },
+    {
+      "h": "17. Contact",
+      "p": [
+        "LibDex Ltd (ITrackZen) · info@libdexltd.com · sales@itrackzen.net"
+      ]
+    }
+  ]
+}

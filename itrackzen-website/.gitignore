@@ -1,0 +1,11 @@
+# private runtime files (never commit)
+public_html/includes/config.local.php
+public_html/data/admin.json
+public_html/data/inquiries.jsonl
+public_html/data/.secret
+public_html/data/ratelimit/
+public_html/data/backups/*.json
+public_html/data/*.tmp
+public_html/assets/uploads/*
+!public_html/assets/uploads/.htaccess
+!public_html/assets/uploads/index.html

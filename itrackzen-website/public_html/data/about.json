@@ -1,0 +1,53 @@
+{
+  "intro": "ITrackZen is the GPS tracking and fleet management brand of LibDex Ltd, a logistics and technology company. We help businesses see, protect and optimise their vehicles, drivers and assets through reliable telematics, practical software and responsive support.",
+  "mission": "Our mission is to make professional fleet visibility accessible to businesses across Africa and around the world, so that every vehicle on the road is safer, more efficient and more accountable.",
+  "pillars": [
+    {
+      "icon": "pin",
+      "title": "Tracking",
+      "text": "Live location, route history, geofencing and alerts for vehicles, assets and people."
+    },
+    {
+      "icon": "camera",
+      "title": "Video telematics",
+      "text": "AI dashcams that add visual evidence and driver-safety coaching to GPS data."
+    },
+    {
+      "icon": "chart",
+      "title": "Fleet intelligence",
+      "text": "Reports and dashboards that turn movement, fuel and driver data into decisions."
+    }
+  ],
+  "values": [
+    {
+      "icon": "shield",
+      "title": "Reliability",
+      "text": "Fleets run around the clock, so our platform and support are built to be dependable."
+    },
+    {
+      "icon": "lock",
+      "title": "Privacy and security",
+      "text": "Customer data stays under customer control, protected by encryption and access roles."
+    },
+    {
+      "icon": "globe",
+      "title": "Local understanding",
+      "text": "We design for long corridors, remote areas and mixed network coverage found across Africa."
+    },
+    {
+      "icon": "headset",
+      "title": "Honest partnership",
+      "text": "Clear advice, transparent quotes and hardware recommendations that fit your real needs."
+    }
+  ],
+  "why": [
+    "Works with many GPS tracker brands, so you are not locked into one device vendor",
+    "One platform for GPS, fuel, sensors, driver ID and AI video",
+    "Web dashboard and mobile access for managers, dispatchers and owners",
+    "Support for single vehicles, mixed fleets and multi-country operations",
+    "Onboarding help for device setup, alerts and reports",
+    "Flexible plans from small fleets to enterprise deployments"
+  ],
+  "regions_heading": "Serving Africa and global clients",
+  "regions_text": "We support businesses in Somalia, Kenya, Uganda, Ethiopia, South Sudan, DR Congo and across East Africa, Central Africa and the wider continent, as well as international clients with fleets anywhere GSM data coverage is available."
+}

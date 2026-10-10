@@ -1,0 +1,143 @@
+{
+  "hero": {
+    "eyebrow": "LibDex Logistics Solution",
+    "subtext": "ITrackZen helps companies monitor vehicles, drivers, fuel, routes, safety and fleet performance in real time, from one secure platform on web and mobile.",
+    "chips": [
+      "Live GPS tracking",
+      "Fuel monitoring",
+      "AI dashcam",
+      "Driver safety",
+      "Smart reports"
+    ],
+    "image": ""
+  },
+  "trust": [
+    {
+      "icon": "lock",
+      "title": "HTTPS encrypted",
+      "text": "Data is protected in transit"
+    },
+    {
+      "icon": "headset",
+      "title": "Responsive support",
+      "text": "Email and WhatsApp assistance"
+    },
+    {
+      "icon": "chip",
+      "title": "Hardware flexible",
+      "text": "Many tracker brands and protocols"
+    },
+    {
+      "icon": "globe",
+      "title": "Built for Africa",
+      "text": "Designed for long routes and mixed networks"
+    }
+  ],
+  "overview_heading": "Everything you need to track, protect and optimise your fleet",
+  "overview_text": "From a single motorcycle to a multi-country truck fleet, ITrackZen combines GPS tracking, sensors, video and reporting so you can see what is happening and act before small problems become expensive ones.",
+  "overview": [
+    {
+      "icon": "pin",
+      "title": "Real-Time GPS Tracking",
+      "text": "Watch every vehicle on a live map with speed, status, ignition and location history.",
+      "href": "/gps-tracking-services"
+    },
+    {
+      "icon": "dashboard",
+      "title": "Fleet Management",
+      "text": "A single dashboard for vehicles, drivers, maintenance, alerts and business reports.",
+      "href": "/fleet-management"
+    },
+    {
+      "icon": "camera",
+      "title": "AI Dashcam & Video",
+      "text": "Front and in-cabin cameras that flag distraction, drowsiness, phone use and smoking.",
+      "href": "/ai-dashcam-video-telematics"
+    },
+    {
+      "icon": "fuel",
+      "title": "Fuel Monitoring",
+      "text": "Track fuel level, consumption and suspicious drops to reduce waste and theft.",
+      "href": "/gps-tracking-services#fuel"
+    },
+    {
+      "icon": "chip",
+      "title": "Supported Trackers",
+      "text": "Teltonika, Concox, Queclink, Meitrack, Ruptela and many more brands and protocols.",
+      "href": "/supported-gps-trackers"
+    },
+    {
+      "icon": "globe",
+      "title": "Cross-Border Tracking",
+      "text": "Follow trucks across countries and corridors with one account and consistent reporting.",
+      "href": "/solutions#cross-border"
+    }
+  ],
+  "tour": {
+    "heading": "See the platform in action",
+    "text": "A quick look at what your team sees every day: road-facing video, a live fleet map, route playback, instant alerts and analytics.",
+    "tabs": [
+      {
+        "key": "camera",
+        "label": "Vehicle Camera",
+        "title": "Video that explains the event",
+        "text": "Front and in-cabin cameras record what happened and AI flags risky driving as it occurs.",
+        "scene": "camera"
+      },
+      {
+        "key": "map",
+        "label": "Live Fleet Map",
+        "title": "Every vehicle, in real time",
+        "text": "Moving, idle and parked vehicles update live with geofences drawn right on the map.",
+        "scene": "map"
+      },
+      {
+        "key": "route",
+        "label": "Route History",
+        "title": "Replay any trip",
+        "text": "Review the exact path, stops, speed and timing of past trips to verify deliveries and find detours.",
+        "scene": "route"
+      },
+      {
+        "key": "alerts",
+        "label": "Smart Alerts",
+        "title": "Know first, act fast",
+        "text": "Overspeed, ignition, geofence, route deviation, SOS and fuel alerts reach you instantly.",
+        "scene": "alerts"
+      },
+      {
+        "key": "analytics",
+        "label": "Analytics",
+        "title": "Decisions backed by data",
+        "text": "Distance, fuel, driver scores and utilisation turn raw tracking into clear business reports.",
+        "scene": "analytics"
+      }
+    ]
+  },
+  "steps": [
+    {
+      "n": "1",
+      "title": "Choose your devices",
+      "text": "Use trackers you already own or let us recommend OBD, hardwired, 4G, motorcycle, asset or dashcam hardware."
+    },
+    {
+      "n": "2",
+      "title": "Install and connect",
+      "text": "We help configure each device so it reports securely to your ITrackZen account."
+    },
+    {
+      "n": "3",
+      "title": "Monitor and respond",
+      "text": "Track vehicles live, receive alerts, review video and control access with your team."
+    },
+    {
+      "n": "4",
+      "title": "Optimise with reports",
+      "text": "Use daily, weekly and monthly reports to cut costs, improve safety and plan better."
+    }
+  ],
+  "cta": {
+    "title": "Ready to see every vehicle in your fleet?",
+    "text": "Talk to our team about the right tracking setup for your vehicles, drivers and routes. We reply fast on email and WhatsApp."
+  }
+}

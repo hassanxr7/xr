@@ -1,0 +1,65 @@
+{
+  "intro": "Add eyes to your GPS data. ITrackZen supports AI dashcams with a road-facing camera and an in-cabin driver camera, so you can see what happened, understand why, and prevent the next incident.",
+  "detections": [
+    {
+      "icon": "eye",
+      "title": "Driver distraction",
+      "text": "Detects when the driver looks away from the road for too long and raises an immediate alert."
+    },
+    {
+      "icon": "moon",
+      "title": "Drowsiness and fatigue",
+      "text": "Recognises eye closure and yawning so drivers can be warned before a micro-sleep becomes a crash."
+    },
+    {
+      "icon": "phone",
+      "title": "Phone usage",
+      "text": "Identifies handheld phone use while driving and saves the event clip as evidence."
+    },
+    {
+      "icon": "smoke",
+      "title": "Smoking",
+      "text": "Flags smoking in the cabin to support company policy and protect vehicles and cargo."
+    },
+    {
+      "icon": "camera",
+      "title": "Forward collision context",
+      "text": "The road-facing camera records the scene ahead for incident review, claims and coaching."
+    },
+    {
+      "icon": "video",
+      "title": "Remote video access",
+      "text": "Request event footage or live view from the dashboard on supported devices and networks."
+    }
+  ],
+  "how": [
+    {
+      "n": "1",
+      "title": "Install the dashcam",
+      "text": "A dual-lens camera is mounted on the windscreen with a clear view of the road and the driver."
+    },
+    {
+      "n": "2",
+      "title": "AI analyses in real time",
+      "text": "On-device AI looks for distraction, fatigue, phone use and smoking as the vehicle drives."
+    },
+    {
+      "n": "3",
+      "title": "Alert and record",
+      "text": "The driver hears an in-cab warning while a short video clip and GPS data are sent to the platform."
+    },
+    {
+      "n": "4",
+      "title": "Review and coach",
+      "text": "Managers review clips beside speed and route data, then coach drivers and resolve disputes."
+    }
+  ],
+  "benefits": [
+    "Video evidence for accidents, insurance claims and disputes",
+    "Real-time driver coaching that reduces risky behaviour",
+    "GPS location, speed and sensor data synced with every clip",
+    "Works alongside fuel, geofence and ignition alerts",
+    "Suitable for trucks, buses, taxis, security and government fleets"
+  ],
+  "privacy_note": "Use cameras responsibly. Inform drivers what is recorded and why, follow local privacy and labour laws, and use footage for safety, coaching and evidence."
+}

@@ -1,0 +1,47 @@
+{
+  "posts": [
+    {
+      "slug": "gps-fuel-monitoring-reduce-fuel-theft",
+      "title": "How GPS Fuel Monitoring Helps Reduce Fuel Theft and Waste",
+      "date": "2026-09-15",
+      "description": "Fuel is often the biggest cost for a fleet. Learn how fuel sensors and GPS data expose theft, idling and inefficient driving.",
+      "tag": "Fuel monitoring",
+      "image": "",
+      "body": [
+        "Fuel is typically one of the largest operating costs for any fleet, and it is also one of the easiest to lose without noticing. Small, repeated losses from siphoning, unauthorised trips and long idling add up quickly across a month.",
+        "GPS fuel monitoring combines a fuel level sensor, or CAN-bus data from the vehicle, with location and ignition information from a tracker. The platform charts the tank level over time, so a sudden drop while the vehicle is parked stands out immediately, along with where and when it happened.",
+        "Used well, the data does more than catch theft. Consumption reports per vehicle and per driver highlight inefficient driving, excess idling and mechanical problems such as leaking tanks or clogged filters. Over time you can set a realistic fuel benchmark for each route.",
+        "For reliable results, choose sensors that suit your tank type, have them installed and calibrated by trained technicians, and combine fuel alerts with geofences and ignition alerts. If you are unsure which tracker supports your sensor, our team can check compatibility before you buy."
+      ]
+    },
+    {
+      "slug": "choosing-the-right-gps-tracker",
+      "title": "Choosing the Right GPS Tracker: OBD, Hardwired, 4G, Motorcycle or Asset",
+      "date": "2026-09-22",
+      "description": "A practical guide to choosing between OBD, hardwired, 4G, motorcycle and asset trackers for your vehicles and equipment.",
+      "tag": "Hardware guide",
+      "image": "",
+      "body": [
+        "There is no single best GPS tracker. The right choice depends on the vehicle, the risk of tampering and the data you need.",
+        "OBD trackers plug into the diagnostic port and are installed in seconds without wiring, which makes them popular for rental cars and light vehicles. Because they are easy to unplug, they suit lower-risk use cases.",
+        "Hardwired trackers connect to power and ignition and can be hidden inside the vehicle. They support relays for engine cut-off, fuel sensors, panic buttons and driver ID readers, making them the standard choice for trucks and higher-value fleets.",
+        "Motorcycle trackers are compact, water-resistant and often have backup batteries. Asset trackers use large batteries to monitor trailers, containers and equipment for weeks or months. As older 2G networks are retired in many markets, 4G trackers are the safer long-term choice for new deployments.",
+        "Not sure which fits? Send us your vehicle types and countries and we will recommend a setup, or check whether the trackers you already own are on our Supported GPS Trackers list."
+      ]
+    },
+    {
+      "slug": "ai-dashcams-driver-distraction-drowsiness",
+      "title": "AI Dashcams Explained: Distraction, Drowsiness and Video Telematics",
+      "date": "2026-10-01",
+      "description": "How AI dashcams detect phone use, drowsiness and smoking, and how video telematics improves fleet safety and accountability.",
+      "tag": "Video telematics",
+      "image": "",
+      "body": [
+        "A traditional dashcam records video that you only watch after something goes wrong. An AI dashcam analyses what it sees as it happens, so risky behaviour can be corrected before it causes a crash.",
+        "Dual-lens devices combine a road-facing camera with an in-cabin camera. Computer vision models look for signs of distraction, drowsiness, phone use and smoking, and the device can sound an in-cab warning while sending the event to the dashboard.",
+        "Video telematics links each clip to GPS position, speed and sensor data. When an incident happens you can see exactly where it occurred, how fast the vehicle was moving and what the driver was doing, which speeds up claims, disputes and coaching.",
+        "Before rolling out cameras, tell drivers what is recorded and why, follow local privacy rules and use the footage for safety and coaching rather than surveillance alone. Done well, in-cabin AI makes roads safer and protects honest drivers."
+      ]
+    }
+  ]
+}

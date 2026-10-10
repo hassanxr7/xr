@@ -1,0 +1,24 @@
+<?php
+/**
+ * ITrackZen private settings.
+ * 1) Copy this file to  includes/config.local.php   (same folder)
+ * 2) Fill in the values below.  This file is never served to visitors.
+ *
+ * ---- EMAIL (so contact-form messages reach info@libdexltd.com and sales@itrackzen.net) ----
+ * Hostinger: hPanel > Emails > create mailbox  no-reply@itrackzen.net  (or use sales@itrackzen.net)
+ * then use that mailbox's address + password here.
+ */
+
+define('SMTP_HOST',   'smtp.hostinger.com');   // Hostinger SMTP server
+define('SMTP_PORT',   465);                    // 465 = SSL, 587 = TLS
+define('SMTP_SECURE', 'ssl');                  // 'ssl' (port 465) | 'tls' (port 587) | 'none'
+define('SMTP_USER',   'no-reply@itrackzen.net'); // full mailbox address
+define('SMTP_PASS',   'CHANGE_ME');            // mailbox password
+define('MAIL_FROM',   'no-reply@itrackzen.net'); // must belong to your domain for good delivery
+
+/* ---- ADMIN PANEL ----
+ * Choose a long random phrase. You need it ONCE to create the admin password at /admin/ */
+define('ADMIN_SETUP_KEY', 'CHANGE_THIS_TO_A_LONG_RANDOM_PHRASE');
+
+/* Set true only while debugging on a private staging copy */
+define('APP_DEBUG', false);

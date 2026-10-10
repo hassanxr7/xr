@@ -1,0 +1,166 @@
+{
+  "brand": "ITrackZen",
+  "company": "LibDex Ltd",
+  "tagline": "LibDex Logistics Solution",
+  "url": "https://itrackzen.net",
+  "emails": {
+    "info": "info@libdexltd.com",
+    "sales": "sales@itrackzen.net"
+  },
+  "form_recipients": [
+    "info@libdexltd.com",
+    "sales@itrackzen.net"
+  ],
+  "phone": "",
+  "whatsapp": "",
+  "address": "",
+  "locality": "",
+  "region": "",
+  "postal_code": "",
+  "country_code": "",
+  "client_login_url": "https://app.itrackzen.net",
+  "app_links": {
+    "android": "",
+    "ios": ""
+  },
+  "social": {
+    "facebook": "",
+    "linkedin": "",
+    "x": "",
+    "instagram": "",
+    "youtube": ""
+  },
+  "analytics": {
+    "ga4": "",
+    "gtm": "",
+    "fb_pixel": "",
+    "tawk": "",
+    "cookie_banner": true
+  },
+  "og_image": "/assets/img/og-image.png",
+  "legal_jurisdiction": "the jurisdiction in which LibDex Ltd is registered",
+  "legal_updated": "10 October 2026",
+  "hero_video_url": "",
+  "nav": [
+    {
+      "label": "Home",
+      "href": "/"
+    },
+    {
+      "label": "Services",
+      "href": "/gps-tracking-services",
+      "children": [
+        {
+          "label": "GPS Tracking Services",
+          "href": "/gps-tracking-services",
+          "icon": "pin",
+          "text": "Live tracking, alerts, fuel and reports"
+        },
+        {
+          "label": "Fleet Management",
+          "href": "/fleet-management",
+          "icon": "dashboard",
+          "text": "One dashboard for your whole fleet"
+        },
+        {
+          "label": "AI Dashcam & Video Telematics",
+          "href": "/ai-dashcam-video-telematics",
+          "icon": "camera",
+          "text": "Road and driver cameras with AI alerts"
+        }
+      ]
+    },
+    {
+      "label": "Supported Trackers",
+      "href": "/supported-gps-trackers"
+    },
+    {
+      "label": "Solutions",
+      "href": "/solutions"
+    },
+    {
+      "label": "Pricing",
+      "href": "/pricing"
+    },
+    {
+      "label": "About",
+      "href": "/about-us"
+    }
+  ],
+  "interest_options": [
+    "GPS vehicle tracking",
+    "Fleet management software",
+    "AI dashcam & video telematics",
+    "Fuel monitoring",
+    "Truck / logistics tracking",
+    "Motorcycle tracking",
+    "Asset tracking",
+    "Tracker hardware & installation",
+    "Bring my own trackers",
+    "Reseller / partnership",
+    "Other"
+  ],
+  "countries": [
+    "Somalia",
+    "Kenya",
+    "Uganda",
+    "Ethiopia",
+    "South Sudan",
+    "DR Congo",
+    "Tanzania",
+    "Rwanda",
+    "Burundi",
+    "Djibouti",
+    "Eritrea",
+    "Sudan",
+    "Egypt",
+    "Libya",
+    "Tunisia",
+    "Algeria",
+    "Morocco",
+    "Nigeria",
+    "Ghana",
+    "Senegal",
+    "Ivory Coast",
+    "Cameroon",
+    "Chad",
+    "Central African Republic",
+    "Republic of the Congo",
+    "Gabon",
+    "Angola",
+    "Zambia",
+    "Zimbabwe",
+    "Malawi",
+    "Mozambique",
+    "Madagascar",
+    "Namibia",
+    "Botswana",
+    "South Africa",
+    "Lesotho",
+    "Eswatini",
+    "Mali",
+    "Niger",
+    "Burkina Faso",
+    "Guinea",
+    "Sierra Leone",
+    "Liberia",
+    "Togo",
+    "Benin",
+    "Mauritania",
+    "Gambia",
+    "Mauritius",
+    "United Arab Emirates",
+    "Saudi Arabia",
+    "Qatar",
+    "Oman",
+    "Turkey",
+    "India",
+    "Pakistan",
+    "United Kingdom",
+    "United States",
+    "Canada",
+    "Germany",
+    "France",
+    "Other"
+  ]
+}

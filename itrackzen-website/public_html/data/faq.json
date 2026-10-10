@@ -1,0 +1,56 @@
+{
+  "items": [
+    {
+      "q": "What is ITrackZen?",
+      "a": "ITrackZen is a GPS tracking and fleet management platform from LibDex Ltd. It lets businesses monitor vehicles, drivers, fuel, routes and safety in real time through a web dashboard and mobile access, and it includes AI dashcam and video telematics options."
+    },
+    {
+      "q": "Which GPS trackers does ITrackZen support?",
+      "a": "ITrackZen supports many GPS tracker models and protocols, including Teltonika, Concox, Queclink, Meitrack, Ruptela, Jimi IoT, Suntech, Coban, TopflyTech, Sinotrack, TKSTAR and the GT06 family. Our Supported GPS Trackers page lists popular models. If your device is not listed, contact us and we will check compatibility."
+    },
+    {
+      "q": "Can I use trackers I already own?",
+      "a": "Usually yes. If your device uses a supported protocol and has an active SIM with data, we can help you point it to the platform and configure it. Share the model with our team for confirmation before you start."
+    },
+    {
+      "q": "Which countries do you serve?",
+      "a": "We serve businesses in Somalia, Kenya, Uganda, Ethiopia, South Sudan, DR Congo and across East Africa, Central Africa and the rest of Africa, as well as international clients. Tracking works wherever your trackers have mobile data coverage."
+    },
+    {
+      "q": "Do you provide the tracking hardware and installation?",
+      "a": "We can recommend, supply and arrange installation of trackers, dashcams and sensors, or you can bring your own supported devices. Contact Sales with your vehicle types and country for a tailored setup."
+    },
+    {
+      "q": "How does fuel monitoring work?",
+      "a": "Fuel level sensors or CAN-bus data from supported trackers are sent to the platform, which charts fuel level, consumption and refuelling. It can alert you to sudden drops that may indicate theft. Accuracy depends on the sensor, tank shape and installation quality."
+    },
+    {
+      "q": "What happens if a vehicle loses mobile coverage?",
+      "a": "Most professional trackers store positions in memory when there is no signal and upload them automatically when coverage returns, so your route history stays complete."
+    },
+    {
+      "q": "What can the AI dashcam detect?",
+      "a": "Supported AI dashcams can detect driver distraction, drowsiness, phone use and smoking inside the cabin, and record the road ahead. Events are linked to GPS location and time so you can review video evidence. Features vary by camera model."
+    },
+    {
+      "q": "Can I stop a vehicle remotely?",
+      "a": "Engine cut-off is available on compatible trackers when a relay is professionally installed. It should be used responsibly and in line with local law and safety practice, for example when a vehicle is stationary or being recovered after theft."
+    },
+    {
+      "q": "Is there a mobile app?",
+      "a": "Yes. You can monitor your fleet from your phone with mobile access, and our team can guide you on the Android and iOS apps available for your account."
+    },
+    {
+      "q": "How is my data protected?",
+      "a": "The website and platform use HTTPS encryption, and access is controlled with user accounts and role permissions. Read our Privacy Policy for details on data handling, retention and deletion."
+    },
+    {
+      "q": "How do I get a demo or a quote?",
+      "a": "Use the Request Demo or Contact Sales page, email sales@itrackzen.net, or message us on WhatsApp. Tell us how many vehicles you have and what you want to monitor and we will respond with next steps."
+    },
+    {
+      "q": "How can I delete my account and data?",
+      "a": "Submit a request on our Account & Data Deletion page or email info@libdexltd.com from your registered address. We will verify your identity and process the request in line with our Privacy Policy."
+    }
+  ]
+}

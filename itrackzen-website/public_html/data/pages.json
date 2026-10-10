@@ -1,0 +1,104 @@
+{
+  "home": {
+    "title": "ITrackZen GPS Tracking & Fleet Management | Africa & Global",
+    "description": "ITrackZen by LibDex Ltd: real-time vehicle tracking, fleet management, fuel monitoring and AI dashcams for businesses across Africa and worldwide.",
+    "keywords": "ITrackZen, ITrackZen GPS tracking, LibDex GPS tracking, fleet management Africa, vehicle tracking Africa, real-time vehicle tracking",
+    "h1": "Smart GPS Tracking & Fleet Management for Africa and Global Businesses"
+  },
+  "about": {
+    "title": "About ITrackZen | LibDex Ltd GPS Tracking Company",
+    "description": "Meet ITrackZen and LibDex Ltd: a GPS tracking, telematics and logistics technology company serving fleets in East Africa, Central Africa and beyond.",
+    "keywords": "LibDex Ltd, ITrackZen company, GPS tracking company Africa, LibDex Logistics Solution",
+    "h1": "About ITrackZen and LibDex Ltd"
+  },
+  "services": {
+    "title": "GPS Tracking Services | Real-Time Vehicle Tracking | ITrackZen",
+    "description": "Real-time vehicle tracking, route history, geofencing, overspeed alerts, fuel monitoring, driver ID, sensors and reports. Explore every ITrackZen GPS service.",
+    "keywords": "GPS tracking services, real-time vehicle tracking, fuel monitoring GPS, geofencing, truck tracking system, GPS fleet management software",
+    "h1": "GPS Tracking Services Built for Real-World Fleets"
+  },
+  "fleet": {
+    "title": "Fleet Management Software & Dashboard | ITrackZen",
+    "description": "Run your whole fleet from one dashboard: live map, driver behaviour, fuel, maintenance reminders and reports. GPS fleet management software for Africa.",
+    "keywords": "fleet management Africa, GPS fleet management software, fleet management dashboard, driver behavior monitoring, maintenance reminders",
+    "h1": "Fleet Management Software That Puts You in Control"
+  },
+  "dashcam": {
+    "title": "AI Dashcam & Video Telematics Africa | ITrackZen",
+    "description": "AI dashcams with front and in-cabin cameras detect drowsiness, distraction, phone use and smoking, and link video to GPS events. Video telematics for Africa.",
+    "keywords": "AI dashcam Africa, video telematics Africa, driver distraction detection, drowsiness detection, in-cabin camera, fleet dashcam",
+    "h1": "AI Dashcam & Video Telematics for Safer Fleets"
+  },
+  "trackers": {
+    "title": "Supported GPS Trackers | Teltonika, Concox, Queclink & More",
+    "description": "Search hundreds of supported GPS tracker models: Teltonika FMB/FMC/FMM, Concox GT06, Queclink, Meitrack, Ruptela, Jimi IoT, Suntech, Sinotrack and more.",
+    "keywords": "supported GPS trackers, Teltonika FMB920, Concox GT06, GT06N, FMC130, Queclink, Meitrack, Ruptela, Jimi IoT, OBD tracker, 4G GPS tracker",
+    "h1": "Supported GPS Trackers"
+  },
+  "solutions": {
+    "title": "GPS Tracking Solutions by Industry | ITrackZen",
+    "description": "GPS and fleet solutions for logistics, transport, taxis, delivery, construction, fuel tankers, buses, government, security, car rental and cross-border Africa.",
+    "keywords": "logistics GPS tracking, taxi fleet tracking, fuel tanker tracking, bus tracking, government fleet tracking, cross-border fleet tracking Africa",
+    "h1": "Fleet Tracking Solutions for Every Industry"
+  },
+  "pricing": {
+    "title": "GPS Tracking Pricing & Plans | ITrackZen",
+    "description": "Compare ITrackZen Starter, Business and Enterprise GPS tracking plans. Real-time tracking, reports, alerts and support. Contact Sales for a tailored quote.",
+    "keywords": "GPS tracking pricing, fleet tracking plans, vehicle tracking cost Africa, GPS tracker subscription",
+    "h1": "Simple Plans for Fleets of Every Size"
+  },
+  "demo": {
+    "title": "Request a Free GPS Tracking Demo | ITrackZen",
+    "description": "Book a live ITrackZen demo. See real-time tracking, fleet reports, fuel monitoring and AI dashcam features with a specialist.",
+    "keywords": "GPS tracking demo, fleet management demo, ITrackZen demo",
+    "h1": "Request a Live ITrackZen Demo"
+  },
+  "contact": {
+    "title": "Contact Sales | ITrackZen GPS Tracking by LibDex Ltd",
+    "description": "Talk to ITrackZen sales about GPS tracking, fleet management and AI dashcams. Send an inquiry, email us or message us on WhatsApp.",
+    "keywords": "contact ITrackZen, GPS tracking sales, LibDex Ltd contact, fleet tracking quote",
+    "h1": "Contact ITrackZen Sales"
+  },
+  "faq": {
+    "title": "GPS Tracking FAQ | Questions About ITrackZen",
+    "description": "Answers about ITrackZen GPS tracking: supported devices, coverage in Africa, fuel monitoring, AI dashcams, apps, data security, pricing and demos.",
+    "keywords": "GPS tracking FAQ, ITrackZen questions, fleet tracking help",
+    "h1": "Frequently Asked Questions"
+  },
+  "privacy": {
+    "title": "Privacy Policy | ITrackZen by LibDex Ltd",
+    "description": "How ITrackZen and LibDex Ltd collect, use, protect and delete personal and location data across our website, web platform and mobile apps.",
+    "keywords": "ITrackZen privacy policy, GPS tracking privacy, app privacy policy",
+    "h1": "Privacy Policy"
+  },
+  "terms": {
+    "title": "Terms and Conditions | ITrackZen by LibDex Ltd",
+    "description": "The terms that govern use of the ITrackZen website, web platform, mobile apps and GPS tracking services provided by LibDex Ltd.",
+    "keywords": "ITrackZen terms and conditions, GPS tracking terms of service",
+    "h1": "Terms and Conditions"
+  },
+  "blog": {
+    "title": "GPS Tracking & Fleet News | ITrackZen Blog",
+    "description": "Guides and news on GPS tracking, fuel monitoring, AI dashcams and fleet management in Africa from the ITrackZen team.",
+    "keywords": "GPS tracking blog, fleet management tips, fuel monitoring guide",
+    "h1": "ITrackZen Blog: GPS Tracking & Fleet Insights"
+  },
+  "delete": {
+    "title": "Account & Data Deletion Request | ITrackZen",
+    "description": "Request deletion of your ITrackZen account and associated personal data. Applies to the website, web platform and mobile apps.",
+    "keywords": "delete account, data deletion request, ITrackZen privacy",
+    "h1": "Account & Data Deletion Request"
+  },
+  "thanks": {
+    "title": "Thank You | ITrackZen",
+    "description": "Your message has been received by ITrackZen.",
+    "keywords": "",
+    "h1": "Thank you"
+  },
+  "notfound": {
+    "title": "Page Not Found | ITrackZen",
+    "description": "The page you are looking for could not be found.",
+    "keywords": "",
+    "h1": "Page not found"
+  }
+}

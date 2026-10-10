@@ -1,0 +1,147 @@
+{
+  "intro": "Choose the plan that matches your fleet today and upgrade as you grow. Every plan is quoted around your vehicles, devices and countries, so you only pay for what you need.",
+  "note": "Tracker hardware and installation can be quoted separately, or you can bring supported devices you already own. Contact Sales for current pricing.",
+  "plans": [
+    {
+      "name": "Starter",
+      "tagline": "For small fleets and individual owners",
+      "price": "Get a quote",
+      "unit": "per vehicle / month",
+      "highlight": false,
+      "badge": "",
+      "cta": "Contact Sales",
+      "href": "/contact-sales",
+      "features": [
+        "Real-time GPS tracking and live map",
+        "Route history and trip playback",
+        "Core alerts: overspeed, ignition, geofence, movement",
+        "Daily, weekly and monthly reports",
+        "Web dashboard and mobile access",
+        "Email and WhatsApp support"
+      ]
+    },
+    {
+      "name": "Business",
+      "tagline": "For growing companies that need control",
+      "price": "Get a quote",
+      "unit": "per vehicle / month",
+      "highlight": true,
+      "badge": "Most popular",
+      "cta": "Contact Sales",
+      "href": "/contact-sales",
+      "features": [
+        "Everything in Starter",
+        "Driver behaviour monitoring and scoring",
+        "Fuel monitoring and fuel theft alerts",
+        "Driver ID with RFID / iButton",
+        "Maintenance reminders and service schedules",
+        "Engine cut-off support on compatible devices",
+        "Advanced reports with scheduled exports",
+        "Multiple users with role permissions",
+        "Priority support"
+      ]
+    },
+    {
+      "name": "Enterprise",
+      "tagline": "For large and multi-country operations",
+      "price": "Custom",
+      "unit": "tailored to your operation",
+      "highlight": false,
+      "badge": "",
+      "cta": "Talk to Sales",
+      "href": "/contact-sales",
+      "features": [
+        "Everything in Business",
+        "AI dashcam and video telematics",
+        "Temperature and door sensor monitoring",
+        "Custom reports and integrations on request",
+        "Multi-country, multi-branch fleet structure",
+        "Guided onboarding and team training",
+        "Dedicated account manager",
+        "Service-level agreement options"
+      ]
+    }
+  ],
+  "compare": [
+    {
+      "feature": "Real-time tracking & live map",
+      "starter": true,
+      "business": true,
+      "enterprise": true
+    },
+    {
+      "feature": "Route history",
+      "starter": true,
+      "business": true,
+      "enterprise": true
+    },
+    {
+      "feature": "Geofencing & core alerts",
+      "starter": true,
+      "business": true,
+      "enterprise": true
+    },
+    {
+      "feature": "Daily / weekly / monthly reports",
+      "starter": true,
+      "business": true,
+      "enterprise": true
+    },
+    {
+      "feature": "Driver behaviour monitoring",
+      "starter": false,
+      "business": true,
+      "enterprise": true
+    },
+    {
+      "feature": "Fuel monitoring & theft alerts",
+      "starter": false,
+      "business": true,
+      "enterprise": true
+    },
+    {
+      "feature": "Driver ID (RFID / iButton)",
+      "starter": false,
+      "business": true,
+      "enterprise": true
+    },
+    {
+      "feature": "Maintenance reminders",
+      "starter": false,
+      "business": true,
+      "enterprise": true
+    },
+    {
+      "feature": "Engine cut-off support",
+      "starter": false,
+      "business": true,
+      "enterprise": true
+    },
+    {
+      "feature": "Temperature & door sensors",
+      "starter": false,
+      "business": "Optional",
+      "enterprise": true
+    },
+    {
+      "feature": "AI dashcam & video telematics",
+      "starter": false,
+      "business": "Optional",
+      "enterprise": true
+    },
+    {
+      "feature": "Custom integrations & reports",
+      "starter": false,
+      "business": false,
+      "enterprise": true
+    },
+    {
+      "feature": "Dedicated account manager",
+      "starter": false,
+      "business": false,
+      "enterprise": true
+    }
+  ],
+  "addons_heading": "Need hardware?",
+  "addons_text": "We can supply and install trackers, dashcams and sensors, or connect the devices you already own. Tell us your vehicle types and countries and we will recommend a setup."
+}

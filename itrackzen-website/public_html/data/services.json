@@ -1,0 +1,238 @@
+{
+  "categories": [
+    {
+      "id": "tracking",
+      "icon": "pin",
+      "title": "Live Tracking & Mapping",
+      "summary": "See where every vehicle and asset is, right now and in the past.",
+      "items": [
+        {
+          "icon": "pin",
+          "title": "Real-time vehicle tracking",
+          "text": "Follow cars, trucks, buses and motorcycles on a live map with speed, heading, ignition status and last update time."
+        },
+        {
+          "icon": "map",
+          "title": "Live map monitoring",
+          "text": "Switch between street, satellite and hybrid views, group vehicles, and focus on one unit or the whole fleet."
+        },
+        {
+          "icon": "route",
+          "title": "Route history",
+          "text": "Replay any trip with stops, idle time, speed and distance to verify deliveries and investigate incidents."
+        },
+        {
+          "icon": "geofence",
+          "title": "Geofencing",
+          "text": "Draw zones around depots, customers, borders or restricted areas and get alerts when vehicles enter or leave."
+        }
+      ]
+    },
+    {
+      "id": "alerts",
+      "icon": "bell",
+      "title": "Smart Alerts & Safety",
+      "summary": "Instant notifications that help you respond before a problem grows.",
+      "items": [
+        {
+          "icon": "speed",
+          "title": "Overspeed alerts",
+          "text": "Set speed limits per vehicle, driver or zone and be notified when they are exceeded."
+        },
+        {
+          "icon": "key",
+          "title": "Ignition on/off alerts",
+          "text": "Know when engines start or stop, including unauthorised use outside working hours."
+        },
+        {
+          "icon": "stop",
+          "title": "Stop and movement alerts",
+          "text": "Detect long stops, unexpected idling or movement of a vehicle that should be parked."
+        },
+        {
+          "icon": "deviation",
+          "title": "Route deviation alerts",
+          "text": "Compare actual paths with planned routes and flag detours or unauthorised trips."
+        },
+        {
+          "icon": "sos",
+          "title": "SOS alerts",
+          "text": "Drivers can trigger a panic or SOS button on supported devices to alert your control team instantly."
+        },
+        {
+          "icon": "crash",
+          "title": "Crash detection",
+          "text": "Where supported by the device, impact and rollover events are reported with location for faster response."
+        }
+      ]
+    },
+    {
+      "id": "fuel",
+      "icon": "fuel",
+      "title": "Fuel & Maintenance",
+      "summary": "Control your biggest operating costs and keep vehicles healthy.",
+      "items": [
+        {
+          "icon": "fuel",
+          "title": "Fuel monitoring",
+          "text": "Track tank level, consumption and refuelling using compatible fuel sensors or CAN data."
+        },
+        {
+          "icon": "drop",
+          "title": "Fuel theft detection",
+          "text": "Receive alerts for sudden fuel drops while parked or in motion, with time and location."
+        },
+        {
+          "icon": "power",
+          "title": "Engine cut-off support",
+          "text": "On supported devices and wiring, authorised users can immobilise a vehicle to help recover it after theft."
+        },
+        {
+          "icon": "wrench",
+          "title": "Maintenance reminders",
+          "text": "Schedule service by distance, engine hours or date so vehicles stay safe and reliable."
+        }
+      ]
+    },
+    {
+      "id": "drivers",
+      "icon": "driver",
+      "title": "Driver Management",
+      "summary": "Know who is driving and how they drive.",
+      "items": [
+        {
+          "icon": "driver",
+          "title": "Driver behaviour monitoring",
+          "text": "Score harsh braking, rapid acceleration, sharp cornering and speeding to coach safer driving."
+        },
+        {
+          "icon": "idcard",
+          "title": "Driver ID with RFID / iButton",
+          "text": "Identify drivers with a card or key fob so trips, fuel and violations are tied to the right person."
+        }
+      ]
+    },
+    {
+      "id": "sensors",
+      "icon": "thermo",
+      "title": "Sensors & Cargo Protection",
+      "summary": "Extend tracking beyond location with connected sensors.",
+      "items": [
+        {
+          "icon": "thermo",
+          "title": "Temperature monitoring",
+          "text": "Monitor cargo or cabin temperature where supported, with alerts when readings leave safe limits."
+        },
+        {
+          "icon": "door",
+          "title": "Door sensor monitoring",
+          "text": "Get notified when cargo doors, cabin doors or compartments open outside expected times or places."
+        }
+      ]
+    },
+    {
+      "id": "reports",
+      "icon": "report",
+      "title": "Reports & Fleet Dashboard",
+      "summary": "Clear business reporting for owners, managers and auditors.",
+      "items": [
+        {
+          "icon": "dashboard",
+          "title": "Fleet management dashboard",
+          "text": "A single overview of vehicle status, alerts, utilisation, fuel and driver performance."
+        },
+        {
+          "icon": "report",
+          "title": "Trip reports",
+          "text": "Detailed trip logs with start, end, distance, duration, stops and speed profile."
+        },
+        {
+          "icon": "calendar",
+          "title": "Daily, weekly and monthly reports",
+          "text": "Schedule automatic summaries and export them to share with management or customers."
+        },
+        {
+          "icon": "chart",
+          "title": "Business fleet reports",
+          "text": "Utilisation, cost, fuel efficiency, driver ranking and compliance reports tailored to your operation."
+        }
+      ]
+    },
+    {
+      "id": "vehicles",
+      "icon": "truck",
+      "title": "Vehicle & Asset Types",
+      "summary": "One platform for every kind of moving asset.",
+      "items": [
+        {
+          "icon": "truck",
+          "title": "Truck tracking",
+          "text": "Long-haul and heavy-duty monitoring with fuel, door, temperature and cross-border visibility."
+        },
+        {
+          "icon": "car",
+          "title": "Car tracking",
+          "text": "Protect company cars, executive vehicles and rental cars with live location and alerts."
+        },
+        {
+          "icon": "bus",
+          "title": "Bus tracking",
+          "text": "Monitor schedules, stops, speed and driver conduct for school, staff and public transport buses."
+        },
+        {
+          "icon": "motorcycle",
+          "title": "Motorcycle tracking",
+          "text": "Compact, tamper-resistant trackers for delivery riders, boda-boda and bike fleets."
+        },
+        {
+          "icon": "box",
+          "title": "Asset tracking",
+          "text": "Locate trailers, containers, generators and equipment with battery-powered trackers."
+        }
+      ]
+    },
+    {
+      "id": "video",
+      "icon": "camera",
+      "title": "AI Dashcam & Video Telematics",
+      "summary": "Add video evidence and AI driver safety to GPS data.",
+      "items": [
+        {
+          "icon": "camera",
+          "title": "AI dashcam",
+          "text": "Smart cameras record the road and detect risk events, linking video clips to GPS location and time."
+        },
+        {
+          "icon": "cabin",
+          "title": "Front camera and in-cabin camera",
+          "text": "Dual-lens setups capture the road ahead and the driver cabin for complete context."
+        },
+        {
+          "icon": "eye",
+          "title": "Driver distraction detection",
+          "text": "AI recognises when the driver looks away from the road and raises an in-cab and dashboard alert."
+        },
+        {
+          "icon": "smoke",
+          "title": "Smoking detection",
+          "text": "Detect smoking behaviour in the cabin to enforce company policy and protect vehicles."
+        },
+        {
+          "icon": "phone",
+          "title": "Phone usage detection",
+          "text": "Identify handheld phone use while driving and record the event as evidence."
+        },
+        {
+          "icon": "moon",
+          "title": "Drowsiness detection",
+          "text": "Spot signs of fatigue such as eye closure and yawning so drivers can be warned before an accident."
+        },
+        {
+          "icon": "video",
+          "title": "Video telematics",
+          "text": "Request live view or event footage remotely and review incidents alongside speed, route and sensor data."
+        }
+      ]
+    }
+  ]
+}
