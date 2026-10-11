@@ -19,6 +19,7 @@ import * as plat from './platform.js';
 import * as ex from './exporter.js';
 import { listNotifications, markRead, scanAlerts } from './notify.js';
 import { createBackup, listBackups } from './backup.js';
+import * as quo from './quotes.js';
 
 const MAGIC = { 'image/png': [0x89, 0x50, 0x4e, 0x47], 'image/jpeg': [0xff, 0xd8, 0xff], 'image/webp': [0x52, 0x49, 0x46, 0x46] };
 
@@ -61,7 +62,7 @@ export function createApi(db, { dataDir = './data', loginLimit = 10 } = {}) {
   on('POST', '/api/auth/logout', (c, r) => { db.prepare('DELETE FROM sessions WHERE token_hash=?').run(hashToken(r.token)); return { ok: true }; });
   on('GET', '/api/auth/me', (c) => {
     const u = c.user; if (c.platform) return { id: u.id, name: u.name, email: u.email, platform: true };
-    const branches = admin.listBranches(c); const mods = new Set();
+    const branches = admin.listBranches(c).map((b) => ({ ...b, depts: c.all('SELECT kind FROM departments WHERE branch_id=? AND active=1', b.id).map((d) => d.kind) })); const mods = new Set();
     for (const b of branches) { const types = [b.business_type, ...c.all('SELECT kind FROM departments WHERE branch_id=? AND active=1', b.id).map((d) => d.kind)]; types.forEach((t) => TYPE_MODULES[t].forEach((m) => mods.add(m))); }
     const org = c.get('SELECT id,name,reporting_currency,saas_enabled,modules FROM orgs WHERE id=?', c.org_id);
     if (org.modules) { const allowed = JSON.parse(org.modules); for (const m of [...mods]) if (!allowed.includes(m)) mods.delete(m); }
@@ -81,6 +82,8 @@ export function createApi(db, { dataDir = './data', loginLimit = 10 } = {}) {
   on('POST', '/api/branches', (c, r) => admin.createBranch(c, r.body));
   on('PATCH', '/api/branches/:id', (c, r) => admin.updateBranch(c, num(r.params.id), r.body));
   on('POST', '/api/branches/:id/departments', (c, r) => admin.addDepartment(c, num(r.params.id), r.body));
+  on('GET', '/api/branches/:id/team', (c, r) => { const br = c.branch(num(r.params.id)); return { rows: c.all("SELECT u.id,u.name,ro.name role,u.commission_bp FROM users u JOIN roles ro ON ro.id=u.role_id WHERE u.org_id=? AND u.active=1 AND (EXISTS(SELECT 1 FROM user_branches ub WHERE ub.user_id=u.id AND ub.branch_id=?) OR ro.scope='org') ORDER BY u.name", c.org_id, br.id).map((u) => ({ id: u.id, name: u.name, role: u.role, ...(c.can('commissions.viewall') ? { commission_bp: u.commission_bp } : {}) })) }; });
+  on('GET', '/api/transfer-destinations', (c, r) => { const f = c.branch(num(r.query.from_branch_id)); return { rows: c.all('SELECT id,name,code FROM branches WHERE org_id=? AND business_id=? AND id<>? AND active=1 AND currency=? ORDER BY name', c.org_id, f.business_id, f.id, f.currency) }; });
   on('GET', '/api/roles', (c) => ({ rows: admin.listRoles(c), actions: ACTIONS, modules: MODULES, special: SPECIAL }));
   on('POST', '/api/roles', (c, r) => admin.saveRole(c, null, r.body));
   on('PUT', '/api/roles/:id', (c, r) => admin.saveRole(c, num(r.params.id), r.body));
@@ -119,6 +122,13 @@ export function createApi(db, { dataDir = './data', loginLimit = 10 } = {}) {
   on('POST', '/api/sales/:id/return', (c, r) => sales.returnSale(c, { ...r.body, sale_id: num(r.params.id) }));
   on('POST', '/api/sales/:id/void', (c, r) => sales.voidSale(c, num(r.params.id), r.body.reason));
   on('POST', '/api/exchanges', (c, r) => sales.exchange(c, r.body));
+
+  on('GET', '/api/quotes', (c, r) => quo.listQuotes(c, r.query));
+  on('POST', '/api/quotes', (c, r) => quo.createQuote(c, r.body));
+  on('GET', '/api/quotes/:id', (c, r) => quo.getQuote(c, num(r.params.id)));
+  on('POST', '/api/quotes/:id/status', (c, r) => quo.setQuoteStatus(c, num(r.params.id), r.body.status));
+  on('POST', '/api/quotes/:id/convert', (c, r) => quo.convertQuote(c, num(r.params.id), r.body));
+  on('GET', '/api/print/quote/:id', (c, r) => { c.need('sales.print'); return { raw: ex.quoteDoc(quo.getQuote(c, num(r.params.id)), r.query.mode === 'thermal' ? 'thermal' : 'a4'), type: 'text/html; charset=utf-8' }; });
 
   // ---------- payments ----------
   on('GET', '/api/payments', (c, r) => pay.listPayments(c, r.query));
@@ -209,12 +219,13 @@ export function createApi(db, { dataDir = './data', loginLimit = 10 } = {}) {
   });
 
   // ---------- printing ----------
-  on('GET', '/api/print/sale/:id', (c, r) => { c.need(sales.getSale(c, num(r.params.id)).kind === 'service' ? 'services.print' : 'sales.print'); return { raw: ex.saleDoc(sales.getSale(c, num(r.params.id)), r.query.mode === 'a4' ? 'a4' : 'thermal'), type: 'text/html; charset=utf-8' }; });
+  on('GET', '/api/print/sale/:id', (c, r) => { c.need(sales.getSale(c, num(r.params.id)).kind === 'service' ? 'services.print' : 'sales.print'); const sale = sales.getSale(c, num(r.params.id)); sale.logo = logoUri(c, sale.branch_id); return { raw: ex.saleDoc(sale, r.query.mode === 'a4' ? 'a4' : 'thermal'), type: 'text/html; charset=utf-8' }; });
   on('GET', '/api/print/repair/:id', (c, r) => { c.need('repairs.print'); return { raw: ex.repairDoc(rep.getRepair(c, num(r.params.id)), r.query.mode === 'a4' ? 'a4' : 'thermal'), type: 'text/html; charset=utf-8' }; });
 
   // ---------- files ----------
   on('POST', '/api/files', (c, r) => {
-    c.need('products.edit'); const { mime, data, branch_id, owner_type, owner_id } = r.body; if (!MAGIC[mime]) throw bad('invalid_file_type', 'Only PNG, JPEG or WebP images are allowed');
+    const { mime, data, branch_id, owner_type, owner_id } = r.body; if (!(c.can('products.edit') || (owner_type === 'repair' && (c.can('repairs.create') || c.can('repairs.edit'))))) c.need('products.edit');
+    if (owner_type === 'repair') { const j = c.get('SELECT branch_id FROM repair_jobs WHERE id=? AND org_id=?', owner_id, c.org_id); if (!j || !c.branchIds().includes(j.branch_id)) throw notFound('repair job'); } if (!MAGIC[mime]) throw bad('invalid_file_type', 'Only PNG, JPEG or WebP images are allowed');
     const buf = Buffer.from(String(data || ''), 'base64'); if (!buf.length || buf.length > 2 * 1024 * 1024) throw bad('file_too_large', 'Images must be under 2 MB');
     if (!MAGIC[mime].every((b, i) => buf[i] === b)) throw bad('invalid_file_content', 'File content does not match its type');
     if (branch_id) c.branch(branch_id);
@@ -224,6 +235,7 @@ export function createApi(db, { dataDir = './data', loginLimit = 10 } = {}) {
     const id = c.run('INSERT INTO files(org_id,branch_id,owner_type,owner_id,path,mime,size,created_by,created_at) VALUES(?,?,?,?,?,?,?,?,?)', c.org_id, branch_id || null, owner_type || null, owner_id || null, name, mime, buf.length, c.user.id, nowIso()).lastInsertRowid;
     c.audit('file.upload', 'file', id, null, { mime, size: buf.length }); return { id };
   });
+  on('GET', '/api/files', (c, r) => { const j = c.get('SELECT branch_id FROM repair_jobs WHERE id=? AND org_id=?', num(r.query.owner_id), c.org_id); if (r.query.owner_type !== 'repair' || !j || !c.branchIds().includes(j.branch_id)) throw notFound('record'); c.need('repairs.view'); return { rows: c.all('SELECT id,mime,size,created_at FROM files WHERE org_id=? AND owner_type=? AND owner_id=? ORDER BY id', c.org_id, 'repair', num(r.query.owner_id)) }; });
   on('GET', '/api/files/:id', (c, r) => {
     const f = c.get('SELECT * FROM files WHERE id=? AND org_id=?', num(r.params.id), c.org_id); if (!f || (f.branch_id && !c.branchIds().includes(f.branch_id))) throw notFound('file');
     return { raw: fs.readFileSync(path.join(dataDir, 'uploads', String(c.org_id), f.path)), type: f.mime, cache: 'private, max-age=3600' };
@@ -245,6 +257,8 @@ export function createApi(db, { dataDir = './data', loginLimit = 10 } = {}) {
   on('PATCH', '/api/platform/tenants/:id', (c, r) => plat.updateTenant(db, c.user, num(r.params.id), r.body));
   on('POST', '/api/platform/tenants/:id/support-session', (c, r) => plat.startSupportSession(db, c.user, num(r.params.id)));
   on('GET', '/api/audit', (c, r) => { c.need('audit.view'); const b = c.inBranches('branch_id'); return { rows: c.all(`SELECT a.*, u.name user_name FROM audit_log a LEFT JOIN users u ON u.id=a.user_id WHERE a.org_id=? AND (a.branch_id IS NULL OR ${b.sql}) ${r.query.entity ? 'AND a.entity=?' : ''} ORDER BY a.id DESC LIMIT 200`, ...(r.query.entity ? [c.org_id, r.query.entity] : [c.org_id])) }; });
+
+  function logoUri(c, branchId) { try { const b = c.get('SELECT logo_file_id FROM branches WHERE id=?', branchId); if (!b || !b.logo_file_id) return null; const f = c.get('SELECT * FROM files WHERE id=? AND org_id=?', b.logo_file_id, c.org_id); return f ? `data:${f.mime};base64,${fs.readFileSync(path.join(dataDir, 'uploads', String(c.org_id), f.path)).toString('base64')}` : null; } catch { return null; } }
 
   // ---------- dispatcher ----------
   function handle({ method, path: p, query = {}, body = {}, headers = {}, ip = '0.0.0.0' }) {

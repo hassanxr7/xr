@@ -4,7 +4,7 @@
 // A payout settles payable rows (settled_payout_id) and is NOT an expense. Refunds post negative deltas.
 import { AppError, bad, notFound } from './errors.js';
 import { ApprovalNeeded, registerApproval } from './core.js';
-import { mulBp, int, divRound } from './money.js';
+import { mulBp, int, divRound, allocate } from './money.js';
 import { nowIso } from './time.js';
 import { applyPayment, method } from './payments.js';
 
@@ -115,14 +115,33 @@ export function barberReport(ctx, { branch_id, business_id, employee_id, from = 
   const base = ctx.all(`SELECT l.barber_id, u.name, COUNT(DISTINCT s.id) visits, COALESCE(SUM(l.qty),0) services, COALESCE(SUM(l.net),0) revenue,
       COALESCE(SUM(l.discount),0) discounts, COALESCE(SUM(l.cost_total),0) direct_cost, GROUP_CONCAT(DISTINCT l.commission_bp) rates, s.currency
     FROM sale_lines l JOIN sales s ON s.id=l.sale_id JOIN users u ON u.id=l.barber_id WHERE ${w.join(' AND ')} GROUP BY l.barber_id, s.currency ORDER BY revenue DESC`, ...a);
-  return base.map((r) => {
+  const lw = (bid) => (branch_id ? `AND ${bid}=${Number(branch_id)}` : `AND ${ctx.inBranches(bid).sql}`);
+  const ledgerNums = (empId) => {
+    const led = ctx.get(`SELECT COALESCE(SUM(earned_delta),0) earned, COALESCE(SUM(CASE WHEN type<>'advance' THEN payable_delta ELSE 0 END),0) payable, COALESCE(SUM(CASE WHEN type='advance' THEN -payable_delta ELSE 0 END),0) advances FROM commission_ledger WHERE org_id=? AND employee_id=? AND business_date BETWEEN ? AND ? ${lw('branch_id')}`, ctx.org_id, empId, from, to);
+    const paid = ctx.get(`SELECT COALESCE(SUM(amount_paid),0) p, COALESCE(SUM(deductions),0) d FROM commission_payouts WHERE org_id=? AND employee_id=? AND business_date BETWEEN ? AND ? ${lw('branch_id')}`, ctx.org_id, empId, from, to);
+    const outstanding = ctx.get(`SELECT COALESCE(SUM(payable_delta),0) o FROM commission_ledger WHERE org_id=? AND employee_id=? AND settled_payout_id IS NULL ${lw('branch_id')}`, ctx.org_id, empId).o;
+    return { led, paid, outstanding };
+  };
+  // tips are recorded separately (never commission base); a visit's tip is split equally between its barbers when tips belong to the employee
+  const tipsFor = (empId) => {
+    let sum = 0;
+    for (const s of ctx.all(`SELECT s.id, s.tip FROM sales s WHERE s.org_id=? AND ${b.sql} AND s.kind='service' AND s.status='completed' AND s.tip>0 AND s.tip_to='employee' AND s.business_date BETWEEN ? AND ? ${branch_id ? 'AND s.branch_id=' + Number(branch_id) : ''} AND EXISTS(SELECT 1 FROM sale_lines x WHERE x.sale_id=s.id AND x.barber_id=?)`, ctx.org_id, from, to, empId)) {
+      const bs = ctx.all('SELECT DISTINCT barber_id FROM sale_lines WHERE sale_id=? AND barber_id IS NOT NULL ORDER BY barber_id', s.id).map((x) => x.barber_id); const parts = allocate(s.tip, bs.map(() => 1)); sum += parts[bs.indexOf(empId)];
+    }
+    return sum;
+  };
+  const rows = base.map((r) => {
     const refunds = ctx.get(`SELECT COALESCE(SUM(rl.net),0) n FROM return_lines rl JOIN returns r ON r.id=rl.return_id JOIN sale_lines l ON l.id=rl.sale_line_id JOIN sales s ON s.id=l.sale_id WHERE l.barber_id=? AND ${b.sql} AND r.business_date BETWEEN ? AND ? ${branch_id ? 'AND s.branch_id=' + Number(branch_id) : ''}`, r.barber_id, from, to).n;
-    const lw = branch_id ? `AND branch_id=${Number(branch_id)}` : `AND ${ctx.inBranches('branch_id').sql}`;
-    const led = ctx.get(`SELECT COALESCE(SUM(earned_delta),0) earned, COALESCE(SUM(CASE WHEN type<>'advance' THEN payable_delta ELSE 0 END),0) payable, COALESCE(SUM(CASE WHEN type='advance' THEN -payable_delta ELSE 0 END),0) advances FROM commission_ledger WHERE org_id=? AND employee_id=? AND business_date BETWEEN ? AND ? ${lw}`, ctx.org_id, r.barber_id, from, to);
-    const paid = ctx.get(`SELECT COALESCE(SUM(amount_paid),0) p, COALESCE(SUM(deductions),0) d FROM commission_payouts WHERE org_id=? AND employee_id=? AND business_date BETWEEN ? AND ? ${lw}`, ctx.org_id, r.barber_id, from, to);
-    const outstanding = ctx.get(`SELECT COALESCE(SUM(payable_delta),0) o FROM commission_ledger WHERE org_id=? AND employee_id=? AND settled_payout_id IS NULL ${lw}`, ctx.org_id, r.barber_id).o;
-    const net = r.revenue - refunds;
-    return { employee_id: r.barber_id, employee: r.name, currency: r.currency, visits: r.visits, services: r.services, revenue: r.revenue, discounts: r.discounts, refunds, net_revenue: net, rates_bp: r.rates.split(',').map(Number),
-      commission_earned: led.earned, commission_payable: led.payable, advances: led.advances, deductions: paid.d, paid: paid.p, outstanding, retained: net - led.earned, direct_cost: r.direct_cost };
+    const { led, paid, outstanding } = ledgerNums(r.barber_id); const net = r.revenue - refunds;
+    return { kind: 'barber', employee_id: r.barber_id, employee: r.name, currency: r.currency, visits: r.visits, services: r.services, revenue: r.revenue, discounts: r.discounts, refunds, net_revenue: net, rates_bp: r.rates.split(',').map(Number),
+      commission_earned: led.earned, commission_payable: led.payable, advances: led.advances, deductions: paid.d, paid: paid.p, outstanding, retained: net - led.earned, direct_cost: r.direct_cost, tips: tipsFor(r.barber_id) };
   });
+  // technicians (repair labour commission) appear from the same ledger
+  const tw = emp ? ` AND l.employee_id=${emp}` : '';
+  for (const t of ctx.all(`SELECT l.employee_id id, u.name, br.currency, COUNT(DISTINCT l.source_id) jobs, GROUP_CONCAT(DISTINCT l.rate_bp) rates FROM commission_ledger l JOIN users u ON u.id=l.employee_id JOIN branches br ON br.id=l.branch_id WHERE l.org_id=? AND l.source_type='repair' AND l.business_date BETWEEN ? AND ? ${lw('l.branch_id')}${tw}${business_id ? ' AND br.business_id=' + Number(business_id) : ''} GROUP BY l.employee_id, br.currency`, ctx.org_id, from, to)) {
+    const labor = ctx.get(`SELECT COALESCE(SUM(c.qty*c.unit_price),0) v FROM repair_charges c WHERE c.kind='labor' AND c.approved=1 AND c.voided=0 AND c.job_id IN (SELECT DISTINCT source_id FROM commission_ledger WHERE source_type='repair' AND employee_id=? AND business_date BETWEEN ? AND ?)`, t.id, from, to).v;
+    const { led, paid, outstanding } = ledgerNums(t.id);
+    rows.push({ kind: 'technician', employee_id: t.id, employee: t.name + ' (repairs)', currency: t.currency, visits: t.jobs, services: 0, revenue: labor, discounts: 0, refunds: 0, net_revenue: labor, rates_bp: t.rates.split(',').map(Number), commission_earned: led.earned, commission_payable: led.payable, advances: led.advances, deductions: paid.d, paid: paid.p, outstanding, retained: labor - led.earned, direct_cost: 0, tips: 0 });
+  }
+  return rows;
 }

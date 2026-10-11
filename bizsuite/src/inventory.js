@@ -89,7 +89,7 @@ export function listVariants(ctx, { q, branch_id, business_id, barcode, low, pag
   if (q) { where.push('(p.name LIKE ? OR v.sku LIKE ? OR v.barcode LIKE ? OR p.brand LIKE ? OR p.model LIKE ?)'); const l = `%${q.replace(/[%_]/g, '')}%`; args.push(l, l, l, l, l); }
   if (active !== undefined && active !== '') { where.push('v.active=?'); args.push(active ? 1 : 0); }
   const having = low ? `WHERE qty <= min_stock` : '';
-  const base = `SELECT v.id,v.sku,v.barcode,v.attrs,v.cost,v.price,v.min_stock,v.active,p.id product_id,p.name,p.category,p.brand,p.model,p.kind,p.is_part,p.business_id,p.warranty_months,${stockSql} qty,${valSql} value,
+  const base = `SELECT v.id,v.sku,v.barcode,v.attrs,v.cost,v.price,v.min_stock,v.active,p.id product_id,p.image_file_id,p.name,p.category,p.brand,p.model,p.kind,p.is_part,p.business_id,p.warranty_months,${stockSql} qty,${valSql} value,
     CASE WHEN ${stockSql}>0 THEN ${valSql}/${stockSql} ELSE v.cost END avg_cost FROM variants v JOIN products p ON p.id=v.product_id WHERE ${where.join(' AND ')}`;
   limit = Math.min(Number(limit) || 25, 200); const off = (Math.max(Number(page) || 1, 1) - 1) * limit;
   const total = ctx.get(`SELECT COUNT(*) c FROM (${base}) ${having}`, ...args).c;

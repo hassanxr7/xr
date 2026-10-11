@@ -16,10 +16,13 @@ const api = createApi(db, { dataDir: DATA });
 const MIME = { '.html': 'text/html; charset=utf-8', '.js': 'text/javascript; charset=utf-8', '.css': 'text/css; charset=utf-8', '.svg': 'image/svg+xml', '.png': 'image/png', '.json': 'application/json', '.ico': 'image/x-icon', '.webmanifest': 'application/manifest+json' };
 const SEC = { 'X-Content-Type-Options': 'nosniff', 'X-Frame-Options': 'DENY', 'Referrer-Policy': 'same-origin', 'Content-Security-Policy': "default-src 'self'; img-src 'self' blob: data:; style-src 'self' 'unsafe-inline'; frame-ancestors 'none'", ...(process.env.HTTPS === '1' ? { 'Strict-Transport-Security': 'max-age=63072000; includeSubDomains' } : {}) };
 
+const hits = new Map(); // coarse per-IP limiter: 600 requests / minute
+setInterval(() => hits.clear(), 60e3).unref();
 http.createServer((req, res) => {
   const url = new URL(req.url, 'http://x'); const ip = (process.env.TRUST_PROXY === '1' && req.headers['x-forwarded-for']?.split(',')[0].trim()) || req.socket.remoteAddress;
   if (!url.pathname.startsWith('/api/')) return serveStatic(url.pathname, res);
   if (url.pathname === '/api/health') { try { db.prepare('SELECT 1').get(); res.writeHead(200, { 'Content-Type': 'application/json', ...SEC }); return res.end('{"ok":true}'); } catch { res.writeHead(500); return res.end(); } }
+  const n = (hits.get(ip) || 0) + 1; hits.set(ip, n); if (n > Number(process.env.RATE_LIMIT || 600)) { res.writeHead(429, { 'Content-Type': 'application/json', 'Retry-After': '60', ...SEC }); return res.end('{"error":{"code":"rate_limited","message":"Too many requests"}}'); }
   const chunks = []; let size = 0;
   req.on('data', (c) => { size += c.length; if (size > 4 * 1024 * 1024) { res.writeHead(413, SEC); res.end('{"error":{"code":"too_large"}}'); req.destroy(); } else chunks.push(c); });
   req.on('end', () => {

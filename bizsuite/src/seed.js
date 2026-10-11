@@ -142,7 +142,7 @@ export function seedDemo(db, { days = 14 } = {}) {
   // --- barber commission advance + payout (Ahmed up to 5 days ago), a refund and an in-transit transfer ---
   setNow(`${today}T09:00:00.000Z`);
   com.recordAdvance(mgr.ECM, { branch_id: ECM, employee_id: U.ahmed, amount: 500, method_id: CASH, note: 'Advance' });
-  com.createPayout(mgr.ECM, { branch_id: ECM, employee_id: U.ahmed, period_to: addDays(today, -5), amount_paid: 1000, method_id: CASH, deductions: 0, note: 'Settlement to ' + addDays(today, -5) });
+  com.createPayout(mgr.ECM, { branch_id: ECM, employee_id: U.ahmed, period_to: addDays(today, -Math.max(1, Math.min(5, days - 1))), amount_paid: 1000, method_id: CASH, deductions: 0, note: 'Settlement' });
   if (anySaleId) { try { sales.returnSale(mgr.UWM, { sale_id: anySaleId, lines: [{ sale_line_id: db.prepare('SELECT id FROM sale_lines WHERE sale_id=?').get(anySaleId).id, qty: 1 }], refund_method_id: CASH, reason: 'Wrong size' }); } catch { /* sale may belong to HGA */ } }
   inv.createTransfer(O, { from_branch_id: THM, to_branch_id: THB, lines: [{ variant_id: vid('CBL-C1'), qty: 10 }], note: 'Restock Baidoa (in transit)' });
   // --- expenses ---
