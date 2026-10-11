@@ -9,6 +9,7 @@ const str = (v, f, { req = true, max = 200 } = {}) => {
   if (typeof v !== 'string' || v.length > max) throw bad('invalid_text', `${f} is invalid`, { field: f }); return v.trim();
 };
 export { str };
+const color = (v) => { if (v == null || v === '') return null; if (!/^#[0-9a-fA-F]{6}$/.test(v)) throw bad('invalid_color', 'Colour must look like #1a2b3c'); return v.toLowerCase(); };
 
 export function seedOrgDefaults(db, orgId) {
   for (const [name, r] of Object.entries(DEFAULT_ROLES))
@@ -42,10 +43,10 @@ export function createBranch(ctx, b) {
     const code = str(b.code, 'code', { max: 8 }).toUpperCase();
     if (!/^[A-Z0-9]{2,8}$/.test(code)) throw bad('invalid_code', 'Branch code must be 2-8 letters/digits');
     if (ctx.get('SELECT 1 x FROM branches WHERE org_id=? AND code=?', ctx.org_id, code)) throw new AppError(409, 'duplicate_code', 'Branch code already used');
-    const id = ctx.run(`INSERT INTO branches(org_id,business_id,code,name,address,phone,email,currency,timezone,tax_bp,tip_to,require_register,allow_credit,receipt_header,receipt_footer,invoice_terms,created_at)
-      VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)`, ctx.org_id, bu.id, code, str(b.name, 'name'), b.address || null, b.phone || null, b.email || null, b.currency || 'USD', b.timezone || 'Africa/Mogadishu',
+    const id = ctx.run(`INSERT INTO branches(org_id,business_id,code,name,address,phone,email,currency,timezone,tax_bp,tip_to,require_register,allow_credit,receipt_header,receipt_footer,invoice_terms,color,created_at)
+      VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)`, ctx.org_id, bu.id, code, str(b.name, 'name'), b.address || null, b.phone || null, b.email || null, b.currency || 'USD', b.timezone || 'Africa/Mogadishu',
       int(b.tax_bp ?? 0, 'tax_bp', { min: 0, max: 10000 }), b.tip_to === 'business' ? 'business' : 'employee', b.require_register ? 1 : 0, b.allow_credit === false ? 0 : 1,
-      b.receipt_header || null, b.receipt_footer || null, b.invoice_terms || null, nowIso()).lastInsertRowid;
+      b.receipt_header || null, b.receipt_footer || null, b.invoice_terms || null, color(b.color), nowIso()).lastInsertRowid;
     if (!ctx.all_branches) ctx.run('INSERT INTO user_branches VALUES(?,?)', ctx.user.id, id);
     ctx._bids = null;
     ctx.audit('branch.create', 'branch', id, null, b, id);
@@ -54,8 +55,8 @@ export function createBranch(ctx, b) {
 }
 export function updateBranch(ctx, id, b) {
   ctx.need('branches.edit'); const br = ctx.branch(id);
-  const f = ['name', 'address', 'phone', 'email', 'receipt_header', 'receipt_footer', 'invoice_terms', 'tip_to', 'manager_id', 'logo_file_id'];
-  const sets = [], vals = [];
+  const sets = [], vals = []; const f = ['name', 'address', 'phone', 'email', 'receipt_header', 'receipt_footer', 'invoice_terms', 'tip_to', 'manager_id', 'logo_file_id'];
+  if ('color' in b) { sets.push('color=?'); vals.push(color(b.color)); }
   for (const k of f) if (k in b) { sets.push(`${k}=?`); vals.push(b[k]); }
   for (const k of ['tax_bp', 'require_register', 'allow_credit', 'active']) if (k in b) { sets.push(`${k}=?`); vals.push(int(Number(b[k]), k, { min: 0, max: 10000 })); }
   if (!sets.length) return { id };
@@ -123,8 +124,8 @@ export function createUser(ctx, u) {
     if (role.scope === 'org' && !ctx.all_branches) throw forbidden('Cannot assign an organisation-wide role', 'escalation');
     const bp = int(u.commission_bp ?? 0, 'commission_bp', { min: 0, max: 10000 });
     if (bp && !ctx.can('staff.settings')) throw forbidden('Setting commission rates needs staff.settings', 'missing_permission');
-    const id = ctx.run('INSERT INTO users(org_id,name,email,phone,pass_hash,role_id,lang,commission_bp,created_at) VALUES(?,?,?,?,?,?,?,?,?)',
-      ctx.org_id, str(u.name, 'name'), email, u.phone || null, hashPassword(u.password), role.id, u.lang === 'so' ? 'so' : 'en', bp, nowIso()).lastInsertRowid;
+    const id = ctx.run('INSERT INTO users(org_id,name,email,phone,pass_hash,role_id,lang,commission_bp,must_change_password,created_at) VALUES(?,?,?,?,?,?,?,?,?,?)',
+      ctx.org_id, str(u.name, 'name'), email, u.phone || null, hashPassword(u.password), role.id, u.lang === 'so' ? 'so' : 'en', bp, u.must_change_password ? 1 : 0, nowIso()).lastInsertRowid;
     ctx.run('INSERT INTO commission_rate_history(org_id,user_id,rate_bp,changed_by,changed_at) VALUES(?,?,?,?,?)', ctx.org_id, id, bp, ctx.user.id, nowIso());
     for (const b of u.branch_ids || []) { ctx.branch(b); ctx.run('INSERT OR IGNORE INTO user_branches VALUES(?,?)', id, b); }
     ctx.audit('user.create', 'user', id, null, { email, role: role.name, branches: u.branch_ids, commission_bp: bp });
@@ -151,7 +152,7 @@ export function updateUser(ctx, id, u) {
     }
     for (const k of ['name', 'phone', 'lang']) if (k in u) { ctx.run(`UPDATE users SET ${k}=? WHERE id=?`, u[k], id); after[k] = u[k]; }
     if ('active' in u) { ctx.run('UPDATE users SET active=? WHERE id=?', u.active ? 1 : 0, id); after.active = !!u.active; if (!u.active) ctx.run('DELETE FROM sessions WHERE user_id=?', id); }
-    if (u.password) { if (!checkPasswordStrength(u.password)) throw bad('weak_password', 'Weak password'); ctx.run('UPDATE users SET pass_hash=? WHERE id=?', hashPassword(u.password), id); ctx.run('DELETE FROM sessions WHERE user_id=?', id); after.password = 'changed'; }
+    if (u.password) { if (!checkPasswordStrength(u.password)) throw bad('weak_password', 'Weak password'); ctx.run('UPDATE users SET pass_hash=?, must_change_password=1 WHERE id=?', hashPassword(u.password), id); ctx.run('DELETE FROM sessions WHERE user_id=?', id); after.password = 'changed'; }
     if (u.branch_ids) { for (const b of u.branch_ids) ctx.branch(b); ctx.run('DELETE FROM user_branches WHERE user_id=?', id); for (const b of u.branch_ids) ctx.run('INSERT OR IGNORE INTO user_branches VALUES(?,?)', id, b); after.branches = u.branch_ids; }
     ctx.audit('user.update', 'user', id, { role_id: old.role_id, commission_bp: old.commission_bp, active: old.active }, after);
     return { id };

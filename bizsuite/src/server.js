@@ -11,7 +11,8 @@ import { seedIfEmpty } from './seed.js';
 const here = path.dirname(fileURLToPath(import.meta.url)); const pub = path.join(here, '..', 'public');
 const PORT = Number(process.env.PORT || 3000); const DATA = process.env.DATA_DIR || './data';
 const db = openDb(process.env.DB_FILE || path.join(DATA, 'bizsuite.sqlite'));
-if (process.env.SEED_DEMO !== '0') seedIfEmpty(db);
+const seedMode = process.env.SEED_DEMO ?? (process.env.NODE_ENV === 'production' ? '0' : '1'); // never seed demo data in production unless explicitly asked
+if (seedMode === '1') seedIfEmpty(db);
 const api = createApi(db, { dataDir: DATA });
 const MIME = { '.html': 'text/html; charset=utf-8', '.js': 'text/javascript; charset=utf-8', '.css': 'text/css; charset=utf-8', '.svg': 'image/svg+xml', '.png': 'image/png', '.json': 'application/json', '.ico': 'image/x-icon', '.webmanifest': 'application/manifest+json' };
 const SEC = { 'X-Content-Type-Options': 'nosniff', 'X-Frame-Options': 'DENY', 'Referrer-Policy': 'same-origin', 'Content-Security-Policy': "default-src 'self'; img-src 'self' blob: data:; style-src 'self' 'unsafe-inline'; frame-ancestors 'none'", ...(process.env.HTTPS === '1' ? { 'Strict-Transport-Security': 'max-age=63072000; includeSubDomains' } : {}) };

@@ -15,7 +15,7 @@ export function createTenant(db, t) {
       .run(t.name, t.saas ? 1 : 0, t.plan || (t.saas ? 'starter' : 'internal'), t.max_branches ?? null, t.max_users ?? null, t.max_storage_mb ?? null, t.modules ? JSON.stringify(t.modules) : null, t.reporting_currency || 'USD', nowIso()).lastInsertRowid;
     seedOrgDefaults(db, orgId);
     const role = db.prepare("SELECT id FROM roles WHERE org_id=? AND name='Owner'").get(orgId);
-    const uid = db.prepare('INSERT INTO users(org_id,name,email,pass_hash,role_id,created_at) VALUES(?,?,?,?,?,?)').run(orgId, t.owner_name, String(t.owner_email).toLowerCase(), hashPassword(t.owner_password), role.id, nowIso()).lastInsertRowid;
+    const uid = db.prepare('INSERT INTO users(org_id,name,email,pass_hash,role_id,must_change_password,created_at) VALUES(?,?,?,?,?,?,?)').run(orgId, t.owner_name, String(t.owner_email).toLowerCase(), hashPassword(t.owner_password), role.id, t.must_change_password ? 1 : 0, nowIso()).lastInsertRowid;
     db.prepare('INSERT INTO commission_rate_history(org_id,user_id,rate_bp,changed_at) VALUES(?,?,0,?)').run(orgId, uid, nowIso());
     return { org_id: orgId, owner_id: uid };
   });

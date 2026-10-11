@@ -20,8 +20,15 @@ import * as ex from './exporter.js';
 import { listNotifications, markRead, scanAlerts } from './notify.js';
 import { createBackup, listBackups } from './backup.js';
 import * as quo from './quotes.js';
+import { fileURLToPath } from 'node:url';
+import { prepareImage } from './image.js';
+import { sheetXlsx } from './xlsx.js';
 
 const MAGIC = { 'image/png': [0x89, 0x50, 0x4e, 0x47], 'image/jpeg': [0xff, 0xd8, 0xff], 'image/webp': [0x52, 0x49, 0x46, 0x46] };
+
+const commissionsDaily = (c, r, f) => com.barberDaily(c, { branch_id: r.query.branch_id, business_id: r.query.business_id, employee_id: r.query.employee_id, from: f.from, to: f.to });
+const BRAND_DIR = path.join(path.dirname(fileURLToPath(import.meta.url)), '..', 'public', 'brand');
+const BRAND_MIME = { '.png': 'image/png', '.jpg': 'image/jpeg', '.jpeg': 'image/jpeg', '.webp': 'image/webp', '.svg': 'image/svg+xml' };
 
 export function createApi(db, { dataDir = './data', loginLimit = 10 } = {}) {
   const routes = []; const attempts = new Map();
@@ -57,21 +64,21 @@ export function createApi(db, { dataDir = './data', loginLimit = 10 } = {}) {
     if (priv && !u.totp_enabled && process.env.REQUIRE_2FA === '1') throw new AppError(403, 'totp_setup_required', 'Two-factor authentication is mandatory for privileged users');
     const token = newToken(); db.prepare('INSERT INTO sessions(token_hash,user_id,expires_at,created_at) VALUES(?,?,?,?)').run(hashToken(token), u.id, Date.now() + 12 * 3600e3, nowIso());
     db.prepare('INSERT INTO audit_log(org_id,user_id,action,entity,entity_id,ip,created_at) VALUES(?,?,?,?,?,?,?)').run(u.org_id, u.id, 'auth.login', 'user', u.id, r.ip, nowIso());
-    return { token };
+    return { token, must_change_password: !!u.must_change_password };
   }, { public: true });
   on('POST', '/api/auth/logout', (c, r) => { db.prepare('DELETE FROM sessions WHERE token_hash=?').run(hashToken(r.token)); return { ok: true }; });
   on('GET', '/api/auth/me', (c) => {
     const u = c.user; if (c.platform) return { id: u.id, name: u.name, email: u.email, platform: true };
     const branches = admin.listBranches(c).map((b) => ({ ...b, depts: c.all('SELECT kind FROM departments WHERE branch_id=? AND active=1', b.id).map((d) => d.kind) })); const mods = new Set();
     for (const b of branches) { const types = [b.business_type, ...c.all('SELECT kind FROM departments WHERE branch_id=? AND active=1', b.id).map((d) => d.kind)]; types.forEach((t) => TYPE_MODULES[t].forEach((m) => mods.add(m))); }
-    const org = c.get('SELECT id,name,reporting_currency,saas_enabled,modules FROM orgs WHERE id=?', c.org_id);
+    const org = c.get('SELECT id,name,tagline,reporting_currency,saas_enabled,modules,logo_file_id FROM orgs WHERE id=?', c.org_id); org.has_logo = !!orgLogo(c.org_id);
     if (org.modules) { const allowed = JSON.parse(org.modules); for (const m of [...mods]) if (!allowed.includes(m)) mods.delete(m); }
-    return { id: u.id, name: u.name, email: u.email, lang: u.lang, role: c.role?.name, scope: c.role?.scope, perms: [...c.perms], limits: c.limits, org, branches, modules: [...mods], businesses: admin.listBusinesses(c), read_only: c.readOnly, totp_enabled: !!u.totp_enabled };
+    return { id: u.id, name: u.name, email: u.email, lang: u.lang, role: c.role?.name, scope: c.role?.scope, perms: [...c.perms], limits: c.limits, org, branches, modules: [...mods], businesses: admin.listBusinesses(c), read_only: c.readOnly, totp_enabled: !!u.totp_enabled, must_change_password: !!u.must_change_password };
   });
   on('POST', '/api/auth/password', (c, r) => {
     if (!verifyPassword(String(r.body.current || ''), c.user.pass_hash)) throw new AppError(403, 'invalid_credentials', 'Current password is wrong');
     if (!checkPasswordStrength(r.body.password)) throw bad('weak_password', 'Password needs 8+ characters with letters and digits');
-    c.run('UPDATE users SET pass_hash=? WHERE id=?', hashPassword(r.body.password), c.user.id); c.run('DELETE FROM sessions WHERE user_id=? AND token_hash<>?', c.user.id, hashToken(r.token)); c.audit('auth.password', 'user', c.user.id, null, null); return { ok: true };
+    c.run('UPDATE users SET pass_hash=?, must_change_password=0 WHERE id=?', hashPassword(r.body.password), c.user.id); c.run('DELETE FROM sessions WHERE user_id=? AND token_hash<>?', c.user.id, hashToken(r.token)); c.audit('auth.password', 'user', c.user.id, null, null); return { ok: true };
   });
   on('POST', '/api/auth/2fa/setup', (c) => { const secret = newTotpSecret(); c.run('UPDATE users SET totp_secret=?, totp_enabled=0 WHERE id=?', secret, c.user.id); return { secret, otpauth: `otpauth://totp/BizSuite:${encodeURIComponent(c.user.email)}?secret=${secret}&issuer=BizSuite` }; });
   on('POST', '/api/auth/2fa/enable', (c, r) => { const u = c.get('SELECT * FROM users WHERE id=?', c.user.id); if (!u.totp_secret || !verifyTotp(u.totp_secret, r.body.code)) throw bad('invalid_totp', 'Invalid code'); c.run('UPDATE users SET totp_enabled=1 WHERE id=?', u.id); c.audit('auth.2fa_enable', 'user', u.id, null, null); return { ok: true }; });
@@ -128,7 +135,7 @@ export function createApi(db, { dataDir = './data', loginLimit = 10 } = {}) {
   on('GET', '/api/quotes/:id', (c, r) => quo.getQuote(c, num(r.params.id)));
   on('POST', '/api/quotes/:id/status', (c, r) => quo.setQuoteStatus(c, num(r.params.id), r.body.status));
   on('POST', '/api/quotes/:id/convert', (c, r) => quo.convertQuote(c, num(r.params.id), r.body));
-  on('GET', '/api/print/quote/:id', (c, r) => { c.need('sales.print'); return { raw: ex.quoteDoc(quo.getQuote(c, num(r.params.id)), r.query.mode === 'thermal' ? 'thermal' : 'a4'), type: 'text/html; charset=utf-8' }; });
+  on('GET', '/api/print/quote/:id', (c, r) => { c.need('sales.print'); const q = quo.getQuote(c, num(r.params.id)); q.company = c.get('SELECT name FROM orgs WHERE id=?', c.org_id).name; q.logo = logoUri(c, q.branch_id); return { raw: ex.quoteDoc(q, r.query.mode === 'thermal' ? 'thermal' : 'a4'), type: 'text/html; charset=utf-8' }; });
 
   // ---------- payments ----------
   on('GET', '/api/payments', (c, r) => pay.listPayments(c, r.query));
@@ -173,6 +180,8 @@ export function createApi(db, { dataDir = './data', loginLimit = 10 } = {}) {
   on('POST', '/api/services', (c, r) => fin.saveService(c, null, r.body));
   on('PATCH', '/api/services/:id', (c, r) => fin.saveService(c, num(r.params.id), r.body));
   on('GET', '/api/commissions/report', (c, r) => { const f = rpt.resolveFilters(c, r.query); return { rows: com.barberReport(c, { ...r.query, from: f.from, to: f.to }) }; });
+  on('GET', '/api/commissions/daily', (c, r) => { const f = rpt.resolveFilters(c, r.query); return commissionsDaily(c, r, f); });
+  on('POST', '/api/commissions/deductions', (c, r) => com.recordDeduction(c, r.body));
   on('GET', '/api/commissions/ledger', (c, r) => com.ledger(c, r.query));
   on('GET', '/api/commissions/payouts', (c, r) => com.listPayouts(c, r.query));
   on('GET', '/api/commissions/payouts/:id', (c, r) => com.payoutDetail(c, num(r.params.id)));
@@ -204,23 +213,25 @@ export function createApi(db, { dataDir = './data', loginLimit = 10 } = {}) {
   on('GET', '/api/reports/:name', (c, r) => {
     const rp = rpt.runReport(c, r.params.name, r.query); const fmtq = r.query.format || 'json'; const mod = rpt.REPORTS[r.params.name].perm.split('.')[0];
     if (fmtq === 'json') return rp;
-    if (fmtq === 'csv' || fmtq === 'pdf') { if (!c.can('reports.export') && !c.can(mod + '.export')) throw forbidden('Export not permitted', 'missing_permission'); c.audit('report.export', 'report', null, null, { name: r.params.name, format: fmtq, ...r.query }); }
+    if (['csv', 'pdf', 'xlsx'].includes(fmtq)) { if (!c.can('reports.export') && !c.can(mod + '.export')) throw forbidden('Export not permitted', 'missing_permission'); c.audit('report.export', 'report', null, null, { name: r.params.name, format: fmtq, ...r.query }); }
     else if (!c.can('reports.print') && !c.can('reports.export') && !c.can(mod + '.print')) throw forbidden('Printing not permitted', 'missing_permission');
+    const logo = orgLogo(c.org_id);
     if (fmtq === 'csv') return { raw: ex.reportCsv(rp), type: 'text/csv; charset=utf-8', filename: `${r.params.name}.csv` };
-    if (fmtq === 'pdf') return { raw: ex.reportPdf(rp), type: 'application/pdf', filename: `${r.params.name}.pdf` };
-    return { raw: ex.reportHtml(rp), type: 'text/html; charset=utf-8' };
+    if (fmtq === 'xlsx') return { raw: sheetXlsx(rp), type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', filename: `${r.params.name}.xlsx` };
+    if (fmtq === 'pdf') return { raw: ex.reportPdf(rp, logo ? prepareImage(logo.buf, logo.mime) : null), type: 'application/pdf', filename: `${r.params.name}.pdf` };
+    return { raw: ex.reportHtml(rp, { logo: logo ? dataUri(logo) : null }), type: 'text/html; charset=utf-8' };
   });
   on('GET', '/api/export/sales', (c, r) => {
     if (!c.can('sales.export') && !c.can('services.export')) throw forbidden('Export not permitted', 'missing_permission');
     const l = sales.listSales(c, { ...r.query, limit: 200, page: 1 }); const rows = l.rows.map((x) => ({ ...x }));
     const rp = { columns: [{ key: 'ref', label: 'Ref' }, { key: 'business_date', label: 'Date' }, { key: 'branch_name', label: 'Branch' }, { key: 'customer_name', label: 'Customer' }, { key: 'status', label: 'Status' }, { key: 'payment_status', label: 'Payment' }, { key: 'currency', label: 'Currency' }, { key: 'total', label: 'Total', type: 'money' }, { key: 'paid', label: 'Paid', type: 'money' }], rows, totals: null,
       meta: { title: 'Sales list', from: r.query.from || '', to: r.query.to || '', generated_at: nowIso(), generated_by: c.user.name, filters: { branch_ids: [...new Set(rows.map((x) => x.branch_name))] }, reporting: 'Amounts in branch currency' } };
-    c.audit('sales.export', 'sales', null, null, r.query); return { raw: ex.reportCsv(rp), type: 'text/csv; charset=utf-8', filename: 'sales.csv' };
+    rp.meta.company = c.get('SELECT name FROM orgs WHERE id=?', c.org_id).name; c.audit('sales.export', 'sales', null, null, r.query); if (r.query.format === 'xlsx') return { raw: sheetXlsx(rp), type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', filename: 'sales.xlsx' }; return { raw: ex.reportCsv(rp), type: 'text/csv; charset=utf-8', filename: 'sales.csv' };
   });
 
   // ---------- printing ----------
-  on('GET', '/api/print/sale/:id', (c, r) => { c.need(sales.getSale(c, num(r.params.id)).kind === 'service' ? 'services.print' : 'sales.print'); const sale = sales.getSale(c, num(r.params.id)); sale.logo = logoUri(c, sale.branch_id); return { raw: ex.saleDoc(sale, r.query.mode === 'a4' ? 'a4' : 'thermal'), type: 'text/html; charset=utf-8' }; });
-  on('GET', '/api/print/repair/:id', (c, r) => { c.need('repairs.print'); return { raw: ex.repairDoc(rep.getRepair(c, num(r.params.id)), r.query.mode === 'a4' ? 'a4' : 'thermal'), type: 'text/html; charset=utf-8' }; });
+  on('GET', '/api/print/sale/:id', (c, r) => { c.need(sales.getSale(c, num(r.params.id)).kind === 'service' ? 'services.print' : 'sales.print'); const sale = sales.getSale(c, num(r.params.id)); sale.logo = logoUri(c, sale.branch_id); sale.company = c.get('SELECT name FROM orgs WHERE id=?', c.org_id).name; return { raw: ex.saleDoc(sale, r.query.mode === 'a4' ? 'a4' : 'thermal'), type: 'text/html; charset=utf-8' }; });
+  on('GET', '/api/print/repair/:id', (c, r) => { c.need('repairs.print'); const j = rep.getRepair(c, num(r.params.id)); j.company = c.get('SELECT name FROM orgs WHERE id=?', c.org_id).name; j.logo = logoUri(c, j.branch_id); return { raw: ex.repairDoc(j, r.query.mode === 'a4' ? 'a4' : 'thermal'), type: 'text/html; charset=utf-8' }; });
 
   // ---------- files ----------
   on('POST', '/api/files', (c, r) => {
@@ -258,7 +269,26 @@ export function createApi(db, { dataDir = './data', loginLimit = 10 } = {}) {
   on('POST', '/api/platform/tenants/:id/support-session', (c, r) => plat.startSupportSession(db, c.user, num(r.params.id)));
   on('GET', '/api/audit', (c, r) => { c.need('audit.view'); const b = c.inBranches('branch_id'); return { rows: c.all(`SELECT a.*, u.name user_name FROM audit_log a LEFT JOIN users u ON u.id=a.user_id WHERE a.org_id=? AND (a.branch_id IS NULL OR ${b.sql}) ${r.query.entity ? 'AND a.entity=?' : ''} ORDER BY a.id DESC LIMIT 200`, ...(r.query.entity ? [c.org_id, r.query.entity] : [c.org_id])) }; });
 
-  function logoUri(c, branchId) { try { const b = c.get('SELECT logo_file_id FROM branches WHERE id=?', branchId); if (!b || !b.logo_file_id) return null; const f = c.get('SELECT * FROM files WHERE id=? AND org_id=?', b.logo_file_id, c.org_id); return f ? `data:${f.mime};base64,${fs.readFileSync(path.join(dataDir, 'uploads', String(c.org_id), f.path)).toString('base64')}` : null; } catch { return null; } }
+  function uploadedLogo(orgId, fileId) { try { if (!fileId) return null; const f = db.prepare('SELECT * FROM files WHERE id=? AND org_id=?').get(fileId, orgId); return f ? { mime: f.mime, buf: fs.readFileSync(path.join(dataDir, 'uploads', String(orgId), f.path)) } : null; } catch { return null; } }
+  // company logo: uploaded in Settings -> Branding, else the default shipped in public/brand/logo.(png|jpg|webp|svg)
+  function orgLogo(orgId) { const o = db.prepare('SELECT logo_file_id FROM orgs WHERE id=?').get(orgId); const up = o && uploadedLogo(orgId, o.logo_file_id); if (up) return up; for (const ext of ['.png', '.jpg', '.jpeg', '.webp', '.svg']) { const f = path.join(BRAND_DIR, 'logo' + ext); if (fs.existsSync(f)) return { mime: BRAND_MIME[ext], buf: fs.readFileSync(f) }; } return null; }
+  const dataUri = (l) => `data:${l.mime};base64,${l.buf.toString('base64')}`;
+  function logoUri(c, branchId) { const b = c.get('SELECT logo_file_id FROM branches WHERE id=?', branchId); const l = (b && uploadedLogo(c.org_id, b.logo_file_id)) || orgLogo(c.org_id); return l ? dataUri(l) : null; }
+
+  // ---------- branding ----------
+  const brandOrg = () => db.prepare("SELECT id,name,tagline FROM orgs WHERE status='active' ORDER BY saas_enabled, id LIMIT 1").get();
+  on('GET', '/api/branding', () => { const o = brandOrg(); return o ? { name: o.name, tagline: o.tagline, has_logo: !!orgLogo(o.id) } : { name: 'BizSuite', has_logo: false }; }, { public: true });
+  on('GET', '/api/branding/logo', () => { const o = brandOrg(); const l = o && orgLogo(o.id); if (!l) throw notFound('logo'); return { raw: l.buf, type: l.mime, cache: 'public, max-age=300' }; }, { public: true });
+  on('GET', '/api/org', (c) => c.get('SELECT id,name,tagline,reporting_currency FROM orgs WHERE id=?', c.org_id));
+  on('PATCH', '/api/org', (c, r) => { c.need('settings.settings'); const before = c.get('SELECT name,tagline FROM orgs WHERE id=?', c.org_id); const name = admin.str(r.body.name ?? before.name, 'name', { max: 100 }); c.run('UPDATE orgs SET name=?, tagline=? WHERE id=?', name, r.body.tagline ?? before.tagline, c.org_id); c.audit('org.update', 'org', c.org_id, before, { name, tagline: r.body.tagline }); return { ok: true }; });
+  on('POST', '/api/org/logo', (c, r) => {
+    c.need('settings.settings'); const { mime, data } = r.body; if (!MAGIC[mime]) throw bad('invalid_file_type', 'Only PNG, JPEG or WebP images are allowed'); const buf = Buffer.from(String(data || ''), 'base64');
+    if (!buf.length || buf.length > 2 * 1024 * 1024) throw bad('file_too_large', 'Images must be under 2 MB'); if (!MAGIC[mime].every((b, i) => buf[i] === b)) throw bad('invalid_file_content', 'File content does not match its type');
+    const dir = path.join(dataDir, 'uploads', String(c.org_id)); fs.mkdirSync(dir, { recursive: true }); const name = crypto.randomBytes(16).toString('hex'); fs.writeFileSync(path.join(dir, name), buf);
+    const id = c.run('INSERT INTO files(org_id,owner_type,path,mime,size,created_by,created_at) VALUES(?,?,?,?,?,?,?)', c.org_id, 'org_logo', name, mime, buf.length, c.user.id, nowIso()).lastInsertRowid;
+    c.run('UPDATE orgs SET logo_file_id=? WHERE id=?', id, c.org_id); c.audit('org.logo', 'org', c.org_id, null, { file: id }); return { id };
+  });
+  on('DELETE', '/api/org/logo', (c) => { c.need('settings.settings'); c.run('UPDATE orgs SET logo_file_id=NULL WHERE id=?', c.org_id); c.audit('org.logo_reset', 'org', c.org_id, null, null); return { ok: true }; });
 
   // ---------- dispatcher ----------
   function handle({ method, path: p, query = {}, body = {}, headers = {}, ip = '0.0.0.0' }) {
@@ -268,6 +298,7 @@ export function createApi(db, { dataDir = './data', loginLimit = 10 } = {}) {
       const params = route.re.exec(p).groups || {}; const token = (headers.authorization || '').replace(/^Bearer /i, '') || null;
       const req = { params, query, body, ip, token };
       const ctx = route.public ? null : authenticate(token, ip);
+      if (ctx && !ctx.platform && !ctx.readOnly && ctx.user.must_change_password && !/^\/api\/auth\/(me|password|logout)$/.test(p)) throw new AppError(403, 'password_change_required', 'You must change your password before continuing');
       if (ctx && ctx.readOnly && method !== 'GET' && !p.endsWith('/auth/logout')) throw forbidden('Support sessions are read-only', 'read_only');
       if (ctx?.platform && !p.startsWith('/api/platform') && !p.startsWith('/api/auth')) throw forbidden('Platform administrators have no tenant access', 'platform_only');
       if (ctx?.readOnly) db.prepare('INSERT INTO audit_log(org_id,user_id,action,entity,after,ip,created_at) VALUES(?,?,?,?,?,?,?)').run(ctx.org_id, ctx.user.id, 'support.read', 'api', JSON.stringify({ p, query }), ip, nowIso());

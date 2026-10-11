@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="110 690 1700 560" role="img" aria-label="Hubdex Store LTD">
+  <rect x="110" y="690" width="1700" height="560" rx="28" fill="#030a1c"/>
+  <!-- cube: top arrow (cyan), left face H (white), right face S (cyan) -->
+  <path fill="#12cbfa" d="M220 838 L385 740 L470 790 L482 764 L557 849 L430 854 L500 862 L385 930 L330 898 L432 842 L385 806 L270 866 Z"/>
+  <path fill="#ffffff" d="M190 865 L245 897 L245 1118 L190 1088 Z M245 962 L312 998 L312 1050 L245 1013 Z M312 962 L368 994 L368 1193 L312 1162 Z"/>
+  <path fill="none" stroke="#12cbfa" stroke-width="40" stroke-linejoin="miter" d="M572 905 V958 L470 1008 L572 1050 V1108 L420 1180"/>
+  <path fill="#12cbfa" d="M403 905 L583 865 V905 L403 975 Z" opacity="0"/>
+  <!-- HUBDEX -->
+  <g fill="#ffffff" stroke="none">
+    <rect x="650" y="865" width="38" height="145"/><rect x="777" y="865" width="38" height="145"/><rect x="650" y="917" width="165" height="36"/>
+    <rect x="1412" y="865" width="38" height="145"/><rect x="1412" y="865" width="140" height="34"/><rect x="1412" y="920" width="125" height="30"/><rect x="1412" y="976" width="140" height="34"/>
+  </g>
+  <g fill="none" stroke="#ffffff" stroke-width="38">
+    <path d="M859 865 V972 Q859 991 878 991 H968 Q987 991 987 972 V865"/>
+    <path d="M1049 865 V1010 M1049 884 H1128 a29 29 0 0 1 0 58 H1049 M1049 991 H1138 a31 31 0 0 0 0 -62 H1049"/>
+    <path d="M1239 865 V1010 M1239 884 H1305 Q1375 884 1375 937 Q1375 991 1305 991 H1239"/>
+  </g>
+  <path fill="none" stroke="#12cbfa" stroke-width="42" d="M1598 868 L1758 1008 M1758 868 L1598 1008"/>
+  <!-- STORE LTD -->
+  <text x="892" y="1124" font-family="Montserrat, 'Segoe UI', Arial, sans-serif" font-weight="800" font-size="62" fill="#12cbfa" textLength="630" lengthAdjust="spacing">STORE LTD</text>
+  <g stroke="#12cbfa" stroke-width="9"><path d="M660 1098 H828 M1576 1098 H1746"/></g>
+</svg>

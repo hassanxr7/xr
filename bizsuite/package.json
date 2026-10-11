@@ -16,6 +16,7 @@
     "restore": "node --disable-warning=ExperimentalWarning scripts/restore.js",
     "bootstrap": "node --disable-warning=ExperimentalWarning scripts/bootstrap.js",
     "e2e": "scripts/e2e.sh",
-    "docs:api": "node scripts/gen-api-docs.mjs"
+    "docs:api": "node scripts/gen-api-docs.mjs",
+    "preflight": "node --disable-warning=ExperimentalWarning scripts/preflight.js"
   }
 }

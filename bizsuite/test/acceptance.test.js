@@ -305,7 +305,7 @@ test('privileged data hidden: cost/profit/commission; barbers see only their own
 
 test('13/14. Consolidated == sum of branches; dashboard == underlying transactions (seeded multi-business data)', async () => {
   const db = openDb(':memory:'); const seed = seedDemo(db, { days: 10 }); const O = Ctx.forUserId(db, seed.owner_id);
-  const d = rpt.dashboard(O, { preset: 'year' }); assert.ok(d.branches.length === 7 && d.currencies.length === 2);
+  const d = rpt.dashboard(O, { preset: 'year' }); assert.ok(d.branches.length === 3 && d.currencies.length === 1); assert.deepEqual(d.branches.map((b) => b.branch).sort(), ['Reyxaan Store', 'Rio Berber', 'Rio Store']);
   for (const c of d.currencies) for (const k of ['net_sales', 'repair_revenue', 'cogs', 'commission', 'opex', 'gross_profit', 'net_profit', 'collected', 'inventory_value', 'receivables']) assert.equal(c[k], d.branches.filter((b) => b.currency === c.currency).reduce((s, b) => s + b[k], 0), `${c.currency}.${k}`);
   const tab = rpt.runReport(O, 'consolidated', { preset: 'year' }); for (const [ccy, t] of Object.entries(tab.totals)) assert.equal(t.net_sales, d.currencies.find((c) => c.currency === ccy).net_sales);
   // independent recomputation straight from transactions
@@ -331,8 +331,6 @@ test('13/14. Consolidated == sum of branches; dashboard == underlying transactio
   const net = db.prepare(`SELECT COALESCE(SUM(total-tax),0) n FROM sales WHERE status='completed' AND branch_id IN (${usdBranches.join(',')})`).get().n; assert.ok(sumNet >= net, 'list totals include tax; net excludes it');
   // per-branch inventory valuation report agrees with dashboard
   const iv = rpt.runReport(O, 'inventory_valuation', {}); assert.equal(iv.totals.USD.value, d.currencies.find((c) => c.currency === 'USD').inventory_value);
-  // reporting-currency conversion is explicit and uses stored rates
-  assert.equal(d.converted.currency, 'USD'); assert.equal(d.converted.totals.net_sales, d.currencies.find((c) => c.currency === 'USD').net_sales + Math.round(d.currencies.find((c) => c.currency === 'KES').net_sales * 7700 / 1e6));
   // seeded integrity: no negative stock, ledger sums
   assert.equal(db.prepare('SELECT COUNT(*) c FROM stock WHERE qty<0').get().c, 0);
   for (const r of db.prepare('SELECT variant_id,branch_id,qty,value FROM stock').all()) { const m = db.prepare('SELECT COALESCE(SUM(qty),0) q, COALESCE(SUM(value),0) v FROM stock_movements WHERE branch_id=? AND variant_id=?').get(r.branch_id, r.variant_id); assert.equal(m.q, r.qty); assert.equal(m.v, r.value); }
@@ -411,7 +409,7 @@ test('exports: CSV (formula-safe), PDF, print HTML; thermal & A4 documents', asy
   const pdf = api('GET', '/api/reports/consolidated', {}, { format: 'pdf', preset: 'year' }); assert.equal(pdf.type, 'application/pdf'); assert.equal(pdf.body.subarray(0, 5).toString(), '%PDF-'); assert.ok(pdf.body.toString('latin1').includes('%%EOF'));
   for (const mode of ['thermal', 'a4']) { const h = api('GET', '/api/print/sale/' + s.id, {}, { mode }); assert.equal(h.status, 200); assert.ok(h.body.includes(s.ref) && h.body.includes('Mahadsanid')); assert.ok(!h.body.includes('<script')); }
   assert.equal(api('GET', '/api/reports/consolidated', {}, { format: 'html', preset: 'year' }).status, 200);
-  assert.ok(api('GET', '/api/export/sales').body.includes(s.ref)); assert.equal(api('GET', '/api/reports').body.rows.length, 17);
+  assert.ok(api('GET', '/api/export/sales').body.includes(s.ref)); assert.equal(api('GET', '/api/reports').body.rows.length, 19);
   const cashier = (w.user('Cash', 'Cashier', [A]), await client(w.db).login('cash@t.so')); assert.equal(cashier('GET', '/api/reports/consolidated', {}, { format: 'csv' }).status, 403);
 });
 

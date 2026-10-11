@@ -10,7 +10,7 @@
 //   net_profit       = gross_profit - commission - opex
 import { AppError, bad } from './errors.js';
 import { nowIso, localDate, range, addDays } from './time.js';
-import { barberReport } from './commissions.js';
+import { barberReport, barberDaily } from './commissions.js';
 import { inTransitValue } from './inventory.js';
 import { customerBalance } from './sales.js';
 
@@ -157,6 +157,8 @@ export const REPORTS = {
   repairs: { perm: 'repairs.view', title: 'Repair status and profitability' },
   employee_performance: { perm: 'reports.view', title: 'Employee performance' },
   barber_commissions: { perm: 'commissions.view', title: 'Barber commissions and payouts' },
+  barber_daily: { perm: 'commissions.view', title: 'Barber daily work sheet' },
+  barber_branch_profit: { perm: 'reports.view', title: 'Barber branch profit statement', needs: 'profit.view' },
   cash_discrepancies: { perm: 'registers.view', title: 'Cash register discrepancies' },
   payment_reconciliation: { perm: 'payments.view', title: 'Payment reconciliation' },
   audit: { perm: 'audit.view', title: 'Audit activity' },
@@ -164,7 +166,7 @@ export const REPORTS = {
 export function runReport(ctx, name, f = {}) {
   const def = REPORTS[name]; if (!def) throw bad('unknown_report', 'Unknown report'); ctx.need(def.perm); if (def.needs) ctx.need(def.needs);
   const r = resolveFilters(ctx, f); const ids = r.branches.map((b) => b.id).join(',') || '0'; let columns, rows, totals = null, note = null;
-  const meta = () => ({ title: def.title, from: r.from, to: r.to, generated_at: nowIso(), generated_by: ctx.user.name, filters: { branch_ids: r.branches.map((b) => b.name), employee: r.employee }, reporting: 'Amounts in each branch currency; totals are never mixed across currencies' });
+  const meta = () => ({ title: def.title, from: r.from, to: r.to, company: ctx.get('SELECT name FROM orgs WHERE id=?', ctx.org_id).name, generated_at: nowIso(), generated_by: ctx.user.name, filters: { branch_ids: r.branches.map((b) => b.name), employee: r.employee }, reporting: 'Amounts in each branch currency; totals are never mixed across currencies' });
   const money = (keys) => keys.map(([k, l]) => col(k, l, M));
   switch (name) {
     case 'consolidated': case 'branch_performance': {
@@ -192,6 +194,15 @@ export function runReport(ctx, name, f = {}) {
       columns = [col('employee', 'Barber'), col('currency', 'Currency'), col('visits', 'Visits'), col('services', 'Services'), col('revenue', 'Revenue', M), col('discounts', 'Discounts', M), col('refunds', 'Refunds', M), col('net_revenue', 'Net revenue', M), col('rates', 'Rate %'), col('tips', 'Tips', M), col('commission_earned', 'Commission', M), col('commission_payable', 'Payable', M), col('advances', 'Advances', M), col('deductions', 'Deductions', M), col('paid', 'Paid', M), col('outstanding', 'Outstanding', M), col('retained', 'Retained by business', M)];
       rows = barberReport(ctx, { branch_id: f.branch_id, business_id: f.business_id, employee_id: f.employee_id, from: r.from, to: r.to }).map((x) => ({ ...x, rates: x.rates_bp.map((b) => b / 100).join('/') })); totals = totalsBy(rows, columns); break;
     }
+    case 'barber_daily': {
+      columns = [col('date', 'Date'), col('employee', 'Barber'), col('currency', 'Currency'), col('visits', 'Customers served'), col('services', 'Services'), col('income', 'Income generated', M), col('refunds', 'Refunds', M), col('net_income', 'Net income', M), col('rates', 'Rate %'), col('commission', 'Commission', M), col('advances', 'Advances', M), col('deductions', 'Deductions', M), col('take_home', 'Take-home', M), col('retained', 'Retained by business', M), col('tips', 'Tips', M)];
+      const d = barberDaily(ctx, { branch_id: f.branch_id, business_id: f.business_id, employee_id: f.employee_id, from: r.from, to: r.to }); rows = d.rows.map((x) => ({ ...x, rates: x.rates_bp.map((b) => b / 100).join('/') })); totals = totalsBy(rows, columns); break;
+    }
+    case 'barber_branch_profit': {
+      columns = [col('branch', 'Branch'), col('item', 'Item'), col('currency', 'Currency'), col('count', 'Count'), col('amount', 'Amount', M)]; rows = [];
+      for (const b of r.branches.filter((x) => x.btype === 'barber' || ctx.get("SELECT 1 x FROM departments WHERE branch_id=? AND kind='barber'", x.id))) rows.push(...barberProfitLines(ctx, b, r));
+      break;
+    }
     case 'cash_discrepancies': { columns = [col('business_date', 'Date'), col('branch', 'Branch'), col('cashier', 'Cashier'), col('expected', 'Expected', M), col('counted', 'Counted', M), col('difference', 'Difference', M), col('explanation', 'Explanation'), col('approved', 'Approved by')]; rows = ctx.all(`SELECT r.business_date, b.name branch, u.name cashier, r.expected, r.counted, r.difference, r.explanation, a.name approved FROM register_sessions r JOIN branches b ON b.id=r.branch_id JOIN users u ON u.id=r.opened_by LEFT JOIN users a ON a.id=r.approved_by WHERE r.branch_id IN (${ids}) AND r.status='closed' AND r.difference<>0 AND r.business_date BETWEEN ? AND ? ORDER BY r.id DESC`, r.from, r.to).map((x) => ({ ...x, currency: '' })); break; }
     case 'payment_reconciliation': { columns = [col('method_kind', 'Method'), col('status', 'Status'), col('currency', 'Currency'), col('n', 'Count'), col('received', 'Received', M), col('paid_out', 'Paid out', M), col('unreconciled', 'Unreconciled', M)]; rows = ctx.all(`SELECT method_kind, status, currency, COUNT(*) n, SUM(CASE WHEN direction='in' THEN amount ELSE 0 END) received, SUM(CASE WHEN direction='out' THEN amount ELSE 0 END) paid_out, SUM(CASE WHEN reconciled_at IS NULL AND status='confirmed' THEN CASE direction WHEN 'in' THEN amount ELSE -amount END ELSE 0 END) unreconciled FROM payments WHERE branch_id IN (${ids}) AND business_date BETWEEN ? AND ? GROUP BY 1,2,3 ORDER BY 1,2`, r.from, r.to); break; }
     case 'audit': { columns = [col('created_at', 'Time'), col('user_name', 'User'), col('action', 'Action'), col('entity', 'Record'), col('entity_id', 'ID'), col('before', 'Before'), col('after', 'After')]; rows = ctx.all(`SELECT a.created_at, u.name user_name, a.action, a.entity, a.entity_id, a.before, a.after FROM audit_log a LEFT JOIN users u ON u.id=a.user_id WHERE a.org_id=? AND (a.branch_id IS NULL OR a.branch_id IN (${ids})) AND substr(a.created_at,1,10) BETWEEN ? AND ? ORDER BY a.id DESC LIMIT 2000`, ctx.org_id, r.from, r.to); break; }
@@ -204,3 +215,23 @@ function totalsBy(rows, columns, only) { // totals per currency, never mixed
   return out;
 }
 export function customerPositions(ctx, id) { return customerBalance(ctx, id); }
+
+// Final profit statement of a barber branch. Net profit follows the brief (retained - consumables - operating expenses);
+// advances are cash timing only (not an expense); deductions recovered reduce what the business pays out.
+export function barberProfitLines(ctx, b, { from, to, employee }) {
+  const L = []; const ccy = b.currency; const line = (item, amount, count) => L.push({ branch: b.name, item, currency: ccy, amount, count });
+  const sv = ctx.get(`SELECT COALESCE(SUM(l.net),0) rev, COALESCE(SUM(l.discount),0) disc, COALESCE(SUM(l.cost_total),0) cost, COUNT(DISTINCT s.id) visits, COALESCE(SUM(l.qty),0) services FROM sale_lines l JOIN sales s ON s.id=l.sale_id WHERE s.branch_id=? AND s.kind='service' AND s.status='completed' AND s.business_date BETWEEN ? AND ?${employee ? ' AND l.barber_id=' + employee : ''}`, b.id, from, to);
+  const ref = ctx.get(`SELECT COALESCE(SUM(rl.net),0) n FROM return_lines rl JOIN returns r ON r.id=rl.return_id JOIN sale_lines l ON l.id=rl.sale_line_id JOIN sales s ON s.id=l.sale_id WHERE r.branch_id=? AND s.kind='service' AND r.business_date BETWEEN ? AND ?${employee ? ' AND l.barber_id=' + employee : ''}`, b.id, from, to).n;
+  const com = ctx.get(`SELECT COALESCE(SUM(earned_delta),0) e, COALESCE(SUM(CASE WHEN type='advance' THEN -payable_delta ELSE 0 END),0) adv, COALESCE(SUM(CASE WHEN type='deduction' THEN -payable_delta ELSE 0 END),0) ded FROM commission_ledger WHERE branch_id=? AND business_date BETWEEN ? AND ?${employee ? ' AND employee_id=' + employee : ''}`, b.id, from, to);
+  const pd = ctx.get('SELECT COALESCE(SUM(deductions),0) d, COALESCE(SUM(amount_paid),0) paid FROM commission_payouts WHERE branch_id=? AND business_date BETWEEN ? AND ?', b.id, from, to);
+  const tips = ctx.get("SELECT COALESCE(SUM(tip),0) t FROM sales WHERE branch_id=? AND kind='service' AND status='completed' AND business_date BETWEEN ? AND ?", b.id, from, to).t;
+  const exp = employee ? [] : ctx.all("SELECT c.name cat, SUM(a.amount) amt FROM expense_allocations a JOIN expenses e ON e.id=a.expense_id JOIN expense_categories c ON c.id=e.category_id WHERE a.branch_id=? AND e.status='approved' AND e.expense_date BETWEEN ? AND ? GROUP BY c.name ORDER BY amt DESC", b.id, from, to);
+  const opex = exp.reduce((a, x) => a + x.amt, 0); const net = sv.rev - ref; const retained = net - com.e; const profit = retained - sv.cost - opex; const ded = com.ded + (employee ? 0 : pd.d);
+  line('Customers served (visits)', null, sv.visits); line('Services performed', null, sv.services);
+  line('Service income (after discounts)', sv.rev); line('Less: refunds', -ref); line('Net service income', net);
+  line('Less: staff commission (earned)', -com.e); line('Amount retained after commission', retained);
+  line('Less: consumables (direct service cost)', -sv.cost); for (const x of exp) line('Less: expense - ' + x.cat, -x.amt); line('Less: operating expenses (total)', -opex);
+  line('NET PROFIT of the branch', profit); line('Add: authorised deductions recovered from staff', ded); line('FINAL PROFIT after deductions', profit + ded);
+  line('Memo: advances paid to staff (cash timing, not an expense)', com.adv); line('Memo: commission paid out in the period', pd.paid); line('Memo: tips (not income, not commission base)', tips);
+  return L;
+}
