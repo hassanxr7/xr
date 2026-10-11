@@ -82,6 +82,7 @@ export function formModal({ title, fields, initial = {}, ccy, submit, label = 'S
 }
 export const pill = (s, kind) => h('span', { class: 'pill ' + (kind || ({ paid: 'ok', completed: 'ok', delivered: 'ok', approved: 'ok', received: '', confirmed: 'ok', partial: 'warn', pending: 'warn', unpaid: 'bad', void: 'bad', cancelled: 'bad', failed: 'bad', rejected: 'bad', unrepairable: 'bad', awaiting_approval: 'warn', awaiting_parts: 'warn', in_progress: 'warn', open: 'warn', closed: '' }[s] || '')) }, t(label(s)));
 export const label = (s) => ({ awaiting_approval: 'Awaiting approval', awaiting_parts: 'Awaiting parts', in_progress: 'In progress', unrepairable: 'Unrepairable' }[s] || (s ? s[0].toUpperCase() + s.slice(1).replace(/_/g, ' ') : ''));
+export const tx = (v) => (DATA_TERMS.has(v) ? t(v) : v);
 const DATA_TERMS = new Set(['Walk-in', 'Owner', 'Accountant', 'Branch Manager', 'Cashier', 'Technician', 'Barber']); // stored English system terms shown translated
 export function table(cols, rows, { onRow, empty } = {}) {
   if (!rows.length) return h('div', { class: 'empty' }, empty || t('No data yet'));
