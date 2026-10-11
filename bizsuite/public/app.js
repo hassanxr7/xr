@@ -1,21 +1,23 @@
-import { S, h, $, clear, t, get, post, toast, errText, setTheme, setLang, can, modal, busy, loading, dt, route } from './core.js';
+import { S, h, $, clear, t, get, post, toast, errText, setTheme, setLang, can, modal, busy, loading, dt, route, brandLogo, loadBrand } from './core.js';
 import { views } from './views.js';
 
 setTheme(S.theme); setLang(S.lang);
 const app = $('#app');
 
 async function boot() {
+  await loadBrand();
   if (!S.token) return loginView();
   try { S.user = await get('/auth/me'); } catch { sessionStorage.removeItem('tok'); S.token = null; return loginView(); }
   if (S.user.platform) { location.hash = '#/platform'; }
   if (S.user.lang && !localStorage.getItem('lang')) setLang(S.user.lang);
   shell(); render();
+  if (S.user.must_change_password) forcePasswordChange();
 }
 function loginView(totp) {
   clear(app);
   const email = h('input', { type: 'email', autocomplete: 'username', required: true, 'aria-label': t('Email') }); const pw = h('input', { type: 'password', autocomplete: 'current-password', required: true, 'aria-label': t('Password') }); const code = h('input', { inputmode: 'numeric', autocomplete: 'one-time-code', maxlength: 6, placeholder: '123456' });
   const btn = h('button', { class: 'btn p', style: 'width:100%;justify-content:center' }, t('Sign in')); const err = h('p', { class: 'muted', style: 'color:var(--bad)', role: 'alert' });
-  const form = h('form', { class: 'stack', onsubmit: (e) => e.preventDefault() }, h('div', { class: 'row', style: 'gap:8px' }, h('div', { class: 'brand', style: 'padding:0' }, h('i'), 'BizSuite'), h('span', { class: 'sp', style: 'flex:1' }), langSel()), h('label', { class: 'f' }, t('Email'), email), h('label', { class: 'f' }, t('Password'), pw), totp ? h('label', { class: 'f' }, t('Authentication code'), code) : null, err, btn);
+  const form = h('form', { class: 'stack', onsubmit: (e) => e.preventDefault() }, h('div', { class: 'row', style: 'justify-content:flex-end' }, langSel()), brandLogo(), h('label', { class: 'f' }, t('Email'), email), h('label', { class: 'f' }, t('Password'), pw), totp ? h('label', { class: 'f' }, t('Authentication code'), code) : null, err, btn);
   btn.onclick = async () => { err.textContent = ''; btn.disabled = true; try { const r = await post('/auth/login', { email: email.value, password: pw.value, totp: code.value || undefined }); S.token = r.token; sessionStorage.setItem('tok', r.token); boot(); } catch (e) { if (e.code === 'totp_required') { loginView(true); return; } err.textContent = errText(e); } finally { btn.disabled = false; } };
   app.append(h('div', { class: 'login' }, h('div', { class: 'card' }, form))); email.focus();
 }
@@ -39,16 +41,16 @@ let bell;
 function shell() {
   clear(app); if (S.user.platform) { return app.append(h('div', { class: 'main' }, topbar(), h('div', { class: 'content', id: 'view' }))); }
   let last = null; const nav = h('nav', { class: 'nav', 'aria-label': 'Main' }, NAV().map((i) => { const a = [i.grp !== last ? h('div', { class: 'grp' }, i.grp ? t(i.grp) : null) : null, h('a', { href: '#' + i.path, 'data-path': i.path }, t(i.label))]; last = i.grp; return a; }));
-  const side = h('aside', { class: 'side', id: 'side' }, h('div', { class: 'brand' }, h('i'), 'BizSuite'), nav);
+  const side = h('aside', { class: 'side', id: 'side' }, h('a', { class: 'brand', href: '#/dashboard', 'aria-label': S.brand.name }, brandLogo()), nav);
   app.append(h('div', { class: 'shell' }, side, h('div', { class: 'main' }, topbar(side), h('div', { class: 'content', id: 'view' }))));
   side.addEventListener('click', (e) => { if (e.target.closest('a')) side.classList.remove('open'); });
 }
 function topbar(side) {
   bell = h('button', { class: 'btn', 'aria-label': t('Notifications'), onclick: showNotifs }, '🔔', h('span', { id: 'nbadge', class: 'pill bad', style: 'display:none' }));
   const theme = h('button', { class: 'btn', title: t('Dark mode'), 'aria-label': t('Dark mode'), onclick: () => { const dark = document.documentElement.getAttribute('data-theme') === 'dark' || (S.theme === 'auto' && matchMedia('(prefers-color-scheme: dark)').matches); setTheme(dark ? 'light' : 'dark'); } }, '◐');
-  const ro = S.user.read_only ? h('span', { class: 'pill warn' }, 'Read-only support session') : null;
+  const ro = S.user.read_only ? h('span', { class: 'pill warn' }, t('Read-only support session')) : null;
   setTimeout(pollNotifs, 300);
-  return h('div', { class: 'top' }, side ? h('button', { class: 'btn burger', 'aria-label': 'Menu', onclick: () => side.classList.toggle('open') }, '☰') : null, h('b', {}, S.user.org?.name || 'BizSuite'), ro, h('span', { class: 'sp' }), S.user.platform ? null : bell, langSel(), theme,
+  return h('div', { class: 'top' }, side ? h('button', { class: 'btn burger', 'aria-label': 'Menu', onclick: () => side.classList.toggle('open') }, '☰') : null, h('b', {}, S.user.org?.name || S.brand.name), S.user.branches && S.user.branches.length <= 4 ? S.user.branches.map((b) => h('span', { class: 'chip', title: b.name }, h('i', { style: `background:${b.color || 'var(--brand)'}` }), b.name)) : null, ro, h('span', { class: 'sp' }), S.user.platform ? null : bell, langSel(), theme,
     h('button', { class: 'btn', onclick: userMenu }, S.user.name, ' ', h('small', {}, S.user.role || (S.user.platform ? 'Platform' : ''))));
 }
 async function pollNotifs() { if (S.user.platform) return; try { const r = await get('/notifications', { unread: 1 }); const b = $('#nbadge'); if (b) { b.textContent = r.unread; b.style.display = r.unread ? '' : 'none'; } } catch { /* ignore */ } }
@@ -76,3 +78,10 @@ async function render() {
 }
 addEventListener('hashchange', () => { if (S.token && S.user) render(); });
 boot();
+
+// Accounts created by an administrator (or the first owner) must replace the initial password before doing anything else (also enforced by the server).
+function forcePasswordChange() {
+  const cur = h('input', { type: 'password', autocomplete: 'current-password', placeholder: t('Current password') }); const np = h('input', { type: 'password', autocomplete: 'new-password', placeholder: t('New password') }); const np2 = h('input', { type: 'password', autocomplete: 'new-password', placeholder: t('Repeat new password') });
+  const ok = h('button', { class: 'btn p' }, t('Change password')); const m = modal({ title: t('Choose a new password'), body: h('div', { class: 'stack' }, h('p', {}, t('For security you must replace the initial password before you continue.')), cur, np, np2), actions: () => [ok] }); m.el.dataset.sticky = '1'; m.el.querySelector('header button').remove();
+  ok.onclick = busy(ok, async () => { if (np.value !== np2.value) throw new Error(t('Passwords do not match')); await post('/auth/password', { current: cur.value, password: np.value }); toast(t('Saved'), 'ok'); S.user.must_change_password = false; location.reload(); });
+}

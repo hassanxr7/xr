@@ -17,6 +17,10 @@
     "bootstrap": "node --disable-warning=ExperimentalWarning scripts/bootstrap.js",
     "e2e": "scripts/e2e.sh",
     "docs:api": "node scripts/gen-api-docs.mjs",
-    "preflight": "node --disable-warning=ExperimentalWarning scripts/preflight.js"
+    "preflight": "node --disable-warning=ExperimentalWarning scripts/preflight.js",
+    "i18n": "node scripts/i18n-audit.mjs --strict",
+    "e2e:sweep": "scripts/e2e-sweep.sh",
+    "i18n:export": "node scripts/i18n-export.mjs",
+    "dev": "node --disable-warning=ExperimentalWarning src/server.js"
   }
 }

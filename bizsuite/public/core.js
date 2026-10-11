@@ -1,7 +1,7 @@
 import { so } from './i18n.js';
 // Element.append ignores null/false and flattens arrays, so conditional children never render as the text "null".
 const _append = Element.prototype.append; Element.prototype.append = function (...a) { return _append.apply(this, a.flat(Infinity).filter((x) => x != null && x !== false)); };
-export const S = { user: null, token: sessionStorage.getItem('tok'), lang: localStorage.getItem('lang') || 'en', theme: localStorage.getItem('theme') || 'auto', methods: [] };
+export const S = { brand: { name: 'Hubdex Store LTD', has_logo: false }, user: null, token: sessionStorage.getItem('tok'), lang: localStorage.getItem('lang') || 'en', theme: localStorage.getItem('theme') || 'auto', methods: [] };
 const store = { set(k, v) { try { localStorage.setItem(k, v); } catch { /* storage may be unavailable */ } } };
 export const t = (k, p) => { let s = (S.lang === 'so' && so[k]) || k; if (p) for (const [a, b] of Object.entries(p)) s = s.replace(`{${a}}`, b); return s; };
 export function h(tag, props, ...kids) {
@@ -28,6 +28,7 @@ export class ApiError extends Error { constructor(status, e) { super(e.message |
 export function errText(e) { if (e instanceof ApiError) { const k = 'err.' + e.code; const tr = t(k); return tr !== k ? tr : e.message; } return e.message || t('Something went wrong'); }
 const qs = (q) => { const p = new URLSearchParams(); for (const [k, v] of Object.entries(q || {})) if (v !== '' && v != null) p.set(k, v); const s = p.toString(); return s ? '?' + s : ''; };
 export async function api(method, path, body, query, opts = {}) {
+  if (S.lang === 'so' && /^\/(reports|print|notifications)/.test(path)) query = { ...(query || {}), lang: 'so' };
   const headers = { 'Content-Type': 'application/json' }; if (S.token) headers.Authorization = 'Bearer ' + S.token; if (opts.idem) headers['Idempotency-Key'] = opts.idem;
   const r = await fetch('/api' + path + qs(query), { method, headers, body: method === 'GET' ? undefined : JSON.stringify(body || {}) });
   if (opts.raw) { if (!r.ok) throw new ApiError(r.status, (await r.json().catch(() => ({}))).error || {}); return r; }
@@ -127,4 +128,13 @@ export function payRows(ccy, methods, getTotal) {
   const add = (amt) => { const row = h('div', { class: 'row' }, sel(methods.filter((m) => m.kind !== 'credit').map((m) => ({ value: m.id, label: m.name })), defMethod, null, { 'aria-label': t('Payment method') }), h('input', { class: 'amt', inputmode: 'decimal', placeholder: t('Amount'), value: amt ?? '', style: 'width:110px', 'aria-label': t('Amount') }), h('input', { class: 'ref', placeholder: t('Reference'), style: 'width:120px', 'aria-label': t('Reference') }), h('button', { class: 'btn s', type: 'button', onclick: () => row.remove(), 'aria-label': t('Remove') }, '✕')); rows.append(row); return row; };
   return { el: h('div', {}, rows, h('div', { class: 'row', style: 'margin-top:6px' }, h('button', { class: 'btn s', type: 'button', onclick: () => add('') }, '+ ' + t('Add payment')), h('button', { class: 'btn s', type: 'button', onclick: () => { rows.innerHTML = ''; add(plain(getTotal(), ccy)); } }, t('Pay full')))), add,
     read: () => [...rows.children].map((r) => ({ method_id: Number(r.querySelector('select').value), amountStr: r.querySelector('.amt').value, external_ref: r.querySelector('.ref').value.trim() || undefined })).filter((p) => p.amountStr.trim() !== '').map((p) => ({ method_id: p.method_id, amount: parseMoney(p.amountStr, ccy), external_ref: p.external_ref })), clear: () => { rows.innerHTML = ''; } };
+}
+
+export const brandLogo = (cls = 'brandlogo') => (S.brand.has_logo ? h('img', { class: cls, src: '/api/branding/logo?v=' + (S.brand.v || 0), alt: S.brand.name }) : h('b', { class: 'brandtext' }, S.brand.name));
+export async function loadBrand() { try { const r = await fetch('/api/branding'); if (r.ok) { S.brand = { ...(await r.json()), v: Date.now() }; document.title = S.brand.name; } } catch { /* keep defaults */ } }
+// CSV / Excel / PDF / Print buttons for a server report (permission + branch scope are enforced by the server)
+export function exportButtons(path, params, base) {
+  const ok = can('reports.export') || can('commissions.export') || can('expenses.export') || can('inventory.export') || can('sales.export');
+  const b = (fmt, ext, text) => h('button', { class: 'btn', onclick: () => download(path, { ...params, format: fmt }, `${base}.${ext}`).catch((e) => toast(errText(e), 'bad')) }, text);
+  return h('div', { class: 'row' }, ok ? [b('csv', 'csv', t('Export CSV')), b('xlsx', 'xlsx', t('Export Excel')), b('pdf', 'pdf', t('Export PDF'))] : null, ok || can('reports.print') ? h('button', { class: 'btn', onclick: () => openDoc(path, { ...params, format: 'html' }) }, t('Print')) : null);
 }

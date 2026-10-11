@@ -1,5 +1,8 @@
 # Administrator guide (owner / accountant / branch manager)
 
+## 0. Company branding
+**Settings → Branding**: company name, tagline and the **Hubdex Store LTD logo** (upload the original PNG/JPEG/WebP; max 2 MB). It appears on the sign-in page, the menu, receipts, invoices, quotations, repair slips and report print-outs/PDFs. A branch can have its own logo and colour (*Organisation → Edit branch*); the colour shows next to the branch name in the top bar.
+
 ## 1. First set-up (owner)
 1. **Organisation → + Business**: choose the operating type – *Clothing and Footwear*, *Electronics and Mobile Retail*, *Electronics and Mobile Repair*, *Barber Shop*, or *Retail and Repair combined*. The menu each user sees is derived from the types of the branches they work in.
 2. **+ Branch**: code (2–8 letters, used in every document number, e.g. `UWM` → `INV-UWM-000001`), name, address, phone, **currency**, **timezone** (default Africa/Mogadishu), **tax rate** (0 for none), who receives tips, whether an **open register is required for cash**, whether **credit sales** are allowed, receipt header/footer, invoice terms. *Edit* lets you pick the branch manager and upload a logo (shown on receipts). *+ Dept* adds a department (e.g. a Repair Desk inside a retail branch) that enables that department's modules.
@@ -28,6 +31,14 @@ Turn on **2FA** for yourself (top-right name → *Enable two-factor authenticati
 * **Payments**: filter by method/status; *pending* mobile-money entries are confirmed or cancelled here; *Reverse* creates an offsetting payment (the original stays). **Reconcile**: tick mobile/bank payments, enter the statement total, the difference is recorded and flagged.
 * **Suppliers / Purchases**: create a purchase (optionally *receive now*), receive partial deliveries, pay the supplier, return goods. Inventory increases only by what you actually receive; freight/duty is added to the cost.
 * **Commissions → Pay out**: pick the employee, the date up to which to settle, optional *deductions* (reason required), amount paid. Everything payable up to that date is settled **once**; any remaining balance is carried forward. **Advance** records cash given before payday. A refund after a payout appears as a negative balance and is netted next time.
+
+## 4b. Rio Berber – daily staff accounting (barber branch)
+Open **Commissions** (Berber manager or owner):
+* **Daily work** – for the chosen period (today, week, month, custom) and optionally one barber: per employee **days worked, customers served, services, income generated (after refunds), commission %, commission earned, advances, authorised deductions, take-home, amount retained by the business, tips**; a **Day by day** table (click a day to see each barber); and the full **daily detail per employee**. Export CSV / Excel / PDF / Print.
+* **Branch profit** (needs *profit.view*) – the final statement for the shop: service income − refunds = net service income; − staff commission = amount retained; − consumables; − each expense category (rent, electricity, supplies…) = **NET PROFIT**; + authorised deductions recovered from staff = **FINAL PROFIT after deductions**; memo lines for advances, payouts and tips. It always equals the *Net profit* on the dashboard for the branch.
+* **Employee performance** – the same per-barber numbers as a period summary, with **Pay out / Advance / Deduction** buttons.
+* **How a day works:** the front desk records each customer visit and picks the barber for every service (one customer with two services = one customer served, two services). The barber's rate is copied onto the line at that moment. Commission becomes *payable* as the customer's money is collected. **Advance** = cash handed to the barber early (not an expense, shown separately); **Deduction** = an authorised amount taken from what you owe the barber (needs a reason; reduces the payout, adds to the final profit). **Pay out** settles everything payable up to a date exactly once.
+* **Salary:** fixed monthly salaries are not part of the commission ledger – book them under *Expenses → Salaries* so they are deducted in the branch profit.
 
 ## 5. Branch managers
 Same screens limited to your branches: approve requests within your limits, count and adjust stock, receive transfers, approve closed registers, close the day, process payouts within your limit, view branch performance.

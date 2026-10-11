@@ -17,10 +17,11 @@ const visit = async (page, hash, expectSel = '.card') => { await page.goto(BASE 
 const modalClose = async (page) => { const c = await page.$('.overlay [aria-label="Close"]'); if (c) await c.click(); };
 
 await session('owner@demo.so', async (page) => {
-  for (const h of ['/dashboard', '/sales', '/repairs', '/inventory', '/transfers', '/purchases', '/devices', '/customers', '/suppliers', '/expenses', '/registers', '/payments', '/commissions', '/reports/consolidated', '/reports/profit', '/reports/barber_commissions', '/reports/inventory_valuation', '/approvals', '/staff', '/roles', '/organisation', '/settings', '/audit', '/visits', '/pos', '/quotes']) await visit(page, h);
+  for (const h of ['/dashboard', '/sales', '/repairs', '/inventory', '/transfers', '/purchases', '/devices', '/customers', '/suppliers', '/expenses', '/registers', '/payments', '/commissions', '/commissions?tab=daily&preset=year', '/commissions?tab=profit&preset=year', '/reports/barber_daily?preset=year', '/reports/barber_branch_profit?preset=year', '/settings?tab=branding', '/reports/consolidated', '/reports/profit', '/reports/barber_commissions', '/reports/inventory_valuation', '/approvals', '/staff', '/roles', '/organisation', '/settings', '/audit', '/visits', '/pos', '/quotes']) await visit(page, h);
   await visit(page, '/dashboard?preset=year');
   ok(await page.locator('.kpi').count() > 10, 'dashboard shows KPI tiles'); ok(await page.locator('svg.chart').count() > 0, 'dashboard has trend chart');
-  ok((await page.locator('text=KES').count()) > 0 && (await page.locator('text=USD').count()) > 0, 'separate USD and KES totals shown');
+  ok(await page.locator('text=Rio Berber').count() > 0 && await page.locator('text=Rio Store').count() > 0 && await page.locator('text=Reyxaan Store').count() > 0, 'dashboard compares the three branches');
+  ok(await page.locator('.side img.brandlogo').count() === 1 && (await page.title()) === 'Hubdex Store LTD', 'company logo in the menu and company name as page title');
   if (SHOTS) await page.screenshot({ path: SHOTS + '/dashboard.png', fullPage: true });
   await page.click('.kpi >> nth=0'); await page.waitForTimeout(600); ok(page.url().includes('/sales'), 'KPI drills down to the sales list'); ok(await page.locator('tbody tr').count() > 0, 'drill-down lists transactions');
   // open a sale detail + print preview
@@ -36,41 +37,41 @@ await session('owner@demo.so', async (page) => {
   await visit(page, '/inventory'); await page.click('text=+ Products'); await page.fill('[name=name]', 'E2E Hoodie'); await page.fill('[name=prefix]', 'E2EH'); await page.fill('[name=sizes]', 'M, L'); await page.fill('[name=colors]', 'Grey'); await page.fill('[name=cost]', '9.50'); await page.fill('[name=price]', '19.99'); await page.click('.modal footer .p'); await page.waitForTimeout(800);
   await visit(page, '/inventory?q=E2EH'); ok(await page.locator('text=E2EH-M-GRE').count() > 0 && await page.locator('text=E2EH-L-GRE').count() > 0, 'product form created separate size variants');
   // quotation through the UI
-  await visit(page, '/quotes'); await page.click('text=+ Quotations'); await page.waitForSelector('.modal select'); await page.evaluate(() => { const s = document.querySelectorAll('.modal select')[1]; const o = [...s.options].find((x) => x.text.includes('USB-C')); s.value = o.value; }); await page.locator('.modal button', { hasText: 'Add' }).first().click(); await page.click('.modal footer .p'); await page.waitForTimeout(900); await visit(page, '/quotes'); ok(await page.locator('text=QUO-').count() > 0, 'quotation created from the form'); await page.locator('tbody tr', { hasText: 'QUO-' }).first().locator('text=Convert to sale').click(); await page.waitForSelector('.modal'); await page.click('.modal footer .p'); await page.waitForTimeout(900); ok(await page.locator('.modal').innerText().then((x) => /INV-/.test(x)), 'quotation converts to a sale'); await page.evaluate(() => document.querySelectorAll('.overlay').forEach((o) => o.remove()));
+  await visit(page, '/quotes'); await page.click('text=+ Quotations'); await page.waitForSelector('.modal select'); await page.evaluate(() => { const s = document.querySelectorAll('.modal select')[1]; const o = [...s.options].find((x) => x.text.includes('USB-C')); s.value = o.value; }); await page.locator('.modal button', { hasText: 'Add' }).first().click(); await page.click('.modal footer .p'); await page.waitForTimeout(900); await visit(page, '/quotes'); ok(await page.locator('text=QUO-').count() > 0, 'quotation created from the form'); await page.locator('tbody tr', { hasText: 'QUO-' }).first().locator('text=Convert to sale').click(); await page.waitForSelector('.modal'); await page.evaluate(() => { const s = document.querySelector('.modal select'); const o = [...s.options].find((x) => /Mobile/.test(x.text)); s.value = o.value; }); await page.click('.modal footer .p'); await page.waitForTimeout(900); ok(await page.locator('.modal').innerText().then((x) => /INV-/.test(x)), 'quotation converts to a sale'); await page.evaluate(() => document.querySelectorAll('.overlay').forEach((o) => o.remove()));
   // organisation: create a branch
   await visit(page, '/organisation'); await page.click('text=+ Branch'); await page.fill('[name=code]', 'E2E'); await page.fill('[name=name]', 'E2E Branch'); await page.click('.modal footer .p'); await page.waitForTimeout(800); await visit(page, '/organisation'); ok(await page.locator('text=E2E Branch').count() > 0, 'branch created from the form');
   // roles editor loads permission matrix
   await visit(page, '/roles'); await page.locator('tbody tr', { hasText: 'Cashier' }).locator('text=Edit').click(); await page.waitForSelector('.perm-grid'); ok(await page.locator('.perm-grid input[type=checkbox]').count() > 100, 'permission matrix shows module x action grid'); await modalClose(page);
 });
 
-await session('cashier.uw@demo.so', async (page) => {
+await session('cashier.store@demo.so', async (page) => {
   await visit(page, '/pos'); ok(await page.locator('.nav a', { hasText: 'Staff' }).count() === 0, 'cashier menu hides admin pages');
   const noReg = await page.locator('button:has-text("Open register")').count(); if (noReg) { await page.click('button:has-text("Open register")'); await page.fill('[name=opening_cash]', '20'); await page.click('.modal footer .p'); await page.waitForTimeout(700); }
   await page.fill('input[placeholder^="Scan"]', 'POLO'); await page.waitForTimeout(700); await page.locator('.tile').first().click(); ok(await page.locator('.pos-layout .card:nth-child(2) tbody tr').count() === 1, 'search tile adds item to cart');
-  await page.click('text=Pay full'); await page.click('text=Complete sale'); await page.waitForSelector('.modal', { timeout: 8000 }); ok(await page.locator('.modal').innerText().then((s) => /INV-UWM-/.test(s)), 'sale completes and shows reference'); await page.click('text=Thermal receipt'); await page.waitForSelector('iframe'); await page.evaluate(() => document.querySelectorAll('.overlay').forEach((o) => o.remove()));
+  await page.click('text=Pay full'); await page.click('text=Complete sale'); await page.waitForSelector('.modal', { timeout: 8000 }); ok(await page.locator('.modal').innerText().then((s) => /INV-RST-/.test(s)), 'sale completes and shows reference'); await page.click('text=Thermal receipt'); await page.waitForSelector('iframe'); await page.evaluate(() => document.querySelectorAll('.overlay').forEach((o) => o.remove()));
   // barcode scan path: exact barcode enter adds directly
   await page.fill('input[placeholder^="Scan"]', '6002042'); await page.keyboard.press('Enter'); await page.waitForTimeout(600);
-  const r = await page.evaluate(async () => { const t = sessionStorage.getItem('tok'); const x = await fetch('/api/sales?branch_id=2', { headers: { Authorization: 'Bearer ' + t } }); return x.status; }); ok(r === 404, 'cashier of Branch A gets 404 for Branch B via direct API call');
+  const r = await page.evaluate(async () => { const t = sessionStorage.getItem('tok'); const x = await fetch('/api/sales?branch_id=1', { headers: { Authorization: 'Bearer ' + t } }); return x.status; }); ok(r === 404, 'cashier of Branch A gets 404 for Branch B via direct API call');
   await page.goto(BASE + '#/staff'); await page.waitForTimeout(500); ok(await page.locator('text=Missing permission').count() > 0 || await page.locator('text=permission').count() > 0, 'direct URL to admin page is refused by the server');
 }, { width: 820, height: 1000 });
 
-await session('manager.ec@demo.so', async (page) => {
-  await visit(page, '/visits'); await page.locator('.tile.svc').first().click(); await page.click('text=Pay full'); await page.click('text=Record visit'); await page.waitForSelector('.modal', { timeout: 8000 }); ok(await page.locator('.modal').innerText().then((s) => /VIS-ECM-/.test(s)), 'barber visit recorded');
+await session('manager.berber@demo.so', async (page) => {
+  await visit(page, '/visits'); await page.locator('.tile.svc').first().click(); await page.click('text=Pay full'); await page.click('text=Record visit'); await page.waitForSelector('.modal', { timeout: 8000 }); ok(await page.locator('.modal').innerText().then((s) => /VIS-RBR-/.test(s)), 'barber visit recorded');
   await page.evaluate(() => document.querySelectorAll('.overlay').forEach((o) => o.remove()));
-  await visit(page, '/commissions?preset=year'); ok(await page.locator('text=Ahmed').count() > 0, 'commission report lists barbers'); await page.locator('tbody tr', { hasText: 'Ahmed' }).locator('text=Pay out').click(); await page.waitForSelector('.modal'); ok(true, 'payout form opens'); await modalClose(page);
+  await visit(page, '/commissions?tab=daily&preset=year'); ok(await page.locator('text=Customers served').count() > 0 && await page.locator('tbody tr', { hasText: 'Ahmed' }).count() > 0, 'barber daily sheet lists staff with customers served'); await visit(page, '/commissions?tab=profit&preset=year'); ok(await page.locator('text=FINAL PROFIT after deductions').count() > 0, 'barber branch final profit statement'); await visit(page, '/commissions?tab=report&preset=year'); ok(await page.locator('text=Ahmed').count() > 0, 'commission report lists barbers'); await page.locator('tbody tr', { hasText: 'Ahmed' }).locator('text=Pay out').click(); await page.waitForSelector('.modal'); ok(true, 'payout form opens'); await modalClose(page);
   await visit(page, '/dashboard?preset=year'); ok(await page.locator('text=Net profit').count() > 0, 'manager sees profit for their branch');
 });
 
 await session('ahmed@demo.so', async (page) => {
-  await visit(page, '/commissions?preset=year'); ok(await page.locator('tbody tr').count() === 1, 'barber sees only own commission row');
+  await visit(page, '/commissions?tab=daily&preset=year'); ok(await page.locator('tbody tr', { hasText: 'Farah' }).count() === 0 && await page.locator('tbody tr', { hasText: 'Ahmed' }).count() > 0, 'barber sees only own daily work');
   ok(await page.locator('.nav a', { hasText: 'Expenses' }).count() === 0 && await page.locator('.nav a', { hasText: 'Staff' }).count() === 0, 'barber menu limited');
   await visit(page, '/dashboard?preset=year'); ok(await page.locator('text=Gross profit').count() === 0, 'barber dashboard hides profit');
 }, { width: 390, height: 800 });
 
-await session('tech.th@demo.so', async (page) => {
-  await visit(page, '/repairs'); ok(await page.locator('tbody tr').count() > 0, 'technician sees assigned repair jobs'); await page.locator('tbody tr').first().click(); await page.waitForSelector('.modal'); ok(await page.locator('.modal').innerText().then((s) => s.includes('REP-THM-')), 'repair detail opens');
+await session('tech.reyxaan@demo.so', async (page) => {
+  await visit(page, '/repairs'); ok(await page.locator('tbody tr').count() > 0, 'technician sees assigned repair jobs'); await page.locator('tbody tr').first().click(); await page.waitForSelector('.modal'); ok(await page.locator('.modal').innerText().then((s) => s.includes('REP-RYX-')), 'repair detail opens');
 });
-await session('manager.th@demo.so', async (page) => {
+await session('manager.reyxaan@demo.so', async (page) => {
   await visit(page, '/repairs'); await page.click('text=+ New repair'); await page.fill('[name=customer_name]', 'E2E Customer'); await page.fill('[name=fault]', 'No power'); await page.fill('[name=est_price]', '30'); await page.click('.modal footer .p'); await page.waitForTimeout(1200);
   await page.evaluate(() => document.querySelectorAll('.overlay').forEach((o) => o.remove())); await visit(page, '/repairs?q=E2E'); ok(await page.locator('text=E2E Customer').count() > 0, 'intake form creates a repair job');
   await visit(page, '/registers'); ok(await page.locator('tbody tr').count() > 0, 'register sessions listed'); await visit(page, '/reports/cash_discrepancies?preset=year'); ok(await page.locator('tbody tr').count() >= 0, 'discrepancy report renders');

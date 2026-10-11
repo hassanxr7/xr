@@ -226,6 +226,8 @@ Every request is checked server-side for (1) tenant, (2) permission `module.acti
 | Method | Path | Handler |
 |---|---|---|
 | GET | `/api/commissions/report` | `reports.js → resolveFilters` |
+| GET | `/api/commissions/daily` | `reports.js → resolveFilters` |
+| POST | `/api/commissions/deductions` | `commissions.js → recordDeduction` |
 | GET | `/api/commissions/ledger` | `commissions.js → ledger` |
 | GET | `/api/commissions/payouts` | `commissions.js → listPayouts` |
 | GET | `/api/commissions/payouts/:id` | `commissions.js → payoutDetail` |
@@ -278,7 +280,6 @@ Every request is checked server-side for (1) tenant, (2) permission `module.acti
 | Method | Path | Handler |
 |---|---|---|
 | GET | `/api/reports` | `inline (api.js)` |
-| GET | `/api/reports/:name` | `reports.js → runReport` |
 
 ## export
 
@@ -336,4 +337,20 @@ Every request is checked server-side for (1) tenant, (2) permission `module.acti
 | Method | Path | Handler |
 |---|---|---|
 | GET | `/api/audit` | `inline (api.js)` |
+
+## branding
+
+| Method | Path | Handler |
+|---|---|---|
+| GET | `/api/branding` | `inline (api.js)` |
+| GET | `/api/branding/logo` | `inline (api.js)` |
+
+## org
+
+| Method | Path | Handler |
+|---|---|---|
+| GET | `/api/org` | `inline (api.js)` |
+| PATCH | `/api/org` | `inline (api.js)` |
+| POST | `/api/org/logo` | `inline (api.js)` |
+| DELETE | `/api/org/logo` | `inline (api.js)` |
 

@@ -14,7 +14,7 @@ docker compose up -d --build
 # create the first organisation + owner (generate a strong password; do not reuse the demo one)
 docker compose exec -e OWNER_EMAIL=you@example.com -e OWNER_PASSWORD='<generated>' -e ORG_NAME='My Group' app npm run bootstrap
 ```
-Open `https://<DOMAIN>` and sign in. Then: Organisation → add businesses and branches → Staff → Settings.
+Open `https://<DOMAIN>` and sign in (the owner is forced to choose a new password at first login). Then upload the company logo: **Settings → Branding**. Then: Organisation → add businesses and branches → Staff → Settings.
 Data lives in the `bizsuite-data` Docker volume (`/data`: database, uploads, backups).
 
 ## Option B – systemd on a VM
@@ -40,6 +40,14 @@ sudo mkdir -p /var/lib/bizsuite && sudo chown bizsuite /var/lib/bizsuite
 sudo systemctl enable --now bizsuite
 ```
 Put Caddy or nginx in front for TLS (`reverse_proxy 127.0.0.1:3000`).
+
+## Go-live checklist (run before announcing)
+```bash
+docker compose exec app npm run preflight        # or: npm run preflight  (set NODE_ENV=production HTTPS=1 TRUST_PROXY=1)
+```
+`preflight` checks Node version, writable data directory, free disk, database integrity + foreign keys, migrations, **absence of demo accounts**, owner 2FA and password-change status, backup freshness, HTTPS/proxy/2FA settings, and exits non-zero on any failure. Then: create the first backup (`npm run backup`), copy it off the server, perform one restore on a scratch machine (`BACKUP_RESTORE.md`), and walk the acceptance checklist in `TESTING.md`.
+
+Production never loads demo data unless you set `SEED_DEMO=1` (the server defaults to *no demo data* when `NODE_ENV=production`, which the Docker image sets). New users created by an administrator, and the first owner, must change their password at first login (also enforced by the API).
 
 ## Configuration (environment variables)
 | Variable | Default | Meaning |

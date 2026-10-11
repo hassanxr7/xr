@@ -1,28 +1,38 @@
-# BizSuite – multi-business, multi-branch management platform
+# Hubdex Store LTD – business management platform (BizSuite)
 
-Clothing & footwear · electronics & mobile retail · device repair · barber shops – one owner dashboard, per-branch access enforced on the server.
+Three branches, one owner dashboard, separate access per branch – enforced on the server:
 
-**Read `docs/LIMITATIONS.md` first** – it lists everything that is *not* done (no live deployment, no video, no e-mail/SMS/WhatsApp, no payment-provider or SaaS-billing integration, Somali text unreviewed, …).
+| Branch | Type | What it runs |
+|---|---|---|
+| **Rio Berber** | Barber / salon | services, customer visits per barber, daily staff sheet, commission %, advances, deductions, branch profit |
+| **Rio Store** | Clothing, shoes & fashion | products with size/colour variants, POS, purchases, returns/exchanges, stock |
+| **Reyxaan Store** | Electronics | phones/accessories (IMEI tracking, warranty), repairs with job sheets, spare parts |
+
+Each branch has its own identity (name, colour, optional logo), staff, stock/services, sales, expenses, reports and profit figures; the owner sees everything (or filters to one branch) on the main dashboard.
+
+**Read `docs/LIMITATIONS.md` first** – it lists everything that is *not* done.
+
+**Logo:** the Hubdex Store LTD logo is applied on the sign-in page, menu, receipts, invoices, quotations, repair slips and report print-outs/PDFs. The copy shipped in `public/brand/` is a *vector re-creation* made from the image supplied in the chat (the original file could not be copied). To use the original artwork: sign in as owner → **Settings → Branding → Upload logo** (PNG/JPEG/WebP). It takes priority immediately and is also embedded in PDFs.
 
 ## Quick start (local demo, 1 minute)
-Requires **Node.js ≥ 22.13** – no `npm install` needed (zero dependencies).
+Requires **Node.js ≥ 22.13** – no `npm install` needed (zero dependencies). Names, passwords and accounts above are **demo only**: edit them in Staff / Organisation, or start production empty (`docs/DEPLOYMENT.md`).
 ```bash
 cd bizsuite
 npm start                  # creates ./data and loads demo data on first run → http://localhost:3000
-npm test                   # 37 tests
+npm test                   # automated tests (unit + integration)
 ```
 Demo accounts – password **`Demo@1234`** (demo only; production starts empty):
-| Role | Account | Branches |
+| Role | Account | Branch |
 |---|---|---|
-| Owner | `owner@demo.so` | all |
+| Owner | `owner@demo.so` | all three |
 | Accountant | `accountant@demo.so` | all (financial modules) |
-| Manager | `manager.uw@demo.so` (Urban Wear Mogadishu) · `manager.hga@demo.so` (Urban Wear Hargeisa) · `manager.th@demo.so` (TechHub Mogadishu) · `manager.fx@demo.so` (FixIt Pro) · `manager.ec@demo.so` (Elite Cuts Mogadishu) · `manager.ecn@demo.so` (Elite Cuts Nairobi, KES) | one each |
-| Cashier | `cashier.uw@demo.so` · `cashier.hga@demo.so` · `cashier.th@demo.so` | one each |
-| Technician | `tech.th@demo.so` (15 %) · `tech.fx@demo.so` (20 %) | TechHub / FixIt |
-| Barber | `ahmed@demo.so` (40 %) · `farah@demo.so` (45 %) · `omar@demo.so` (50 %) · `kamau@demo.so` (40 %, Nairobi) | Elite Cuts |
+| Manager | `manager.berber@demo.so` · `manager.store@demo.so` · `manager.reyxaan@demo.so` | Rio Berber · Rio Store · Reyxaan Store |
+| Cashier / front desk | `cashier.berber@demo.so` · `cashier.store@demo.so` · `cashier.reyxaan@demo.so` | one each |
+| Technician | `tech.reyxaan@demo.so` (15 %) | Reyxaan Store |
+| Barbers | `ahmed@demo.so` (40 %) · `farah@demo.so` (45 %) · `omar@demo.so` (50 %) | Rio Berber |
 | Platform admin | `platform@bizsuite.local` | tenants only (no business data) |
 
-Demo data: 5 businesses, 7 branches, USD + KES, ~14 days of sales/visits/purchases/transfers (one still **in transit**), IMEI phones, 4 repair jobs in different states (delivered, overdue diagnosis, one awaiting a revision approval, a fresh intake), commission advance + payout, expenses incl. a revenue-allocated shared one, register sessions (one with a 5.00 shortage). Approvals appear when you trigger one (e.g. a 30 % discount as a cashier).
+Demo data: Hubdex Store LTD with 3 branches (USD), ~14 days of sales, barber visits (≈ 8 customers a day split between three barbers), purchases, IMEI phones, 4 repair jobs in different states (delivered, overdue diagnosis, one awaiting a revision approval, a fresh intake), an advance, a payout and an authorised deduction for the barbers, expenses incl. a company-wide marketing expense shared by revenue, register sessions (one with a 5.00 shortage). Approvals appear when you trigger one (e.g. a 30 % discount as a cashier).
 
 ## Production
 See `docs/DEPLOYMENT.md` (Docker + Caddy HTTPS, or systemd), `docs/BACKUP_RESTORE.md`. First owner: `npm run bootstrap`.
@@ -38,6 +48,7 @@ See `docs/DEPLOYMENT.md` (Docker + Caddy HTTPS, or systemd), `docs/BACKUP_RESTOR
 | `docs/API.md` | generated route table (`npm run docs:api`) |
 | `docs/THIRD_PARTY.md`, `docs/COSTS.md` | licences, integration & recurring costs, SaaS activation scope |
 | `docs/TESTING.md`, `docs/TEST_RESULTS.txt` | results, acceptance matrix, manual checklist |
+| `docs/SOMALI_REVIEW.md`, `docs/somali-review.csv` | Somali status, glossary, review sheet |
 | `docs/DEMO_SCRIPT.md`, `docs/LIMITATIONS.md` | video script, honest gap list |
 
 ## Layout

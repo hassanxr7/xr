@@ -1,6 +1,6 @@
 # Implementation proposal
 
-> Status note: unlike a normal pre-development proposal, the platform described here **already exists in this repository** (built and tested). Where this proposal says *Done* it refers to working, tested code; *Not done* items are listed honestly in `LIMITATIONS.md`.
+> Status note: unlike a normal pre-development proposal, the platform described here **already exists in this repository** (built and tested). It is configured for **Hubdex Store LTD** with three branches – **Rio Berber** (barber/salon), **Rio Store** (clothing, shoes, fashion) and **Reyxaan Store** (electronics + repair). Where this proposal says *Done* it refers to working, tested code; *Not done* items are listed honestly in `LIMITATIONS.md`.
 
 ## 1. Understanding of the requirements
 One system to run three kinds of business – clothing/footwear retail, electronics & mobile retail with device repair, and barber shops – across several businesses and branches, with **one owner dashboard** and **per-branch, per-role access that is enforced on the server**. Money must be correct and traceable: revenue, cash collected and profit are separate; inventory is costed (weighted average); barber/technician commission is computed per transaction, stored with the rate in force, paid once, and reversed on refunds; cash registers reconcile; nothing confirmed is edited or deleted – only voided, returned or reversed. The design must allow independent owners to be added later as tenants without re-architecting.

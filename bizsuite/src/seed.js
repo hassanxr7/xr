@@ -119,10 +119,10 @@ export function seedDemo(db, { days = 14 } = {}) {
   com.createPayout(mgr.RBR, { branch_id: RBR, employee_id: U.ahmed, period_to: addDays(today, -Math.max(1, Math.min(5, days - 1))), amount_paid: 1000, method_id: CASH, deductions: 0, note: 'Settlement' });
   if (anySaleId) { try { sales.returnSale(mgr.RST, { sale_id: anySaleId, lines: [{ sale_line_id: db.prepare('SELECT id FROM sale_lines WHERE sale_id=?').get(anySaleId).id, qty: 1 }], refund_method_id: CASH, reason: 'Wrong size' }); } catch { /* ignore */ } }
   setNow(`${addDays(today, -7)}T09:30:00.000Z`);
-  for (const [b, a] of [[RST, 30000], [RYX, 40000], [RBR, 20000]]) fin.createExpense(O, { scope: 'branch', branch_id: b, category_id: cat('Rent'), amount: a, method_id: BANK, description: 'Monthly rent' });
-  fin.createExpense(O, { scope: 'branch', branch_id: RBR, category_id: cat('Supplies'), amount: 4000, method_id: MOBILE, description: 'Clippers, capes, shampoo' });
-  fin.createExpense(O, { scope: 'branch', branch_id: RBR, category_id: cat('Electricity'), amount: 2500, method_id: MOBILE, description: 'Electricity' });
-  fin.createExpense(O, { scope: 'org', category_id: cat('Marketing'), amount: 15000, method_id: BANK, alloc_rule: 'revenue', description: 'Hubdex social media campaign (shared across the three branches)' });
+  for (const [b, a] of [[RST, 9000], [RYX, 12000], [RBR, 6000]]) fin.createExpense(O, { scope: 'branch', branch_id: b, category_id: cat('Rent'), amount: a, method_id: BANK, description: 'Monthly rent' });
+  fin.createExpense(O, { scope: 'branch', branch_id: RBR, category_id: cat('Supplies'), amount: 3000, method_id: MOBILE, description: 'Clippers, capes, shampoo' });
+  fin.createExpense(O, { scope: 'branch', branch_id: RBR, category_id: cat('Electricity'), amount: 1800, method_id: MOBILE, description: 'Electricity' });
+  fin.createExpense(O, { scope: 'org', category_id: cat('Marketing'), amount: 4500, method_id: BANK, alloc_rule: 'revenue', description: 'Hubdex social media campaign (shared across the three branches)' });
   setNow(null);
   return { org_id: ORG, owner_id, ids: { RBR, RST, RYX, RIOB, RIOS, REYX }, users: U, methods: { CASH, MOBILE, BANK }, repairs: { R1, R2, R3 } };
 }

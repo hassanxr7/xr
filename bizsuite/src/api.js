@@ -22,6 +22,7 @@ import { createBackup, listBackups } from './backup.js';
 import * as quo from './quotes.js';
 import { fileURLToPath } from 'node:url';
 import { prepareImage } from './image.js';
+import { translateReport, translateNotification } from './lang.js';
 import { sheetXlsx } from './xlsx.js';
 
 const MAGIC = { 'image/png': [0x89, 0x50, 0x4e, 0x47], 'image/jpeg': [0xff, 0xd8, 0xff], 'image/webp': [0x52, 0x49, 0x46, 0x46] };
@@ -135,7 +136,7 @@ export function createApi(db, { dataDir = './data', loginLimit = 10 } = {}) {
   on('GET', '/api/quotes/:id', (c, r) => quo.getQuote(c, num(r.params.id)));
   on('POST', '/api/quotes/:id/status', (c, r) => quo.setQuoteStatus(c, num(r.params.id), r.body.status));
   on('POST', '/api/quotes/:id/convert', (c, r) => quo.convertQuote(c, num(r.params.id), r.body));
-  on('GET', '/api/print/quote/:id', (c, r) => { c.need('sales.print'); const q = quo.getQuote(c, num(r.params.id)); q.company = c.get('SELECT name FROM orgs WHERE id=?', c.org_id).name; q.logo = logoUri(c, q.branch_id); return { raw: ex.quoteDoc(q, r.query.mode === 'thermal' ? 'thermal' : 'a4'), type: 'text/html; charset=utf-8' }; });
+  on('GET', '/api/print/quote/:id', (c, r) => { c.need('sales.print'); const q = quo.getQuote(c, num(r.params.id)); q.company = c.get('SELECT name FROM orgs WHERE id=?', c.org_id).name; q.logo = logoUri(c, q.branch_id); return { raw: ex.quoteDoc(q, r.query.mode === 'thermal' ? 'thermal' : 'a4', r.query.lang), type: 'text/html; charset=utf-8' }; });
 
   // ---------- payments ----------
   on('GET', '/api/payments', (c, r) => pay.listPayments(c, r.query));
@@ -204,14 +205,14 @@ export function createApi(db, { dataDir = './data', loginLimit = 10 } = {}) {
   // ---------- approvals, notifications, audit ----------
   on('GET', '/api/approvals', (c, r) => ({ rows: listApprovals(c, r.query) }));
   on('POST', '/api/approvals/:id/decision', (c, r) => decideApproval(c, num(r.params.id), r.body.approve === true, r.body.note));
-  on('GET', '/api/notifications', (c, r) => { try { scanAlerts(db); } catch { /* best effort */ } return listNotifications(c, r.query); });
+  on('GET', '/api/notifications', (c, r) => { try { scanAlerts(db); } catch { /* best effort */ } const out = listNotifications(c, r.query); if (r.query.lang === 'so') out.rows = out.rows.map((n) => ({ ...n, message: translateNotification(n.message, 'so') })); return out; });
   on('POST', '/api/notifications/read', (c, r) => markRead(c, r.body.ids));
 
   // ---------- dashboard & reports ----------
   on('GET', '/api/dashboard', (c, r) => rpt.dashboard(c, r.query));
   on('GET', '/api/reports', (c) => ({ rows: Object.entries(rpt.REPORTS).filter(([, d]) => c.can(d.perm) && (!d.needs || c.can(d.needs))).map(([k, d]) => ({ key: k, title: d.title })) }));
   on('GET', '/api/reports/:name', (c, r) => {
-    const rp = rpt.runReport(c, r.params.name, r.query); const fmtq = r.query.format || 'json'; const mod = rpt.REPORTS[r.params.name].perm.split('.')[0];
+    const lang = r.query.lang === 'so' ? 'so' : 'en'; const rp = translateReport(rpt.runReport(c, r.params.name, r.query), lang); const fmtq = r.query.format || 'json'; const mod = rpt.REPORTS[r.params.name].perm.split('.')[0];
     if (fmtq === 'json') return rp;
     if (['csv', 'pdf', 'xlsx'].includes(fmtq)) { if (!c.can('reports.export') && !c.can(mod + '.export')) throw forbidden('Export not permitted', 'missing_permission'); c.audit('report.export', 'report', null, null, { name: r.params.name, format: fmtq, ...r.query }); }
     else if (!c.can('reports.print') && !c.can('reports.export') && !c.can(mod + '.print')) throw forbidden('Printing not permitted', 'missing_permission');
@@ -230,8 +231,8 @@ export function createApi(db, { dataDir = './data', loginLimit = 10 } = {}) {
   });
 
   // ---------- printing ----------
-  on('GET', '/api/print/sale/:id', (c, r) => { c.need(sales.getSale(c, num(r.params.id)).kind === 'service' ? 'services.print' : 'sales.print'); const sale = sales.getSale(c, num(r.params.id)); sale.logo = logoUri(c, sale.branch_id); sale.company = c.get('SELECT name FROM orgs WHERE id=?', c.org_id).name; return { raw: ex.saleDoc(sale, r.query.mode === 'a4' ? 'a4' : 'thermal'), type: 'text/html; charset=utf-8' }; });
-  on('GET', '/api/print/repair/:id', (c, r) => { c.need('repairs.print'); const j = rep.getRepair(c, num(r.params.id)); j.company = c.get('SELECT name FROM orgs WHERE id=?', c.org_id).name; j.logo = logoUri(c, j.branch_id); return { raw: ex.repairDoc(j, r.query.mode === 'a4' ? 'a4' : 'thermal'), type: 'text/html; charset=utf-8' }; });
+  on('GET', '/api/print/sale/:id', (c, r) => { c.need(sales.getSale(c, num(r.params.id)).kind === 'service' ? 'services.print' : 'sales.print'); const sale = sales.getSale(c, num(r.params.id)); sale.logo = logoUri(c, sale.branch_id); sale.company = c.get('SELECT name FROM orgs WHERE id=?', c.org_id).name; return { raw: ex.saleDoc(sale, r.query.mode === 'a4' ? 'a4' : 'thermal', r.query.lang), type: 'text/html; charset=utf-8' }; });
+  on('GET', '/api/print/repair/:id', (c, r) => { c.need('repairs.print'); const j = rep.getRepair(c, num(r.params.id)); j.company = c.get('SELECT name FROM orgs WHERE id=?', c.org_id).name; j.logo = logoUri(c, j.branch_id); return { raw: ex.repairDoc(j, r.query.mode === 'a4' ? 'a4' : 'thermal', r.query.lang), type: 'text/html; charset=utf-8' }; });
 
   // ---------- files ----------
   on('POST', '/api/files', (c, r) => {

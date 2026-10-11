@@ -42,6 +42,8 @@ migrations/       SQL migrations (001 schema, 002 quotations), tracked in schema
 * Platform administrators have `org_id NULL`, can list/suspend tenants and edit limits, and **cannot read tenant data** unless the tenant owner grants a time-boxed *support grant*; the session is **read-only**, expires, can be revoked instantly, and **every request is written to the tenant's audit log**.
 * For a high-scale SaaS the recommended changes (priced in `COSTS.md`): PostgreSQL with row-level security, per-tenant backup/restore, a job queue and a billing integration.
 
+**Branding note:** the public sign-in page shows the name/logo of the first *non-SaaS* organisation (single-owner mode). In multi-tenant SaaS mode each tenant would need its own sub-domain or sign-in path to show its own logo before login (inside the app every tenant already sees its own logo, receipts and reports).
+
 ## Authorisation (enforced on the server, three independent checks)
 1. **Tenant** – `Ctx.org_id` comes from the session, never from the request.
 2. **Permission** – roles are data: a set of `module.action` strings (`view, create, edit, approve, refund, void, export, print, settings` × 22 modules) plus sensitivity flags (`cost.view`, `profit.view`, `commissions.viewall`, `services.viewall`, `repairs.viewall`, `sales.viewall`, `services.record_any`) and approval limits (`discount_bp`, `refund_max`, `expense_max`, `adjust_qty`, `payout_max`).

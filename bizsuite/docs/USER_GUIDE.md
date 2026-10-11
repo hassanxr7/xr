@@ -14,7 +14,8 @@ Sign in with your e-mail and password (change the password the first time: top-r
 * **Close your register**: *Cash registers* → open your session → **Close register** → enter the cash you counted. A difference needs an explanation.
 * **Quotation**: *Quotations* → + → pick items → print → later **Convert to sale** (prices honoured until the valid-until date).
 
-## Barber
+## Barber (Rio Berber)
+* The **front desk** records every customer visit (**Barber visits**) and picks the barber for each service. At the end of the day the manager checks **Commissions → Daily work**.
 * If you were given permission to record: **Barber visits** → tap the services (each line has *your name* preselected) → payment → **Record visit**. One customer, two services = **one visit, two services**. If several barbers work on one customer, choose the barber for each line.
 * **Commissions**: your visits, services, revenue, discounts/refunds, **commission rate**, earned, payable, advances, paid, outstanding. You see only your own numbers and cannot change your rate.
 
