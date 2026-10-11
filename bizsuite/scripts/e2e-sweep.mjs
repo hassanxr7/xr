@@ -9,6 +9,7 @@ const audit = JSON.parse(fs.readFileSync(process.env.UI_STRINGS || '/tmp/ui-stri
 const EN = new Set(audit.filter((s) => so[s] && so[s] !== s && s.length > 3 && !/^[A-Z0-9 .\-/+]+$/.test(s))); // English UI strings that must never appear verbatim in Somali mode
 const ROLES = [['owner@demo.so', 'owner'], ['accountant@demo.so', 'accountant'], ['manager.berber@demo.so', 'manager-berber'], ['manager.store@demo.so', 'manager-store'], ['manager.reyxaan@demo.so', 'manager-reyxaan'], ['cashier.store@demo.so', 'cashier-store'], ['cashier.berber@demo.so', 'frontdesk-berber'], ['cashier.reyxaan@demo.so', 'cashier-reyxaan'], ['tech.reyxaan@demo.so', 'technician'], ['ahmed@demo.so', 'barber']];
 const SKIP = /sign out|ka bax|suspend|activate|revoke|create backup|close day|xidh maalinta|reopen|dib u fur|use the default logo|upload logo|\bdisable\b|\benable\b/i;
+const ONLY = (process.argv.find((a) => a.startsWith('--roles=')) || '').slice(8).split(',').filter(Boolean);
 const browser = await chromium.launch({ executablePath: process.env.CHROMIUM || undefined, args: ['--no-sandbox'] });
 const problems = []; const stats = { pages: 0, buttons: 0, forms: 0, modals: 0 }; const untranslated = new Map();
 const bad = (m) => { problems.push(m); console.log('  ✗', m); };
@@ -35,7 +36,7 @@ async function sweepPage(page, hash, label, lang) {
 async function mobileOverflow(page, hash, label) { await page.goto(BASE + '#' + hash); await page.waitForTimeout(500); const o = await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth); if (o > 4) bad(`${label} ${hash}: horizontal overflow of ${o}px at phone width`); }
 async function navPaths(page) { return page.$$eval('.nav a', (as) => as.map((a) => a.getAttribute('data-path'))); }
 for (const lang of process.argv.includes('--so-only') ? ['so'] : ['en', 'so']) {
-  for (const [email, name] of ROLES) {
+  for (const [email, name] of ROLES.filter(([, n]) => !ONLY.length || ONLY.includes(n))) {
     const ctx = await browser.newContext({ viewport: { width: 1360, height: 900 } }); const page = await ctx.newPage(); const errs = [];
     page.on('pageerror', (e) => errs.push('pageerror: ' + e.message)); page.on('console', (m) => { if (m.type() === 'error' && !/favicon|40[0-9]|42[0-9]|Failed to load resource: the server responded with a status of (4|5)/.test(m.text())) errs.push('console: ' + m.text()); });
     page.on('response', (r) => { if (r.status() >= 500) errs.push(`HTTP ${r.status()} ${r.url()}`); }); page.on('dialog', (d) => d.accept('5000,3000,2000'));

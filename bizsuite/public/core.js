@@ -57,7 +57,7 @@ export function busy(btn, fn) { return async (...a) => { if (btn.disabled) retur
 export function field(f, val) {
   const base = { name: f.name, required: f.required };
   let input;
-  if (f.type === 'select') input = h('select', base, f.placeholder != null ? h('option', { value: '' }, f.placeholder) : null, (f.options || []).map((o) => h('option', { value: o.value, selected: String(o.value) === String(val ?? '') }, o.label)));
+  if (f.type === 'select') input = h('select', base, f.placeholder != null ? h('option', { value: '' }, f.placeholder) : null, (f.options || []).map((o) => h('option', { value: o.value, selected: String(o.value) === String(val ?? '') }, t(o.label))));
   else if (f.type === 'textarea') input = h('textarea', { ...base, rows: 3 }, val ?? '');
   else if (f.type === 'checkbox') return h('label', { class: 'f chk' }, h('input', { type: 'checkbox', name: f.name, checked: !!val }), t(f.label));
   else input = h('input', { ...base, type: f.type === 'money' || f.type === 'percent' ? 'text' : f.type || 'text', inputmode: f.type === 'money' || f.type === 'percent' || f.type === 'number' ? 'decimal' : null, value: val ?? '', placeholder: f.hint, min: f.min, step: f.step, autocomplete: f.type === 'password' ? 'new-password' : 'off', maxlength: f.max });
@@ -82,9 +82,10 @@ export function formModal({ title, fields, initial = {}, ccy, submit, label = 'S
 }
 export const pill = (s, kind) => h('span', { class: 'pill ' + (kind || ({ paid: 'ok', completed: 'ok', delivered: 'ok', approved: 'ok', received: '', confirmed: 'ok', partial: 'warn', pending: 'warn', unpaid: 'bad', void: 'bad', cancelled: 'bad', failed: 'bad', rejected: 'bad', unrepairable: 'bad', awaiting_approval: 'warn', awaiting_parts: 'warn', in_progress: 'warn', open: 'warn', closed: '' }[s] || '')) }, t(label(s)));
 export const label = (s) => ({ awaiting_approval: 'Awaiting approval', awaiting_parts: 'Awaiting parts', in_progress: 'In progress', unrepairable: 'Unrepairable' }[s] || (s ? s[0].toUpperCase() + s.slice(1).replace(/_/g, ' ') : ''));
+const DATA_TERMS = new Set(['Walk-in', 'Owner', 'Accountant', 'Branch Manager', 'Cashier', 'Technician', 'Barber']); // stored English system terms shown translated
 export function table(cols, rows, { onRow, empty } = {}) {
   if (!rows.length) return h('div', { class: 'empty' }, empty || t('No data yet'));
-  return h('div', { class: 'tw' }, h('table', {}, h('thead', {}, h('tr', {}, cols.map((c) => h('th', { class: c.r ? 'r' : '' }, typeof c.label === 'string' ? t(c.label) : c.label)))), h('tbody', {}, rows.map((r) => h('tr', { class: onRow ? 'click' : '', onclick: onRow ? () => onRow(r) : null }, cols.map((c) => h('td', { class: c.r ? 'r' : '' }, c.f ? c.f(r) : r[c.k] ?? '')))))));
+  return h('div', { class: 'tw' }, h('table', {}, h('thead', {}, h('tr', {}, cols.map((c) => h('th', { class: c.r ? 'r' : '' }, typeof c.label === 'string' ? t(c.label) : c.label)))), h('tbody', {}, rows.map((r) => h('tr', { class: onRow ? 'click' : '', onclick: onRow ? () => onRow(r) : null }, cols.map((c) => h('td', { class: c.r ? 'r' : '' }, c.f ? c.f(r) : DATA_TERMS.has(r[c.k]) ? t(r[c.k]) : r[c.k] ?? '')))))));
 }
 export const pager = (page, hasMore, go) => h('div', { class: 'row', style: 'justify-content:center;margin-top:10px' }, h('button', { class: 'btn s', disabled: page <= 1, onclick: () => go(page - 1) }, t('Previous')), h('span', { class: 'muted' }, `${t('Page')} ${page}`), h('button', { class: 'btn s', disabled: !hasMore, onclick: () => go(page + 1) }, t('Next')));
 export const loading = () => h('div', { class: 'empty' }, h('span', { class: 'spin' }), ' ', t('Loading…'));
@@ -114,7 +115,7 @@ export function barChart(items, { fmtV = (v) => v } = {}) { const max = Math.max
 export const route = () => { const raw = location.hash.slice(1) || '/dashboard'; const [p, q] = raw.split('?'); return { path: p, q: Object.fromEntries(new URLSearchParams(q || '')), parts: p.split('/').filter(Boolean) }; };
 export const go = (p) => { location.hash = '#' + p; };
 export const hashQ = (path, q) => '#' + path + (Object.keys(q || {}).length ? '?' + new URLSearchParams(Object.fromEntries(Object.entries(q).filter(([, v]) => v !== '' && v != null))).toString() : '');
-export const sel = (options, value, onchange, attrs = {}) => h('select', { ...attrs, onchange: onchange && ((e) => onchange(e.target.value)) }, options.map((o) => h('option', { value: o.value, selected: String(o.value) === String(value ?? '') }, o.label)));
+export const sel = (options, value, onchange, attrs = {}) => h('select', { ...attrs, onchange: onchange && ((e) => onchange(e.target.value)) }, options.map((o) => h('option', { value: o.value, selected: String(o.value) === String(value ?? '') }, t(o.label))));
 export const sum = (a, f) => a.reduce((s, x) => s + f(x), 0);
 export const tabs = (items, cur, on) => h('div', { class: 'tabs', role: 'tablist' }, items.map(([k, l]) => h('button', { role: 'tab', class: k === cur ? 'on' : '', 'aria-selected': k === cur, onclick: () => on(k) }, t(l))));
 export const hundredth = (bp) => (bp / 100).toString().replace(/\.0+$/, '') + '%';
