@@ -17,6 +17,13 @@ docker compose exec -e OWNER_EMAIL=you@example.com -e OWNER_PASSWORD='<generated
 Open `https://<DOMAIN>` and sign in (the owner is forced to choose a new password at first login). Then upload the company logo: **Settings → Branding**. Then: Organisation → add businesses and branches → Staff → Settings.
 Data lives in the `bizsuite-data` Docker volume (`/data`: database, uploads, backups).
 
+**If Docker Hub refuses the download** (`toomanyrequests` rate limit), pull the identical official image from Google's mirror first, then build:
+```bash
+docker pull mirror.gcr.io/library/node:22-slim && docker tag mirror.gcr.io/library/node:22-slim node:22-slim
+docker compose build --pull=false && docker compose up -d
+```
+Verified in development: image builds (≈ 228 MB), starts empty in production mode, runs as the non-root `node` user, health check passes, and `bootstrap`, forced password change, `preflight`, `backup` and `restore` all work inside the container.
+
 ## Option B – systemd on a VM
 ```bash
 sudo useradd -r -m bizsuite && sudo -u bizsuite git clone <repo> /home/bizsuite/app

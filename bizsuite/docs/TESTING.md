@@ -2,14 +2,21 @@
 
 ## How to run
 ```bash
-npm test                 # 37 unit/integration tests (node:test) – ~8 s, in-memory databases
-npm run e2e              # fresh demo DB + server + headless Chromium: 92 browser checks (needs Playwright; see scripts/e2e.sh)
+npm test                 # 48 unit/integration tests (node:test) – ~8 s, in-memory databases
+npm run i18n             # Somali coverage audit (must report missing: 0)
+npm run e2e              # fresh demo DB + server + headless Chromium: 102 workflow checks
+npm run e2e:sweep        # exhaustive sweep: every page, button and dialog form for 10 roles, English + Somali, phone width
+npm run preflight        # production go-live checker (run on the server)
 ```
 
 ## Results (last full run)
-* **Unit / integration: 37 tests, 37 passed, 0 failed** (`test/acceptance.test.js`, `test/extras.test.js`; raw output in `TEST_RESULTS.txt`).
-* **Browser: 92 checks, 92 passed** (`E2E_RESULTS.txt`) – logs in as owner, cashier (tablet width), barber (phone width), technician, managers, accountant and platform admin; opens every page the role can see with zero JavaScript errors; performs a POS sale, a barber visit, a repair intake, a quotation → sale conversion, product / branch creation, drill-down from a dashboard tile, receipt preview, CSV and PDF download, Somali switch, dark mode, permission-matrix editor, direct-URL and direct-API attempts across branches.
+* **Unit / integration: 48 tests, 48 passed, 0 failed** (`test/acceptance.test.js`, `test/extras.test.js`, `test/barber_brand.test.js`, `test/i18n.test.js`; raw output in `TEST_RESULTS.txt`).
+* **Browser workflows: 102 checks, 102 passed** (`E2E_RESULTS.txt`) – logs in as owner, Rio Store cashier (tablet width), barber (phone width), Reyxaan technician, the three branch managers, accountant and platform admin; checks the Hubdex logo and title, the three-branch dashboard, the barber daily sheet and branch profit statement; opens every page the role can see with zero JavaScript errors; performs a POS sale, a barber visit, a repair intake, a quotation → sale conversion, product / branch creation, drill-down from a dashboard tile, receipt preview, CSV and PDF download, Somali switch, dark mode, permission-matrix editor, direct-URL and direct-API attempts across branches.
 * Demo data is created through the real service layer (14 days of trading across 7 branches / 2 currencies); `13/14` verifies on it that consolidated = Σ branches and recomputes every dashboard total straight from the transaction tables.
+
+* **Exhaustive UI sweep** (`SWEEP_RESULTS.txt`): see the figures at the top of that file – every navigation page of all ten demo roles, every button clicked, every dialog opened, every dialog form submitted empty (validation must answer, nothing may crash), in English and in Somali, and phone-width (390 px) overflow checks. Fails on any JavaScript error, any HTTP 5xx, or any English UI text visible in Somali mode.
+* **Production container** (Docker, built from the repository `Dockerfile`): empty production start, no demo accounts, non-root, HSTS, health check, `bootstrap` → forced password change → `preflight` READY → `backup` → `restore` → sign-in verified.
+* **Barber accounting** (`barber_brand.test.js`): daily sheet per barber (customers served, services, income, rate, commission, advances, deductions, take-home, retained, tips), day totals = sum of staff, branch profit statement = dashboard net profit, deductions settled once in payouts, barbers cannot create deductions or see colleagues.
 
 ## Acceptance criteria → evidence
 | # | Criterion | Evidence (test) | Result |

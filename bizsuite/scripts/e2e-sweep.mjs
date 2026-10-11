@@ -35,7 +35,7 @@ async function sweepPage(page, hash, label, lang) {
 }
 async function mobileOverflow(page, hash, label) { await page.goto(BASE + '#' + hash); await page.waitForTimeout(500); const o = await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth); if (o > 4) bad(`${label} ${hash}: horizontal overflow of ${o}px at phone width`); }
 async function navPaths(page) { return page.$$eval('.nav a', (as) => as.map((a) => a.getAttribute('data-path'))); }
-for (const lang of process.argv.includes('--so-only') ? ['so'] : ['en', 'so']) {
+for (const lang of process.argv.includes('--so-only') ? ['so'] : process.argv.includes('--en-only') ? ['en'] : ['en', 'so']) {
   for (const [email, name] of ROLES.filter(([, n]) => !ONLY.length || ONLY.includes(n))) {
     const ctx = await browser.newContext({ viewport: { width: 1360, height: 900 } }); const page = await ctx.newPage(); const errs = [];
     page.on('pageerror', (e) => errs.push('pageerror: ' + e.message)); page.on('console', (m) => { if (m.type() === 'error' && !/favicon|40[0-9]|42[0-9]|Failed to load resource: the server responded with a status of (4|5)/.test(m.text())) errs.push('console: ' + m.text()); });
@@ -49,7 +49,7 @@ for (const lang of process.argv.includes('--so-only') ? ['so'] : ['en', 'so']) {
   }
 }
 // phone-width layout check (owner + cashier + barber)
-for (const [email, name] of [ROLES[0], ROLES[5], ROLES[9]]) { const ctx = await browser.newContext({ viewport: { width: 390, height: 800 } }); const page = await ctx.newPage(); await page.goto(BASE); await page.fill('input[type=email]', email); await page.fill('input[type=password]', 'Demo@1234'); await page.click('button.btn.p'); await page.waitForSelector('.shell'); for (const p of await navPaths(page)) await mobileOverflow(page, p, name + '@390'); await ctx.close(); }
+if (!process.argv.includes('--no-phone')) for (const [email, name] of [ROLES[0], ROLES[5], ROLES[9]]) { const ctx = await browser.newContext({ viewport: { width: 390, height: 800 } }); const page = await ctx.newPage(); await page.goto(BASE); await page.fill('input[type=email]', email); await page.fill('input[type=password]', 'Demo@1234'); await page.click('button.btn.p'); await page.waitForSelector('.shell'); for (const p of await navPaths(page)) await mobileOverflow(page, p, name + '@390'); await ctx.close(); }
 await browser.close();
 console.log(`\nSweep: ${stats.pages} pages, ${stats.buttons} buttons clicked, ${stats.modals} dialogs opened, ${stats.forms} forms submitted empty.`);
 if (untranslated.size) { console.log(`\nEnglish text visible in Somali mode (${untranslated.size}):`); for (const [t, w] of untranslated) console.log(`  - "${t}"  (${[...w].slice(0, 2).join(', ')})`); problems.push(`${untranslated.size} untranslated strings visible in Somali mode`); }
