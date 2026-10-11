@@ -1,0 +1,18 @@
+UI SWEEP RESULTS - every nav page, every button, every dialog form (submitted empty), all 10 demo roles
+Fails on: JavaScript errors, HTTP 5xx, English UI text visible in Somali mode, horizontal overflow at 390 px.
+
+== English (incl. phone-width checks)
+Sweep: 128 pages, 1101 buttons clicked, 657 dialogs opened, 165 forms submitted empty.
+SWEEP PASSED
+
+== Somali
+Sweep: 128 pages, 1104 buttons clicked, 658 dialogs opened, 164 forms submitted empty.
+  - "Cashier"  (cashier-store/pos, cashier-store/pos modal[🔔])
+  - "Technician"  (technician/repairs, technician/repairs modal[🔔])
+  - "Barber"  (barber/dashboard?preset=year, barber/dashboard?preset=year modal[🔔])
+FAILED (1)
+-> fixed: role name in the top bar was not translated (commit 'Translate the signed-in user's role name')
+
+== Somali re-check of the affected roles after the fix
+Sweep: 22 pages, 107 buttons clicked, 50 dialogs opened, 1 forms submitted empty.
+SWEEP PASSED
