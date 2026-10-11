@@ -1,4 +1,4 @@
-import { S, h, $, clear, t, get, post, toast, errText, setTheme, setLang, can, modal, busy, loading, dt, route, brandLogo, loadBrand } from './core.js';
+import { S, h, $, clear, t, tx, get, post, toast, errText, setTheme, setLang, can, modal, busy, loading, dt, route, brandLogo, loadBrand } from './core.js';
 import { views } from './views.js';
 
 setTheme(S.theme); setLang(S.lang);
@@ -51,7 +51,7 @@ function topbar(side) {
   const ro = S.user.read_only ? h('span', { class: 'pill warn' }, t('Read-only support session')) : null;
   setTimeout(pollNotifs, 300);
   return h('div', { class: 'top' }, side ? h('button', { class: 'btn burger', 'aria-label': 'Menu', onclick: () => side.classList.toggle('open') }, '☰') : null, h('b', {}, S.user.org?.name || S.brand.name), S.user.branches && S.user.branches.length <= 4 ? S.user.branches.map((b) => h('span', { class: 'chip', title: b.name }, h('i', { style: `background:${b.color || 'var(--brand)'}` }), b.name)) : null, ro, h('span', { class: 'sp' }), S.user.platform ? null : bell, langSel(), theme,
-    h('button', { class: 'btn', onclick: userMenu }, S.user.name, ' ', h('small', {}, S.user.role || (S.user.platform ? 'Platform' : ''))));
+    h('button', { class: 'btn', onclick: userMenu }, S.user.name, ' ', h('small', {}, tx(S.user.role) || (S.user.platform ? 'Platform' : ''))));
 }
 async function pollNotifs() { if (S.user.platform) return; try { const r = await get('/notifications', { unread: 1 }); const b = $('#nbadge'); if (b) { b.textContent = r.unread; b.style.display = r.unread ? '' : 'none'; } } catch { /* ignore */ } }
 async function showNotifs() {
@@ -68,7 +68,7 @@ function userMenu() {
   const out = h('button', { class: 'btn d' }, t('Sign out')); out.onclick = async () => { try { await post('/auth/logout'); } catch { /* ignore */ } sessionStorage.removeItem('tok'); location.hash = ''; location.reload(); };
   const tf = h('div', {}); const setup = h('button', { class: 'btn' }, S.user.totp_enabled ? t('2FA is enabled') : t('Enable two-factor authentication')); setup.disabled = S.user.totp_enabled;
   setup.onclick = busy(setup, async () => { const r = await post('/auth/2fa/setup'); const code = h('input', { inputmode: 'numeric', maxlength: 6, placeholder: '123456' }); clear(tf); tf.append(h('p', {}, t('Add this key to your authenticator app:'), ' ', h('code', {}, r.secret)), code, h('button', { class: 'btn p', onclick: async () => { try { await post('/auth/2fa/enable', { code: code.value }); toast(t('Saved'), 'ok'); S.user.totp_enabled = true; } catch (e) { toast(errText(e), 'bad'); } } }, t('Confirm'))); });
-  modal({ title: S.user.name, body: h('div', { class: 'stack' }, h('div', {}, S.user.email, ' · ', S.user.role), cur, np, chg, h('div', { class: 'sep' }), setup, tf), actions: (close) => [out, h('button', { class: 'btn', onclick: close }, t('Close'))] });
+  modal({ title: S.user.name, body: h('div', { class: 'stack' }, h('div', {}, S.user.email, ' · ', tx(S.user.role)), cur, np, chg, h('div', { class: 'sep' }), setup, tf), actions: (close) => [out, h('button', { class: 'btn', onclick: close }, t('Close'))] });
 }
 async function render() {
   const r = route(); const view = $('#view'); if (!view) return; document.querySelectorAll('.nav a').forEach((a) => a.classList.toggle('on', r.path.startsWith(a.dataset.path)));
