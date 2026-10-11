@@ -1,0 +1,16 @@
+{
+  "name": "bizsuite",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Multi-business, multi-branch management platform (retail, electronics, repair, barber)",
+  "type": "module",
+  "license": "UNLICENSED",
+  "engines": { "node": ">=22.13" },
+  "scripts": {
+    "start": "node --disable-warning=ExperimentalWarning src/server.js",
+    "seed": "node --disable-warning=ExperimentalWarning src/seed.js",
+    "test": "node --disable-warning=ExperimentalWarning --test test/*.test.js",
+    "backup": "node --disable-warning=ExperimentalWarning scripts/backup.js",
+    "restore": "node --disable-warning=ExperimentalWarning scripts/restore.js"
+  }
+}
