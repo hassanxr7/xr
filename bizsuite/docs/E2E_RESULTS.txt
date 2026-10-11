@@ -1,0 +1,110 @@
+
+== owner@demo.so
+  ✓ page /dashboard renders
+  ✓ page /sales renders
+  ✓ page /repairs renders
+  ✓ page /inventory renders
+  ✓ page /transfers renders
+  ✓ page /purchases renders
+  ✓ page /devices renders
+  ✓ page /customers renders
+  ✓ page /suppliers renders
+  ✓ page /expenses renders
+  ✓ page /registers renders
+  ✓ page /payments renders
+  ✓ page /commissions renders
+  ✓ page /reports/consolidated renders
+  ✓ page /reports/profit renders
+  ✓ page /reports/barber_commissions renders
+  ✓ page /reports/inventory_valuation renders
+  ✓ page /approvals renders
+  ✓ page /staff renders
+  ✓ page /roles renders
+  ✓ page /organisation renders
+  ✓ page /settings renders
+  ✓ page /audit renders
+  ✓ page /visits renders
+  ✓ page /pos renders
+  ✓ page /quotes renders
+  ✓ page /dashboard?preset=year renders
+  ✓ dashboard shows KPI tiles
+  ✓ dashboard has trend chart
+  ✓ separate USD and KES totals shown
+  ✓ KPI drills down to the sales list
+  ✓ drill-down lists transactions
+  ✓ sale detail opens
+  ✓ thermal receipt preview opens
+  ✓ page /reports/consolidated?preset=year renders
+  ✓ CSV export downloads
+  ✓ PDF export downloads
+  ✓ Somali UI applies
+  ✓ theme toggles
+  ✓ page /inventory renders
+  ✓ page /inventory?q=E2EH renders
+  ✓ product form created separate size variants
+  ✓ page /quotes renders
+  ✓ page /quotes renders
+  ✓ quotation created from the form
+  ✓ quotation converts to a sale
+  ✓ page /organisation renders
+  ✓ page /organisation renders
+  ✓ branch created from the form
+  ✓ page /roles renders
+  ✓ permission matrix shows module x action grid
+  ✓ owner@demo.so: no JS errors
+
+== cashier.uw@demo.so
+  ✓ page /pos renders
+  ✓ cashier menu hides admin pages
+  ✓ search tile adds item to cart
+  ✓ sale completes and shows reference
+  ✓ cashier of Branch A gets 404 for Branch B via direct API call
+  ✓ direct URL to admin page is refused by the server
+  ✓ cashier.uw@demo.so: no JS errors
+
+== manager.ec@demo.so
+  ✓ page /visits renders
+  ✓ barber visit recorded
+  ✓ page /commissions?preset=year renders
+  ✓ commission report lists barbers
+  ✓ payout form opens
+  ✓ page /dashboard?preset=year renders
+  ✓ manager sees profit for their branch
+  ✓ manager.ec@demo.so: no JS errors
+
+== ahmed@demo.so
+  ✓ page /commissions?preset=year renders
+  ✓ barber sees only own commission row
+  ✓ barber menu limited
+  ✓ page /dashboard?preset=year renders
+  ✓ barber dashboard hides profit
+  ✓ ahmed@demo.so: no JS errors
+
+== tech.th@demo.so
+  ✓ page /repairs renders
+  ✓ technician sees assigned repair jobs
+  ✓ repair detail opens
+  ✓ tech.th@demo.so: no JS errors
+
+== manager.th@demo.so
+  ✓ page /repairs renders
+  ✓ page /repairs?q=E2E renders
+  ✓ intake form creates a repair job
+  ✓ page /registers renders
+  ✓ register sessions listed
+  ✓ page /reports/cash_discrepancies?preset=year renders
+  ✓ discrepancy report renders
+  ✓ manager.th@demo.so: no JS errors
+
+== accountant@demo.so
+  ✓ page /expenses renders
+  ✓ page /reports/expenses_by_category?preset=year renders
+  ✓ page /reports/receivables?preset=year renders
+  ✓ accountant has no POS
+  ✓ accountant@demo.so: no JS errors
+
+== platform@bizsuite.local
+  ✓ platform admin console loads
+  ✓ platform@bizsuite.local: no JS errors
+
+92/92 checks passed

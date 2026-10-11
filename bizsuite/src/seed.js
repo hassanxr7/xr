@@ -155,7 +155,7 @@ export function seedDemo(db, { days = 14 } = {}) {
   return { org_id: ORG, owner_id, ids: { UWM, UWH, THM, THB, FXM, ECM, ECN, UW, TH, FX, EC, ECK }, users: U, methods: { CASH, MOBILE, BANK }, repairs: { R1, R2, R3 }, creditSale };
 }
 if (process.argv[1] === fileURLToPath(import.meta.url)) {
-  const db = openDb(process.env.DB_FILE || './data/bizsuite.sqlite');
+  const db = openDb(process.env.DB_FILE || (process.env.DATA_DIR || './data') + '/bizsuite.sqlite');
   if (db.prepare('SELECT COUNT(*) c FROM orgs').get().c) { console.error('Database already has data. Remove it first to re-seed.'); process.exit(1); }
   const r = seedDemo(db); console.log('Demo data created.', JSON.stringify(r.ids));
 }

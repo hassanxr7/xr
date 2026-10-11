@@ -1,0 +1,28 @@
+# Production: app + Caddy (automatic HTTPS via Let's Encrypt). Set DOMAIN and ACME_EMAIL in .env
+services:
+  app:
+    build: .
+    restart: unless-stopped
+    environment:
+      DATA_DIR: /data
+      SEED_DEMO: ${SEED_DEMO:-0}      # 0 in production: start with an empty system (see docs/DEPLOYMENT.md to create the first owner)
+      HTTPS: "1"
+      TRUST_PROXY: "1"
+      REQUIRE_2FA: ${REQUIRE_2FA:-0}
+      BACKUP_KEEP: ${BACKUP_KEEP:-14}
+    volumes:
+      - bizsuite-data:/data
+  caddy:
+    image: caddy:2
+    restart: unless-stopped
+    ports: ["80:80", "443:443"]
+    environment:
+      DOMAIN: ${DOMAIN:?set DOMAIN in .env}
+      ACME_EMAIL: ${ACME_EMAIL:?set ACME_EMAIL in .env}
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy-data:/data
+    depends_on: [app]
+volumes:
+  bizsuite-data:
+  caddy-data:
