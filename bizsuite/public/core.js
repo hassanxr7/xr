@@ -94,7 +94,14 @@ export const can = (p) => S.user && S.user.perms.includes(p);
 export const today = () => new Date().toLocaleDateString('en-CA', { timeZone: 'Africa/Mogadishu' });
 export const dt = (iso) => (iso ? new Date(iso).toLocaleString([], { dateStyle: 'medium', timeStyle: 'short' }) : '');
 export function setTheme(v) { S.theme = v; store.set('theme', v); if (v === 'auto') document.documentElement.removeAttribute('data-theme'); else document.documentElement.setAttribute('data-theme', v); }
-export function setLang(v) { S.lang = v; store.set('lang', v); document.documentElement.lang = v; }
+// English is the default; Somali is an option. persist=false applies a default (organisation/user) without recording a choice on this device.
+export function setLang(v, persist = true) { S.lang = v === 'so' ? 'so' : 'en'; if (persist) store.set('lang', S.lang); document.documentElement.lang = S.lang; }
+export const langChosen = () => { try { return !!localStorage.getItem('lang'); } catch { return false; } };
+// EN | SO switch used on the sign-in page and in the top bar
+export function langSwitch(onChange) {
+  const b = (code, text, title) => h('button', { type: 'button', class: S.lang === code ? 'on' : '', 'aria-pressed': S.lang === code, title, lang: code, onclick: () => { if (S.lang !== code) onChange(code); } }, text);
+  return h('div', { class: 'seg langsw', role: 'group', 'aria-label': t('Language') }, b('en', 'EN', 'English'), b('so', 'SO', 'Soomaali'));
+}
 export const branchesOf = (mod) => S.user.branches.filter((b) => !mod || S.user.modules.includes(mod) && moduleOnBranch(b, mod));
 const TM = { clothing: ['sales', 'purchases', 'inventory', 'products'], electronics_retail: ['sales', 'purchases', 'inventory', 'products', 'devices'], electronics_repair: ['repairs', 'purchases', 'inventory', 'products'], barber: ['services', 'commissions', 'payouts'], electronics_combined: ['sales', 'purchases', 'inventory', 'products', 'devices', 'repairs'] };
 export function moduleOnBranch(b, mod) { return (TM[b.business_type] || []).includes(mod) || (b.depts || []).some((k) => (TM[k] || []).includes(mod)) || ['customers', 'suppliers', 'expenses', 'registers', 'reports', 'payments'].includes(mod); }

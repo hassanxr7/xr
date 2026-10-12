@@ -31,7 +31,7 @@ export function seedDemo(db, { days = 14 } = {}) {
 
   // --- structure: one business + one branch per identity ---
   const RIOB = admin.createBusiness(O, { name: 'Rio Berber', type: 'barber' }).id, RIOS = admin.createBusiness(O, { name: 'Rio Store', type: 'clothing' }).id, REYX = admin.createBusiness(O, { name: 'Reyxaan Store', type: 'electronics_combined' }).id;
-  const br = (business_id, code, name, color, extra = {}) => admin.createBranch(O, { business_id, code, name, color, address: 'Mogadishu, Somalia', phone: '+252 61 000' + (1000 + rand(9000)), receipt_header: 'Hubdex Store LTD', receipt_footer: 'Thank you / Mahadsanid', ...extra }).id;
+  const br = (business_id, code, name, color, extra = {}) => admin.createBranch(O, { business_id, code, name, color, address: 'Mogadishu, Somalia', phone: '+252 61 000' + (1000 + rand(9000)), receipt_header: 'Hubdex Store LTD', receipt_footer: 'Thank you', ...extra }).id;
   const RBR = br(RIOB, 'RBR', 'Rio Berber', '#c2410c', { tip_to: 'employee' }), RST = br(RIOS, 'RST', 'Rio Store', '#2563eb'), RYX = br(REYX, 'RYX', 'Reyxaan Store', '#059669', { require_register: 1 });
   for (const b of [RBR, RST, RYX]) { fin.setBranchAccount(O, b, M('Mobile'), 50000); fin.setBranchAccount(O, b, M('Bank'), 200000); }
 
@@ -51,18 +51,18 @@ export function seedDemo(db, { days = 14 } = {}) {
   // --- catalogue ---
   const prod = (business_id, name, category, brand, kind, variants, extra = {}) => inv.createProduct(O, { business_id, name, category, brand, kind, variants, ...extra }).id;
   const sizes = ['M', 'L', 'XL'], colors = ['Black', 'White'];
-  prod(RIOS, 'Classic Polo Shirt', 'Shirts', 'Rio', 'standard', sizes.flatMap((s) => colors.map((c) => ({ sku: `POLO-${c[0]}-${s}`, barcode: `600100${s.length}${c[0] === 'B' ? 1 : 2}${s[0].charCodeAt(0)}`, attrs: { size: s, color: c }, cost: 800, price: 1800, min_stock: 5 }))));
-  prod(RIOS, 'Runner Sneakers', 'Footwear', 'Stride', 'standard', [41, 42, 43, 44].map((s) => ({ sku: `SNK-${s}`, barcode: `60020${s}`, attrs: { size: s, color: 'Grey' }, cost: 2200, price: 4500, min_stock: 3 })));
-  prod(RIOS, 'Slim Denim Jeans', 'Trousers', 'Rio', 'standard', ['30', '32', '34'].map((s) => ({ sku: `JEAN-${s}`, barcode: `60030${s}`, attrs: { size: s, color: 'Blue' }, cost: 1500, price: 3200, min_stock: 4 })));
-  prod(RIOS, 'Dress Abaya', 'Fashion', 'Rio', 'standard', ['52', '54', '56'].map((s) => ({ sku: `ABY-${s}`, barcode: `60040${s}`, attrs: { size: s, color: 'Black' }, cost: 2500, price: 5500, min_stock: 3 })));
-  prod(REYX, 'Galaxy A15 128GB', 'Phones', 'Samsung', 'serialized', [{ sku: 'SGA15-128', barcode: '880000015', attrs: { storage: '128GB' }, cost: 11000, price: 15500 }], { warranty_months: 12 });
-  prod(REYX, 'iPhone 13 128GB', 'Phones', 'Apple', 'serialized', [{ sku: 'IP13-128', barcode: '194000013', attrs: { storage: '128GB' }, cost: 48000, price: 59900 }], { warranty_months: 12 });
-  prod(REYX, 'USB-C Cable 1m', 'Accessories', 'Anker', 'standard', [{ sku: 'CBL-C1', barcode: '700100001', attrs: {}, cost: 200, price: 600, min_stock: 10 }]);
-  prod(REYX, 'Phone Case Universal', 'Accessories', 'Generic', 'standard', [{ sku: 'CASE-U', barcode: '700100002', attrs: {}, cost: 150, price: 500, min_stock: 10 }]);
-  prod(REYX, 'Galaxy A15 Screen', 'Spare parts', 'Samsung', 'standard', [{ sku: 'PART-A15-SCR', barcode: '700200001', attrs: {}, cost: 2800, price: 4500, min_stock: 2 }], { is_part: 1 });
-  prod(REYX, 'iPhone Battery', 'Spare parts', 'Apple', 'standard', [{ sku: 'PART-IP-BAT', barcode: '700200002', attrs: {}, cost: 1800, price: 3500, min_stock: 2 }], { is_part: 1 });
-  prod(REYX, 'Charging Port Module', 'Spare parts', 'Generic', 'standard', [{ sku: 'FX-PORT', barcode: '700300002', attrs: {}, cost: 600, price: 1500, min_stock: 3 }], { is_part: 1 });
-  prod(RIOS, 'Wool Winter Scarf', 'Accessories', 'Rio', 'standard', [{ sku: 'SCARF-W', barcode: '600500001', attrs: { color: 'Grey' }, cost: 400, price: 1200, min_stock: 2 }]); // bought, not selling: shows on the discount list
+  prod(RIOS, 'Classic Polo Shirt', 'Shirts', 'Rio', 'standard', sizes.flatMap((s) => colors.map((c) => ({ sku: `POLO-${c[0]}-${s}`, attrs: { size: s, color: c }, cost: 800, price: 1800, min_stock: 5 }))));
+  prod(RIOS, 'Runner Sneakers', 'Footwear', 'Stride', 'standard', [41, 42, 43, 44].map((s) => ({ sku: `SNK-${s}`, attrs: { size: s, color: 'Grey' }, cost: 2200, price: 4500, min_stock: 3 })));
+  prod(RIOS, 'Slim Denim Jeans', 'Trousers', 'Rio', 'standard', ['30', '32', '34'].map((s) => ({ sku: `JEAN-${s}`, attrs: { size: s, color: 'Blue' }, cost: 1500, price: 3200, min_stock: 4 })));
+  prod(RIOS, 'Dress Abaya', 'Fashion', 'Rio', 'standard', ['52', '54', '56'].map((s) => ({ sku: `ABY-${s}`, attrs: { size: s, color: 'Black' }, cost: 2500, price: 5500, min_stock: 3 })));
+  prod(REYX, 'Galaxy A15 128GB', 'Phones', 'Samsung', 'serialized', [{ sku: 'SGA15-128', attrs: { storage: '128GB' }, cost: 11000, price: 15500 }], { warranty_months: 12 });
+  prod(REYX, 'iPhone 13 128GB', 'Phones', 'Apple', 'serialized', [{ sku: 'IP13-128', attrs: { storage: '128GB' }, cost: 48000, price: 59900 }], { warranty_months: 12 });
+  prod(REYX, 'USB-C Cable 1m', 'Accessories', 'Anker', 'standard', [{ sku: 'CBL-C1', attrs: {}, cost: 200, price: 600, min_stock: 10 }]);
+  prod(REYX, 'Phone Case Universal', 'Accessories', 'Generic', 'standard', [{ sku: 'CASE-U', attrs: {}, cost: 150, price: 500, min_stock: 10 }]);
+  prod(REYX, 'Galaxy A15 Screen', 'Spare parts', 'Samsung', 'standard', [{ sku: 'PART-A15-SCR', attrs: {}, cost: 2800, price: 4500, min_stock: 2 }], { is_part: 1 });
+  prod(REYX, 'iPhone Battery', 'Spare parts', 'Apple', 'standard', [{ sku: 'PART-IP-BAT', attrs: {}, cost: 1800, price: 3500, min_stock: 2 }], { is_part: 1 });
+  prod(REYX, 'Charging Port Module', 'Spare parts', 'Generic', 'standard', [{ sku: 'FX-PORT', attrs: {}, cost: 600, price: 1500, min_stock: 3 }], { is_part: 1 });
+  prod(RIOS, 'Wool Winter Scarf', 'Accessories', 'Rio', 'standard', [{ sku: 'SCARF-W', attrs: { color: 'Grey' }, cost: 400, price: 1200, min_stock: 2 }]); // bought, not selling: shows on the discount list
   // maximum discount each item may be sold at (sellers cannot go below it; the QR label and the scanner show it)
   for (const [like, bp] of [['POLO-%', 1000], ['SNK-%', 1000], ['JEAN-%', 1500], ['ABY-%', 1000], ['SCARF-%', 3000], ['CBL-%', 2000], ['CASE-%', 2000], ['SGA15-%', 500], ['IP13-%', 300]]) db.prepare('UPDATE variants SET max_discount_bp=? WHERE org_id=? AND sku LIKE ?').run(bp, ORG, like);
   admin.updateUser(O, U.farah, { commission_fixed: 50 }); // Farah: 45% plus 0.50 for every service (rates are set by the owner in Commissions > Rates per barber)

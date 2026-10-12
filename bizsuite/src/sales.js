@@ -3,7 +3,7 @@ import { AppError, bad, notFound, forbidden } from './errors.js';
 import { ApprovalNeeded, registerApproval } from './core.js';
 import { int, mulBp, divRound, allocate } from './money.js';
 import { nowIso } from './time.js';
-import { stockOut, stockIn, variantInOrg, deviceEvent } from './inventory.js';
+import { stockOut, stockIn, variantInOrg, deviceEvent, barcodeAliases } from './inventory.js';
 import { applyPayment, refreshParty } from './payments.js';
 import { syncSaleCommission } from './commissions.js';
 
@@ -244,7 +244,7 @@ export function getSale(ctx, id) {
 }
 export function posSearch(ctx, { branch_id, q, barcode }) { // fast POS lookup by barcode/SKU/name, with in-branch devices
   const br = ctx.branch(branch_id); ctx.need('sales.view');
-  const rows = ctx.all(`SELECT v.id,v.sku,v.barcode,v.price,v.max_discount_bp,v.attrs,p.name,p.category,p.kind,p.warranty_months,COALESCE(s.qty,0) qty FROM variants v JOIN products p ON p.id=v.product_id LEFT JOIN stock s ON s.variant_id=v.id AND s.branch_id=? WHERE v.org_id=? AND p.business_id=? AND v.active=1 AND p.active=1 AND (${barcode ? 'v.barcode=? OR v.sku=?' : 'p.name LIKE ? OR v.sku LIKE ? OR v.barcode LIKE ?'}) ORDER BY p.name LIMIT 30`,
-    br.id, ctx.org_id, br.business_id, ...(barcode ? [barcode, barcode] : [`%${q}%`, `%${q}%`, `%${q}%`]));
+  const rows = ctx.all(`SELECT v.id,v.sku,v.barcode,v.price,v.max_discount_bp,v.attrs,p.name,p.category,p.kind,p.warranty_months,COALESCE(s.qty,0) qty FROM variants v JOIN products p ON p.id=v.product_id LEFT JOIN stock s ON s.variant_id=v.id AND s.branch_id=? WHERE v.org_id=? AND p.business_id=? AND v.active=1 AND p.active=1 AND (${barcode ? `v.barcode IN (${barcodeAliases(barcode).map(() => '?').join(',')}) OR v.sku=? OR v.id IN (SELECT variant_id FROM devices WHERE org_id=v.org_id AND serial=?)` : 'p.name LIKE ? OR v.sku LIKE ? OR v.barcode LIKE ?'}) ORDER BY p.name LIMIT 30`,
+    br.id, ctx.org_id, br.business_id, ...(barcode ? [...barcodeAliases(barcode), barcode, String(barcode).toUpperCase()] : [`%${q}%`, `%${q}%`, `%${q}%`]));
   return rows.map((r) => ({ ...r, attrs: JSON.parse(r.attrs), devices: r.kind === 'serialized' ? ctx.all("SELECT id,serial FROM devices WHERE variant_id=? AND branch_id=? AND status='in_stock' ORDER BY id LIMIT 50", r.id, br.id) : undefined }));
 }

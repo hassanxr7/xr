@@ -126,7 +126,7 @@ export function createUser(ctx, u) {
     const fixed = int(u.commission_fixed ?? 0, 'commission_fixed', { min: 0 });
     if ((bp || fixed) && !ctx.can('staff.settings')) throw forbidden('Setting commission rates needs staff.settings', 'missing_permission');
     const id = ctx.run('INSERT INTO users(org_id,name,email,phone,pass_hash,role_id,lang,commission_bp,commission_fixed,must_change_password,created_at) VALUES(?,?,?,?,?,?,?,?,?,?,?)',
-      ctx.org_id, str(u.name, 'name'), email, u.phone || null, hashPassword(u.password), role.id, u.lang === 'so' ? 'so' : 'en', bp, fixed, u.must_change_password ? 1 : 0, nowIso()).lastInsertRowid;
+      ctx.org_id, str(u.name, 'name'), email, u.phone || null, hashPassword(u.password), role.id, ['en', 'so'].includes(u.lang) ? u.lang : (ctx.setting('default_lang') === 'so' ? 'so' : 'en'), bp, fixed, u.must_change_password ? 1 : 0, nowIso()).lastInsertRowid;
     ctx.run('INSERT INTO commission_rate_history(org_id,user_id,rate_bp,fixed_amount,changed_by,changed_at) VALUES(?,?,?,?,?,?)', ctx.org_id, id, bp, fixed, ctx.user.id, nowIso());
     for (const b of u.branch_ids || []) { ctx.branch(b); ctx.run('INSERT OR IGNORE INTO user_branches VALUES(?,?)', id, b); }
     ctx.audit('user.create', 'user', id, null, { email, role: role.name, branches: u.branch_ids, commission_bp: bp, commission_fixed: fixed });

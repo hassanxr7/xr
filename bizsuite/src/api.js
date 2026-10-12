@@ -23,6 +23,7 @@ import * as quo from './quotes.js';
 import * as ord from './orders.js';
 import * as shop from './shop.js';
 import { qrSvg } from './qr.js';
+import { barcodeSvg } from './barcode.js';
 import { fileURLToPath } from 'node:url';
 import { prepareImage } from './image.js';
 import { translateReport, translateNotification } from './lang.js';
@@ -75,10 +76,11 @@ export function createApi(db, { dataDir = './data', loginLimit = 10 } = {}) {
     const u = c.user; if (c.platform) return { id: u.id, name: u.name, email: u.email, platform: true };
     const branches = admin.listBranches(c).map((b) => ({ ...b, depts: c.all('SELECT kind FROM departments WHERE branch_id=? AND active=1', b.id).map((d) => d.kind) })); const mods = new Set();
     for (const b of branches) { const types = [b.business_type, ...c.all('SELECT kind FROM departments WHERE branch_id=? AND active=1', b.id).map((d) => d.kind)]; types.forEach((t) => TYPE_MODULES[t].forEach((m) => mods.add(m))); }
-    const org = c.get('SELECT id,name,tagline,reporting_currency,saas_enabled,modules,logo_file_id FROM orgs WHERE id=?', c.org_id); org.has_logo = !!orgLogo(c.org_id);
+    const org = c.get('SELECT id,name,tagline,reporting_currency,saas_enabled,modules,logo_file_id FROM orgs WHERE id=?', c.org_id); org.has_logo = !!orgLogo(c.org_id); org.default_lang = orgLang(c.org_id);
     if (org.modules) { const allowed = JSON.parse(org.modules); for (const m of [...mods]) if (!allowed.includes(m)) mods.delete(m); }
     return { id: u.id, name: u.name, email: u.email, lang: u.lang, role: c.role?.name, scope: c.role?.scope, perms: [...c.perms], limits: c.limits, org, branches, modules: [...mods], businesses: admin.listBusinesses(c), read_only: c.readOnly, totp_enabled: !!u.totp_enabled, must_change_password: !!u.must_change_password };
   });
+  on('POST', '/api/auth/lang', (c, r) => { const lang = r.body.lang; if (!['en', 'so'].includes(lang)) throw bad('invalid_language', 'Language must be en or so'); c.run('UPDATE users SET lang=? WHERE id=?', lang, c.user.id); return { lang }; });
   on('POST', '/api/auth/password', (c, r) => {
     if (!verifyPassword(String(r.body.current || ''), c.user.pass_hash)) throw new AppError(403, 'invalid_credentials', 'Current password is wrong');
     if (!checkPasswordStrength(r.body.password)) throw bad('weak_password', 'Password needs 8+ characters with letters and digits');
@@ -107,15 +109,16 @@ export function createApi(db, { dataDir = './data', loginLimit = 10 } = {}) {
   on('GET', '/api/variants', (c, r) => inv.listVariants(c, r.query));
   // QR item labels (the code is the SKU) and a single QR image for on-screen display
   on('GET', '/api/qr', (c, r) => { c.need('products.view'); const text = String(r.query.text || '').slice(0, 300); if (!text) throw bad('text_required', 'Nothing to encode'); return { raw: qrSvg(text, { size: Math.min(Number(r.query.size) || 160, 600) }), type: 'image/svg+xml', cache: 'private, max-age=3600' }; });
+  on('GET', '/api/barcode', (c, r) => { c.need('products.view'); const code = String(r.query.code || '').slice(0, 60); if (!code) throw bad('text_required', 'Nothing to encode'); try { return { raw: barcodeSvg(code, { text: r.query.text !== '0' }), type: 'image/svg+xml', cache: 'private, max-age=3600' }; } catch { throw bad('invalid_barcode', 'This code cannot be printed as a barcode'); } });
   on('GET', '/api/print/labels', (c, r) => {
     c.need('products.view'); const br = r.query.branch_id ? c.branch(num(r.query.branch_id)) : null;
     const ids = String(r.query.ids || '').split(',').map(Number).filter((x) => x > 0).slice(0, 500); if (!ids.length) throw bad('lines_required', 'Select at least one item');
-    const per = r.query.copies === 'stock' ? 'stock' : Math.max(1, Math.min(Number(r.query.copies) || 1, 200)); let total = 0;
+    const per = r.query.copies === 'stock' ? 'stock' : Math.max(1, Math.min(Number(r.query.copies) || 1, 200)); let total = 0, branchName = br?.name || '';
     const items = ids.map((id) => { const v = inv.variantInOrg(c, id); if (br && v.business_id !== br.business_id) throw notFound('variant'); const b = br || c.get(`SELECT * FROM branches WHERE org_id=? AND business_id=? AND id IN (${c.branchIds().join(',') || 0}) ORDER BY id LIMIT 1`, c.org_id, v.business_id); if (!b) throw notFound('variant');
-      const stock = c.get('SELECT qty FROM stock WHERE branch_id=? AND variant_id=?', b.id, v.id)?.qty || 0; const copies = Math.min(per === 'stock' ? Math.max(stock, 1) : per, 2000 - total); total += copies;
-      return { sku: v.sku, name: v.pname, attrs: Object.values(JSON.parse(v.attrs)).join(' / '), price: v.price, max_discount_bp: v.max_discount_bp, currency: b.currency, copies }; });
-    const company = c.get('SELECT name FROM orgs WHERE id=?', c.org_id).name;
-    return { raw: ex.labelsDoc(items, { mode: r.query.mode === 'thermal' ? 'thermal' : 'a4', lang: r.query.lang, company, qr: (t) => qrSvg(t) }), type: 'text/html; charset=utf-8' };
+      branchName ||= b.name; const stock = c.get('SELECT qty FROM stock WHERE branch_id=? AND variant_id=?', b.id, v.id)?.qty || 0; const copies = Math.min(per === 'stock' ? Math.max(stock, 1) : per, 2000 - total); total += copies;
+      return { code: v.barcode || v.sku, sku: v.sku, name: v.pname, attrs: Object.values(JSON.parse(v.attrs)).join(' · '), price: v.price, was_price: v.was_price, currency: b.currency, copies }; });
+    const company = c.get('SELECT name FROM orgs WHERE id=?', c.org_id).name; const logo = logoUri(c, br?.id ?? 0);
+    return { raw: ex.labelsDoc(items, { layout: r.query.layout, code: ['qr', 'both'].includes(r.query.code) ? r.query.code : 'barcode', lang: r.query.lang, company, branch: branchName, logo, barcode: (t, height) => barcodeSvg(t, { height }), qr: (t) => qrSvg(t) }), type: 'text/html; charset=utf-8' };
   });
   // baskets scanned on the floor / phone, completed by the manager when the money is received
   on('GET', '/api/orders', (c, r) => ord.listOrders(c, r.query));
@@ -301,10 +304,17 @@ export function createApi(db, { dataDir = './data', loginLimit = 10 } = {}) {
 
   // ---------- branding ----------
   const brandOrg = () => db.prepare("SELECT id,name,tagline FROM orgs WHERE status='active' ORDER BY saas_enabled, id LIMIT 1").get();
-  on('GET', '/api/branding', () => { const o = brandOrg(); return o ? { name: o.name, tagline: o.tagline, has_logo: !!orgLogo(o.id), themed_logo: !!orgLogo(o.id, 'light')?.variant } : { name: 'BizSuite', has_logo: false }; }, { public: true });
+  // English is the default language; Somali is an option (organisation default for the sign-in page and new users, then each user's choice)
+  const orgLang = (orgId) => db.prepare("SELECT value FROM settings WHERE org_id=? AND key='default_lang'").get(orgId)?.value === 'so' ? 'so' : 'en';
+  on('GET', '/api/branding', () => { const o = brandOrg(); return o ? { name: o.name, tagline: o.tagline, has_logo: !!orgLogo(o.id), themed_logo: !!orgLogo(o.id, 'light')?.variant, default_lang: orgLang(o.id) } : { name: 'BizSuite', has_logo: false, default_lang: 'en' }; }, { public: true });
   on('GET', '/api/branding/logo', (c, r) => { const o = brandOrg(); const l = o && orgLogo(o.id, r.query.variant); if (!l) throw notFound('logo'); return { raw: l.buf, type: l.mime, cache: 'public, max-age=300' }; }, { public: true });
-  on('GET', '/api/org', (c) => c.get('SELECT id,name,tagline,reporting_currency FROM orgs WHERE id=?', c.org_id));
-  on('PATCH', '/api/org', (c, r) => { c.need('settings.settings'); const before = c.get('SELECT name,tagline FROM orgs WHERE id=?', c.org_id); const name = admin.str(r.body.name ?? before.name, 'name', { max: 100 }); c.run('UPDATE orgs SET name=?, tagline=? WHERE id=?', name, r.body.tagline ?? before.tagline, c.org_id); c.audit('org.update', 'org', c.org_id, before, { name, tagline: r.body.tagline }); return { ok: true }; });
+  on('GET', '/api/org', (c) => ({ ...c.get('SELECT id,name,tagline,reporting_currency FROM orgs WHERE id=?', c.org_id), default_lang: orgLang(c.org_id) }));
+  on('PATCH', '/api/org', (c, r) => {
+    c.need('settings.settings'); const before = { ...c.get('SELECT name,tagline FROM orgs WHERE id=?', c.org_id), default_lang: orgLang(c.org_id) }; const name = admin.str(r.body.name ?? before.name, 'name', { max: 100 });
+    if (r.body.default_lang !== undefined && !['en', 'so'].includes(r.body.default_lang)) throw bad('invalid_language', 'Language must be en or so');
+    c.tx(() => { c.run('UPDATE orgs SET name=?, tagline=? WHERE id=?', name, r.body.tagline ?? before.tagline, c.org_id); if (r.body.default_lang) c.run("INSERT INTO settings(org_id,key,value) VALUES(?,'default_lang',?) ON CONFLICT(org_id,key) DO UPDATE SET value=excluded.value", c.org_id, r.body.default_lang); c.audit('org.update', 'org', c.org_id, before, { name, tagline: r.body.tagline, default_lang: r.body.default_lang }); });
+    return { ok: true };
+  });
   on('POST', '/api/org/logo', (c, r) => {
     c.need('settings.settings'); const { mime, data } = r.body; if (!MAGIC[mime]) throw bad('invalid_file_type', 'Only PNG, JPEG or WebP images are allowed'); const buf = Buffer.from(String(data || ''), 'base64');
     if (!buf.length || buf.length > 2 * 1024 * 1024) throw bad('file_too_large', 'Images must be under 2 MB'); if (!MAGIC[mime].every((b, i) => buf[i] === b)) throw bad('invalid_file_content', 'File content does not match its type');
@@ -322,7 +332,7 @@ export function createApi(db, { dataDir = './data', loginLimit = 10 } = {}) {
       const params = route.re.exec(p).groups || {}; const token = (headers.authorization || '').replace(/^Bearer /i, '') || null;
       const req = { params, query, body, ip, token };
       const ctx = route.public ? null : authenticate(token, ip);
-      if (ctx && !ctx.platform && !ctx.readOnly && ctx.user.must_change_password && !/^\/api\/auth\/(me|password|logout)$/.test(p)) throw new AppError(403, 'password_change_required', 'You must change your password before continuing');
+      if (ctx && !ctx.platform && !ctx.readOnly && ctx.user.must_change_password && !/^\/api\/auth\/(me|password|logout|lang)$/.test(p)) throw new AppError(403, 'password_change_required', 'You must change your password before continuing');
       if (ctx && ctx.readOnly && method !== 'GET' && !p.endsWith('/auth/logout')) throw forbidden('Support sessions are read-only', 'read_only');
       if (ctx?.platform && !p.startsWith('/api/platform') && !p.startsWith('/api/auth')) throw forbidden('Platform administrators have no tenant access', 'platform_only');
       if (ctx?.readOnly) db.prepare('INSERT INTO audit_log(org_id,user_id,action,entity,after,ip,created_at) VALUES(?,?,?,?,?,?,?)').run(ctx.org_id, ctx.user.id, 'support.read', 'api', JSON.stringify({ p, query }), ip, nowIso());

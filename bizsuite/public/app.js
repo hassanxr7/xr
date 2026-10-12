@@ -1,16 +1,16 @@
-import { S, h, $, clear, t, tx, get, post, toast, errText, setTheme, setLang, can, modal, busy, loading, dt, route, brandLogo, loadBrand } from './core.js';
+import { S, h, $, clear, t, tx, get, post, toast, errText, setTheme, setLang, can, modal, busy, loading, dt, route, brandLogo, loadBrand, langSwitch, langChosen } from './core.js';
 import { views } from './views.js';
 
-setTheme(S.theme); setLang(S.lang);
+setTheme(S.theme); setLang(S.lang, false);
 const app = $('#app');
 
 let installEvt = null; // set by beforeinstallprompt (see the end of this file)
 async function boot() {
-  await loadBrand();
+  await loadBrand(); if (!langChosen()) setLang(S.brand.default_lang || 'en', false);
   if (!S.token) return loginView();
   try { S.user = await get('/auth/me'); } catch { sessionStorage.removeItem('tok'); S.token = null; return loginView(); }
   if (S.user.platform) { location.hash = '#/platform'; }
-  if (S.user.lang && !localStorage.getItem('lang')) setLang(S.user.lang);
+  if (!langChosen()) setLang(S.user.lang || S.brand.default_lang || 'en', false);
   if (!S.user.platform && (!location.hash || location.hash === '#/' || location.hash === '#/login')) location.hash = '#' + home();
   shell(); render();
   if (S.user.must_change_password) forcePasswordChange();
@@ -23,7 +23,7 @@ function loginView(totp) {
   btn.onclick = async () => { err.textContent = ''; btn.disabled = true; try { const r = await post('/auth/login', { email: email.value, password: pw.value, totp: code.value || undefined }); S.token = r.token; sessionStorage.setItem('tok', r.token); boot(); } catch (e) { if (e.code === 'totp_required') { loginView(true); return; } err.textContent = errText(e); } finally { btn.disabled = false; } };
   app.append(h('div', { class: 'login' }, h('div', { class: 'card' }, form))); email.focus();
 }
-const langSel = () => h('select', { 'aria-label': t('Language'), onchange: (e) => { setLang(e.target.value); S.token ? (shell(), render()) : loginView(); } }, h('option', { value: 'en', selected: S.lang === 'en' }, 'English'), h('option', { value: 'so', selected: S.lang === 'so' }, 'Soomaali'));
+const langSel = () => langSwitch((v) => { setLang(v); if (S.token && S.user && !S.user.platform) { S.user.lang = v; post('/auth/lang', { lang: v }).catch(() => {}); } S.token && S.user ? (shell(), render()) : loginView(); });
 
 // where each person lands: owners/accountants on the group dashboard, branch managers on their shop board,
 // sales assistants on the scanner, barbers on their own day
@@ -42,7 +42,7 @@ const NAV = () => {
   add('Sell', '/orders', 'Orders', (can('orders.create') || can('sales.approve')) && m('sales'));
   add('Sell', '/pos', 'Point of sale', can('sales.create') && m('sales')); add('Sell', '/visits', 'Barber visits', (can('services.create') || can('services.view')) && m('services'));
   add('Sell', '/quotes', 'Quotations', can('sales.view') && m('sales')); add('Sell', '/sales', 'Sales', can('sales.view') && m('sales') || can('services.view') && m('services')); add('Sell', '/repairs', 'Repairs', can('repairs.view') && m('repairs'));
-  add('Stock', '/inventory', 'Inventory', can('products.view') && (m('inventory') || m('products'))); add('Stock', '/transfers', 'Transfers', can('inventory.view') && m('inventory')); add('Stock', '/purchases', 'Purchases', can('purchases.view') && m('purchases')); add('Stock', '/devices', 'Devices', can('devices.view') && m('devices')); add('Stock', '/labels', 'QR labels', can('products.view') && m('products'));
+  add('Stock', '/inventory', 'Inventory', can('products.view') && (m('inventory') || m('products'))); add('Stock', '/transfers', 'Transfers', can('inventory.view') && m('inventory')); add('Stock', '/purchases', 'Purchases', can('purchases.view') && m('purchases')); add('Stock', '/devices', 'Devices', can('devices.view') && m('devices')); add('Stock', '/labels', 'Price tags', can('products.view') && m('products'));
   add('People', '/customers', 'Customers', can('customers.view')); add('People', '/suppliers', 'Suppliers', can('suppliers.view'));
   add('Money', '/expenses', 'Expenses', can('expenses.view')); add('Money', '/registers', 'Cash registers', can('registers.view')); add('Money', '/payments', 'Payments', can('payments.view'));
   add('Money', '/commissions', 'Commissions', can('commissions.view') && (m('commissions') || m('repairs'))); add('Money', '/reports', 'Reports', can('reports.view') || can('expenses.view') || can('inventory.view'));

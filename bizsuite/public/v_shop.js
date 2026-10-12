@@ -30,7 +30,7 @@ export async function shop(r) {
     b.business_type === 'barber' && (can('services.create') || can('services.view')) ? h('a', { class: 'act', href: '#/visits' }, h('span', { class: 'ic' }, '✂️'), t('Record a visit')) : null,
     canStockIn(b) ? h('button', { class: 'act', onclick: () => stockInDialog(b, refresh) }, h('span', { class: 'ic' }, '📦'), t('Register new stock')) : null,
     can('expenses.create') ? h('button', { class: 'act', onclick: () => expenseDialog(b, refresh) }, h('span', { class: 'ic' }, '💸'), t('Add expense')) : null,
-    can('products.view') && b.business_type !== 'barber' ? h('a', { class: 'act', href: hashQ('/labels', { branch_id: b.id }) }, h('span', { class: 'ic' }, '🏷️'), t('QR labels')) : null);
+    can('products.view') && b.business_type !== 'barber' ? h('a', { class: 'act', href: hashQ('/labels', { branch_id: b.id }) }, h('span', { class: 'ic' }, '🏷️'), t('Price tags')) : null);
   root.append(h('div', { class: 'card row', style: `border-left:6px solid ${b.color || 'var(--brand)'}` }, h('div', {}, h('h1', { style: 'margin:0' }, b.name), h('small', { class: 'muted' }, t('My shop'), ' · ', h('span', { class: 'live' }, '●'), ' ', t('Live'), ' · ', stamp)), h('span', { style: 'flex:1' }),
     myBranches().length > 1 ? sel(myBranches().map((x) => ({ value: x.id, label: x.name })), b.id, go, { 'aria-label': t('Branch') }) : null), actions, body);
   async function refresh() {
@@ -84,11 +84,11 @@ async function stockInDialog(b, done) {
     { name: 'supplier_id', label: 'Supplier', type: 'select', num: true, placeholder: t('New / other supplier'), options: sups.map((s) => ({ value: s.id, label: s.name })) }, { name: 'supplier_name', label: 'New supplier name', hint: 'Local market' },
     { name: 'paid', label: 'Paid now', type: 'select', options: [{ value: 'full', label: 'Paid in full' }, { value: '0', label: 'Not paid yet (owed to supplier)' }] }, { name: 'method_id', label: 'Payment method', type: 'select', num: true, options: methods.filter((x) => x.kind !== 'credit').map((x) => ({ value: x.id, label: x.name })) }];
   const prev = h('div', { class: 'preview full' });
-  const m = formModal({ title: t('Register new stock') + ' · ' + b.name, wide: true, fields: F, ccy, label: 'Save and print labels', initial: { qty: 1, min_stock: 2, paid: 'full', max_discount_bp: 1000 }, submit: async (v) => {
+  const m = formModal({ title: t('Register new stock') + ' · ' + b.name, wide: true, fields: F, ccy, label: 'Save and print tags', initial: { qty: 1, min_stock: 2, paid: 'full', max_discount_bp: 1000 }, submit: async (v) => {
     const r = await post('/shop/stock-in', { branch_id: b.id, ...v, paid: v.paid === 'full' ? 'full' : 0, sizes: v.sizes, colors: v.colors });
     toast(t('Saved'), 'ok'); done && done();
     modal({ title: t('Stock registered'), body: h('div', { class: 'stack' }, h('p', {}, `${r.units} ${t('pieces')} · ${r.variant_ids.length} ${t('sizes/colours')}`), h('div', { class: 'grid g3' }, h('div', { class: 'kpi' }, h('div', { class: 'l' }, t('Total cost')), h('div', { class: 'v' }, money(r.total_cost, ccy))), h('div', { class: 'kpi' }, h('div', { class: 'l' }, t('Expected sales')), h('div', { class: 'v' }, money(r.expected.revenue, ccy))), h('div', { class: 'kpi pos' }, h('div', { class: 'l' }, t('Expected profit')), h('div', { class: 'v' }, money(r.expected.profit, ccy)), h('small', { class: 'muted' }, `${t('at max discount')}: ${money(r.expected.profit_at_max_discount, ccy)}`)))),
-      actions: (close) => [h('button', { class: 'btn', onclick: close }, t('Close')), h('button', { class: 'btn p', onclick: () => { close(); openDoc('/print/labels', { ids: r.variant_ids.join(','), copies: 'stock', branch_id: b.id }); } }, '🏷️ ' + t('Print QR labels'))] });
+      actions: (close) => [h('button', { class: 'btn', onclick: close }, t('Close')), h('button', { class: 'btn p', onclick: () => { close(); printTags(r.variant_ids, b.id); } }, '🏷️ ' + t('Print price tags'))] });
   } });
   const form = m.el.querySelector('form'); form.append(prev);
   const val = (n) => form.querySelector(`[name="${n}"]`).value; const num = (n) => { try { return val(n) ? parseMoney(val(n), ccy) : 0; } catch { return NaN; } };
@@ -194,21 +194,35 @@ export async function orders(r) {
   return root;
 }
 
-// ---------------------------------------------------------------- QR labels
+// ---------------------------------------------------------------- price tags (barcodes)
+const store = { get: (k, d) => { try { return localStorage.getItem(k) || d; } catch { return d; } }, set: (k, v) => { try { localStorage.setItem(k, v); } catch { /* ignore */ } } };
+const LAYOUTS = [['tag', 'Hang tags – A4 card, 16 per page (cut & punch)'], ['tagroll', 'Hang-tag printer (40 × 70 mm)'], ['sheet', 'Sticker sheet – A4, 3 × 8'], ['roll', 'Sticker printer (50 × 30 mm)']];
+const CODES = [['barcode', 'Barcode (EAN-13 / Code 128) – shop & mall standard'], ['both', 'Barcode + QR (for phone cameras)'], ['qr', 'QR code only']];
+const tagControls = () => ({
+  layout: sel(LAYOUTS.map(([v, l]) => ({ value: v, label: l })), store.get('tag_layout', 'tag'), (v) => store.set('tag_layout', v), { 'aria-label': t('Tag type') }),
+  code: sel(CODES.map(([v, l]) => ({ value: v, label: l })), store.get('tag_code', 'barcode'), (v) => store.set('tag_code', v), { 'aria-label': t('Code on the tag') }),
+  copies: sel([{ value: 'stock', label: 'One tag per piece in stock' }, { value: '1', label: '1 tag each' }, { value: '2', label: '2 tags each' }, { value: '5', label: '5 tags each' }, { value: '10', label: '10 tags each' }], 'stock', null, { 'aria-label': t('Copies') }),
+});
+// Print dialog used after creating a product, after registering stock and from the inventory list
+export function printTags(ids, branchId, { title } = {}) {
+  const c = tagControls();
+  modal({ title: title || t('Print price tags'), body: h('div', { class: 'stack' }, h('label', { class: 'f' }, t('Tag type'), c.layout), h('label', { class: 'f' }, t('Code on the tag'), c.code), h('label', { class: 'f' }, t('How many'), c.copies),
+    h('small', { class: 'muted' }, t('The system generated a shop barcode for every size/colour. Stick one tag on each piece; the cashier scans it at the till or with the phone.'))),
+  actions: (close) => [h('button', { class: 'btn', onclick: close }, t('Close')), h('button', { class: 'btn p', onclick: () => { close(); openDoc('/print/labels', { ids: [].concat(ids).join(','), copies: c.copies.value, layout: c.layout.value, code: c.code.value, branch_id: branchId }).catch((e) => toast(errText(e), 'bad')); } }, '🖨️ ' + t('Print'))] });
+}
 export async function labels(r) {
   const list = myBranches().filter((x) => x.business_type !== 'barber'); const b = pickBranch(r.q, list); if (!b) return h('div', { class: 'card empty' }, t('No data yet'));
   const q = { ...r.q }; const set = (k, v) => { location.hash = hashQ('/labels', { ...q, branch_id: b.id, [k]: v }); };
-  const d = await get('/stock', { branch_id: b.id, q: q.q, limit: 200 }); const picked = new Set();
-  const copies = sel([{ value: 'stock', label: 'One label per piece in stock' }, { value: '1', label: '1 label each' }, { value: '2', label: '2 labels each' }, { value: '5', label: '5 labels each' }, { value: '10', label: '10 labels each' }], 'stock', null, { 'aria-label': t('Copies') });
-  const mode = sel([{ value: 'a4', label: 'A4 sticker sheet (3 × 8)' }, { value: 'thermal', label: 'Label printer (50 × 30 mm)' }], 'a4', null, { 'aria-label': t('Paper') });
+  const d = await get('/stock', { branch_id: b.id, q: q.q, limit: 200 }); const picked = new Set(); const c = tagControls();
   const count = h('b', {}, '0'); const upd = () => { count.textContent = String(picked.size); };
-  const all = h('input', { type: 'checkbox', 'aria-label': t('Select all'), onchange: (e) => { root.querySelectorAll('.pick').forEach((c) => { c.checked = e.target.checked; c.onchange(); }); } });
-  const printBtn = h('button', { class: 'btn p' }, '🖨️ ' + t('Print labels')); printBtn.onclick = busy(printBtn, async () => { if (!picked.size) throw new Error(t('Select at least one item')); await openDoc('/print/labels', { ids: [...picked].join(','), copies: copies.value, mode: mode.value, branch_id: b.id }); });
-  const root = h('div', { class: 'stack' }, h('div', { class: 'card row' }, h('h1', {}, t('QR labels')), h('span', { style: 'flex:1' }), list.length > 1 ? sel(list.map((x) => ({ value: x.id, label: x.name })), b.id, (v) => { location.hash = hashQ('/labels', { branch_id: v }); }, { 'aria-label': t('Branch') }) : h('b', {}, b.name)),
-    h('div', { class: 'card stack' }, h('p', { class: 'muted' }, t('Each label carries a QR code with the item code. Stick it on the item; scanning it with the phone or the shop camera brings up the item, its price and the maximum discount.')),
-      h('div', { class: 'row' }, h('input', { placeholder: t('Search'), value: q.q || '', onchange: (e) => set('q', e.target.value), 'aria-label': t('Search') }), copies, mode, h('span', { style: 'flex:1' }), h('span', {}, t('Selected'), ': ', count), printBtn),
-      table([{ label: all, f: (v) => { const c = h('input', { type: 'checkbox', class: 'pick', 'aria-label': v.sku }); c.onchange = () => { if (c.checked) picked.add(v.id); else picked.delete(v.id); upd(); }; return c; } }, { label: 'QR', f: (v) => h('img', { class: 'qrthumb', alt: v.sku, 'data-sku': v.sku }) }, { label: 'Name', f: (v) => [v.name, h('br'), h('small', { class: 'muted' }, `${v.sku} ${attrText(v.attrs)}`)] }, { label: 'On hand', r: 1, k: 'qty' }, { label: 'Price', r: 1, f: (v) => money(v.price, b.currency) }, { label: 'Max discount', r: 1, f: (v) => pct(v.max_discount_bp) || '—' }], d.rows)));
-  qrThumbs(root); return root;
+  const all = h('input', { type: 'checkbox', 'aria-label': t('Select all'), onchange: (e) => { root.querySelectorAll('.pick').forEach((x) => { x.checked = e.target.checked; x.onchange(); }); } });
+  const printBtn = h('button', { class: 'btn p' }, '🖨️ ' + t('Print tags')); printBtn.onclick = busy(printBtn, async () => { if (!picked.size) throw new Error(t('Select at least one item')); await openDoc('/print/labels', { ids: [...picked].join(','), copies: c.copies.value, layout: c.layout.value, code: c.code.value, branch_id: b.id }); });
+  const root = h('div', { class: 'stack' }, h('div', { class: 'card row pagehead' }, h('div', {}, h('h1', {}, t('Price tags')), h('small', { class: 'muted' }, t('Barcode tags for clothes, shoes and every item in the shop'))), h('span', { style: 'flex:1' }), list.length > 1 ? sel(list.map((x) => ({ value: x.id, label: x.name })), b.id, (v) => { location.hash = hashQ('/labels', { branch_id: v }); }, { 'aria-label': t('Branch') }) : h('b', {}, b.name)),
+    h('div', { class: 'card stack' }, h('p', { class: 'muted' }, t('Every item gets its own shop barcode automatically when it is registered (EAN-13 in-store number, the type used on mall price tags). Print hang tags or stickers, attach one to each piece and scan it at the till, with a USB scanner or with the phone camera.')),
+      h('div', { class: 'grid g3' }, h('label', { class: 'f' }, t('Tag type'), c.layout), h('label', { class: 'f' }, t('Code on the tag'), c.code), h('label', { class: 'f' }, t('How many'), c.copies)),
+      h('div', { class: 'row' }, h('input', { placeholder: t('Search'), value: q.q || '', onchange: (e) => set('q', e.target.value), 'aria-label': t('Search') }), h('span', { style: 'flex:1' }), h('span', {}, t('Selected'), ': ', count), printBtn),
+      table([{ label: all, f: (v) => { const x = h('input', { type: 'checkbox', class: 'pick', 'aria-label': v.sku }); x.onchange = () => { if (x.checked) picked.add(v.id); else picked.delete(v.id); upd(); }; return x; } }, { label: 'Barcode', f: (v) => h('img', { class: 'bcthumb', alt: v.barcode || v.sku, 'data-code': v.barcode || v.sku }) }, { label: 'Name', f: (v) => [v.name, h('br'), h('small', { class: 'muted' }, `${v.sku} ${attrText(v.attrs)}`)] }, { label: 'On hand', r: 1, k: 'qty' }, { label: 'Price', r: 1, f: (v) => [money(v.price, b.currency), v.was_price ? h('div', {}, h('small', { class: 'muted' }, h('s', {}, money(v.was_price, b.currency)))) : null] }, { label: 'Max discount', r: 1, f: (v) => pct(v.max_discount_bp) || '—' }], d.rows)));
+  codeThumbs(root); return root;
 }
-// QR previews are fetched with the session token (the image endpoint needs authentication)
-async function qrThumbs(root) { for (const img of root.querySelectorAll('img.qrthumb')) { try { const r = await fetch('/api/qr?size=64&text=' + encodeURIComponent(img.dataset.sku), { headers: { Authorization: 'Bearer ' + S.token } }); if (r.ok) img.src = URL.createObjectURL(await r.blob()); } catch { /* preview only */ } } }
+// barcode previews are fetched with the session token (the image endpoint needs authentication)
+export async function codeThumbs(root) { for (const img of root.querySelectorAll('img.bcthumb')) { try { const r = await fetch('/api/barcode?text=0&code=' + encodeURIComponent(img.dataset.code), { headers: { Authorization: 'Bearer ' + S.token } }); if (r.ok) img.src = URL.createObjectURL(await r.blob()); } catch { /* preview only */ } } }

@@ -2,6 +2,7 @@ import { DatabaseSync } from 'node:sqlite';
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { assignMissingBarcodes } from './barcode.js';
 const here = path.dirname(fileURLToPath(import.meta.url));
 
 export function openDb(file = ':memory:') {
@@ -9,6 +10,7 @@ export function openDb(file = ':memory:') {
   const db = new DatabaseSync(file);
   db.exec('PRAGMA foreign_keys=ON; PRAGMA journal_mode=WAL; PRAGMA busy_timeout=5000; PRAGMA synchronous=NORMAL;');
   migrate(db);
+  assignMissingBarcodes(db); // every item gets a printable shop barcode (in-store EAN-13), also after upgrading older data
   return db;
 }
 export function migrate(db) {

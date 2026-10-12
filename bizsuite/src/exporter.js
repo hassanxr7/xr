@@ -30,7 +30,7 @@ export function saleDoc(s, mode = 'thermal', lang = 'en') {
   const pays = s.payments.filter((p) => p.status === 'confirmed').map((p) => `<tr><td colspan="3">${esc(p.method_name)}${p.direction === 'out' ? ' ' + T('(refund)') : ''}</td><td class="r">${f(p.amount)}</td></tr>`).join('');
   const head = `<div class="c">${s.logo ? `<img src="${esc(s.logo)}" alt="" style="max-height:48px"><br>` : ''}<b>${esc(s.branch_name)}</b><br>${s.company ? `<small>${esc(s.company)}</small><br>` : ''}${esc(s.address || '')} ${esc(s.phone || '')}<br>${esc(s.receipt_header || '')}</div><div class="hr"></div>${T(s.kind === 'service' ? 'Visit' : 'Invoice')}: <b>${esc(s.ref)}</b><br>${T('Date')}: ${esc(s.created_at.slice(0, 16).replace('T', ' '))} UTC · ${T('Business date')} ${esc(s.business_date)}<br>${T('Customer')}: ${esc(s.customer_name || T('Walk-in'))}<br>${T('Cashier')}: ${esc(s.user_name)}${s.status === 'void' ? `<br><b>${T('*** VOID ***')}</b>` : ''}`;
   const tbl = `<table><thead><tr><th>${T('Item')}</th><th class="r">${T('Qty')}</th><th class="r">${T('Price')}</th><th class="r">${T('Total')}</th></tr></thead><tbody>${lines}</tbody><tfoot><tr><td colspan="3">${T('Subtotal')}</td><td class="r">${f(s.subtotal)}</td></tr>${s.discount ? `<tr><td colspan="3">${T('Discount')}</td><td class="r">-${f(s.discount)}</td></tr>` : ''}${s.tax ? `<tr><td colspan="3">${T('Tax')}</td><td class="r">${f(s.tax)}</td></tr>` : ''}<tr><td colspan="3"><b>${T('Total')}</b></td><td class="r"><b>${f(s.total)}</b></td></tr>${s.returned_total ? `<tr><td colspan="3">${T('Returned')}</td><td class="r">-${f(s.returned_total)}</td></tr>` : ''}${pays}<tr><td colspan="3"><b>${T('Balance due')}</b></td><td class="r"><b>${f(Math.max(0, s.total - s.returned_total - s.paid))}</b></td></tr></tfoot></table>`;
-  const foot = `<div class="hr"></div><div class="c">${esc(s.receipt_footer || T('Thank you'))}</div>${mode === 'a4' && s.invoice_terms ? `<p>${esc(s.invoice_terms)}</p>` : ''}${s.lines.some((l) => l.warranty_end) ? `<p>${T('Warranty until')}: ${esc(s.lines.filter((l) => l.warranty_end).map((l) => l.description + ' ' + l.warranty_end).join('; '))}</p>` : ''}`;
+  const foot = `<div class="hr"></div><div class="c">${esc(T(s.receipt_footer) || T('Thank you'))}</div>${mode === 'a4' && s.invoice_terms ? `<p>${esc(s.invoice_terms)}</p>` : ''}${s.lines.some((l) => l.warranty_end) ? `<p>${T('Warranty until')}: ${esc(s.lines.filter((l) => l.warranty_end).map((l) => l.description + ' ' + l.warranty_end).join('; '))}</p>` : ''}`;
   return page(esc(s.ref), `<div class="${mode === 'thermal' ? 'th' : ''}">${head}${tbl}${foot}</div>`, mode);
 }
 export function repairDoc(j, mode = 'thermal', lang = 'en') {
@@ -74,14 +74,45 @@ export function quoteDoc(q, mode = 'a4', lang = 'en') {
   return page(esc(q.ref), body, mode);
 }
 
-// Item labels: one QR code per physical piece (the QR holds the SKU, which the POS and the phone scanner look up).
-// a4 = 3 x 8 sticker sheet (≈ 70 x 37 mm); thermal = one 50 x 30 mm label per page for label printers.
-export function labelsDoc(items, { mode = 'a4', lang = 'en', company = '', qr } = {}) {
-  const T = makeT(lang); const cells = [];
-  for (const it of items) for (let i = 0; i < it.copies; i++) cells.push(`<div class="lb"><div class="q">${qr(it.sku)}</div><div class="t"><b>${esc(it.name)}</b>${it.attrs ? `<div>${esc(it.attrs)}</div>` : ''}<div class="p">${esc(fmt(it.price, it.currency))}</div>${it.max_discount_bp ? `<div class="m">${esc(T('Max discount'))} ${it.max_discount_bp / 100}%</div>` : ''}<div class="s">${esc(it.sku)}</div>${company ? `<div class="m">${esc(company)}</div>` : ''}</div></div>`);
-  const css = mode === 'thermal'
-    ? '@page{size:50mm 30mm;margin:0}body{margin:0}.lb{width:50mm;height:30mm;page-break-after:always;display:flex;gap:1.5mm;align-items:center;padding:1.5mm;box-sizing:border-box;overflow:hidden}.q svg{width:24mm;height:24mm}'
-    : '@page{size:A4;margin:8mm}body{margin:0}.sheet{display:grid;grid-template-columns:repeat(3,1fr);gap:0}.lb{height:36.5mm;display:flex;gap:2mm;align-items:center;padding:2mm;box-sizing:border-box;border:1px dashed #ccc;overflow:hidden;break-inside:avoid}.q svg{width:30mm;height:30mm}';
-  const bar = `<div class="noprint" style="padding:8px;background:#eef;margin-bottom:8px;font:13px system-ui">${cells.length} ${esc(T('labels'))}</div>`;
-  return `<!doctype html><html><head><meta charset="utf-8"><title>${esc(T('QR labels'))}</title><style>body{font:10px/1.25 system-ui,Arial,sans-serif;color:#000}.t{min-width:0;flex:1}.t b{font-size:11px;display:block;max-height:2.6em;overflow:hidden}.p{font-size:14px;font-weight:800;margin-top:1mm}.s{font:9px monospace}.m{font-size:8px;color:#333}.q{flex:none;line-height:0}${css}@media print{.noprint{display:none}.lb{border-color:transparent}}</style></head><body>${bar}<div class="sheet">${cells.join('') || `<p>${esc(T('No data yet'))}</p>`}</div></body></html>`;
+// Shop price tags, the way malls do it: barcode (EAN-13 in-store number, or Code 128) with the digits, product, size/colour,
+// price (with the old price struck through after a mark-down), brand and branch. One tag per physical piece.
+// layout: tag = hang tags on A4 card (4 x 3, cut and punch), tagroll = hang-tag printer 40 x 70 mm,
+//         sheet = A4 sticker sheet 3 x 8 (70 x 37 mm), roll = sticker printer 50 x 30 mm
+// code: barcode (default) | both (barcode + small QR for phone cameras) | qr
+// The maximum discount is deliberately NOT printed: tags are customer-facing; staff see it when they scan.
+export const LABEL_LAYOUTS = ['tag', 'tagroll', 'sheet', 'roll'];
+// bar height (in modules) and printed width per layout: EAN-13 at ~85-100 % of its nominal 37 mm so every scanner reads it
+const BAR_H = { tag: 42, tagroll: 38, sheet: 30, roll: 26 }; const BAR_W = { tag: '38mm', tagroll: '35mm', sheet: '38mm', roll: '33mm' };
+export function labelsDoc(items, { layout = 'tag', code = 'barcode', lang = 'en', company = '', branch = '', logo = null, barcode, qr } = {}) {
+  const T = makeT(lang); const cells = []; if (!LABEL_LAYOUTS.includes(layout)) layout = 'tag';
+  const tag = layout === 'tag' || layout === 'tagroll';
+  for (const it of items) {
+    const price = esc(fmt(it.price, it.currency)); const was = it.was_price && it.was_price > it.price ? esc(fmt(it.was_price, it.currency)) : null;
+    const bc = code === 'qr' ? '' : `<div class="bcw">${barcode(it.code, BAR_H[layout])}</div>`; const q = code === 'qr' || code === 'both' ? `<div class="qr">${qr(it.code)}</div>` : '';
+    const head = tag ? `<div class="hole"></div><div class="brand">${logo ? '<i class="logo"></i>' : `<b>${esc(company)}</b>`}</div>${branch ? `<div class="br">${esc(branch)}</div>` : ''}<div class="rule"></div>` : '';
+    const priceHtml = was ? `<div class="pr"><s>${was}</s><span class="now">${price}</span></div>` : `<div class="pr">${price}</div>`;
+    const text = `<div class="nm">${esc(it.name)}</div>${it.attrs ? `<div class="at">${esc(it.attrs)}</div>` : ''}${priceHtml}`;
+    const body = tag
+      ? `${head}${text}${code === 'qr' ? `<div class="qrbig">${q}</div>` : bc}${code === 'both' ? `<div class="qrrow">${q}<span>${esc(T('Scan with the phone'))}</span></div>` : ''}<div class="sku">${esc(it.sku)}</div>`
+      : `<div class="top"><div class="txt">${text}${company ? `<div class="co">${esc(company)}</div>` : ''}</div>${code !== 'barcode' ? `<div class="qrs">${q}</div>` : ''}</div>${code === 'qr' ? `<div class="sku">${esc(it.sku)}</div>` : bc}`;
+    for (let i = 0; i < it.copies; i++) cells.push(`<div class="lb ${layout}">${body}</div>`);
+  }
+  const css = {
+    tag: '@page{size:A4;margin:6mm}.labels{display:grid;grid-template-columns:repeat(4,47mm);grid-auto-rows:70mm;gap:1.5mm;justify-content:center}.lb{border:1px dashed #bbb}',
+    tagroll: '@page{size:40mm 70mm;margin:0}.lb{width:40mm;height:70mm;page-break-after:always}.lb .nm{font-size:9.5px}.pr{font-size:15px}',
+    sheet: '@page{size:A4;margin:8mm}.labels{display:grid;grid-template-columns:repeat(3,1fr);grid-auto-rows:36.5mm}.lb{border:1px dashed #ccc;padding:1.5mm 3mm}',
+    roll: '@page{size:50mm 30mm;margin:0}.lb{width:50mm;height:30mm;page-break-after:always;padding:1mm 2mm}',
+  }[layout];
+  const sticker = !tag;
+  const base = `body{margin:0;font:10px/1.2 "Helvetica Neue",Arial,sans-serif;color:#000;background:#fff}.lb{box-sizing:border-box;overflow:hidden;display:flex;flex-direction:column;align-items:center;text-align:center;padding:2.5mm 2.5mm 2mm;break-inside:avoid;position:relative;background:#fff}
+.hole{width:4.5mm;height:4.5mm;border:1px solid #999;border-radius:50%;margin:0 auto 1.5mm}.brand .logo{display:block;width:30mm;height:9mm;background:center/contain no-repeat}.brand b{font-size:12px;letter-spacing:.06em;text-transform:uppercase}.br{font-size:8px;letter-spacing:.18em;text-transform:uppercase;color:#333;margin-top:.5mm}
+.rule{width:70%;border-top:1px solid #000;margin:1.8mm 0}.nm{font-weight:700;font-size:${sticker ? '9.5px' : '11px'};max-height:2.5em;overflow:hidden;line-height:1.2}.at{font-size:${sticker ? '8.5px' : '10px'};margin-top:.6mm;letter-spacing:.03em}
+.pr{font-weight:800;font-size:${sticker ? '13px' : '18px'};margin:${sticker ? '.6mm 0' : '2mm 0 1.5mm'};font-variant-numeric:tabular-nums}.pr s{display:block;font-size:.55em;font-weight:500;color:#555}.pr .now{color:#c00}
+.bcw{width:100%;line-height:0}.lb.tag .bcw,.lb.tagroll .bcw,.lb.tag .qrbig,.lb.tagroll .qrbig{margin-top:auto}.bcw svg{width:100%;height:${sticker ? '11mm' : '16mm'}}.sku{font:7.5px Consolas,monospace;color:#333;margin-top:.6mm}.co{font-size:6.5px;color:#555;letter-spacing:.08em;text-transform:uppercase}
+.top{display:flex;align-items:center;gap:2mm;width:100%;text-align:left;flex:1;min-height:0}.top .txt{flex:1;min-width:0}.qrs svg{width:${sticker ? (layout === 'roll' ? '13mm' : '15mm') : '0'};height:auto;display:block}
+.qrrow{display:flex;align-items:center;gap:1.5mm;margin-top:1mm;font-size:6.5px;color:#444}.qrrow svg{width:11mm;height:11mm}.qrbig svg{width:${sticker ? '17mm' : '26mm'};height:${sticker ? '17mm' : '26mm'}}
+@media screen{.lb.roll,.lb.tagroll{outline:1px dashed #bbb;margin:0 auto 3mm}}@media print{.noprint{display:none}.lb{border-color:transparent!important}}`;
+  const bar = `<div class="noprint" style="padding:8px 10px;background:#eef3ff;margin-bottom:8px;font:13px system-ui">${cells.length} ${esc(T('labels'))}</div>`;
+  const logoCss = logo ? `.brand .logo{background-image:url("${String(logo).replace(/"/g, '')}")}` : ''; // the logo is embedded once, not once per tag
+  return `<!doctype html><html><head><meta charset="utf-8"><title>${esc(T('Price tags'))}</title><style>${base}${css}${logoCss}</style></head><body>${bar}<div class="labels">${cells.join('') || `<p>${esc(T('No data yet'))}</p>`}</div></body></html>`;
 }

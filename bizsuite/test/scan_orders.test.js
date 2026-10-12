@@ -66,9 +66,9 @@ test('order endpoints over HTTP: idempotent completion and seller visibility', a
   const k = { 'idempotency-key': 'ord-1' }; const pay = { payments: [{ method_id: w.CASH, amount: 2000 }] };
   const r1 = boss('POST', `/api/orders/${o.body.id}/complete`, pay, {}, k); const r2 = boss('POST', `/api/orders/${o.body.id}/complete`, pay, {}, k);
   assert.equal(r1.status, 200); assert.equal(r2.body.id, r1.body.id); assert.equal(w.stock(A, shirt).qty, 9, 'replay did not sell twice');
-  const lab = boss('GET', '/api/print/labels', {}, { ids: String(shirt), copies: 'stock', branch_id: A }); assert.equal(lab.status, 200); assert.equal((lab.body.match(/class="lb"/g) || []).length, 9, 'one label per piece in stock');
+  const lab = boss('GET', '/api/print/labels', {}, { ids: String(shirt), copies: 'stock', branch_id: A }); assert.equal(lab.status, 200); assert.equal((lab.body.match(/class="lb /g) || []).length, 9, 'one label per piece in stock');
   assert.ok(lab.body.includes('RST-SHIRT-M') && lab.body.includes('<svg'));
-  const so = boss('GET', '/api/print/labels', {}, { ids: String(shirt), copies: '2', lang: 'so' }); assert.ok(so.body.includes('Qiimo dhimista ugu badan'), 'labels follow the language');
+  const so = boss('GET', '/api/print/labels', {}, { ids: String(shirt), copies: '2', lang: 'so' }); assert.ok(so.body.includes('calaamadood') && !/Max discount|Qiimo dhimista/.test(so.body), 'tags follow the language and never show the maximum discount to customers');
   assert.equal(boss('GET', '/api/qr', {}, { text: 'RST-SHIRT-M' }).status, 200);
   const look = sara('GET', '/api/pos/search', {}, { branch_id: A, barcode: 'RST-SHIRT-M' }).body.rows[0]; assert.equal(look.max_discount_bp, 1000); assert.equal(look.price, 2000);
 });
@@ -123,7 +123,7 @@ test('manager "I bought these": product, sizes, stock, supplier balance, payment
   const skus = w.db.prepare('SELECT sku, max_discount_bp FROM variants WHERE product_id=? ORDER BY id').all(r.body.product_id); assert.deepEqual(skus.map((x) => x.sku), ['RST-POLOSHIR-M-BLA', 'RST-POLOSHIR-L-BLA']); assert.equal(skus[0].max_discount_bp, 1500);
   const po = w.db.prepare('SELECT billed, paid, payment_status FROM purchases WHERE id=?').get(r.body.purchase_id); assert.deepEqual([po.billed, po.paid], [8000, 8000]);
   const again = api('POST', '/api/shop/stock-in', { branch_id: A, name: 'Polo shirt', qty: 1, cost: 800, price: 2000 }); assert.equal(again.status, 200); assert.equal(w.db.prepare('SELECT sku FROM variants WHERE id=?').get(again.body.variant_ids[0]).sku, 'RST-POLOSHIR2', 'SKUs stay unique');
-  const lab = api('GET', '/api/print/labels', {}, { ids: r.body.variant_ids.join(','), copies: 'stock', branch_id: A }); assert.equal((lab.body.match(/class="lb"/g) || []).length, 10);
+  const lab = api('GET', '/api/print/labels', {}, { ids: r.body.variant_ids.join(','), copies: 'stock', branch_id: A }); assert.equal((lab.body.match(/class="lb /g) || []).length, 10);
 });
 
 test('labels and the board stay inside the user\'s branches and businesses', async () => {

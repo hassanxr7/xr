@@ -2,6 +2,7 @@
 import { AppError, bad, notFound } from './errors.js';
 import { ApprovalNeeded, registerApproval } from './core.js';
 import { int, divRound, allocate } from './money.js';
+import { assignBarcode } from './barcode.js';
 import { nowIso } from './time.js';
 import { str } from './admin.js';
 
@@ -26,11 +27,13 @@ export function variantInOrg(ctx, id) {
   const v = ctx.get('SELECT v.*, p.kind, p.name pname, p.business_id, p.warranty_months, p.is_part FROM variants v JOIN products p ON p.id=v.product_id WHERE v.id=? AND v.org_id=?', id, ctx.org_id);
   if (!v) throw notFound('variant'); return v;
 }
+// UPC-A (12 digits) is the same code as EAN-13 with a leading 0: scanners may report either form
+export const barcodeAliases = (c) => { c = String(c).trim(); return /^\d{12}$/.test(c) ? [c, '0' + c] : /^0\d{12}$/.test(c) ? [c, c.slice(1)] : [c]; };
 const hideCost = (ctx, row) => { if (!ctx.can('cost.view')) { delete row.cost; delete row.value; delete row.avg_cost; } return row; };
 
 // ---------- Products ----------
 function validVariant(ctx, v) {
-  return { sku: str(v.sku, 'sku', { max: 60 }), barcode: v.barcode || null, attrs: JSON.stringify(v.attrs || {}), cost: int(v.cost ?? 0, 'cost', { min: 0 }), price: int(v.price ?? 0, 'price', { min: 0 }), min_stock: int(v.min_stock ?? 0, 'min_stock', { min: 0 }), max_discount_bp: maxDisc(v.max_discount_bp) };
+  return { sku: str(v.sku, 'sku', { max: 60 }), barcode: v.barcode ? String(v.barcode).trim().slice(0, 60) : null, attrs: JSON.stringify(v.attrs || {}), cost: int(v.cost ?? 0, 'cost', { min: 0 }), price: int(v.price ?? 0, 'price', { min: 0 }), min_stock: int(v.min_stock ?? 0, 'min_stock', { min: 0 }), max_discount_bp: maxDisc(v.max_discount_bp) };
 }
 // per-item discount ceiling in basis points (1000 = 10%); empty = no item ceiling
 export const maxDisc = (v) => (v == null || v === '' ? null : int(v, 'max_discount_bp', { min: 0, max: 10000 }));
@@ -43,13 +46,15 @@ export function createProduct(ctx, p) {
     if (!(p.variants || []).length) throw bad('variants_required', 'At least one variant (size/colour/SKU) is required');
     const id = ctx.run('INSERT INTO products(org_id,business_id,name,category,brand,model,kind,is_part,warranty_months,image_file_id,created_at) VALUES(?,?,?,?,?,?,?,?,?,?,?)',
       ctx.org_id, bu.id, str(p.name, 'name'), p.category || null, p.brand || null, p.model || null, p.kind || 'standard', p.is_part ? 1 : 0, int(p.warranty_months ?? 0, 'warranty_months', { min: 0, max: 120 }), p.image_file_id || null, nowIso()).lastInsertRowid;
-    for (const v of p.variants) addVariantRow(ctx, id, v);
-    ctx.audit('product.create', 'product', id, null, p); return { id };
+    const variant_ids = p.variants.map((v) => addVariantRow(ctx, id, v));
+    ctx.audit('product.create', 'product', id, null, p); return { id, variant_ids };
   });
 }
 function addVariantRow(ctx, productId, v) {
   const x = validVariant(ctx, v);
-  try { return ctx.run('INSERT INTO variants(org_id,product_id,sku,barcode,attrs,cost,price,min_stock,max_discount_bp) VALUES(?,?,?,?,?,?,?,?,?)', ctx.org_id, productId, x.sku, x.barcode, x.attrs, x.cost, x.price, x.min_stock, x.max_discount_bp).lastInsertRowid; }
+  try { const id = ctx.run('INSERT INTO variants(org_id,product_id,sku,barcode,attrs,cost,price,min_stock,max_discount_bp) VALUES(?,?,?,?,?,?,?,?,?)', ctx.org_id, productId, x.sku, x.barcode, x.attrs, x.cost, x.price, x.min_stock, x.max_discount_bp).lastInsertRowid;
+    if (!x.barcode) assignBarcode(ctx.db, ctx.org_id, id); // the system generates the shop barcode printed on the tag
+    return id; }
   catch (e) { if (/UNIQUE/.test(e.message)) throw new AppError(409, 'duplicate_sku_or_barcode', 'SKU or barcode already exists', { sku: x.sku }); throw e; }
 }
 export function addVariant(ctx, productId, v) {
@@ -62,11 +67,13 @@ export function updateVariant(ctx, id, v) {
   const sets = [], vals = [];
   for (const k of ['barcode']) if (k in v) { sets.push(`${k}=?`); vals.push(v[k] || null); }
   for (const k of ['price', 'cost', 'min_stock']) if (k in v) { sets.push(`${k}=?`); vals.push(int(v[k], k, { min: 0 })); }
+  // mark-down: remember the price before the first reduction (printed struck-through on the new tag); back to full price clears it
+  if ('price' in v) { const np = int(v.price, 'price', { min: 0 }); const was = old.was_price ?? old.price; if (v.markdown && np < was) { sets.push('was_price=?'); vals.push(was); } else if (!v.markdown && (old.was_price == null || np >= old.was_price)) { sets.push('was_price=?'); vals.push(null); } }
   if ('max_discount_bp' in v) { sets.push('max_discount_bp=?'); vals.push(maxDisc(v.max_discount_bp)); }
   if ('active' in v) { sets.push('active=?'); vals.push(v.active ? 1 : 0); }
   if ('attrs' in v) { sets.push('attrs=?'); vals.push(JSON.stringify(v.attrs)); }
   if (!sets.length) return { id };
-  try { ctx.tx(() => { ctx.run(`UPDATE variants SET ${sets.join(',')} WHERE id=? AND org_id=?`, ...vals, id, ctx.org_id); ctx.audit('variant.update', 'variant', id, { price: old.price, cost: old.cost, barcode: old.barcode, max_discount_bp: old.max_discount_bp }, v); }); }
+  try { ctx.tx(() => { ctx.run(`UPDATE variants SET ${sets.join(',')} WHERE id=? AND org_id=?`, ...vals, id, ctx.org_id); ctx.audit(v.markdown ? 'variant.markdown' : 'variant.update', 'variant', id, { price: old.price, cost: old.cost, barcode: old.barcode, max_discount_bp: old.max_discount_bp, was_price: old.was_price }, v); }); }
   catch (e) { if (/UNIQUE/.test(e.message)) throw new AppError(409, 'duplicate_sku_or_barcode', 'Barcode already exists'); throw e; }
   return { id };
 }
@@ -88,11 +95,11 @@ export function listVariants(ctx, { q, branch_id, business_id, barcode, low, pag
   const where = ['v.org_id=?', `p.business_id IN (SELECT business_id FROM branches WHERE id IN (${ctx.branchIds().join(',') || 0}))`]; const args = [ctx.org_id];
   if (br) { where.push('p.business_id=?'); args.push(br.business_id); }
   if (business_id) { where.push('p.business_id=?'); args.push(Number(business_id)); }
-  if (barcode) { where.push('(v.barcode=? OR v.sku=?)'); args.push(barcode, barcode); }
+  if (barcode) { const alt = barcodeAliases(barcode); where.push(`(v.barcode IN (${alt.map(() => '?').join(',')}) OR v.sku=?)`); args.push(...alt, barcode); }
   if (q) { where.push('(p.name LIKE ? OR v.sku LIKE ? OR v.barcode LIKE ? OR p.brand LIKE ? OR p.model LIKE ?)'); const l = `%${q.replace(/[%_]/g, '')}%`; args.push(l, l, l, l, l); }
   if (active !== undefined && active !== '') { where.push('v.active=?'); args.push(active ? 1 : 0); }
   const having = low ? `WHERE qty <= min_stock` : '';
-  const base = `SELECT v.id,v.sku,v.barcode,v.attrs,v.cost,v.price,v.min_stock,v.max_discount_bp,v.active,p.id product_id,p.image_file_id,p.name,p.category,p.brand,p.model,p.kind,p.is_part,p.business_id,p.warranty_months,${stockSql} qty,${valSql} value,
+  const base = `SELECT v.id,v.sku,v.barcode,v.attrs,v.cost,v.price,v.was_price,v.min_stock,v.max_discount_bp,v.active,p.id product_id,p.image_file_id,p.name,p.category,p.brand,p.model,p.kind,p.is_part,p.business_id,p.warranty_months,${stockSql} qty,${valSql} value,
     CASE WHEN ${stockSql}>0 THEN ${valSql}/${stockSql} ELSE v.cost END avg_cost FROM variants v JOIN products p ON p.id=v.product_id WHERE ${where.join(' AND ')}`;
   limit = Math.min(Number(limit) || 25, 200); const off = (Math.max(Number(page) || 1, 1) - 1) * limit;
   const total = ctx.get(`SELECT COUNT(*) c FROM (${base}) ${having}`, ...args).c;

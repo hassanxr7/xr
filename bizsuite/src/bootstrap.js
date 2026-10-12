@@ -13,7 +13,7 @@ export function bootstrapFromEnv(db, env = process.env) {
     const O = Ctx.forUserId(db, t.owner_id); const ccy = env.CURRENCY || 'USD';
     for (const [name, type, code, color] of [['Rio Berber', 'barber', 'RBR', '#c2410c'], ['Rio Store', 'clothing', 'RST', '#2563eb'], ['Reyxaan Store', 'electronics_combined', 'RYX', '#059669']]) {
       const business_id = admin.createBusiness(O, { name, type }).id;
-      admin.createBranch(O, { business_id, code, name, color, currency: ccy, receipt_header: env.ORG_NAME || 'Hubdex Store LTD', receipt_footer: 'Thank you / Mahadsanid', tip_to: 'employee' });
+      admin.createBranch(O, { business_id, code, name, color, currency: ccy, receipt_header: env.ORG_NAME || 'Hubdex Store LTD', receipt_footer: 'Thank you', tip_to: 'employee' });
     }
   }
   console.log(`First start: created organisation and owner ${OWNER_EMAIL}${env.BOOTSTRAP_BRANCHES !== '0' ? ' with Rio Berber, Rio Store and Reyxaan Store' : ''}. Remove OWNER_PASSWORD from the environment now.`);
