@@ -40,7 +40,7 @@ for (const lang of process.argv.includes('--so-only') ? ['so'] : process.argv.in
     const ctx = await browser.newContext({ viewport: { width: 1360, height: 900 } }); const page = await ctx.newPage(); const errs = [];
     page.on('pageerror', (e) => errs.push('pageerror: ' + e.message)); page.on('console', (m) => { if (m.type() === 'error' && !/favicon|40[0-9]|42[0-9]|Failed to load resource: the server responded with a status of (4|5)/.test(m.text())) errs.push('console: ' + m.text()); });
     page.on('response', (r) => { if (r.status() >= 500) errs.push(`HTTP ${r.status()} ${r.url()}`); }); page.on('dialog', (d) => d.accept('5000,3000,2000'));
-    await page.goto(BASE); await page.evaluate((l) => localStorage.setItem('lang', l), lang); await page.reload(); await page.fill('input[type=email]', email); await page.fill('input[type=password]', 'Demo@1234'); await page.click('button.btn.p'); await page.waitForSelector('.shell', { timeout: 8000 });
+    await page.goto(BASE); await page.evaluate((l) => { localStorage.setItem('lang', l); sessionStorage.setItem('lang_pick', l); }, lang); await page.reload(); await page.fill('input[type=email]', email); await page.fill('input[type=password]', 'Demo@1234'); await page.click('button.btn.p'); await page.waitForSelector('.shell', { timeout: 8000 });
     console.log(`\n== ${lang} / ${name}`); const paths = await navPaths(page);
     for (const p of paths) await sweepPage(page, p + (p === '/dashboard' ? '?preset=year' : ''), name, lang);
     for (const extra of ['/commissions?tab=daily&preset=year', '/commissions?tab=profit&preset=year', '/settings?tab=branding']) if (paths.some((x) => extra.startsWith(x))) await sweepPage(page, extra, name, lang);

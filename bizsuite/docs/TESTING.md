@@ -43,7 +43,8 @@ Further tests: money rounding/allocation, TOTP, permissions matrix & escalation,
 
 ## Manual acceptance checklist (tick during UAT)
 Use the demo accounts in `README.md` (or your own data). Record the result and date.
-- [ ] Print QR labels on your sticker paper / label printer; scan them with a phone (installed app) and with the laptop camera; send a basket from the phone and complete it as the manager.
+- [ ] Print price tags (hang tags on A4 card and/or your label printer at 100 % scale); scan them with the USB scanner, the phone (installed app) and the laptop camera; send a basket from the phone and complete it as the manager.
+- [ ] Barber queue: add three walk-ins, start/finish them on the front-desk PC, open *TV screen* on the shop TV.
 - [ ] POS: scan a real barcode with your scanner; split payment cash + mobile; print thermal receipt on the real printer (80 mm) and A4 invoice
 - [ ] POS: discount above cashier limit → approval → manager approves → sale appears
 - [ ] Credit sale to a customer; collect the balance in two instalments; statement shows both

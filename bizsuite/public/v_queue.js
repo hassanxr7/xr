@@ -1,6 +1,6 @@
 // Barber waiting queue: ticket numbers, estimated wait, who is in the chair, finish = record the visit and take payment.
 // "TV screen" shows now serving / next for a screen on the shop wall.
-import { S, h, t, get, post, money, plain, parseMoney, can, sel, toast, errText, modal, formModal, clear, methodsAll, payRows, uuid, hashQ, busy, icon, openWhatsApp, branchesOf, openDoc, pill, askReason } from './core.js';
+import { S, h, t, get, post, money, plain, parseMoney, can, sel, mulBp, toast, errText, modal, formModal, clear, methodsAll, payRows, uuid, hashQ, busy, icon, openWhatsApp, branchesOf, openDoc, pill, askReason } from './core.js';
 
 export async function queue(r) {
   const list = branchesOf('services'); if (!list.length) return h('div', { class: 'card empty' }, t('No data yet'));
@@ -20,7 +20,8 @@ export async function queue(r) {
   async function finishDialog(q) {
     const methods = await methodsAll(); const sv = sel(services.map((s) => ({ value: s.id, label: `${s.name} · ${money(s.price, ccy)}` })), q.service_id || services[0]?.id, () => draw(), { 'aria-label': t('Service') });
     const tip = h('input', { inputmode: 'decimal', placeholder: '0', style: 'width:110px', 'aria-label': t('Tip') }); const tot = h('div', { class: 'big' }); const price = () => services.find((s) => s.id === Number(sv.value))?.price || 0;
-    const pr = payRows(ccy, methods, () => price()); const draw = () => { tot.textContent = money(price(), ccy); }; draw(); pr.add(plain(price(), ccy)); const key = uuid();
+    const total = () => price() + mulBp(price(), b.tax_bp || 0); // tax included, as on the receipt
+    const pr = payRows(ccy, methods, () => total()); const draw = () => { tot.textContent = money(total(), ccy); pr.clear(); pr.add(plain(total(), ccy)); }; const key = uuid(); draw();
     modal({ title: `#${q.ticket} ${q.customer_name || ''} · ${q.barber_name || ''}`, body: h('div', { class: 'stack' }, h('label', { class: 'f' }, t('Service done'), sv), tot, h('label', { class: 'f' }, t('Tip'), tip), h('h3', {}, t('Payments')), pr.el),
       actions: (close) => { const ok = h('button', { class: 'btn p' }, t('Finish and record visit')); ok.onclick = busy(ok, async () => { let tp = 0; try { tp = tip.value ? parseMoney(tip.value, ccy) : 0; } catch { throw new Error(t('err.invalid_amount')); }
         const s = await post(`/queue/${q.id}/finish`, { service_id: Number(sv.value), tip: tp || undefined, payments: pr.read() }, { idem: key }); close(); toast(t('Visit recorded'), 'ok'); refresh();
@@ -28,12 +29,12 @@ export async function queue(r) {
   }
   const act = (label, fn, cls = '') => { const x = h('button', { class: 'btn s ' + cls }, label); x.onclick = busy(x, fn); return x; };
   function ticket(q) {
-    const can_ = (q.barber_id && q.barber_id === S.user.id) || can('services.create');
+    const desk = can('services.create'); const can_ = desk || !q.barber_id || q.barber_id === S.user.id;
     const bsel = can('services.create') && q.status === 'waiting' ? sel([{ value: '', label: t('Barber') }, ...barbers.map((u) => ({ value: u.id, label: u.name }))], q.barber_id || '', null, { 'aria-label': t('Barber') }) : null;
     const actions = [];
     if (q.status === 'waiting' && can_) actions.push(bsel, act(t('Start'), async () => { await post(`/queue/${q.id}/start`, { barber_id: bsel?.value ? Number(bsel.value) : undefined }); refresh(); }, 'p'));
-    if (q.status === 'serving' && can_) actions.push(act(t('Finish & pay'), async () => finishDialog(q), 'p'));
-    if (['waiting', 'serving'].includes(q.status) && can_) actions.push(act(t('Left'), async () => { await post(`/queue/${q.id}/leave`); refresh(); }));
+    if (q.status === 'serving' && desk) actions.push(act(t('Finish & pay'), async () => finishDialog(q), 'p')); // the front desk takes the payment
+    if ((q.status === 'waiting' && can_ && (desk || q.barber_id === S.user.id)) || (q.status === 'serving' && desk)) actions.push(act(t('Left'), async () => { await post(`/queue/${q.id}/leave`); refresh(); }));
     if (q.phone && q.status === 'waiting') actions.push(h('button', { class: 'btn s', title: 'WhatsApp', onclick: () => openWhatsApp(q.phone, t('Hello {name}, it is your turn at {shop}. Please come now. Ticket #{no}.', { name: q.customer_name || '', shop: b.name, no: q.ticket })) }, icon('message-circle')));
     return h('div', { class: 'ticket ' + q.status }, h('div', { class: 'row sb' }, h('span', { class: 'no' }, '#' + q.ticket), pill(q.status === 'serving' ? 'in_progress' : q.status === 'waiting' ? 'pending' : q.status === 'done' ? 'completed' : 'cancelled', null)),
       h('div', {}, h('b', {}, q.customer_name || t('Walk-in')), q.phone ? h('small', { class: 'muted' }, ' · ' + q.phone) : null),

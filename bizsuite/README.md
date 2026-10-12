@@ -10,6 +10,8 @@ Three branches, one owner dashboard, separate access per branch – enforced on 
 
 Each branch has its own identity (name, colour, optional logo), staff, stock/services, sales, expenses, reports and profit figures; the owner sees everything (or filters to one branch) on the main dashboard.
 
+Highlights: English by default with Somali as an option (EN | SO, saved per user) · shop barcodes generated for every item and mall-style **price tags** (hang tags / stickers, EAN-13) · **scan & sell** with a USB scanner or the phone/laptop camera, baskets completed by the manager · a live **My shop** board per manager (best sellers, running out, slow sellers with one-click mark-down, *order soon* with purchase orders, expected profit, last month's statement) · **barber waiting queue** with a TV screen · barber % and/or fixed fee per haircut · WhatsApp receipts and payment reminders · global search (Ctrl K) · installable phone app.
+
 **Read `docs/LIMITATIONS.md` first** – it lists everything that is *not* done.
 
 **Logo:** the Hubdex Store LTD logo is applied on the sign-in page, menu, receipts, invoices, quotations, repair slips and report print-outs/PDFs. The copy shipped in `public/brand/` is a *vector re-creation* made from the image supplied in the chat (the original file could not be copied). To use the original artwork: sign in as owner → **Settings → Branding → Upload logo** (PNG/JPEG/WebP). It takes priority immediately and is also embedded in PDFs.

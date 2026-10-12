@@ -6,14 +6,15 @@ import { nowIso } from './time.js';
 import { createSale } from './sales.js';
 
 const canDesk = (ctx) => ctx.can('services.create');
+const canSee = (ctx) => ctx.can('services.view') || canDesk(ctx);
 const ticketOf = (ctx, id) => { const q = ctx.get('SELECT * FROM barber_queue WHERE id=? AND org_id=?', id, ctx.org_id); if (!q) throw notFound('ticket'); ctx.branch(q.branch_id); return q; };
 const mine = (ctx, q) => q.barber_id === ctx.user.id;
 
 export function listQueue(ctx, { branch_id } = {}) {
-  if (!ctx.can('services.view') && !canDesk(ctx)) throw forbidden('Not permitted', 'missing_permission');
+  if (!canSee(ctx)) throw forbidden('Not permitted', 'missing_permission');
   const br = ctx.branch(branch_id || ctx.branchIds()[0]); ctx.requireModule(br, 'services'); const date = ctx.today(br);
   const rows = ctx.all(`SELECT q.*, s.name service_name, s.price, s.duration_min, u.name barber_name, sa.ref sale_ref FROM barber_queue q LEFT JOIN services s ON s.id=q.service_id LEFT JOIN users u ON u.id=q.barber_id LEFT JOIN sales sa ON sa.id=q.sale_id
-    WHERE q.org_id=? AND q.branch_id=? AND q.business_date=? ORDER BY q.ticket`, ctx.org_id, br.id, date);
+    WHERE q.org_id=? AND q.branch_id=? AND (q.business_date=? OR q.status IN ('waiting','serving')) ORDER BY q.business_date, q.ticket`, ctx.org_id, br.id, date); // open tickets from an earlier day stay visible until closed
   // average service time today (fallback: the service's own duration, then 25 minutes) to estimate each waiting customer's wait
   const done = rows.filter((r) => r.status === 'done' && r.started_at && r.finished_at); const avg = done.length ? done.reduce((a, r) => a + (Date.parse(r.finished_at) - Date.parse(r.started_at)), 0) / done.length / 60000 : 25;
   const chairs = Math.max(1, ctx.get("SELECT COUNT(DISTINCT u.id) n FROM users u JOIN roles r ON r.id=u.role_id JOIN user_branches ub ON ub.user_id=u.id WHERE u.org_id=? AND ub.branch_id=? AND u.active=1 AND r.name='Barber'", ctx.org_id, br.id).n);
@@ -36,20 +37,23 @@ export function addToQueue(ctx, b) {
 }
 
 export function startTicket(ctx, id, { barber_id } = {}) {
+  if (!canSee(ctx)) throw forbidden('Not permitted', 'missing_permission');
   const q = ticketOf(ctx, id); if (q.status !== 'waiting') throw new AppError(409, 'ticket_not_waiting', 'This customer is not waiting any more');
-  const barber = Number(barber_id || q.barber_id || ctx.user.id);
-  if (!canDesk(ctx) && barber !== ctx.user.id) throw forbidden('You can only start your own customers', 'own_only');
+  const barber = canDesk(ctx) ? Number(barber_id || q.barber_id || ctx.user.id) : ctx.user.id;
+  // a barber may take an unassigned customer or one who asked for them, never another barber's customer
+  if (!canDesk(ctx) && q.barber_id && q.barber_id !== ctx.user.id) throw forbidden('This customer is waiting for another barber', 'own_only');
   if (!ctx.get('SELECT 1 x FROM user_branches WHERE user_id=? AND branch_id=?', barber, q.branch_id)) throw bad('invalid_barber', 'Barber is not assigned to this branch');
-  ctx.run("UPDATE barber_queue SET status='serving', barber_id=?, started_at=? WHERE id=? AND status='waiting'", barber, nowIso(), q.id); return { ok: true };
+  ctx.tx(() => { ctx.run("UPDATE barber_queue SET status='serving', barber_id=?, started_at=? WHERE id=? AND status='waiting'", barber, nowIso(), q.id); ctx.audit('queue.start', 'barber_queue', q.id, null, { ticket: q.ticket, barber_id: barber }, q.branch_id); }); return { ok: true };
 }
 
 // Finish = record the visit with the payment, like Barber visits. The price can be confirmed or another service chosen.
 export function finishTicket(ctx, id, b = {}) {
+  if (!canDesk(ctx)) throw forbidden('Only the front desk records the visit and takes the payment', 'missing_permission');
   const q = ticketOf(ctx, id); if (q.status !== 'serving') throw new AppError(409, 'ticket_not_serving', 'Start the service first');
-  if (!canDesk(ctx) && !mine(ctx, q)) throw forbidden('Not permitted', 'missing_permission');
   const serviceId = Number(b.service_id || q.service_id); if (!serviceId) throw bad('service_required', 'Choose the service that was done');
   return ctx.tx(() => {
-    const sale = createSale(ctx, { branch_id: q.branch_id, kind: 'service', customer_id: b.customer_id || undefined, customer_name: q.customer_name || undefined, tip: b.tip ? int(b.tip, 'tip', { min: 0 }) : undefined, discount: b.discount || undefined,
+    // no discount here: a discount above the desk's limit would need approval and leave the ticket open (use Barber visits for that)
+    const sale = createSale(ctx, { branch_id: q.branch_id, kind: 'service', customer_id: b.customer_id || undefined, customer_name: q.customer_name || undefined, tip: b.tip ? int(b.tip, 'tip', { min: 0 }) : undefined,
       lines: [{ service_id: serviceId, barber_id: q.barber_id, qty: 1 }, ...(b.extra_service_ids || []).map((s) => ({ service_id: Number(s), barber_id: q.barber_id }))], payments: b.payments || [] });
     ctx.run("UPDATE barber_queue SET status='done', finished_at=?, sale_id=?, service_id=? WHERE id=?", nowIso(), sale.id, serviceId, q.id);
     return sale;
@@ -57,6 +61,7 @@ export function finishTicket(ctx, id, b = {}) {
 }
 export function leaveQueue(ctx, id) {
   const q = ticketOf(ctx, id); if (!['waiting', 'serving'].includes(q.status)) throw new AppError(409, 'ticket_closed', 'This ticket is already closed');
-  if (!canDesk(ctx) && !mine(ctx, q)) throw forbidden('Not permitted', 'missing_permission');
-  ctx.run("UPDATE barber_queue SET status='left', finished_at=? WHERE id=?", nowIso(), q.id); return { ok: true };
+  // only the desk closes a customer who is already in the chair (they may have been served and must pay)
+  if (!canDesk(ctx) && !(mine(ctx, q) && q.status === 'waiting')) throw forbidden('Not permitted', 'missing_permission');
+  ctx.tx(() => { ctx.run("UPDATE barber_queue SET status='left', finished_at=? WHERE id=?", nowIso(), q.id); ctx.audit('queue.left', 'barber_queue', q.id, { status: q.status }, { ticket: q.ticket }, q.branch_id); }); return { ok: true };
 }

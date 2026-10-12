@@ -43,3 +43,21 @@ test('global search finds items by barcode, customers and sales, within the user
   w.user('Tech', 'Technician', [A]); const tech = await client(w.db).login('tech@t.so'); const tr = tech('GET', '/api/search', {}, { q: 'fadumo' }).body; assert.deepEqual([tr.customers.length, tr.sales.length], [0, 0], 'no customer or sales access');
   assert.equal(sales.getSale(w.O, s.id).customer_phone, '0615', 'receipts know the customer phone for WhatsApp');
 });
+
+import { code128Bits } from '../src/barcode.js';
+import { decodeRow } from '../public/bardecode.js';
+import * as inv from '../src/inventory.js';
+test('review fixes: Code 128 digit pair 99, queue permissions, clearing a mark-down, barcode characters', async () => {
+  for (const c of ['123499', '990012', 'SKU-1999', 'AB99CD']) { const bits = code128Bits(c); const row = new Uint8Array((bits.length + 40) * 3).fill(230); for (let i = 0; i < bits.length; i++) if (bits[i] === '1') row.fill(20, (20 + i) * 3, (21 + i) * 3); assert.equal(decodeRow(row)?.text, c, c); }
+  const w = world(); const b = w.biz('Rio Berber', 'barber'); const A = w.branch(b, 'RBR'); const desk = w.ctx(w.user('Desk', 'Cashier', [A]));
+  const ali = w.user('Ali', 'Barber', [A]); const omar = w.user('Omar', 'Barber', [A]); const tech = w.ctx(w.user('Tech', 'Technician', [A]));
+  const t1 = bq.addToQueue(desk, { branch_id: A, barber_id: omar }); const t2 = bq.addToQueue(desk, { branch_id: A });
+  assert.throws(() => bq.startTicket(tech, t2.id, {}), (e) => e.status === 403, 'no services permission'); assert.throws(() => bq.startTicket(w.ctx(ali), t1.id, { barber_id: ali }), (e) => e.code === 'own_only', 'not another barber\'s customer');
+  bq.startTicket(w.ctx(ali), t2.id, { barber_id: omar }); assert.equal(w.db.prepare('SELECT barber_id FROM barber_queue WHERE id=?').get(t2.id).barber_id, ali, 'a barber always starts as himself');
+  assert.throws(() => bq.leaveQueue(w.ctx(ali), t2.id), (e) => e.status === 403, 'a customer in the chair is closed by the desk'); assert.throws(() => bq.finishTicket(w.ctx(ali), t2.id, {}), (e) => e.status === 403);
+  assert.ok(w.db.prepare("SELECT 1 FROM audit_log WHERE action='queue.start'").get());
+  const s = w.biz('Shop', 'clothing'); const v = w.product(s, 'MD-1', { price: 1000 });
+  inv.updateVariant(w.O, v, { price: 800, markdown: true }); assert.equal(w.db.prepare('SELECT was_price FROM variants WHERE id=?').get(v).was_price, 1000);
+  inv.updateVariant(w.O, v, { price: 700, markdown: false }); assert.equal(w.db.prepare('SELECT was_price FROM variants WHERE id=?').get(v).was_price, null, 'unticking ends the mark-down');
+  assert.throws(() => inv.updateVariant(w.O, v, { barcode: 'JEAN–32' }), (e) => e.code === 'invalid_barcode'); inv.updateVariant(w.O, v, { barcode: '  ABC-1 ' }); assert.equal(w.db.prepare('SELECT barcode FROM variants WHERE id=?').get(v).barcode, 'ABC-1');
+});

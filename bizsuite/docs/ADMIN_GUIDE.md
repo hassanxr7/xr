@@ -3,6 +3,12 @@
 ## 0. Company branding
 **Settings → Branding**: company name, tagline and the **Hubdex Store LTD logo** (upload the original PNG/JPEG/WebP; max 2 MB). It appears on the sign-in page, the menu, receipts, invoices, quotations, repair slips and report print-outs/PDFs. A branch can have its own logo and colour (*Organisation → Edit branch*); the colour shows next to the branch name in the top bar.
 
+## 0b. Language
+English is the default language. Everyone can switch **EN / SO** at the top of the screen (saved per user). *Settings → Branding → Default language* sets the language of the sign-in page and of new staff accounts. Receipts, reports, exports and price tags are produced in the language of the person printing them.
+
+## 0c. Barcodes and price tags
+Every item variant (size/colour) gets an **in-store EAN-13 barcode** (GS1 prefix 20, check digit included) when it is created; items created before this version were given one automatically at the first start after the upgrade. Manufacturer barcodes (EAN-13/UPC) that you enter are kept and scanned as they are. Recommended hardware: any USB/Bluetooth 1D barcode scanner in keyboard mode; a 40 × 70 mm hang-tag or 50 × 30 mm label printer (thermal, e.g. Xprinter/Zebra) or A4 card / sticker sheets on an ordinary printer. Print at 100 % scale (no "fit to page") so the barcode keeps its size.
+
 ## 1. First set-up (owner)
 1. **Organisation → + Business**: choose the operating type – *Clothing and Footwear*, *Electronics and Mobile Retail*, *Electronics and Mobile Repair*, *Barber Shop*, or *Retail and Repair combined*. The menu each user sees is derived from the types of the branches they work in.
 2. **+ Branch**: code (2–8 letters, used in every document number, e.g. `UWM` → `INV-UWM-000001`), name, address, phone, **currency**, **timezone** (default Africa/Mogadishu), **tax rate** (0 for none), who receives tips, whether an **open register is required for cash**, whether **credit sales** are allowed, receipt header/footer, invoice terms. *Edit* lets you pick the branch manager and upload a logo (shown on receipts). *+ Dept* adds a department (e.g. a Repair Desk inside a retail branch) that enables that department's modules.

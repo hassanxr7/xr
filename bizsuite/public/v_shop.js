@@ -181,7 +181,7 @@ function markDown(x, b, done) {
 // What to buy: suggested quantities from the last 30 days of sales; turns into a purchase order for the supplier
 function reorderCard(d, b, refresh) {
   const m = (v) => money(v, d.branch.currency); const rows = d.reorder;
-  const po = can('purchases.create') && rows.length ? h('button', { class: 'btn s p', onclick: () => purchaseFromReorder(rows, b, refresh) }, icon('truck'), t('Create purchase order')) : null;
+  const po = can('purchases.create') && can('cost.view') && rows.length ? h('button', { class: 'btn s p', onclick: () => purchaseFromReorder(rows, b, refresh) }, icon('truck'), t('Create purchase order')) : null;
   return h('div', { class: 'card' }, h('div', { class: 'row sb' }, h('h3', { style: 'margin:0' }, t('Order soon')), h('span', { class: 'row' }, po, h('a', { href: hashQ('/reports/reorder', { branch_id: b.id }) }, t('Full list') + ' →'))),
     h('small', { class: 'muted' }, t('Based on the last 30 days of sales: enough for about 30 days plus your minimum stock.')),
     table([{ label: 'Item', f: (x) => [x.name, h('br'), h('small', { class: 'muted' }, x.sku)] }, { label: 'On hand', r: 1, k: 'qty' }, { label: 'Sold in 30 days', r: 1, k: 'sold_30' }, { label: 'Days of stock left', r: 1, f: (x) => (x.days_left === '' ? '—' : h('span', { class: 'pill ' + (x.days_left < 7 ? 'bad' : 'warn') }, x.days_left)) }, { label: 'Suggested order', r: 1, f: (x) => h('b', {}, x.suggested) }, ...(rows[0]?.est_cost !== undefined ? [{ label: 'Estimated cost', r: 1, f: (x) => m(x.est_cost) }] : []), { label: 'Last supplier', k: 'supplier' }], rows, { empty: t('Nothing needs ordering') }));

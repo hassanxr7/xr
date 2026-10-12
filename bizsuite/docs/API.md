@@ -71,6 +71,12 @@ Every request is checked server-side for (1) tenant, (2) permission `module.acti
 |---|---|---|
 | GET | `/api/qr` | `inline (api.js)` |
 
+## barcode
+
+| Method | Path | Handler |
+|---|---|---|
+| GET | `/api/barcode` | `inline (api.js)` |
+
 ## print
 
 | Method | Path | Handler |
@@ -95,6 +101,22 @@ Every request is checked server-side for (1) tenant, (2) permission `module.acti
 |---|---|---|
 | GET | `/api/shop` | `reports.js → shopBoard` |
 | POST | `/api/shop/stock-in` | `inline (api.js)` |
+
+## search
+
+| Method | Path | Handler |
+|---|---|---|
+| GET | `/api/search` | `inline (api.js)` |
+
+## queue
+
+| Method | Path | Handler |
+|---|---|---|
+| GET | `/api/queue` | `inline (api.js)` |
+| POST | `/api/queue` | `inline (api.js)` |
+| POST | `/api/queue/:id/start` | `inline (api.js)` |
+| POST | `/api/queue/:id/finish` | `inline (api.js)` |
+| POST | `/api/queue/:id/leave` | `inline (api.js)` |
 
 ## products
 

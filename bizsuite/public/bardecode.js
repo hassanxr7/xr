@@ -44,7 +44,8 @@ function code128(runs, dark) {
     const check = vals.pop(); let x = vals[0]; for (let j = 1; j < vals.length; j++) x += vals[j] * j; if (x % 103 !== check) continue;
     let set = vals[0] === 103 ? 'A' : vals[0] === 104 ? 'B' : 'C', out = '';
     for (const v of vals.slice(1)) {
-      if (v === 99) set = 'C'; else if (v === 100) set = 'B'; else if (v === 101) set = 'A'; else if (v >= 96) continue;
+      // 99/100/101 switch the code set only when they are not data in the current set (in set C, 99 is the digits "99")
+      if (set !== 'C' && v === 99) set = 'C'; else if (set !== 'B' && v === 100) set = 'B'; else if (set !== 'A' && v === 101) set = 'A'; else if (v >= 102 || (set !== 'C' && v >= 96)) continue;
       else if (set === 'C') out += String(v).padStart(2, '0'); else if (set === 'B') out += String.fromCharCode(v + 32); else out += String.fromCharCode(v < 64 ? v + 32 : v - 64);
     }
     if (out) return out;

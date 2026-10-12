@@ -7,6 +7,8 @@
 | **npm packages** | **none at runtime** – `package.json` has no dependencies | – |
 | **jsQR 1.4.0** (`public/vendor/jsQR.js`, unmodified, licence in `public/vendor/jsQR.LICENSE.txt`) | decodes QR codes from the camera in browsers without the built-in BarcodeDetector (loaded only when the camera is used) | Apache-2.0 |
 | QR code generator | `src/qr.js`, written for this project (ISO/IEC 18004 byte mode, level M) | project code |
+| Barcode encoder and camera reader | `src/barcode.js` (EAN-13 / UPC-A / Code 128) and `public/bardecode.js`, written for this project; output verified with the independent zxing-cpp reader during development (not shipped) | project code |
+| **Feather icons 4.29** (`public/icons.js`, the SVG paths of 51 icons; licence in `public/vendor/feather-icons.LICENSE.txt`) | menu and button icons | MIT |
 | Fonts / icons / CDNs | **none**: system fonts, Unicode symbols, inline SVG; the app makes no third-party requests | – |
 
 ## Deployment

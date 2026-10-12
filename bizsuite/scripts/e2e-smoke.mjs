@@ -31,10 +31,10 @@ await session('owner@demo.so', async (page) => {
   await visit(page, '/reports/consolidated?preset=year'); const [dl] = await Promise.all([page.waitForEvent('download'), page.click('text=Export CSV')]); ok(dl.suggestedFilename().endsWith('.csv'), 'CSV export downloads');
   const [dl2] = await Promise.all([page.waitForEvent('download'), page.click('text=Export PDF')]); ok(dl2.suggestedFilename().endsWith('.pdf'), 'PDF export downloads');
   // language + theme
-  await page.selectOption('.top select', 'so'); await page.waitForTimeout(300); ok(await page.locator('text=Dashboard-ka').count() > 0, 'Somali UI applies'); await page.selectOption('.top select', 'en');
+  await page.click('.top .langsw button[lang=so]'); await page.waitForTimeout(400); ok(await page.locator('text=Dashboard-ka').count() > 0, 'Somali UI applies (EN | SO switch)'); await page.click('.top .langsw button[lang=en]'); await page.waitForTimeout(300); ok(await page.locator('.nav a[data-path="/dashboard"]').innerText() === 'Dashboard', 'back to English');
   await page.click('button[aria-label="Dark mode"]'); ok(await page.evaluate(() => document.documentElement.getAttribute('data-theme')) !== null, 'theme toggles');
   // create a product with variants through the form
-  await visit(page, '/inventory'); await page.click('text=+ Products'); await page.fill('[name=name]', 'E2E Hoodie'); await page.fill('[name=prefix]', 'E2EH'); await page.fill('[name=sizes]', 'M, L'); await page.fill('[name=colors]', 'Grey'); await page.fill('[name=cost]', '9.50'); await page.fill('[name=price]', '19.99'); await page.click('.modal footer .p'); await page.waitForTimeout(800);
+  await visit(page, '/inventory'); await page.click('text=+ Products'); await page.fill('[name=name]', 'E2E Hoodie'); await page.fill('[name=prefix]', 'E2EH'); await page.fill('[name=sizes]', 'M, L'); await page.fill('[name=colors]', 'Grey'); await page.fill('[name=cost]', '9.50'); await page.fill('[name=price]', '19.99'); await page.click('.modal footer .p'); await page.waitForTimeout(800); ok(await page.locator('.overlay:has-text("Print price tags")').count() > 0, 'after saving a product the price tags are offered'); await page.evaluate(() => document.querySelectorAll('.overlay').forEach((o) => o.remove()));
   await visit(page, '/inventory?q=E2EH'); ok(await page.locator('text=E2EH-M-GRE').count() > 0 && await page.locator('text=E2EH-L-GRE').count() > 0, 'product form created separate size variants');
   // quotation through the UI
   await visit(page, '/quotes'); await page.click('text=+ Quotations'); await page.waitForSelector('.modal select'); await page.evaluate(() => { const s = document.querySelectorAll('.modal select')[1]; const o = [...s.options].find((x) => x.text.includes('USB-C')); s.value = o.value; }); await page.locator('.modal button', { hasText: 'Add' }).first().click(); await page.click('.modal footer .p'); await page.waitForTimeout(900); await visit(page, '/quotes'); ok(await page.locator('text=QUO-').count() > 0, 'quotation created from the form'); await page.locator('tbody tr', { hasText: 'QUO-' }).first().locator('text=Convert to sale').click(); await page.waitForSelector('.modal'); await page.evaluate(() => { const s = document.querySelector('.modal select'); const o = [...s.options].find((x) => /Mobile/.test(x.text)); s.value = o.value; }); await page.click('.modal footer .p'); await page.waitForTimeout(900); ok(await page.locator('.modal').innerText().then((x) => /INV-/.test(x)), 'quotation converts to a sale'); await page.evaluate(() => document.querySelectorAll('.overlay').forEach((o) => o.remove()));
@@ -95,6 +95,21 @@ await session('manager.store@demo.so', async (page) => {
 await session('owner@demo.so', async (page) => {
   await visit(page, '/commissions?tab=rates'); ok(await page.locator('text=Farah (Barber)').count() > 0 && await page.locator('input[aria-label="Fixed fee per service"]').count() >= 3, 'owner sets % and fixed fee per haircut for each barber');
   await visit(page, '/staff'); ok(await page.locator('text=Branch managers').count() > 0 && await page.locator('button:has-text("Create manager login")').count() >= 3, 'one manager login per branch offered');
+});
+// barber front desk: waiting queue -> start -> finish records the visit
+await session('cashier.berber@demo.so', async (page) => {
+  ok(!page.url().includes('dashboard'), 'front desk lands on a page it can open'); await visit(page, '/queue');
+  for (const n of ['Queue A', 'Queue B']) { await page.click('text=Add customer'); await page.fill('.overlay [name=customer_name]', n); await page.selectOption('.overlay [name=service_id]', { index: 1 }); await page.click('.overlay footer .btn.p'); await page.waitForTimeout(500); }
+  ok(await page.locator('.ticket.waiting').count() === 2, 'two tickets waiting with numbers'); await page.locator('.ticket.waiting').first().locator('select').selectOption({ index: 1 }); await page.locator('.ticket.waiting').first().locator('text=Start').click(); await page.waitForTimeout(600);
+  ok(await page.locator('.ticket.serving').count() === 1, 'customer in the chair'); await page.locator('.ticket.serving').locator('text=Finish & pay').click(); await page.waitForSelector('.overlay footer .btn.p'); await page.click('.overlay footer .btn.p'); await page.waitForTimeout(1000);
+  ok((await page.locator('.overlay').last().innerText()).includes('VIS-RBR-'), 'finishing records the barber visit'); await page.evaluate(() => document.querySelectorAll('.overlay').forEach((o) => o.remove()));
+  await page.click('text=TV screen'); await page.waitForTimeout(500); ok(await page.locator('.tvwrap .tvbig, .tvwrap .tvmid').count() >= 1, 'TV screen shows the queue'); await page.click('.tvwrap');
+});
+await session('manager.store@demo.so', async (page) => {
+  await page.waitForSelector('.shopboard .kpi'); ok(await page.locator('h3:has-text("Order soon")').count() === 1, 'shop board: order soon (reorder list)');
+  await page.locator('text=Mark down').first().click(); await page.click('.overlay footer .btn.p'); await page.waitForSelector('.overlay iframe, .overlay:has-text("Print price tags")'); await page.click('.overlay footer .btn.p'); await page.waitForTimeout(1200);
+  ok(await page.frameLocator('.overlay iframe').locator('.pr s').count() > 0, 'mark-down prints new tags with the old price struck through'); await page.evaluate(() => document.querySelectorAll('.overlay').forEach((o) => o.remove()));
+  await page.keyboard.press('Control+k'); await page.keyboard.type('Denim'); await page.waitForSelector('.gresults a'); ok((await page.locator('.gresults').innerText()).includes('Slim Denim Jeans'), 'global search finds items (Ctrl K)');
 });
 await session('platform@bizsuite.local', async (page) => { await page.waitForSelector('text=Platform administration', { timeout: 6000 }); ok(true, 'platform admin console loads'); });
 await browser.close();

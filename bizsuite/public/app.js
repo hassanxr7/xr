@@ -10,7 +10,10 @@ async function boot() {
   if (!S.token) return loginView();
   try { S.user = await get('/auth/me'); } catch { sessionStorage.removeItem('tok'); S.token = null; return loginView(); }
   if (S.user.platform) { location.hash = '#/platform'; }
-  if (!langChosen()) setLang(S.user.lang || S.brand.default_lang || 'en', false);
+  // each person's saved language wins on shared shop devices; a choice made on the sign-in page is saved to the account
+  const pick = sessionStorage.getItem('lang_pick'); sessionStorage.removeItem('lang_pick');
+  if (pick && !S.user.platform && pick !== S.user.lang) { S.user.lang = pick; post('/auth/lang', { lang: pick }).catch(() => {}); }
+  if (!S.user.platform) setLang(S.user.lang || S.brand.default_lang || 'en', false); else if (!langChosen()) setLang(S.brand.default_lang || 'en', false);
   if (!S.user.platform && (!location.hash || location.hash === '#/' || location.hash === '#/login')) location.hash = '#' + home();
   shell(); render();
   if (S.user.must_change_password) forcePasswordChange();
@@ -26,7 +29,7 @@ function loginView(totp) {
   const hero = h('div', { class: 'hero' }, h('div', {}, h('span', { class: 'logoswap' }, h('img', { class: 'brandlogo', src: '/api/branding/logo?v=' + (S.brand.v || 0), alt: S.brand.name })), h('h2', {}, t('Every shop, every sale, every barber - in one place.')), h('p', {}, t('Sales, stock with shop barcodes, barber work and commissions, expenses and profit for each branch, live for the owner.')), shops.length ? h('div', { class: 'shops' }, shops.map((x) => h('span', {}, x))) : null), h('small', {}, S.brand.name));
   app.append(h('div', { class: 'login' }, S.brand.has_logo ? hero : h('div', { class: 'hero' }, h('h2', {}, S.brand.name)), h('div', { class: 'pane' }, h('div', { class: 'card' }, h('div', { class: 'mobilelogo' }, brandLogo()), form)))); email.focus();
 }
-const langSel = () => langSwitch((v) => { setLang(v); if (S.token && S.user && !S.user.platform) { S.user.lang = v; post('/auth/lang', { lang: v }).catch(() => {}); } S.token && S.user ? (shell(), render()) : loginView(); });
+const langSel = () => langSwitch((v) => { setLang(v); if (!S.token) sessionStorage.setItem('lang_pick', v); if (S.token && S.user && !S.user.platform) { S.user.lang = v; post('/auth/lang', { lang: v }).catch(() => {}); } S.token && S.user ? (shell(), render()) : loginView(); });
 
 // where each person lands: owners/accountants on the group dashboard, branch managers on their shop board,
 // sales assistants on the scanner, barbers on their own day
@@ -121,11 +124,13 @@ function userMenu() {
   setup.onclick = busy(setup, async () => { const r = await post('/auth/2fa/setup'); const code = h('input', { inputmode: 'numeric', maxlength: 6, placeholder: '123456' }); clear(tf); tf.append(h('p', {}, t('Add this key to your authenticator app:'), ' ', h('code', {}, r.secret)), code, h('button', { class: 'btn p', onclick: async () => { try { await post('/auth/2fa/enable', { code: code.value }); toast(t('Saved'), 'ok'); S.user.totp_enabled = true; } catch (e) { toast(errText(e), 'bad'); } } }, t('Confirm'))); });
   modal({ title: S.user.name, body: h('div', { class: 'stack' }, h('div', {}, S.user.email, ' · ', tx(S.user.role)), cur, np, chg, h('div', { class: 'sep' }), setup, tf), actions: (close) => [out, h('button', { class: 'btn', onclick: close }, t('Close'))] });
 }
+let renderSeq = 0;
 async function render() {
   const r = route(); const view = $('#view'); if (!view) return; document.querySelectorAll('.nav a, .bottomnav a').forEach((a) => a.classList.toggle('on', r.path.startsWith(a.dataset.path)));
   if ((!r.parts[0] || r.parts[0] === 'dashboard') && !can('dashboard.view') && !S.user.platform && home() !== '/dashboard') { location.hash = '#' + home(); return; } // nobody lands on a page they cannot open
-  const v = views[r.parts[0] || 'dashboard'] || views.notfound; clear(view); view.append(loading());
-  try { const el = await v(r); clear(view); if (el) view.append(el); } catch (e) { clear(view); view.append(h('div', { class: 'card' }, h('p', { style: 'color:var(--bad)' }, errText(e)))); }
+  const v = views[r.parts[0] || 'dashboard'] || views.notfound; clear(view); view.append(loading()); const seq = ++renderSeq;
+  // a slower, older page must never replace the page the user has moved on to
+  try { const el = await v(r); if (seq !== renderSeq) return; clear(view); if (el) view.append(el); } catch (e) { if (seq !== renderSeq) return; clear(view); view.append(h('div', { class: 'card' }, h('p', { style: 'color:var(--bad)' }, errText(e)))); }
   view.focus?.({ preventScroll: true });
 }
 addEventListener('hashchange', () => { if (S.token && S.user) render(); });

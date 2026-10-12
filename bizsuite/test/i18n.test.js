@@ -29,3 +29,12 @@ test('receipt, report and notification endpoints honour ?lang=so', async () => {
   assert.ok(api('GET', '/api/reports/profit', {}, { preset: 'year', lang: 'so', format: 'csv' }).body.includes("Faa'iidada saafiga ah")); assert.ok(api('GET', '/api/reports/profit', {}, { preset: 'year', format: 'xlsx' }).body.subarray(0, 2).toString() === 'PK');
   const n = api('GET', '/api/notifications', {}, { lang: 'so' }).body; assert.ok(n.rows.some((x) => /kayd yar|dhammaatay/.test(x.message)), 'low-stock notification in Somali');
 });
+
+import fs from 'node:fs';
+import os from 'node:os';
+import path from 'node:path';
+test('every browser file parses as a JavaScript module (a syntax error would blank the app)', () => {
+  const dir = new URL('../public/', import.meta.url).pathname; const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'syn-'));
+  for (const f of fs.readdirSync(dir).filter((x) => x.endsWith('.js'))) { const p = path.join(tmp, f.replace(/\.js$/, '.mjs')); fs.copyFileSync(path.join(dir, f), p); execFileSync(process.execPath, ['--check', p]); }
+  fs.rmSync(tmp, { recursive: true });
+});

@@ -163,7 +163,8 @@ export function exportButtons(path, params, base) {
 }
 
 // WhatsApp share (no API, no cost): opens WhatsApp with the text ready; Somali mobile numbers get the 252 country code.
-export function waNumber(phone) { let d = String(phone || '').replace(/\D/g, ''); if (!d) return ''; if (d.startsWith('00')) d = d.slice(2); if (d.startsWith('0')) d = '252' + d.slice(1); else if (/^6\d{8}$/.test(d)) d = '252' + d; return d; }
+// Somali mobile numbers (61/62/63/65/68/69/71/77/90…) written locally get the 252 country code
+export function waNumber(phone) { let d = String(phone || '').replace(/\D/g, ''); if (!d) return ''; if (d.startsWith('00')) d = d.slice(2); if (d.startsWith('0')) d = '252' + d.slice(1); else if (/^[679]\d{8}$/.test(d)) d = '252' + d; return d; }
 export function openWhatsApp(phone, text) { const n = waNumber(phone); window.open(`https://wa.me/${n}?text=${encodeURIComponent(text)}`, '_blank', 'noopener'); }
 export async function shareSaleWhatsApp(id) {
   const s = await get('/sales/' + id); const m = (v) => money(v, s.currency);

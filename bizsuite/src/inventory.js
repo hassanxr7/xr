@@ -33,8 +33,10 @@ const hideCost = (ctx, row) => { if (!ctx.can('cost.view')) { delete row.cost; d
 
 // ---------- Products ----------
 function validVariant(ctx, v) {
-  return { sku: str(v.sku, 'sku', { max: 60 }), barcode: v.barcode ? String(v.barcode).trim().slice(0, 60) : null, attrs: JSON.stringify(v.attrs || {}), cost: int(v.cost ?? 0, 'cost', { min: 0 }), price: int(v.price ?? 0, 'price', { min: 0 }), min_stock: int(v.min_stock ?? 0, 'min_stock', { min: 0 }), max_discount_bp: maxDisc(v.max_discount_bp) };
+  return { sku: str(v.sku, 'sku', { max: 60 }), barcode: cleanBarcode(v.barcode), attrs: JSON.stringify(v.attrs || {}), cost: int(v.cost ?? 0, 'cost', { min: 0 }), price: int(v.price ?? 0, 'price', { min: 0 }), min_stock: int(v.min_stock ?? 0, 'min_stock', { min: 0 }), max_discount_bp: maxDisc(v.max_discount_bp) };
 }
+// barcodes are printed as EAN-13 / Code 128: digits, letters and printable ASCII only
+const cleanBarcode = (b) => { const c = b == null ? '' : String(b).trim(); if (!c) return null; if (c.length > 60 || !/^[\x20-\x7e]+$/.test(c)) throw bad('invalid_barcode', 'A barcode may only contain letters, digits and symbols (max 60)'); return c; };
 // per-item discount ceiling in basis points (1000 = 10%); empty = no item ceiling
 export const maxDisc = (v) => (v == null || v === '' ? null : int(v, 'max_discount_bp', { min: 0, max: 10000 }));
 export function createProduct(ctx, p) {
@@ -65,10 +67,10 @@ export function addVariant(ctx, productId, v) {
 export function updateVariant(ctx, id, v) {
   ctx.need('products.edit'); const old = variantInOrg(ctx, id);
   const sets = [], vals = [];
-  for (const k of ['barcode']) if (k in v) { sets.push(`${k}=?`); vals.push(v[k] || null); }
+  if ('barcode' in v) { sets.push('barcode=?'); vals.push(cleanBarcode(v.barcode)); }
   for (const k of ['price', 'cost', 'min_stock']) if (k in v) { sets.push(`${k}=?`); vals.push(int(v[k], k, { min: 0 })); }
   // mark-down: remember the price before the first reduction (printed struck-through on the new tag); back to full price clears it
-  if ('price' in v) { const np = int(v.price, 'price', { min: 0 }); const was = old.was_price ?? old.price; if (v.markdown && np < was) { sets.push('was_price=?'); vals.push(was); } else if (!v.markdown && (old.was_price == null || np >= old.was_price)) { sets.push('was_price=?'); vals.push(null); } }
+  if ('price' in v) { const np = int(v.price, 'price', { min: 0 }); const was = old.was_price ?? old.price; if (v.markdown && np < was) { sets.push('was_price=?'); vals.push(was); } else { sets.push('was_price=?'); vals.push(null); } } // not a mark-down (or not lower): no struck-through price
   if ('max_discount_bp' in v) { sets.push('max_discount_bp=?'); vals.push(maxDisc(v.max_discount_bp)); }
   if ('active' in v) { sets.push('active=?'); vals.push(v.active ? 1 : 0); }
   if ('attrs' in v) { sets.push('attrs=?'); vals.push(JSON.stringify(v.attrs)); }

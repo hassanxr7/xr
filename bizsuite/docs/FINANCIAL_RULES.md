@@ -48,6 +48,12 @@ A barber can earn a percentage, a fixed amount per service, or both: `earned = m
 * The lowest price shown on labels and the scanner = price − price × maximum.
 * *Expected profit* of stock on hand = `qty × price − stock value` (weighted-average cost); *at maximum discount* = `qty × (price − price × maximum) − stock value`. These are projections, never posted.
 
+## Mark-downs
+Lowering a price with *Mark down* stores the price before the first reduction in `variants.was_price`; tags print it struck through. Raising the price back to (or above) that value ends the mark-down. Sales always use the current price; past sales keep the price they were sold at.
+
+## Reorder suggestion
+`per day = units sold (net of returns) in the last 30 days ÷ 30`; `days of stock left = on hand ÷ per day`; `suggested order = ceil(per day × 30 + minimum stock − on hand)`. Listed when at/below the minimum or fewer than 14 days are left. Estimated cost uses the weighted-average cost of the stock on hand (or the item cost when none is left).
+
 ## Orders (scan & send to the manager)
 An order is a basket, not a sale: no revenue, no stock movement, no commission and no payment until the manager completes it. Completing re-reads the current prices and runs the normal sale (stock out at weighted-average cost, payments, receipt); the sale is attributed to the seller who scanned it (`sales.user_id`) and its note carries the order reference. Completion is idempotent (Idempotency-Key) and an order can be completed only once.
 

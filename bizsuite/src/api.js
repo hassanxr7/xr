@@ -119,7 +119,7 @@ export function createApi(db, { dataDir = './data', loginLimit = 10 } = {}) {
       branchName ||= b.name; const stock = c.get('SELECT qty FROM stock WHERE branch_id=? AND variant_id=?', b.id, v.id)?.qty || 0; const copies = Math.min(per === 'stock' ? Math.max(stock, 1) : per, 2000 - total); total += copies;
       return { code: v.barcode || v.sku, sku: v.sku, name: v.pname, attrs: Object.values(JSON.parse(v.attrs)).join(' · '), price: v.price, was_price: v.was_price, currency: b.currency, copies }; });
     const company = c.get('SELECT name FROM orgs WHERE id=?', c.org_id).name; const logo = logoUri(c, br?.id ?? 0);
-    return { raw: ex.labelsDoc(items, { layout: r.query.layout, code: ['qr', 'both'].includes(r.query.code) ? r.query.code : 'barcode', lang: r.query.lang, company, branch: branchName, logo, barcode: (t, height) => barcodeSvg(t, { height }), qr: (t) => qrSvg(t) }), type: 'text/html; charset=utf-8' };
+    return { raw: ex.labelsDoc(items, { layout: r.query.layout, code: ['qr', 'both'].includes(r.query.code) ? r.query.code : 'barcode', lang: r.query.lang, company, branch: branchName, logo, barcode: (t, height) => { try { return barcodeSvg(t, { height }); } catch { return qrSvg(t); } }, qr: (t) => qrSvg(t) }), type: 'text/html; charset=utf-8' };
   });
   // baskets scanned on the floor / phone, completed by the manager when the money is received
   on('GET', '/api/orders', (c, r) => ord.listOrders(c, r.query));
