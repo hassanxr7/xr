@@ -6,6 +6,27 @@
 * A Linux VM (1 vCPU / 1–2 GB RAM / 20 GB disk is enough to start), a domain name pointing at it, ports 80/443 open.
 * Docker + Docker Compose **or** Node.js ≥ 22.13.
 
+## Option 0 – Hostinger Node.js hosting (upload the zip, no terminal needed)
+Upload `hubdex-bizsuite-source.zip`, then on *Review build settings*:
+| Setting | Value |
+|---|---|
+| Framework preset | **Other** |
+| Node version | **22.x** (must be 22.13 or newer) |
+| Root directory | **hubdex-bizsuite/bizsuite** |
+| Build command | *(empty)* – there is nothing to build or install |
+| Start command / entry | **npm start** (entry file: `src/server.js`) |
+Environment variables:
+| Key | Value |
+|---|---|
+| `NODE_ENV` | `production` |
+| `DATA_DIR` | a folder **outside** the app folder, e.g. `/home/<your-hosting-user>/bizsuite-data` (so redeploys never delete the database) |
+| `HTTPS` / `TRUST_PROXY` | `1` / `1` |
+| `SEED_DEMO` | `0` |
+| `OWNER_EMAIL` / `OWNER_PASSWORD` | your login; used **only on the very first start** to create the owner and the three branches – delete `OWNER_PASSWORD` after your first sign-in |
+| `ORG_NAME` | `Hubdex Store LTD` |
+| `REQUIRE_2FA`, `BACKUP_KEEP` | `0`, `14` |
+Deploy, open the domain, sign in, choose a new password, then **Settings → Branding** (upload the original logo) and **Staff** (add your employees). Backups are written daily to `DATA_DIR/backups` – download them regularly from the file manager. Confirm with Hostinger that `DATA_DIR` survives redeploys and is included in their backups.
+
 ## Option A – Docker + automatic HTTPS (recommended)
 ```bash
 git clone <repo> && cd <repo>/bizsuite
