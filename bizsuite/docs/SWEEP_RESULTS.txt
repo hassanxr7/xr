@@ -1,13 +1,20 @@
-UI SWEEP RESULTS - every nav page, every button, every dialog form (submitted empty), all 11 demo roles (incl. the sales assistant)
+UI SWEEP RESULTS - every nav page, every button, every dialog form (submitted empty), all 11 demo roles
 Fails on: JavaScript errors, HTTP 5xx, English UI text visible in Somali mode, horizontal overflow at 390 px.
 
-== Full run: English + Somali, all roles (after: shop board, scan & sell, orders, QR labels, barber rates, PWA)
-Sweep: 316 pages, 2808 buttons clicked, 1732 dialogs opened, 350 forms submitted empty.
-English text visible in Somali mode (1):
-  - "service"  (owner/audit, owner/audit modal[🔔])
-FAILED (1)
--> fixed: the rate column used the word 'service', which also appears as stored data (record type) on the audit page; replaced by 'per service' (commit 'Somali wording fix')
-
-== Somali re-check of the owner after the fix
-Sweep: 30 pages, 347 buttons clicked, 211 dialogs opened, 69 forms submitted empty.
+== English, all roles (desktop + phone width)
+Sweep: 162 pages, 978 buttons clicked, 575 dialogs opened, 104 forms submitted empty.
 SWEEP PASSED
+
+== Somali, all roles
+Sweep: 162 pages, 978 buttons clicked, 575 dialogs opened, 104 forms submitted empty.
+English text visible in Somali mode (1):
+  - "Statement"  (owner/suppliers, accountant/suppliers)
+FAILED (1)
+-> fixed: the Suppliers 'Statement' button (and 8 other older buttons: Receive, Dispatch, Adjust, Pay, Reverse, Scrap, Grant, Revoke, Support session) now go through the translation
+
+== Somali re-check of the affected roles after the fix (owner, accountant, Reyxaan manager)
+Sweep: 69 pages, 419 buttons clicked, 216 dialogs opened, 41 forms submitted empty.
+SWEEP PASSED
+
+== Barcode verification (development, not part of the shipped tests)
+Printed price tags (hang tag, tag printer, A4 stickers, sticker roll) rendered in Chromium and read with the independent zxing-cpp reader: 20/20 codes (EAN-13 and QR) decoded correctly; Code 128 and EAN-13 encoder output checked the same way (12/12).

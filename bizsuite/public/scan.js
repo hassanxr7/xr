@@ -43,7 +43,7 @@ export function scanner(onCode, { onError } = {}) {
       if (!detector) decode = await loadJsQR();
       status.textContent = t('Point the camera at the barcode'); tick();
     } catch (e) {
-      const msg = e && e.name === 'NotAllowedError' ? t('Camera permission was refused. Allow the camera for this site in the browser settings.') : (e && e.message) || t('Camera not available');
+      const msg = e && e.name === 'NotAllowedError' ? t('Camera permission was refused. Allow the camera for this site in the browser settings.') : e && ['NotFoundError', 'OverconstrainedError'].includes(e.name) ? t('No camera was found on this device. Type the code or use a USB barcode scanner.') : e && e.name === 'NotReadableError' ? t('The camera is being used by another app. Close it and try again.') : (e && e.message) || t('Camera not available');
       status.textContent = msg; el.classList.add('err'); if (onError) onError(msg);
     }
   })();

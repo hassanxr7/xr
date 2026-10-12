@@ -4,7 +4,7 @@
 ```bash
 npm test                 # 48 unit/integration tests (node:test) – ~8 s, in-memory databases
 npm run i18n             # Somali coverage audit (must report missing: 0)
-npm run e2e              # fresh demo DB + server + headless Chromium: 128 workflow checks (incl. scan & sell, orders, QR labels, shop board, barber rates)
+npm run e2e              # fresh demo DB + server + headless Chromium: 141 workflow checks (incl. scan & sell, orders, price tags, shop board, barber queue, search, mark-down, barber rates)
 npm run e2e:sweep        # exhaustive sweep: every page, button and dialog form for 11 roles (incl. the sales assistant), English + Somali, phone width
 npm run preflight        # production go-live checker (run on the server)
 ```

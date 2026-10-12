@@ -38,5 +38,7 @@ export const v4 = {
   'In the chair': 'Kursiga ku jira', 'in the chair': 'kursiga ku jira', 'Waiting': 'Sugaya', 'waiting': 'sugaya', 'Finished today': 'La dhammeeyey maanta', 'done today': 'la dhammeeyey maanta', 'Nobody is being served': 'Cidna lama adeegayo', 'Nobody is waiting': 'Cidna ma sugayso',
   'TV screen': 'Shaashadda TV-ga', 'Now serving': 'Hadda waxaa loo adeegayaa', 'Next': 'Xiga', 'min': 'daq', 'about': 'qiyaastii', 'prefers': 'wuxuu doorbidayaa', 'min per customer': 'daqiiqo macmiilkii',
   'err.service_required': 'Dooro adeegga la qabtay', 'err.ticket_closed': 'Tigidhkan waa la xiray', 'err.ticket_not_serving': 'Marka hore bilow adeegga', 'err.ticket_not_waiting': 'Macmiilkani hadda ma sugayo',
+  'No camera was found on this device. Type the code or use a USB barcode scanner.': 'Qalabkan lagama helin kamarad. Qor koodka ama isticmaal iskaanka USB.', 'The camera is being used by another app. Close it and try again.': 'Kamaradda app kale ayaa isticmaalaya. Xir oo isku day mar kale.',
+  'Receive': 'Qaado', 'Support session': 'Fadhiga taageerada', 'Scrap': 'Tuur (khasaare)', 'Revoke': 'Ka noqo', 'Pay': 'Bixi', 'Grant': 'Sii oggolaansho', 'Dispatch': 'Dir', 'Adjust': 'Hagaaji',
   'err.invalid_language': 'Luqaddu waa inay noqotaa en ama so',
 };

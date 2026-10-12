@@ -44,9 +44,11 @@ up on 3121
   ✓ page /reports/consolidated?preset=year renders
   ✓ CSV export downloads
   ✓ PDF export downloads
-  ✓ Somali UI applies
+  ✓ Somali UI applies (EN | SO switch)
+  ✓ back to English
   ✓ theme toggles
   ✓ page /inventory renders
+  ✓ after saving a product the price tags are offered
   ✓ page /inventory?q=E2EH renders
   ✓ product form created separate size variants
   ✓ page /quotes renders
@@ -136,7 +138,7 @@ up on 3121
   ✓ page /orders?x=2 renders
   ✓ completed order leaves the waiting list
   ✓ page /labels renders
-  ✓ QR labels print with a QR code per piece
+  ✓ price tags print with a shop barcode (EAN-13) per piece
   ✓ manager.store@demo.so: no JS errors
 
 == owner@demo.so
@@ -146,8 +148,23 @@ up on 3121
   ✓ one manager login per branch offered
   ✓ owner@demo.so: no JS errors
 
+== cashier.berber@demo.so
+  ✓ front desk lands on a page it can open
+  ✓ page /queue renders
+  ✓ two tickets waiting with numbers
+  ✓ customer in the chair
+  ✓ finishing records the barber visit
+  ✓ TV screen shows the queue
+  ✓ cashier.berber@demo.so: no JS errors
+
+== manager.store@demo.so
+  ✓ shop board: order soon (reorder list)
+  ✓ mark-down prints new tags with the old price struck through
+  ✓ global search finds items (Ctrl K)
+  ✓ manager.store@demo.so: no JS errors
+
 == platform@bizsuite.local
   ✓ platform admin console loads
   ✓ platform@bizsuite.local: no JS errors
 
-128/128 checks passed
+141/141 checks passed
