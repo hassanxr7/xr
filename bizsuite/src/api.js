@@ -21,6 +21,7 @@ import { listNotifications, markRead, scanAlerts } from './notify.js';
 import { createBackup, listBackups } from './backup.js';
 import * as quo from './quotes.js';
 import * as ord from './orders.js';
+import * as shop from './shop.js';
 import { qrSvg } from './qr.js';
 import { fileURLToPath } from 'node:url';
 import { prepareImage } from './image.js';
@@ -122,6 +123,7 @@ export function createApi(db, { dataDir = './data', loginLimit = 10 } = {}) {
   on('POST', '/api/orders/:id/complete', (c, r) => ord.completeOrder(c, num(r.params.id), r.body));
   on('POST', '/api/orders/:id/cancel', (c, r) => ord.cancelOrder(c, num(r.params.id), r.body));
   on('GET', '/api/shop', (c, r) => rpt.shopBoard(c, r.query));
+  on('POST', '/api/shop/stock-in', (c, r) => shop.stockIn(c, r.body));
   on('POST', '/api/products', (c, r) => inv.createProduct(c, r.body));
   on('PATCH', '/api/products/:id', (c, r) => inv.updateProduct(c, num(r.params.id), r.body));
   on('POST', '/api/products/:id/variants', (c, r) => inv.addVariant(c, num(r.params.id), r.body));

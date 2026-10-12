@@ -4,12 +4,14 @@ import { views } from './views.js';
 setTheme(S.theme); setLang(S.lang);
 const app = $('#app');
 
+let installEvt = null; // set by beforeinstallprompt (see the end of this file)
 async function boot() {
   await loadBrand();
   if (!S.token) return loginView();
   try { S.user = await get('/auth/me'); } catch { sessionStorage.removeItem('tok'); S.token = null; return loginView(); }
   if (S.user.platform) { location.hash = '#/platform'; }
   if (S.user.lang && !localStorage.getItem('lang')) setLang(S.user.lang);
+  if (!S.user.platform && (!location.hash || location.hash === '#/' || location.hash === '#/login')) location.hash = '#' + home();
   shell(); render();
   if (S.user.must_change_password) forcePasswordChange();
 }
@@ -23,13 +25,24 @@ function loginView(totp) {
 }
 const langSel = () => h('select', { 'aria-label': t('Language'), onchange: (e) => { setLang(e.target.value); S.token ? (shell(), render()) : loginView(); } }, h('option', { value: 'en', selected: S.lang === 'en' }, 'English'), h('option', { value: 'so', selected: S.lang === 'so' }, 'Soomaali'));
 
+// where each person lands: owners/accountants on the group dashboard, branch managers on their shop board,
+// sales assistants on the scanner, barbers on their own day
+function home() {
+  const u = S.user; if (u.scope === 'org') return '/dashboard';
+  if (can('sales.approve') || can('services.approve')) return '/shop';
+  if (can('orders.create') && !can('sales.create') && u.modules.includes('sales')) return '/scan';
+  return can('dashboard.view') ? '/shop' : '/dashboard';
+}
 const NAV = () => {
   const u = S.user; const m = (x) => u.modules.includes(x); const items = [];
   const add = (grp, path, label, ok) => { if (ok) items.push({ grp, path, label }); };
-  add('', '/dashboard', 'Dashboard', can('dashboard.view'));
+  add('', '/dashboard', 'Dashboard', can('dashboard.view') && (u.scope === 'org' || !can('sales.approve')));
+  add('', '/shop', 'My shop', can('dashboard.view'));
+  add('Sell', '/scan', 'Scan & sell', (can('orders.create') || can('sales.create')) && m('sales'));
+  add('Sell', '/orders', 'Orders', (can('orders.create') || can('sales.approve')) && m('sales'));
   add('Sell', '/pos', 'Point of sale', can('sales.create') && m('sales')); add('Sell', '/visits', 'Barber visits', (can('services.create') || can('services.view')) && m('services'));
   add('Sell', '/quotes', 'Quotations', can('sales.view') && m('sales')); add('Sell', '/sales', 'Sales', can('sales.view') && m('sales') || can('services.view') && m('services')); add('Sell', '/repairs', 'Repairs', can('repairs.view') && m('repairs'));
-  add('Stock', '/inventory', 'Inventory', can('products.view') && (m('inventory') || m('products'))); add('Stock', '/transfers', 'Transfers', can('inventory.view') && m('inventory')); add('Stock', '/purchases', 'Purchases', can('purchases.view') && m('purchases')); add('Stock', '/devices', 'Devices', can('devices.view') && m('devices'));
+  add('Stock', '/inventory', 'Inventory', can('products.view') && (m('inventory') || m('products'))); add('Stock', '/transfers', 'Transfers', can('inventory.view') && m('inventory')); add('Stock', '/purchases', 'Purchases', can('purchases.view') && m('purchases')); add('Stock', '/devices', 'Devices', can('devices.view') && m('devices')); add('Stock', '/labels', 'QR labels', can('products.view') && m('products'));
   add('People', '/customers', 'Customers', can('customers.view')); add('People', '/suppliers', 'Suppliers', can('suppliers.view'));
   add('Money', '/expenses', 'Expenses', can('expenses.view')); add('Money', '/registers', 'Cash registers', can('registers.view')); add('Money', '/payments', 'Payments', can('payments.view'));
   add('Money', '/commissions', 'Commissions', can('commissions.view') && (m('commissions') || m('repairs'))); add('Money', '/reports', 'Reports', can('reports.view') || can('expenses.view') || can('inventory.view'));
@@ -41,7 +54,7 @@ let bell;
 function shell() {
   clear(app); if (S.user.platform) { return app.append(h('div', { class: 'main' }, topbar(), h('div', { class: 'content', id: 'view' }))); }
   let last = null; const nav = h('nav', { class: 'nav', 'aria-label': 'Main' }, NAV().map((i) => { const a = [i.grp !== last ? h('div', { class: 'grp' }, i.grp ? t(i.grp) : null) : null, h('a', { href: '#' + i.path, 'data-path': i.path }, t(i.label))]; last = i.grp; return a; }));
-  const side = h('aside', { class: 'side', id: 'side' }, h('a', { class: 'brand', href: '#/dashboard', 'aria-label': S.brand.name }, brandLogo()), nav);
+  const side = h('aside', { class: 'side', id: 'side' }, h('a', { class: 'brand', href: '#' + home(), 'aria-label': S.brand.name }, brandLogo()), nav);
   app.append(h('div', { class: 'shell' }, side, h('div', { class: 'main' }, topbar(side), h('div', { class: 'content', id: 'view' }))));
   side.addEventListener('click', (e) => { if (e.target.closest('a')) side.classList.remove('open'); });
 }
@@ -50,7 +63,7 @@ function topbar(side) {
   const theme = h('button', { class: 'btn', title: t('Dark mode'), 'aria-label': t('Dark mode'), onclick: () => { const dark = document.documentElement.getAttribute('data-theme') === 'dark' || (S.theme === 'auto' && matchMedia('(prefers-color-scheme: dark)').matches); setTheme(dark ? 'light' : 'dark'); } }, '◐');
   const ro = S.user.read_only ? h('span', { class: 'pill warn' }, t('Read-only support session')) : null;
   setTimeout(pollNotifs, 300);
-  return h('div', { class: 'top' }, side ? h('button', { class: 'btn burger', 'aria-label': 'Menu', onclick: () => side.classList.toggle('open') }, '☰') : null, h('b', {}, S.user.org?.name || S.brand.name), S.user.branches && S.user.branches.length <= 4 ? S.user.branches.map((b) => h('span', { class: 'chip', title: b.name }, h('i', { style: `background:${b.color || 'var(--brand)'}` }), b.name)) : null, ro, h('span', { class: 'sp' }), S.user.platform ? null : bell, langSel(), theme,
+  return h('div', { class: 'top' }, side ? h('button', { class: 'btn burger', 'aria-label': 'Menu', onclick: () => side.classList.toggle('open') }, '☰') : null, h('b', {}, S.user.org?.name || S.brand.name), S.user.branches && S.user.branches.length <= 4 ? S.user.branches.map((b) => h('span', { class: 'chip', title: b.name }, h('i', { style: `background:${b.color || 'var(--brand)'}` }), b.name)) : null, ro, h('span', { class: 'sp' }), installButton(), S.user.platform ? null : bell, langSel(), theme,
     h('button', { class: 'btn', onclick: userMenu }, S.user.name, ' ', h('small', {}, tx(S.user.role) || (S.user.platform ? 'Platform' : ''))));
 }
 async function pollNotifs() { if (S.user.platform) return; try { const r = await get('/notifications', { unread: 1 }); const b = $('#nbadge'); if (b) { b.textContent = r.unread; b.style.display = r.unread ? '' : 'none'; } } catch { /* ignore */ } }
@@ -85,3 +98,8 @@ function forcePasswordChange() {
   const ok = h('button', { class: 'btn p' }, t('Change password')); const m = modal({ title: t('Choose a new password'), body: h('div', { class: 'stack' }, h('p', {}, t('For security you must replace the initial password before you continue.')), cur, np, np2), actions: () => [ok] }); m.el.dataset.sticky = '1'; m.el.querySelector('header button').remove();
   ok.onclick = busy(ok, async () => { if (np.value !== np2.value) throw new Error(t('Passwords do not match')); await post('/auth/password', { current: cur.value, password: np.value }); toast(t('Saved'), 'ok'); S.user.must_change_password = false; location.reload(); });
 }
+
+// Installable app: register the service worker and offer "Install app" where the browser supports it (Android/desktop Chrome, Edge).
+if ('serviceWorker' in navigator && (location.protocol === 'https:' || location.hostname === 'localhost')) addEventListener('load', () => navigator.serviceWorker.register('sw.js').catch(() => {}));
+addEventListener('beforeinstallprompt', (e) => { e.preventDefault(); installEvt = e; document.querySelectorAll('.installbtn').forEach((b) => { b.style.display = ''; }); });
+export function installButton() { const b = h('button', { class: 'btn installbtn', style: installEvt ? '' : 'display:none', onclick: async () => { if (!installEvt) return; installEvt.prompt(); await installEvt.userChoice.catch(() => {}); installEvt = null; b.style.display = 'none'; } }, '📲 ', t('Install app')); return b; }

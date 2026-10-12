@@ -40,6 +40,17 @@ Barber: Retained = Net service revenue − Commission; Net Profit = Retained −
 * **Payout** settles every eligible unsettled payable row (`settled_payout_id`, one-time, concurrency-safe), records advances, authorised deductions, amount paid, remaining (carried forward as a ledger row), method, processor and approver. A row can never be settled twice.
 * Example: 10 visits generating $50.00 at 40 % → commission $20.00, retained $30.00.
 
+### Fixed fee per service (barbers)
+A barber can earn a percentage, a fixed amount per service, or both: `earned = min(net amount of the line, net × rate% + fixed fee × (qty − returned qty))`, rounded half away from zero. Both values are frozen on the sale line when the visit is recorded (`sale_lines.commission_bp`, `sale_lines.commission_fixed`), so later rate changes never alter history. Refunds and voids reverse the fee through the same append-only ledger; it becomes payable in proportion to the money collected, like the percentage.
+
+## Discounts and the per-item maximum
+* Each item (variant) can carry a **maximum discount** (`variants.max_discount_bp`). The line discount **plus the line's share of any whole-sale discount** may not exceed `price × qty × maximum`. Sellers without approval rights are refused (`discount_above_item_max`); a manager with `sales.approve` may go further, still within the role's own discount limit (above it the sale goes for approval as before).
+* The lowest price shown on labels and the scanner = price − price × maximum.
+* *Expected profit* of stock on hand = `qty × price − stock value` (weighted-average cost); *at maximum discount* = `qty × (price − price × maximum) − stock value`. These are projections, never posted.
+
+## Orders (scan & send to the manager)
+An order is a basket, not a sale: no revenue, no stock movement, no commission and no payment until the manager completes it. Completing re-reads the current prices and runs the normal sale (stock out at weighted-average cost, payments, receipt); the sale is attributed to the seller who scanned it (`sales.user_id`) and its note carries the order reference. Completion is idempotent (Idempotency-Key) and an order can be completed only once.
+
 ## Shared expenses
 Scope = branch, business or organisation. Business/org expenses are allocated at creation by *equal*, *fixed percentages* (must total 100 %) or *revenue share (trailing 30 days)*. Only allocation rows feed reports, so nothing is double counted. Paid cash expenses reduce the cashier's expected cash.
 

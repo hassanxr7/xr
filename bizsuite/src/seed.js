@@ -12,6 +12,7 @@ import * as sales from './sales.js';
 import * as pay from './payments.js';
 import * as com from './commissions.js';
 import * as rep from './repairs.js';
+import * as orders from './orders.js';
 import * as fin from './finance.js';
 import { addDays } from './time.js';
 
@@ -20,7 +21,7 @@ export function seedIfEmpty(db) { if (!db.prepare('SELECT COUNT(*) c FROM orgs')
 
 // Hubdex Store LTD: Rio Berber (barber / salon), Rio Store (clothing, shoes, fashion), Reyxaan Store (electronics + repair).
 export function seedDemo(db, { days = 14 } = {}) {
-  let rnd = 12345; const rand = (n) => { rnd = (rnd * 1103515245 + 12345) & 0x7fffffff; return rnd % n; }; const pick = (a) => a[rand(a.length)];
+  let rnd = 12345; const rand = (n) => { rnd = (rnd * 1103515245 + 12345) & 0x7fffffff; return Math.floor((rnd / 0x80000000) * n); /* high bits: the low bits of this LCG cycle quickly */ }; const pick = (a) => a[rand(a.length)];
   db.prepare("INSERT INTO users(org_id,name,email,pass_hash,is_platform,created_at) VALUES(NULL,'Platform Admin','platform@bizsuite.local',?,1,?)").run(hashPassword(DEMO_PASSWORD), new Date().toISOString());
   const { org_id: ORG, owner_id } = createTenant(db, { name: 'Hubdex Store LTD', owner_name: 'Hubdex Owner', owner_email: 'owner@demo.so', owner_password: DEMO_PASSWORD, saas: false });
   db.prepare('UPDATE orgs SET tagline=? WHERE id=?').run('Rio Berber · Rio Store · Reyxaan Store', ORG);
@@ -40,6 +41,7 @@ export function seedDemo(db, { days = 14 } = {}) {
     mB: user('Yusuf (Manager, Rio Berber)', 'manager.berber@demo.so', 'Branch Manager', [RBR]), mS: user('Mohamed (Manager, Rio Store)', 'manager.store@demo.so', 'Branch Manager', [RST]), mR: user('Liban (Manager, Reyxaan Store)', 'manager.reyxaan@demo.so', 'Branch Manager', [RYX]),
     cB: user('Hodan (Front desk, Rio Berber)', 'cashier.berber@demo.so', 'Cashier', [RBR]), cS: user('Sahra (Cashier, Rio Store)', 'cashier.store@demo.so', 'Cashier', [RST]), cR: user('Abdi (Cashier, Reyxaan Store)', 'cashier.reyxaan@demo.so', 'Cashier', [RYX]),
     tR: user('Bashir (Technician, Reyxaan Store)', 'tech.reyxaan@demo.so', 'Technician', [RYX], 1500),
+    asst: user('Ayaan (Sales assistant, Rio Store)', 'assistant.store@demo.so', 'Sales Assistant', [RST]),
     ahmed: user('Ahmed (Barber)', 'ahmed@demo.so', 'Barber', [RBR], 4000), farah: user('Farah (Barber)', 'farah@demo.so', 'Barber', [RBR], 4500), omar: user('Omar (Barber)', 'omar@demo.so', 'Barber', [RBR], 5000),
   };
   const ctxOf = (id) => Ctx.forUserId(db, id);
@@ -60,6 +62,10 @@ export function seedDemo(db, { days = 14 } = {}) {
   prod(REYX, 'Galaxy A15 Screen', 'Spare parts', 'Samsung', 'standard', [{ sku: 'PART-A15-SCR', barcode: '700200001', attrs: {}, cost: 2800, price: 4500, min_stock: 2 }], { is_part: 1 });
   prod(REYX, 'iPhone Battery', 'Spare parts', 'Apple', 'standard', [{ sku: 'PART-IP-BAT', barcode: '700200002', attrs: {}, cost: 1800, price: 3500, min_stock: 2 }], { is_part: 1 });
   prod(REYX, 'Charging Port Module', 'Spare parts', 'Generic', 'standard', [{ sku: 'FX-PORT', barcode: '700300002', attrs: {}, cost: 600, price: 1500, min_stock: 3 }], { is_part: 1 });
+  prod(RIOS, 'Wool Winter Scarf', 'Accessories', 'Rio', 'standard', [{ sku: 'SCARF-W', barcode: '600500001', attrs: { color: 'Grey' }, cost: 400, price: 1200, min_stock: 2 }]); // bought, not selling: shows on the discount list
+  // maximum discount each item may be sold at (sellers cannot go below it; the QR label and the scanner show it)
+  for (const [like, bp] of [['POLO-%', 1000], ['SNK-%', 1000], ['JEAN-%', 1500], ['ABY-%', 1000], ['SCARF-%', 3000], ['CBL-%', 2000], ['CASE-%', 2000], ['SGA15-%', 500], ['IP13-%', 300]]) db.prepare('UPDATE variants SET max_discount_bp=? WHERE org_id=? AND sku LIKE ?').run(bp, ORG, like);
+  admin.updateUser(O, U.farah, { commission_fixed: 50 }); // Farah: 45% plus 0.50 for every service (rates are set by the owner in Commissions > Rates per barber)
   const vid = (sku) => db.prepare('SELECT id FROM variants WHERE org_id=? AND sku=?').get(ORG, sku).id;
   const svc = (name, price, d, cost) => fin.saveService(O, null, { business_id: RIOB, name, price, duration_min: d, consumable_cost: cost }).id;
   const SV = { cut: svc('Haircut', 500, 30, 30), beard: svc('Beard trimming', 300, 15, 15), pkg: svc('Haircut + beard package', 700, 40, 40), kid: svc('Kids haircut', 300, 20, 20), wash: svc('Hair wash & style', 400, 25, 50) };
@@ -123,6 +129,10 @@ export function seedDemo(db, { days = 14 } = {}) {
   fin.createExpense(O, { scope: 'branch', branch_id: RBR, category_id: cat('Supplies'), amount: 3000, method_id: MOBILE, description: 'Clippers, capes, shampoo' });
   fin.createExpense(O, { scope: 'branch', branch_id: RBR, category_id: cat('Electricity'), amount: 1800, method_id: MOBILE, description: 'Electricity' });
   fin.createExpense(O, { scope: 'org', category_id: cat('Marketing'), amount: 4500, method_id: BANK, alloc_rule: 'revenue', description: 'Hubdex social media campaign (shared across the three branches)' });
+  // two baskets scanned by the sales assistant, waiting for the Rio Store manager to take the money and complete them
+  setNow(`${today}T10:15:00.000Z`);
+  const asst = ctxOf(U.asst);
+  for (const lines of [[{ variant_id: vid('JEAN-32'), qty: 1 }, { variant_id: vid('POLO-B-L'), qty: 1, discount: 100 }], [{ variant_id: vid('ABY-54'), qty: 1 }]]) { try { orders.createOrder(asst, { branch_id: RST, customer_name: 'Walk-in', lines }); } catch (e) { if (e.code !== 'insufficient_stock') throw e; } }
   setNow(null);
   return { org_id: ORG, owner_id, ids: { RBR, RST, RYX, RIOB, RIOS, REYX }, users: U, methods: { CASH, MOBILE, BANK }, repairs: { R1, R2, R3 } };
 }

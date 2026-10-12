@@ -83,7 +83,7 @@ export function formModal({ title, fields, initial = {}, ccy, submit, label = 'S
 export const pill = (s, kind) => h('span', { class: 'pill ' + (kind || ({ paid: 'ok', completed: 'ok', delivered: 'ok', approved: 'ok', received: '', confirmed: 'ok', partial: 'warn', pending: 'warn', unpaid: 'bad', void: 'bad', cancelled: 'bad', failed: 'bad', rejected: 'bad', unrepairable: 'bad', awaiting_approval: 'warn', awaiting_parts: 'warn', in_progress: 'warn', open: 'warn', closed: '' }[s] || '')) }, t(label(s)));
 export const label = (s) => ({ awaiting_approval: 'Awaiting approval', awaiting_parts: 'Awaiting parts', in_progress: 'In progress', unrepairable: 'Unrepairable' }[s] || (s ? s[0].toUpperCase() + s.slice(1).replace(/_/g, ' ') : ''));
 export const tx = (v) => (DATA_TERMS.has(v) ? t(v) : v);
-const DATA_TERMS = new Set(['Walk-in', 'Owner', 'Accountant', 'Branch Manager', 'Cashier', 'Technician', 'Barber']); // stored English system terms shown translated
+const DATA_TERMS = new Set(['Walk-in', 'Owner', 'Accountant', 'Branch Manager', 'Cashier', 'Technician', 'Barber', 'Sales Assistant']); // stored English system terms shown translated
 export function table(cols, rows, { onRow, empty } = {}) {
   if (!rows.length) return h('div', { class: 'empty' }, empty || t('No data yet'));
   return h('div', { class: 'tw' }, h('table', {}, h('thead', {}, h('tr', {}, cols.map((c) => h('th', { class: c.r ? 'r' : '' }, typeof c.label === 'string' ? t(c.label) : c.label)))), h('tbody', {}, rows.map((r) => h('tr', { class: onRow ? 'click' : '', onclick: onRow ? () => onRow(r) : null }, cols.map((c) => h('td', { class: c.r ? 'r' : '' }, c.f ? c.f(r) : DATA_TERMS.has(r[c.k]) ? t(r[c.k]) : r[c.k] ?? '')))))));
@@ -120,6 +120,7 @@ export const sel = (options, value, onchange, attrs = {}) => h('select', { ...at
 export const sum = (a, f) => a.reduce((s, x) => s + f(x), 0);
 export const tabs = (items, cur, on) => h('div', { class: 'tabs', role: 'tablist' }, items.map(([k, l]) => h('button', { role: 'tab', class: k === cur ? 'on' : '', 'aria-selected': k === cur, onclick: () => on(k) }, t(l))));
 export const hundredth = (bp) => (bp / 100).toString().replace(/\.0+$/, '') + '%';
+export const OCCY = () => S.user?.org?.reporting_currency || S.user?.branches?.[0]?.currency || 'USD';
 export const ccyOf = (branchId) => (S.user.branches.find((b) => b.id === Number(branchId)) || {}).currency || 'USD';
 
 export const divRound = (n, d) => { const sg = (n < 0) !== (d < 0) ? -1 : 1; return sg * Math.floor((2 * Math.abs(n) + Math.abs(d)) / (2 * Math.abs(d))); };

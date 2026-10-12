@@ -306,14 +306,18 @@ export function shopBoard(ctx, f = {}) {
   out.top_categories = Object.values(cats).sort((a, c) => c.revenue - a.revenue).slice(0, 6);
   if (B.btype === 'barber' || ctx.get("SELECT 1 x FROM departments WHERE branch_id=? AND kind='barber'", b.id)) {
     out.top_services = ctx.all(`SELECT l.description name, SUM(l.qty) qty, SUM(l.net) revenue FROM sale_lines l JOIN sales s ON s.id=l.sale_id WHERE s.branch_id=? AND s.kind='service' AND s.status='completed' AND s.business_date BETWEEN ? AND ?${emp ? ' AND l.barber_id=' + emp : ''} GROUP BY l.service_id ORDER BY qty DESC LIMIT 8`, b.id, P.month.from, P.month.to);
-    out.barbers_today = ctx.all(`SELECT u.name, COUNT(DISTINCT s.id) customers, SUM(l.qty) services, SUM(l.net) income FROM sale_lines l JOIN sales s ON s.id=l.sale_id JOIN users u ON u.id=l.barber_id WHERE s.branch_id=? AND s.kind='service' AND s.status='completed' AND s.business_date=?${emp ? ' AND l.barber_id=' + emp : ''} GROUP BY u.id ORDER BY income DESC`, b.id, today);
+    const showCom = ctx.can('commissions.viewall');
+    out.barbers_today = ctx.all(`SELECT u.id, u.name, u.commission_bp, u.commission_fixed, COUNT(DISTINCT s.id) customers, SUM(l.qty) services, SUM(l.net) income FROM sale_lines l JOIN sales s ON s.id=l.sale_id JOIN users u ON u.id=l.barber_id WHERE s.branch_id=? AND s.kind='service' AND s.status='completed' AND s.business_date=?${emp ? ' AND l.barber_id=' + emp : ''} GROUP BY u.id ORDER BY income DESC`, b.id, today)
+      .map((x) => { const o = { name: x.name, customers: x.customers, services: x.services, income: x.income }; if (showCom || x.id === ctx.user.id) Object.assign(o, { commission_bp: x.commission_bp, commission_fixed: x.commission_fixed, commission: ctx.get("SELECT COALESCE(SUM(earned_delta),0) e FROM commission_ledger WHERE branch_id=? AND employee_id=? AND business_date=? AND source_type='sale_line'", b.id, x.id, today).e }); return o; });
   }
-  if (canInv) {
+  const sellsGoods = B.btype !== 'barber' || ctx.get("SELECT 1 x FROM departments WHERE branch_id=? AND kind<>'barber'", b.id);
+  out.sells_goods = !!sellsGoods;
+  if (canInv && sellsGoods) {
     out.running_out = ctx.all(`SELECT p.name, v.attrs, v.sku, COALESCE(s.qty,0) qty, v.min_stock FROM variants v JOIN products p ON p.id=v.product_id LEFT JOIN stock s ON s.variant_id=v.id AND s.branch_id=? WHERE v.org_id=? AND p.business_id=? AND v.active=1 AND p.active=1 AND p.kind='standard' AND COALESCE(s.qty,0)<=v.min_stock ORDER BY qty, p.name LIMIT 12`, b.id, ctx.org_id, b.business_id)
       .map((x) => ({ name: `${x.name} ${attrsText(x.attrs)}`.trim(), sku: x.sku, qty: x.qty, min_stock: x.min_stock }));
     out.slow_movers = slowMovers(ctx, String(b.id), P.d30, 10).map(strip);
   }
-  if (canC) { const pp = profitPotential(ctx, String(b.id)); out.potential = { items: pp.length, units: pp.reduce((a, x) => a + x.qty, 0), stock_cost: pp.reduce((a, x) => a + x.qty * x.cost, 0), at_full_price: pp.reduce((a, x) => a + x.qty * x.price, 0), ...(canP ? { profit_full: pp.reduce((a, x) => a + x.total_profit, 0), profit_min: pp.reduce((a, x) => a + x.total_profit_min, 0) } : {}), top: pp.slice(0, 8).map(strip) }; }
+  if (canC && sellsGoods) { const pp = profitPotential(ctx, String(b.id)); out.potential = { items: pp.length, units: pp.reduce((a, x) => a + x.qty, 0), stock_cost: pp.reduce((a, x) => a + x.qty * x.cost, 0), at_full_price: pp.reduce((a, x) => a + x.qty * x.price, 0), ...(canP ? { profit_full: pp.reduce((a, x) => a + x.total_profit, 0), profit_min: pp.reduce((a, x) => a + x.total_profit_min, 0) } : {}), top: pp.slice(0, 8).map(strip) }; }
   if (ctx.can('expenses.view')) out.expenses = ctx.all(`SELECT e.id, e.ref, e.expense_date, c.name category, e.description, a.amount, e.status FROM expenses e JOIN expense_allocations a ON a.expense_id=e.id AND a.branch_id=? JOIN expense_categories c ON c.id=e.category_id WHERE e.org_id=? AND e.status<>'void' AND e.expense_date BETWEEN ? AND ? ORDER BY e.expense_date DESC, e.id DESC LIMIT 8`, b.id, ctx.org_id, P.month.from, P.month.to);
   out.orders_open = ctx.get(`SELECT COUNT(*) c FROM orders WHERE org_id=? AND branch_id=? AND status='open'${ctx.can('sales.approve') ? '' : ' AND created_by=' + ctx.user.id}`, ctx.org_id, b.id).c;
   return out;

@@ -5,6 +5,8 @@
 |---|---|---|
 | **Node.js 22 LTS** (includes OpenSSL, SQLite, V8) | runtime, crypto, `node:sqlite`, `node:http` | MIT (Node.js) + bundled components under their own permissive licences (SQLite: public domain; OpenSSL: Apache-2.0; V8: BSD-3-Clause) |
 | **npm packages** | **none at runtime** – `package.json` has no dependencies | – |
+| **jsQR 1.4.0** (`public/vendor/jsQR.js`, unmodified, licence in `public/vendor/jsQR.LICENSE.txt`) | decodes QR codes from the camera in browsers without the built-in BarcodeDetector (loaded only when the camera is used) | Apache-2.0 |
+| QR code generator | `src/qr.js`, written for this project (ISO/IEC 18004 byte mode, level M) | project code |
 | Fonts / icons / CDNs | **none**: system fonts, Unicode symbols, inline SVG; the app makes no third-party requests | – |
 
 ## Deployment

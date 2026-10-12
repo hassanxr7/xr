@@ -27,9 +27,10 @@ Demo accounts – password **`Demo@1234`** (demo only; production starts empty):
 | Owner | `owner@demo.so` | all three |
 | Accountant | `accountant@demo.so` | all (financial modules) |
 | Manager | `manager.berber@demo.so` · `manager.store@demo.so` · `manager.reyxaan@demo.so` | Rio Berber · Rio Store · Reyxaan Store |
+| Sales assistant (scan & send to manager) | `assistant.store@demo.so` | Rio Store |
 | Cashier / front desk | `cashier.berber@demo.so` · `cashier.store@demo.so` · `cashier.reyxaan@demo.so` | one each |
 | Technician | `tech.reyxaan@demo.so` (15 %) | Reyxaan Store |
-| Barbers | `ahmed@demo.so` (40 %) · `farah@demo.so` (45 %) · `omar@demo.so` (50 %) | Rio Berber |
+| Barbers | `ahmed@demo.so` (40 %) · `farah@demo.so` (45 % + 0.50 per service) · `omar@demo.so` (50 %) | Rio Berber |
 | Platform admin | `platform@bizsuite.local` | tenants only (no business data) |
 
 Demo data: Hubdex Store LTD with 3 branches (USD), ~14 days of sales, barber visits (≈ 8 customers a day split between three barbers), purchases, IMEI phones, 4 repair jobs in different states (delivered, overdue diagnosis, one awaiting a revision approval, a fresh intake), an advance, a payout and an authorised deduction for the barbers, expenses incl. a company-wide marketing expense shared by revenue, register sessions (one with a 5.00 shortage). Approvals appear when you trigger one (e.g. a 30 % discount as a cashier).

@@ -21,7 +21,7 @@ await session('owner@demo.so', async (page) => {
   await visit(page, '/dashboard?preset=year');
   ok(await page.locator('.kpi').count() > 10, 'dashboard shows KPI tiles'); ok(await page.locator('svg.chart').count() > 0, 'dashboard has trend chart');
   ok(await page.locator('text=Rio Berber').count() > 0 && await page.locator('text=Rio Store').count() > 0 && await page.locator('text=Reyxaan Store').count() > 0, 'dashboard compares the three branches');
-  ok(await page.locator('.side img.brandlogo').count() === 1 && (await page.title()) === 'Hubdex Store LTD', 'company logo in the menu and company name as page title');
+  ok(await page.locator('.side img.brandlogo:visible').count() === 1 && (await page.title()) === 'Hubdex Store LTD', 'company logo in the menu and company name as page title');
   if (SHOTS) await page.screenshot({ path: SHOTS + '/dashboard.png', fullPage: true });
   await page.click('.kpi >> nth=0'); await page.waitForTimeout(600); ok(page.url().includes('/sales'), 'KPI drills down to the sales list'); ok(await page.locator('tbody tr').count() > 0, 'drill-down lists transactions');
   // open a sale detail + print preview
@@ -77,6 +77,25 @@ await session('manager.reyxaan@demo.so', async (page) => {
   await visit(page, '/registers'); ok(await page.locator('tbody tr').count() > 0, 'register sessions listed'); await visit(page, '/reports/cash_discrepancies?preset=year'); ok(await page.locator('tbody tr').count() >= 0, 'discrepancy report renders');
 });
 await session('accountant@demo.so', async (page) => { await visit(page, '/expenses'); await visit(page, '/reports/expenses_by_category?preset=year'); await visit(page, '/reports/receivables?preset=year'); ok(await page.locator('.nav a', { hasText: 'Point of sale' }).count() === 0, 'accountant has no POS'); });
+// scan & sell: assistant scans and sends a basket, the store manager sees it on the board and completes it with the money
+await session('assistant.store@demo.so', async (page) => {
+  ok(page.url().includes('#/scan'), 'sales assistant lands on Scan & sell');
+  await visit(page, '/scan?code=JEAN-32&cam=0', '.itemcard'); ok((await page.locator('.itemcard').innerText()).includes('Maximum discount'), 'scanned item shows price, stock and maximum discount');
+  await page.fill('.itemcard input[aria-label=Discount]', '20'); await page.click('text=Add to basket'); await page.waitForTimeout(300); ok(await page.locator('.toast.bad').count() > 0, 'discount above the item maximum is refused');
+  await page.fill('.itemcard input[aria-label=Discount]', '1'); await page.click('text=Add to basket'); await page.waitForTimeout(300); await page.click('text=Send to manager'); await page.waitForSelector('.overlay'); ok((await page.locator('.overlay').innerText()).includes('ORD-RST-'), 'basket sent to the manager as an order');
+}, { width: 390, height: 844 });
+await session('manager.store@demo.so', async (page) => {
+  ok(page.url().includes('#/shop'), 'branch manager lands on the shop board'); await page.waitForSelector('.shopboard .kpi');
+  for (const x of ['Best sellers this month', 'Running out', 'Not selling - consider a discount', 'What your stock should earn', 'Statement for last month', 'Expenses this month']) ok(await page.locator('text=' + x).count() > 0, 'shop board: ' + x);
+  await visit(page, '/orders'); const n = await page.locator('.order.open').count(); ok(n >= 1, 'manager sees baskets waiting for payment');
+  await page.locator('text=Payment received - complete').first().click(); await page.waitForSelector('.overlay footer .btn.p'); await page.click('.overlay footer .btn.p'); await page.waitForTimeout(1200); ok((await page.locator('.overlay').last().innerText()).includes('INV-RST-'), 'completing the order creates the sale');
+  await page.evaluate(() => document.querySelectorAll('.overlay').forEach((o) => o.remove())); await visit(page, '/orders?x=2'); ok(await page.locator('.order.open').count() === n - 1, 'completed order leaves the waiting list');
+  await visit(page, '/labels'); await page.locator('.pick').first().check(); await page.click('text=Print labels'); await page.waitForSelector('.overlay iframe'); await page.waitForTimeout(800); ok(await page.frameLocator('.overlay iframe').locator('.lb svg').count() > 0, 'QR labels print with a QR code per piece');
+});
+await session('owner@demo.so', async (page) => {
+  await visit(page, '/commissions?tab=rates'); ok(await page.locator('text=Farah (Barber)').count() > 0 && await page.locator('input[aria-label="Fixed fee per service"]').count() >= 3, 'owner sets % and fixed fee per haircut for each barber');
+  await visit(page, '/staff'); ok(await page.locator('text=Branch managers').count() > 0 && await page.locator('button:has-text("Create manager login")').count() >= 3, 'one manager login per branch offered');
+});
 await session('platform@bizsuite.local', async (page) => { await page.waitForSelector('text=Platform administration', { timeout: 6000 }); ok(true, 'platform admin console loads'); });
 await browser.close();
 console.log(`\n${checks - problems.length}/${checks} checks passed`); if (problems.length) { console.log('FAILED:\n' + problems.join('\n')); process.exit(1); }

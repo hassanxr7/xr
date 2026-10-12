@@ -111,3 +111,17 @@ test('migration 004 upgrades an existing installation: Sales Assistant role and 
   for (const n of ['Owner', 'Branch Manager', 'Cashier']) assert.ok(JSON.parse(w.db.prepare('SELECT perms FROM roles WHERE org_id=? AND name=?').get(w.org, n).perms).includes('orders.create'), n);
   const db = openDb(':memory:'); assert.ok(db.prepare("SELECT 1 FROM schema_migrations WHERE name='004_scan_orders.sql'").get()); void PW;
 });
+
+test('manager "I bought these": product, sizes, stock, supplier balance, payment and expected profit in one step', async () => {
+  const w = world(); const b = w.biz('Rio Store', 'clothing'); const A = w.branch(b, 'RST'); w.user('Manager', 'Branch Manager', [A]);
+  const api = await client(w.db).login('manager@t.so');
+  const bad = api('POST', '/api/shop/stock-in', { branch_id: A, name: 'Polo', qty: 2, cost: 1000, price: 900 }); assert.equal(bad.body.error.code, 'price_below_cost');
+  const r = api('POST', '/api/shop/stock-in', { branch_id: A, name: 'Polo shirt', category: 'Shirts', sizes: 'M, L', colors: 'Black', qty: 5, cost: 800, price: 2000, max_discount_bp: 1500, min_stock: 2, supplier_name: 'Bakaaro wholesale', method_id: w.BANK, paid: 'full' });
+  assert.equal(r.status, 200, JSON.stringify(r.body)); assert.equal(r.body.variant_ids.length, 2); assert.equal(r.body.units, 10); assert.equal(r.body.total_cost, 8000);
+  assert.deepEqual(r.body.expected, { revenue: 20000, profit: 12000, profit_at_max_discount: 10 * (1700 - 800) });
+  for (const v of r.body.variant_ids) assert.deepEqual(w.stock(A, v), { qty: 5, value: 4000 });
+  const skus = w.db.prepare('SELECT sku, max_discount_bp FROM variants WHERE product_id=? ORDER BY id').all(r.body.product_id); assert.deepEqual(skus.map((x) => x.sku), ['RST-POLOSHIR-M-BLA', 'RST-POLOSHIR-L-BLA']); assert.equal(skus[0].max_discount_bp, 1500);
+  const po = w.db.prepare('SELECT billed, paid, payment_status FROM purchases WHERE id=?').get(r.body.purchase_id); assert.deepEqual([po.billed, po.paid], [8000, 8000]);
+  const again = api('POST', '/api/shop/stock-in', { branch_id: A, name: 'Polo shirt', qty: 1, cost: 800, price: 2000 }); assert.equal(again.status, 200); assert.equal(w.db.prepare('SELECT sku FROM variants WHERE id=?').get(again.body.variant_ids[0]).sku, 'RST-POLOSHIR2', 'SKUs stay unique');
+  const lab = api('GET', '/api/print/labels', {}, { ids: r.body.variant_ids.join(','), copies: 'stock', branch_id: A }); assert.equal((lab.body.match(/class="lb"/g) || []).length, 10);
+});

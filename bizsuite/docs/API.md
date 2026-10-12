@@ -65,6 +65,37 @@ Every request is checked server-side for (1) tenant, (2) permission `module.acti
 | GET | `/api/variants` | `inventory.js → listVariants` |
 | PATCH | `/api/variants/:id` | `inventory.js → updateVariant` |
 
+## qr
+
+| Method | Path | Handler |
+|---|---|---|
+| GET | `/api/qr` | `inline (api.js)` |
+
+## print
+
+| Method | Path | Handler |
+|---|---|---|
+| GET | `/api/print/labels` | `inline (api.js)` |
+| GET | `/api/print/quote/:id` | `inline (api.js)` |
+| GET | `/api/print/sale/:id` | `sales.js → getSale` |
+| GET | `/api/print/repair/:id` | `inline (api.js)` |
+
+## orders
+
+| Method | Path | Handler |
+|---|---|---|
+| GET | `/api/orders` | `inline (api.js)` |
+| POST | `/api/orders` | `inline (api.js)` |
+| POST | `/api/orders/:id/complete` | `inline (api.js)` |
+| POST | `/api/orders/:id/cancel` | `inline (api.js)` |
+
+## shop
+
+| Method | Path | Handler |
+|---|---|---|
+| GET | `/api/shop` | `reports.js → shopBoard` |
+| POST | `/api/shop/stock-in` | `inline (api.js)` |
+
 ## products
 
 | Method | Path | Handler |
@@ -139,14 +170,6 @@ Every request is checked server-side for (1) tenant, (2) permission `module.acti
 | GET | `/api/quotes/:id` | `quotes.js → getQuote` |
 | POST | `/api/quotes/:id/status` | `quotes.js → setQuoteStatus` |
 | POST | `/api/quotes/:id/convert` | `quotes.js → convertQuote` |
-
-## print
-
-| Method | Path | Handler |
-|---|---|---|
-| GET | `/api/print/quote/:id` | `inline (api.js)` |
-| GET | `/api/print/sale/:id` | `sales.js → getSale` |
-| GET | `/api/print/repair/:id` | `inline (api.js)` |
 
 ## payments
 

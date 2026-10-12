@@ -7,7 +7,7 @@ const BASE = process.env.BASE || 'http://localhost:3000'; const QUICK = process.
 const { so } = await import(new URL('../public/i18n.js', import.meta.url));
 const audit = JSON.parse(fs.readFileSync(process.env.UI_STRINGS || '/tmp/ui-strings.json', 'utf8'));
 const EN = new Set(audit.filter((s) => so[s] && so[s] !== s && s.length > 3 && !/^[A-Z0-9 .\-/+]+$/.test(s))); // English UI strings that must never appear verbatim in Somali mode
-const ROLES = [['owner@demo.so', 'owner'], ['accountant@demo.so', 'accountant'], ['manager.berber@demo.so', 'manager-berber'], ['manager.store@demo.so', 'manager-store'], ['manager.reyxaan@demo.so', 'manager-reyxaan'], ['cashier.store@demo.so', 'cashier-store'], ['cashier.berber@demo.so', 'frontdesk-berber'], ['cashier.reyxaan@demo.so', 'cashier-reyxaan'], ['tech.reyxaan@demo.so', 'technician'], ['ahmed@demo.so', 'barber']];
+const ROLES = [['owner@demo.so', 'owner'], ['accountant@demo.so', 'accountant'], ['manager.berber@demo.so', 'manager-berber'], ['manager.store@demo.so', 'manager-store'], ['manager.reyxaan@demo.so', 'manager-reyxaan'], ['cashier.store@demo.so', 'cashier-store'], ['cashier.berber@demo.so', 'frontdesk-berber'], ['cashier.reyxaan@demo.so', 'cashier-reyxaan'], ['tech.reyxaan@demo.so', 'technician'], ['ahmed@demo.so', 'barber'], ['assistant.store@demo.so', 'assistant-store']];
 const SKIP = /sign out|ka bax|suspend|activate|revoke|create backup|close day|xidh maalinta|reopen|dib u fur|use the default logo|upload logo|\bdisable\b|\benable\b/i;
 const ONLY = (process.argv.find((a) => a.startsWith('--roles=')) || '').slice(8).split(',').filter(Boolean);
 const browser = await chromium.launch({ executablePath: process.env.CHROMIUM || undefined, args: ['--no-sandbox'] });

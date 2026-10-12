@@ -82,6 +82,6 @@ export function labelsDoc(items, { mode = 'a4', lang = 'en', company = '', qr } 
   const css = mode === 'thermal'
     ? '@page{size:50mm 30mm;margin:0}body{margin:0}.lb{width:50mm;height:30mm;page-break-after:always;display:flex;gap:1.5mm;align-items:center;padding:1.5mm;box-sizing:border-box;overflow:hidden}.q svg{width:24mm;height:24mm}'
     : '@page{size:A4;margin:8mm}body{margin:0}.sheet{display:grid;grid-template-columns:repeat(3,1fr);gap:0}.lb{height:36.5mm;display:flex;gap:2mm;align-items:center;padding:2mm;box-sizing:border-box;border:1px dashed #ccc;overflow:hidden;break-inside:avoid}.q svg{width:30mm;height:30mm}';
-  const bar = `<div class="noprint" style="padding:8px;background:#eef;margin-bottom:8px;font:13px system-ui">${cells.length} ${esc(T('labels'))} · <button onclick="print()">${esc(T('Print'))}</button></div>`;
+  const bar = `<div class="noprint" style="padding:8px;background:#eef;margin-bottom:8px;font:13px system-ui">${cells.length} ${esc(T('labels'))}</div>`;
   return `<!doctype html><html><head><meta charset="utf-8"><title>${esc(T('QR labels'))}</title><style>body{font:10px/1.25 system-ui,Arial,sans-serif;color:#000}.t{min-width:0;flex:1}.t b{font-size:11px;display:block;max-height:2.6em;overflow:hidden}.p{font-size:14px;font-weight:800;margin-top:1mm}.s{font:9px monospace}.m{font-size:8px;color:#333}.q{flex:none;line-height:0}${css}@media print{.noprint{display:none}.lb{border-color:transparent}}</style></head><body>${bar}<div class="sheet">${cells.join('') || `<p>${esc(T('No data yet'))}</p>`}</div></body></html>`;
 }

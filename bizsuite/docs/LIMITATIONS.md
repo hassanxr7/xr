@@ -21,8 +21,10 @@ This file is deliberately blunt. Nothing below is presented as finished anywhere
 - **Reserving spare parts** separately from consuming them – parts are consumed when the customer approves the estimate / work is in progress.
 - **Departments** – can be created per branch and enable extra modules (e.g. a repair desk inside a retail branch). Per-sale department selection and department-level reports are not built in the UI (the API stores `department_id`).
 - **Retail salesperson commission** – commission is implemented for barbers (per service line) and technicians (repair labour) only.
-- **Camera-based barcode scanning** – USB / Bluetooth "keyboard wedge" scanners work (scan → Enter). Phone-camera scanning is not implemented.
-- **Offline mode / PWA** – the app needs a connection.
+- **Native app-store apps** – there is no Play Store / App Store package. The phone app is the same system installed as a web app (PWA: home-screen icon, full screen, shortcuts). It needs a connection to sell; offline it only shows the cached screens.
+- **QR code per physical piece** – labels are per item *type* (SKU = product + size + colour), printed once per piece. Two identical shirts carry the same code. Phones/laptops keep their own serial/IMEI.
+- **Open orders do not reserve stock** – a basket sent to the manager takes stock only when it is completed; if the last piece is sold meanwhile, completing it reports *insufficient stock*. An order whose discount is above the completing manager's limit must be completed by the owner (it is refused, not sent for approval).
+- **Camera scanning** needs https and a browser with camera access (Chrome/Edge/Safari on phones and laptops). It uses the browser's BarcodeDetector where present (reads QR + common barcodes) and the bundled jsQR decoder elsewhere (QR only).
 - **Password reset by e-mail** – an administrator resets passwords. TOTP two-factor works; recovery codes are not implemented.
 - **Bank-statement import** – dashboard cash / mobile / bank balances are derived from recorded payments + opening balances; reconciliation is a manual tick-against-statement-total workflow.
 - **Tips** are recorded per visit, split between the visit's barbers when tips belong to the employee, and reported – but *paying* tips out is not modelled (they are not commission and not revenue).
@@ -41,7 +43,7 @@ This file is deliberately blunt. Nothing below is presented as finished anywhere
 - Automated browser checks: `npm run e2e` (key workflows) and `npm run e2e:sweep` (clicks every button on every page for all ten demo roles in English and Somali, submits every dialog form empty, checks phone-width overflow). Real-device checks (thermal printer, barcode scanner, phones) and the content checks in `TESTING.md` still need a human.
 
 ## Logo
-The Hubdex Store LTD logo was sent as an image in the chat; I could not extract the file itself, so `public/brand/logo.svg/.png` is a **vector re-creation** (cube with H/S, cyan arrow, HUBDEX, STORE LTD). It is close but not pixel-identical. Upload the original in *Settings → Branding* to replace it everywhere (receipts, PDFs, menu, sign-in).
+The Hubdex Store LTD logo was sent as an image in the chat; `public/brand/logo.png` is a re-creation of it with a **transparent background** in two colourings: white lettering (`logo.png`, dark theme) and navy lettering (`logo-light.png`, light theme, receipts, PDFs and labels); the app shows the one that matches the theme. App icons (`icon-192/512.png`) use the cube on the navy background. Uploading a logo in *Settings → Branding* replaces all of them (use a transparent PNG).
 
 ## Defects found by testing and fixed (so you know what the tests caught)
 1. Supplier payments were stored as *out* payments but summed as customer receipts → supplier balances wrong. Fixed (`netPaid` sign per party type) and covered by a test.

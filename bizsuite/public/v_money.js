@@ -1,4 +1,4 @@
-import { S, h, t, get, post, patch, download, openDoc, exportButtons, money, parseMoney, plain, can, sel, table, pill, dt, hashQ, label, busy, toast, errText, modal, formModal, confirmDlg, askReason, clear, pager, methodsAll, tabs, today, hundredth } from './core.js';
+import { S, h, t, get, post, patch, download, openDoc, exportButtons, money, parseMoney, plain, can, sel, table, pill, dt, hashQ, label, busy, toast, errText, modal, formModal, confirmDlg, askReason, clear, pager, methodsAll, tabs, today, hundredth, tx, exp, mulBp } from './core.js';
 import { saleDetail } from './v_sell.js';
 
 const presets = [['today', 'Today'], ['yesterday', 'Yesterday'], ['week', 'This week'], ['month', 'This month'], ['year', 'This year'], ['custom', 'Custom']];
@@ -64,8 +64,9 @@ export async function payments(r) {
 export async function commissions(r) {
   const q = { preset: 'month', tab: 'daily', ...r.q }; const set = (k, v) => { location.hash = hashQ('/commissions', { ...q, [k]: v }); }; const root = h('div', { class: 'stack' }); const all = can('commissions.viewall'); const reload = () => set('x', Date.now());
   const branches = S.user.branches.filter((b) => b.business_type === 'barber' || ['electronics_repair', 'electronics_combined'].includes(b.business_type)); const methods = await methodsAll();
-  root.append(h('div', { class: 'card row' }, h('h1', {}, t('Commissions')), h('span', { style: 'flex:1' }), all ? sel([{ value: '', label: t('All branches') }, ...branches.map((b) => ({ value: b.id, label: b.name }))], q.branch_id, (v) => set('branch_id', v)) : null, rangeSel(q, set)), tabs([['daily', 'Daily work'], ['report', 'Employee performance'], ['profit', 'Branch profit'], ['ledger', 'Ledger'], ['payouts', 'Payouts']].filter(([k]) => k !== 'profit' || can('profit.view')), q.tab, (k) => set('tab', k)));
+  root.append(h('div', { class: 'card row' }, h('h1', {}, t('Commissions')), h('span', { style: 'flex:1' }), all ? sel([{ value: '', label: t('All branches') }, ...branches.map((b) => ({ value: b.id, label: b.name }))], q.branch_id, (v) => set('branch_id', v)) : null, rangeSel(q, set)), tabs([['daily', 'Daily work'], ['report', 'Employee performance'], ['profit', 'Branch profit'], ['ledger', 'Ledger'], ['payouts', 'Payouts'], ['rates', 'Rates per barber']].filter(([k]) => (k !== 'profit' || can('profit.view')) && (k !== 'rates' || (can('staff.settings') && can('staff.edit')))), q.tab, (k) => set('tab', k)));
   const { from, to } = await resolveRange(q);
+  if (q.tab === 'rates') { root.append(await ratesTab(branches)); return root; }
   if (q.tab === 'daily') {
     const team = all ? (q.branch_id ? (await get('/branches/' + q.branch_id + '/team')).rows : []) : [];
     const d = await get('/commissions/daily', { branch_id: q.branch_id, employee_id: q.employee_id, from, to, preset: q.preset === 'custom' ? '' : q.preset });
@@ -113,3 +114,19 @@ export async function reports(r) {
   return root;
 }
 void saleDetail; void patch; void parseMoney; void plain; void busy; void clear; void confirmDlg;
+
+// Owner sets what each barber earns: a percentage of the service amount and/or a fixed fee per haircut/service.
+// New rates apply to services recorded from now on; past visits keep the rate stored on them.
+async function ratesTab(branches) {
+  const box = h('div', { class: 'stack' });
+  for (const b of branches.filter((x) => x.business_type === 'barber' || x.business_type === 'electronics_repair' || x.business_type === 'electronics_combined')) {
+    const team = (await get('/branches/' + b.id + '/team')).rows.filter((u) => u.id !== S.user.id && (['Barber', 'Technician'].includes(u.role) || u.commission_bp || u.commission_fixed));
+    const rows = team.map((u) => { const pct = h('input', { inputmode: 'decimal', value: (u.commission_bp || 0) / 100, style: 'width:80px', 'aria-label': t('Commission rate') }); const fx = h('input', { inputmode: 'decimal', value: plain(u.commission_fixed || 0, b.currency), style: 'width:90px', 'aria-label': t('Fixed fee per service') });
+      const ex = h('small', { class: 'muted' }); const show = () => { try { const p = Math.round(Number(pct.value) * 100), f = parseMoney(fx.value || '0', b.currency); const price = 10 * 10 ** exp(b.currency); ex.textContent = `${t('Example')}: ${money(price, b.currency)} → ${money(Math.min(price, mulBp(price, p) + f), b.currency)}`; } catch { ex.textContent = ''; } }; pct.oninput = fx.oninput = show; show();
+      const save = h('button', { class: 'btn s p' }, t('Save')); save.onclick = busy(save, async () => { const p = Number(pct.value); if (!(p >= 0 && p <= 100)) throw new Error(t('err.invalid_amount')); await patch('/users/' + u.id, { commission_bp: Math.round(p * 100), commission_fixed: parseMoney(fx.value || '0', b.currency) }); toast(t('Saved'), 'ok'); });
+      return { u, pct, fx, ex, save }; });
+    box.append(h('div', { class: 'card' }, h('h2', {}, b.name), table([{ label: 'Employee', f: (x) => [h('b', {}, x.u.name), ' ', h('small', { class: 'muted' }, tx(x.u.role))] }, { label: 'Commission rate', f: (x) => h('span', {}, x.pct, ' %') }, { label: 'Fixed fee per service', f: (x) => h('span', {}, x.fx, ' ', b.currency) }, { label: '', f: (x) => x.ex }, { label: '', f: (x) => x.save }], rows)));
+  }
+  box.append(h('small', { class: 'muted' }, t('Each barber earns the percentage of the service amount plus the fixed fee for every haircut/service, never more than the amount charged. New rates apply to services recorded from now on; earlier visits keep their rate. Every change is kept in the rate history.')));
+  return box;
+}
