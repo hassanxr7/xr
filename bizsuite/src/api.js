@@ -22,6 +22,7 @@ import { createBackup, listBackups } from './backup.js';
 import * as quo from './quotes.js';
 import * as ord from './orders.js';
 import * as shop from './shop.js';
+import * as bq from './queue.js';
 import { qrSvg } from './qr.js';
 import { barcodeSvg } from './barcode.js';
 import { fileURLToPath } from 'node:url';
@@ -126,7 +127,24 @@ export function createApi(db, { dataDir = './data', loginLimit = 10 } = {}) {
   on('POST', '/api/orders/:id/complete', (c, r) => ord.completeOrder(c, num(r.params.id), r.body));
   on('POST', '/api/orders/:id/cancel', (c, r) => ord.cancelOrder(c, num(r.params.id), r.body));
   on('GET', '/api/shop', (c, r) => rpt.shopBoard(c, r.query));
+  // one search box for everything the user may see: items (name, SKU, barcode), customers, sales/visits, repairs, orders
+  on('GET', '/api/search', (c, r) => {
+    const q = String(r.query.q || '').trim().slice(0, 60); if (q.length < 2) return { items: [], customers: [], sales: [], repairs: [], orders: [] };
+    const safe = (fn) => { try { return fn(); } catch { return []; } };
+    return {
+      items: c.can('products.view') ? safe(() => inv.listVariants(c, { q, limit: 6 }).rows.map((v) => ({ id: v.id, name: v.name, sku: v.sku, barcode: v.barcode, attrs: v.attrs, price: v.price, qty: v.qty, business_id: v.business_id }))) : [],
+      customers: c.can('customers.view') ? safe(() => fin.listCustomers(c, { q, limit: 5 }).rows.map((x) => ({ id: x.id, name: x.name, phone: x.phone }))) : [],
+      sales: c.can('sales.view') || c.can('services.view') ? safe(() => sales.listSales(c, { q, limit: 5 }).rows.map((x) => ({ id: x.id, ref: x.ref, kind: x.kind, total: x.total, currency: x.currency, customer_name: x.customer_name, business_date: x.business_date }))) : [],
+      repairs: c.can('repairs.view') ? safe(() => rep.listRepairs(c, { q, limit: 5 }).rows.map((x) => ({ id: x.id, ref: x.ref, customer_name: x.customer_name, status: x.status, model: x.model }))) : [],
+      orders: c.can('orders.create') || c.can('sales.approve') ? safe(() => ord.listOrders(c, {}).rows.filter((o) => o.ref.toLowerCase().includes(q.toLowerCase())).slice(0, 5).map((o) => ({ id: o.id, ref: o.ref, status: o.status, total: o.total, currency: o.currency }))) : [],
+    };
+  });
   on('POST', '/api/shop/stock-in', (c, r) => shop.stockIn(c, r.body));
+  on('GET', '/api/queue', (c, r) => bq.listQueue(c, r.query));
+  on('POST', '/api/queue', (c, r) => bq.addToQueue(c, r.body));
+  on('POST', '/api/queue/:id/start', (c, r) => bq.startTicket(c, num(r.params.id), r.body));
+  on('POST', '/api/queue/:id/finish', (c, r) => bq.finishTicket(c, num(r.params.id), r.body));
+  on('POST', '/api/queue/:id/leave', (c, r) => bq.leaveQueue(c, num(r.params.id)));
   on('POST', '/api/products', (c, r) => inv.createProduct(c, r.body));
   on('PATCH', '/api/products/:id', (c, r) => inv.updateProduct(c, num(r.params.id), r.body));
   on('POST', '/api/products/:id/variants', (c, r) => inv.addVariant(c, num(r.params.id), r.body));

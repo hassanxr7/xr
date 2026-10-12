@@ -1,5 +1,5 @@
 import { scanner } from './scan.js';
-import { S, h, t, tx, get, post, patch, api, money, parseMoney, plain, can, sel, table, pill, dt, hashQ, today, label, busy, toast, errText, modal, formModal, confirmDlg, askReason, loading, clear, pager, uuid, openDoc, mulBp, allocate, payRows, methodsAll, branchesOf, moduleOnBranch, route, tabs, ApiError, ccyOf, field, readForm } from './core.js';
+import { S, h, t, tx, icon, shareSaleWhatsApp, get, post, patch, api, money, parseMoney, plain, can, sel, table, pill, dt, hashQ, today, label, busy, toast, errText, modal, formModal, confirmDlg, askReason, loading, clear, pager, uuid, openDoc, mulBp, allocate, payRows, methodsAll, branchesOf, moduleOnBranch, route, tabs, ApiError, ccyOf, field, readForm } from './core.js';
 
 const regBanner = async (branch, onOpen) => {
   const { session } = await get('/registers/mine', { branch_id: branch.id }); if (!can('registers.create')) return h('span');
@@ -14,7 +14,7 @@ async function customerSelect(value, onChange) {
 }
 const submitSale = async (body, key, ok) => { const r = await post('/sales', body, { idem: key }); if (r.approval_required) { toast(t('Approval requested') + ': ' + r.summary, ''); return null; } ok(r); return r; };
 function doneModal(r, ccy, again) {
-  modal({ title: r.ref, body: h('div', { class: 'stack' }, h('div', { class: 'big' }, money(r.total, ccy)), h('div', {}, pill(r.payment_status), ` ${t('Paid')}: ${money(r.paid, ccy)}`)), actions: (close) => [h('button', { class: 'btn', onclick: () => openDoc('/print/sale/' + r.id, { mode: 'thermal' }) }, t('Thermal receipt')), h('button', { class: 'btn', onclick: () => openDoc('/print/sale/' + r.id, { mode: 'a4' }) }, t('A4 invoice')), h('button', { class: 'btn p', onclick: () => { close(); again(); } }, '+ ' + t('Sales'))] });
+  modal({ title: r.ref, body: h('div', { class: 'stack' }, h('div', { class: 'big' }, money(r.total, ccy)), h('div', {}, pill(r.payment_status), ` ${t('Paid')}: ${money(r.paid, ccy)}`)), actions: (close) => [h('button', { class: 'btn', onclick: () => shareSaleWhatsApp(r.id).catch((e) => toast(errText(e), 'bad')) }, icon('message-circle'), 'WhatsApp'), h('button', { class: 'btn', onclick: () => openDoc('/print/sale/' + r.id, { mode: 'thermal' }) }, t('Thermal receipt')), h('button', { class: 'btn', onclick: () => openDoc('/print/sale/' + r.id, { mode: 'a4' }) }, t('A4 invoice')), h('button', { class: 'btn p', onclick: () => { close(); again(); } }, '+ ' + t('Sales'))] });
 }
 
 export async function pos() {
@@ -83,6 +83,7 @@ export async function sales(r) {
   function qq() { const { page, ...x } = q; return { ...x, ...(q.preset && q.preset !== 'custom' ? {} : {}) }; }
   const { preset, ...api_q } = q; const resolved = preset && preset !== 'custom' ? { preset } : {}; const d = await get('/sales', { ...api_q, ...resolved });
   root.append(h('div', { class: 'card' }, h('div', { class: 'muted' }, `${d.total} ${t('Sales')}`), table([{ label: 'Reference', k: 'ref' }, { label: 'Date', k: 'business_date' }, { label: 'Branch', k: 'branch_name' }, { label: 'Customer', f: (x) => tx(x.customer_name) || '' }, { label: 'Total', r: 1, f: (x) => money(x.total, x.currency) }, { label: 'Paid', r: 1, f: (x) => money(x.paid, x.currency) }, { label: 'Status', f: (x) => [x.status === 'void' ? pill('void') : pill(x.payment_status), x.returned_total ? ' ↩' : ''] }], d.rows, { onRow: (x) => saleDetail(x.id, () => sales(r).then((e) => { const v = document.getElementById('view'); clear(v); v.append(e); })) }), pager(Number(q.page), d.total > Number(q.page) * Number(q.limit), (p) => set('page', p))));
+  if (q.open) setTimeout(() => saleDetail(Number(q.open), () => {}), 0); // opened from the global search
   return root;
 }
 export async function saleDetail(id, refresh) {
@@ -96,7 +97,7 @@ export async function saleDetail(id, refresh) {
     s.returns.length ? [h('h3', {}, t('Return')), table([{ label: 'Reference', k: 'ref' }, { label: 'Date', k: 'business_date' }, { label: 'Amount', r: 1, f: (x) => m(x.net + x.tax) }, { label: 'Reason', k: 'reason' }], s.returns)] : null);
   modal({ title: s.ref, wide: true, body, actions: (close) => {
     const done = () => { close(); refresh && refresh(); }; const a = [];
-    a.push(h('button', { class: 'btn', onclick: () => openDoc('/print/sale/' + id, { mode: 'thermal' }) }, t('Thermal receipt')), h('button', { class: 'btn', onclick: () => openDoc('/print/sale/' + id, { mode: 'a4' }) }, t('A4 invoice')));
+    a.push(h('button', { class: 'btn', onclick: () => shareSaleWhatsApp(id).catch((e) => toast(errText(e), 'bad')) }, icon('message-circle'), 'WhatsApp'), h('button', { class: 'btn', onclick: () => openDoc('/print/sale/' + id, { mode: 'thermal' }) }, t('Thermal receipt')), h('button', { class: 'btn', onclick: () => openDoc('/print/sale/' + id, { mode: 'a4' }) }, t('A4 invoice')));
     if (s.status === 'completed' && due > 0 && (can('payments.create') || can('sales.create') || can('services.create'))) a.push(h('button', { class: 'btn', onclick: () => formModal({ title: t('Add payment'), ccy, fields: [{ name: 'method_id', label: 'Payment method', type: 'select', num: true, options: methods.filter((x) => x.kind !== 'credit').map((x) => ({ value: x.id, label: x.name })) }, { name: 'amount', label: 'Amount', type: 'money', required: true }, { name: 'external_ref', label: 'Reference' }, { name: 'status', label: 'Status', type: 'select', options: [{ value: 'confirmed', label: t('Confirmed') }, { value: 'pending', label: t('Pending') }] }], initial: { amount: due }, submit: async (v) => { await post('/payments', { party_type: 'sale', party_id: id, ...v }); toast(t('Saved'), 'ok'); done(); } }) }, t('Add payment')));
     if (s.status === 'completed' && (can('sales.refund') || can('services.refund') || can('sales.view') || can('services.view')) && s.lines.some((l) => l.qty > l.returned_qty)) a.push(h('button', { class: 'btn', onclick: () => returnDialog(s, methods, done) }, t('Return')));
     if (s.status === 'completed' && (can('sales.void') || can('services.void'))) a.push(h('button', { class: 'btn d', onclick: async () => { const reason = await askReason(t('Void') + ' ' + s.ref); if (!reason) return; try { await post(`/sales/${id}/void`, { reason }); toast(t('Saved'), 'ok'); done(); } catch (e) { toast(errText(e), 'bad'); } } }, t('Void')));

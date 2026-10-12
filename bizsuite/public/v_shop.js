@@ -1,6 +1,6 @@
 // Shop-floor screens: the manager's one-page board (live), scan & sell (phone or laptop camera), baskets waiting for the
 // manager (orders) and QR item labels.
-import { S, h, t, tx, get, post, money, parseMoney, plain, can, sel, table, pill, dt, hashQ, busy, toast, errText, modal, formModal, clear, methodsAll, payRows, uuid, openDoc, lineChart, exportButtons, mulBp, loading, branchesOf, askReason } from './core.js';
+import { S, h, t, tx, get, post, money, parseMoney, plain, can, sel, table, pill, dt, hashQ, busy, toast, errText, modal, formModal, clear, methodsAll, payRows, uuid, openDoc, lineChart, exportButtons, mulBp, loading, branchesOf, askReason, icon, patch, shareSaleWhatsApp } from './core.js';
 import { scanner, cameraSupported } from './scan.js';
 
 const attrText = (a) => Object.values(a || {}).filter(Boolean).join(' / ');
@@ -25,12 +25,13 @@ export async function shop(r) {
   const root = h('div', { class: 'stack shopboard' }); const body = h('div', { class: 'stack' }, loading()); const stamp = h('small', { class: 'muted' });
   const go = (id) => { location.hash = hashQ('/shop', { branch_id: id }); };
   const actions = h('div', { class: 'actions' },
-    canSend() && S.user.modules.includes('sales') && b.business_type !== 'barber' ? h('a', { class: 'act', href: hashQ('/scan', { branch_id: b.id }) }, h('span', { class: 'ic' }, '📷'), t('Scan & sell')) : null,
-    (canComplete() || can('orders.create')) && S.user.modules.includes('sales') && b.business_type !== 'barber' ? h('a', { class: 'act', href: hashQ('/orders', { branch_id: b.id }) }, h('span', { class: 'ic' }, '🧾'), t('Orders waiting'), h('span', { class: 'pill warn', id: 'ordcount', style: 'display:none' })) : null,
-    b.business_type === 'barber' && (can('services.create') || can('services.view')) ? h('a', { class: 'act', href: '#/visits' }, h('span', { class: 'ic' }, '✂️'), t('Record a visit')) : null,
-    canStockIn(b) ? h('button', { class: 'act', onclick: () => stockInDialog(b, refresh) }, h('span', { class: 'ic' }, '📦'), t('Register new stock')) : null,
-    can('expenses.create') ? h('button', { class: 'act', onclick: () => expenseDialog(b, refresh) }, h('span', { class: 'ic' }, '💸'), t('Add expense')) : null,
-    can('products.view') && b.business_type !== 'barber' ? h('a', { class: 'act', href: hashQ('/labels', { branch_id: b.id }) }, h('span', { class: 'ic' }, '🏷️'), t('Price tags')) : null);
+    canSend() && S.user.modules.includes('sales') && b.business_type !== 'barber' ? h('a', { class: 'act', href: hashQ('/scan', { branch_id: b.id }) }, h('span', { class: 'ic' }, icon('maximize')), t('Scan & sell')) : null,
+    (canComplete() || can('orders.create')) && S.user.modules.includes('sales') && b.business_type !== 'barber' ? h('a', { class: 'act', href: hashQ('/orders', { branch_id: b.id }) }, h('span', { class: 'ic' }, icon('inbox')), t('Orders waiting'), h('span', { class: 'pill warn', id: 'ordcount', style: 'display:none' })) : null,
+    b.business_type === 'barber' && (can('services.create') || can('services.view')) ? h('a', { class: 'act', href: hashQ('/queue', { branch_id: b.id }) }, h('span', { class: 'ic' }, icon('clock')), t('Waiting queue')) : null,
+    b.business_type === 'barber' && (can('services.create') || can('services.view')) ? h('a', { class: 'act', href: '#/visits' }, h('span', { class: 'ic' }, icon('scissors')), t('Record a visit')) : null,
+    canStockIn(b) ? h('button', { class: 'act', onclick: () => stockInDialog(b, refresh) }, h('span', { class: 'ic' }, icon('package')), t('Register new stock')) : null,
+    can('expenses.create') ? h('button', { class: 'act', onclick: () => expenseDialog(b, refresh) }, h('span', { class: 'ic' }, icon('trending-down')), t('Add expense')) : null,
+    can('products.view') && b.business_type !== 'barber' ? h('a', { class: 'act', href: hashQ('/labels', { branch_id: b.id }) }, h('span', { class: 'ic' }, icon('tag')), t('Price tags')) : null);
   root.append(h('div', { class: 'card row', style: `border-left:6px solid ${b.color || 'var(--brand)'}` }, h('div', {}, h('h1', { style: 'margin:0' }, b.name), h('small', { class: 'muted' }, t('My shop'), ' · ', h('span', { class: 'live' }, '●'), ' ', t('Live'), ' · ', stamp)), h('span', { style: 'flex:1' }),
     myBranches().length > 1 ? sel(myBranches().map((x) => ({ value: x.id, label: x.name })), b.id, go, { 'aria-label': t('Branch') }) : null), actions, body);
   async function refresh() {
@@ -61,7 +62,8 @@ function draw(d, b, refresh) {
     ...((d.barbers_today || [])[0]?.commission !== undefined ? [{ label: 'Rate', r: 1, f: (x) => [x.commission_bp ? pct(x.commission_bp) : '', x.commission_bp && x.commission_fixed ? ' + ' : '', x.commission_fixed ? m(x.commission_fixed) : ''] }, { label: 'Commission', r: 1, f: (x) => m(x.commission) }, { label: 'Retained by business', r: 1, f: (x) => m(x.income - x.commission) }] : [])], d.barbers_today || []), h('a', { href: '#/commissions' }, t('Daily work and commissions') + ' →')));
   if (d.running_out || d.slow_movers) out.push(h('div', { class: 'grid g2' },
     d.running_out ? h('div', { class: 'card' }, h('h3', {}, '🔴 ', t('Running out')), d.running_out.length ? h('div', { class: 'stack' }, d.running_out.map((x) => h('div', { class: 'row sb line' }, h('span', {}, x.name, ' ', h('small', { class: 'muted' }, x.sku)), h('span', { class: 'pill ' + (x.qty === 0 ? 'bad' : 'warn') }, x.qty === 0 ? t('Out of stock') : `${x.qty} ${t('left')}`)))) : h('div', { class: 'empty' }, t('Nothing is running out')), canStockIn(b) ? h('button', { class: 'btn s', style: 'margin-top:8px', onclick: () => stockInDialog(b, refresh) }, '+ ' + t('Register new stock')) : null) : null,
-    d.slow_movers ? h('div', { class: 'card' }, h('h3', {}, '🏷️ ', t('Not selling - consider a discount')), h('small', { class: 'muted' }, t('In stock, little or no sales in the last 30 days')), d.slow_movers.length ? h('div', { class: 'stack', style: 'margin-top:6px' }, d.slow_movers.map((x) => h('div', { class: 'row sb line' }, h('span', {}, x.name, h('br'), h('small', { class: 'muted' }, `${x.qty} ${t('in stock')} · ${t('sold')} ${x.sold} · ${x.days_idle} ${t('days without a sale')}${x.max_discount_bp ? ` · ${t('max discount')} ${pct(x.max_discount_bp)}` : ''}`)), h('span', { class: 'pill ' + (x.suggestion === 'Discount now' ? 'bad' : 'warn') }, t(x.suggestion))))) : h('div', { class: 'empty' }, t('Everything is selling'))) : null));
+    d.slow_movers ? h('div', { class: 'card' }, h('h3', {}, '🏷️ ', t('Not selling - consider a discount')), h('small', { class: 'muted' }, t('In stock, little or no sales in the last 30 days')), d.slow_movers.length ? h('div', { class: 'stack', style: 'margin-top:6px' }, d.slow_movers.map((x) => h('div', { class: 'row sb line' }, h('span', {}, x.name, h('br'), h('small', { class: 'muted' }, `${x.qty} ${t('in stock')} · ${t('sold')} ${x.sold} · ${x.days_idle} ${t('days without a sale')}${x.max_discount_bp ? ` · ${t('max discount')} ${pct(x.max_discount_bp)}` : ''}`)), h('span', { class: 'row' }, h('span', { class: 'pill ' + (x.suggestion === 'Discount now' ? 'bad' : 'warn') }, t(x.suggestion)), can('products.edit') ? h('button', { class: 'btn s', onclick: () => markDown(x, b, refresh) }, icon('tag'), t('Mark down')) : null)))) : h('div', { class: 'empty' }, t('Everything is selling'))) : null));
+  if (d.reorder) out.push(reorderCard(d, b, refresh));
   if (d.potential) { const p = d.potential; out.push(h('div', { class: 'card' }, h('div', { class: 'row sb' }, h('h3', { style: 'margin:0' }, t('What your stock should earn')), h('a', { href: hashQ('/reports/profit_potential', { branch_id: b.id }) }, t('Full list') + ' →')),
     h('div', { class: 'grid g4', style: 'margin:8px 0' }, kpi('Pieces in stock', String(p.units)), kpi('Stock cost', m(p.stock_cost)), kpi('Value at selling price', m(p.at_full_price)), p.profit_full !== undefined ? kpi('Expected profit', m(p.profit_full), 'pos', `${t('at max discount')}: ${m(p.profit_min)}`) : null),
     table([{ label: 'Item', f: (x) => [x.name, h('br'), h('small', { class: 'muted' }, x.sku)] }, { label: 'On hand', r: 1, k: 'qty' }, { label: 'Cost', r: 1, f: (x) => m(x.cost) }, { label: 'Price', r: 1, f: (x) => m(x.price) }, { label: 'Max discount', r: 1, f: (x) => (x.max_discount ? x.max_discount + '%' : '—') }, ...(p.top[0] && p.top[0].unit_profit !== undefined ? [{ label: 'Profit per piece', r: 1, f: (x) => m(x.unit_profit) }, { label: 'At max discount', r: 1, f: (x) => m(x.unit_profit_min) }, { label: 'Expected profit', r: 1, f: (x) => h('b', {}, m(x.total_profit)) }] : [])], p.top))); }
@@ -167,7 +169,30 @@ function payDialog({ branch, total, title, submit }) {
     modal({ title, body: h('div', { class: 'stack' }, h('div', { class: 'big' }, money(total, branch.currency)), pr.el), actions: (close) => { const ok = h('button', { class: 'btn p' }, t('Complete sale')); ok.onclick = busy(ok, async () => { await submit(pr.read(), key); close(); }); return [h('button', { class: 'btn', onclick: close }, t('Cancel')), ok]; } }); });
 }
 function receipt(r, ccy) {
-  modal({ title: r.ref, body: h('div', { class: 'stack' }, h('div', { class: 'big' }, money(r.total, ccy)), h('div', {}, pill(r.payment_status), ` ${t('Paid')}: ${money(r.paid, ccy)}`)), actions: (close) => [h('button', { class: 'btn', onclick: () => openDoc('/print/sale/' + r.id, { mode: 'thermal' }) }, t('Thermal receipt')), h('button', { class: 'btn p', onclick: close }, t('OK'))] });
+  modal({ title: r.ref, body: h('div', { class: 'stack' }, h('div', { class: 'big' }, money(r.total, ccy)), h('div', {}, pill(r.payment_status), ` ${t('Paid')}: ${money(r.paid, ccy)}`)), actions: (close) => [h('button', { class: 'btn', onclick: () => shareSaleWhatsApp(r.id).catch((e) => toast(errText(e), 'bad')) }, icon('message-circle'), 'WhatsApp'), h('button', { class: 'btn', onclick: () => openDoc('/print/sale/' + r.id, { mode: 'thermal' }) }, t('Thermal receipt')), h('button', { class: 'btn p', onclick: close }, t('OK'))] });
+}
+
+// Slow seller: lower the price (the old price is printed struck through on the new tag) and print new tags
+function markDown(x, b, done) {
+  const ccy = b.currency; const suggested = x.max_discount_bp ? x.price - mulBp(x.price, x.max_discount_bp) : Math.round(x.price * 0.9);
+  formModal({ title: `${t('Mark down')} · ${x.name}`, ccy, fields: [{ name: 'price', label: 'New price', type: 'money', required: true }], initial: { price: suggested }, label: 'Save and print tags',
+    submit: async (v) => { if (v.price >= x.price) throw new Error(t('The new price must be lower than the current price')); await patch('/variants/' + x.variant_id, { price: v.price, markdown: true }); toast(t('Saved'), 'ok'); done && done(); printTags([x.variant_id], b.id, { title: `${x.name} · ${t('Print price tags')}` }); } });
+}
+// What to buy: suggested quantities from the last 30 days of sales; turns into a purchase order for the supplier
+function reorderCard(d, b, refresh) {
+  const m = (v) => money(v, d.branch.currency); const rows = d.reorder;
+  const po = can('purchases.create') && rows.length ? h('button', { class: 'btn s p', onclick: () => purchaseFromReorder(rows, b, refresh) }, icon('truck'), t('Create purchase order')) : null;
+  return h('div', { class: 'card' }, h('div', { class: 'row sb' }, h('h3', { style: 'margin:0' }, t('Order soon')), h('span', { class: 'row' }, po, h('a', { href: hashQ('/reports/reorder', { branch_id: b.id }) }, t('Full list') + ' →'))),
+    h('small', { class: 'muted' }, t('Based on the last 30 days of sales: enough for about 30 days plus your minimum stock.')),
+    table([{ label: 'Item', f: (x) => [x.name, h('br'), h('small', { class: 'muted' }, x.sku)] }, { label: 'On hand', r: 1, k: 'qty' }, { label: 'Sold in 30 days', r: 1, k: 'sold_30' }, { label: 'Days of stock left', r: 1, f: (x) => (x.days_left === '' ? '—' : h('span', { class: 'pill ' + (x.days_left < 7 ? 'bad' : 'warn') }, x.days_left)) }, { label: 'Suggested order', r: 1, f: (x) => h('b', {}, x.suggested) }, ...(rows[0]?.est_cost !== undefined ? [{ label: 'Estimated cost', r: 1, f: (x) => m(x.est_cost) }] : []), { label: 'Last supplier', k: 'supplier' }], rows, { empty: t('Nothing needs ordering') }));
+}
+async function purchaseFromReorder(rows, b, done) {
+  const sups = (await get('/suppliers')).rows; if (!sups.length) throw new Error(t('Add a supplier first'));
+  const bySup = rows[0].supplier_id || sups[0].id; const sup = sel(sups.map((s) => ({ value: s.id, label: s.name })), bySup, null, { 'aria-label': t('Supplier') });
+  const inputs = rows.map((x) => ({ x, q: h('input', { type: 'number', min: 0, value: x.suggested, style: 'width:80px', 'aria-label': x.name }) }));
+  modal({ title: t('Create purchase order'), wide: true, body: h('div', { class: 'stack' }, h('label', { class: 'f' }, t('Supplier'), sup), table([{ label: 'Item', f: (r) => r.x.name }, { label: 'On hand', r: 1, f: (r) => r.x.qty }, { label: 'Quantity', r: 1, f: (r) => r.q }], inputs), h('small', { class: 'muted' }, t('The order is saved as "ordered"; receive it in Purchases when the goods arrive.'))),
+    actions: (close) => { const ok = h('button', { class: 'btn p' }, t('Save')); ok.onclick = busy(ok, async () => { const lines = inputs.filter((r) => Number(r.q.value) > 0).map((r) => ({ variant_id: r.x.variant_id, qty: Number(r.q.value), unit_cost: r.x.unit_cost || 0 })); if (!lines.length) throw new Error(t('Select at least one item'));
+      const p = await post('/purchases', { branch_id: b.id, supplier_id: Number(sup.value), lines }); close(); toast(t('Purchase order saved'), 'ok'); done && done(); location.hash = hashQ('/purchases', { open: p.id }); }); return [h('button', { class: 'btn', onclick: close }, t('Cancel')), ok]; } });
 }
 
 // ---------------------------------------------------------------- orders waiting for the manager

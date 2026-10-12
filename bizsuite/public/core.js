@@ -1,4 +1,5 @@
 import { so } from './i18n.js';
+import { ICONS } from './icons.js';
 // Element.append ignores null/false and flattens arrays, so conditional children never render as the text "null".
 const _append = Element.prototype.append; Element.prototype.append = function (...a) { return _append.apply(this, a.flat(Infinity).filter((x) => x != null && x !== false)); };
 export const S = { brand: { name: 'Hubdex Store LTD', has_logo: false }, user: null, token: sessionStorage.getItem('tok'), lang: localStorage.getItem('lang') || 'en', theme: localStorage.getItem('theme') || 'auto', methods: [] };
@@ -15,6 +16,12 @@ export function h(tag, props, ...kids) {
   kids.forEach(add); return e;
 }
 export const $ = (s, r = document) => r.querySelector(s);
+// line icon (Feather set) as inline SVG; decorative unless a label is given
+export function icon(name, label) {
+  const e = document.createElementNS('http://www.w3.org/2000/svg', 'svg'); e.setAttribute('viewBox', '0 0 24 24'); e.setAttribute('class', 'ico');
+  if (label) { e.setAttribute('role', 'img'); e.setAttribute('aria-label', label); } else e.setAttribute('aria-hidden', 'true');
+  e.innerHTML = ICONS[name] || ''; return e;
+}
 export const clear = (el) => { while (el.firstChild) el.removeChild(el.firstChild); return el; };
 
 // ---- money (integers in minor units; string parsing only) ----
@@ -153,4 +160,15 @@ export function exportButtons(path, params, base) {
   const ok = can('reports.export') || can('commissions.export') || can('expenses.export') || can('inventory.export') || can('sales.export');
   const b = (fmt, ext, text) => h('button', { class: 'btn', onclick: () => download(path, { ...params, format: fmt }, `${base}.${ext}`).catch((e) => toast(errText(e), 'bad')) }, text);
   return h('div', { class: 'row' }, ok ? [b('csv', 'csv', t('Export CSV')), b('xlsx', 'xlsx', t('Export Excel')), b('pdf', 'pdf', t('Export PDF'))] : null, ok || can('reports.print') ? h('button', { class: 'btn', onclick: () => openDoc(path, { ...params, format: 'html' }) }, t('Print')) : null);
+}
+
+// WhatsApp share (no API, no cost): opens WhatsApp with the text ready; Somali mobile numbers get the 252 country code.
+export function waNumber(phone) { let d = String(phone || '').replace(/\D/g, ''); if (!d) return ''; if (d.startsWith('00')) d = d.slice(2); if (d.startsWith('0')) d = '252' + d.slice(1); else if (/^6\d{8}$/.test(d)) d = '252' + d; return d; }
+export function openWhatsApp(phone, text) { const n = waNumber(phone); window.open(`https://wa.me/${n}?text=${encodeURIComponent(text)}`, '_blank', 'noopener'); }
+export async function shareSaleWhatsApp(id) {
+  const s = await get('/sales/' + id); const m = (v) => money(v, s.currency);
+  const lines = s.lines.map((l) => `• ${l.description}${l.qty > 1 ? ' × ' + l.qty : ''} — ${m(l.net + (l.tax || 0))}`);
+  const due = s.total - s.returned_total - s.paid;
+  const text = [`*${s.receipt_header || S.user?.org?.name || S.brand.name}* · ${s.branch_name}`, `${t(s.kind === 'service' ? 'Visit' : 'Receipt')} ${s.ref} · ${s.business_date}`, '', ...lines, '', `${t('Total')}: *${m(s.total)}*`, `${t('Paid')}: ${m(s.paid)}`, ...(due > 0 ? [`${t('Balance due')}: *${m(due)}*`] : []), '', t(s.receipt_footer || 'Thank you')].join('\n');
+  openWhatsApp(s.customer_phone, text);
 }

@@ -1,4 +1,4 @@
-import { S, h, $, clear, t, tx, get, post, toast, errText, setTheme, setLang, can, modal, busy, loading, dt, route, brandLogo, loadBrand, langSwitch, langChosen } from './core.js';
+import { S, h, $, clear, t, tx, get, post, toast, errText, setTheme, setLang, can, modal, busy, loading, dt, route, brandLogo, loadBrand, langSwitch, langChosen, icon, money, hashQ } from './core.js';
 import { views } from './views.js';
 
 setTheme(S.theme); setLang(S.lang, false);
@@ -18,29 +18,33 @@ async function boot() {
 function loginView(totp) {
   clear(app);
   const email = h('input', { type: 'email', autocomplete: 'username', required: true, 'aria-label': t('Email') }); const pw = h('input', { type: 'password', autocomplete: 'current-password', required: true, 'aria-label': t('Password') }); const code = h('input', { inputmode: 'numeric', autocomplete: 'one-time-code', maxlength: 6, placeholder: '123456' });
-  const btn = h('button', { class: 'btn p', style: 'width:100%;justify-content:center' }, t('Sign in')); const err = h('p', { class: 'muted', style: 'color:var(--bad)', role: 'alert' });
-  const form = h('form', { class: 'stack', onsubmit: (e) => e.preventDefault() }, h('div', { class: 'row', style: 'justify-content:flex-end' }, langSel()), brandLogo(), h('label', { class: 'f' }, t('Email'), email), h('label', { class: 'f' }, t('Password'), pw), totp ? h('label', { class: 'f' }, t('Authentication code'), code) : null, err, btn);
+  const btn = h('button', { class: 'btn p', style: 'width:100%;justify-content:center;min-height:44px' }, t('Sign in')); const err = h('p', { class: 'muted', style: 'color:var(--bad);margin:0', role: 'alert' });
+  const form = h('form', { class: 'stack', onsubmit: (e) => e.preventDefault() }, h('div', { class: 'row sb' }, h('h1', {}, t('Sign in')), langSel()), h('p', { class: 'muted', style: 'margin:4px 0 6px' }, t('Welcome back. Use the account your manager gave you.')),
+    h('label', { class: 'f' }, t('Email'), email), h('label', { class: 'f' }, t('Password'), pw), totp ? h('label', { class: 'f' }, t('Authentication code'), code) : null, err, btn);
   btn.onclick = async () => { err.textContent = ''; btn.disabled = true; try { const r = await post('/auth/login', { email: email.value, password: pw.value, totp: code.value || undefined }); S.token = r.token; sessionStorage.setItem('tok', r.token); boot(); } catch (e) { if (e.code === 'totp_required') { loginView(true); return; } err.textContent = errText(e); } finally { btn.disabled = false; } };
-  app.append(h('div', { class: 'login' }, h('div', { class: 'card' }, form))); email.focus();
+  const shops = (S.brand.tagline || '').split(/·|\|/).map((x) => x.trim()).filter(Boolean);
+  const hero = h('div', { class: 'hero' }, h('div', {}, h('span', { class: 'logoswap' }, h('img', { class: 'brandlogo', src: '/api/branding/logo?v=' + (S.brand.v || 0), alt: S.brand.name })), h('h2', {}, t('Every shop, every sale, every barber - in one place.')), h('p', {}, t('Sales, stock with shop barcodes, barber work and commissions, expenses and profit for each branch, live for the owner.')), shops.length ? h('div', { class: 'shops' }, shops.map((x) => h('span', {}, x))) : null), h('small', {}, S.brand.name));
+  app.append(h('div', { class: 'login' }, S.brand.has_logo ? hero : h('div', { class: 'hero' }, h('h2', {}, S.brand.name)), h('div', { class: 'pane' }, h('div', { class: 'card' }, h('div', { class: 'mobilelogo' }, brandLogo()), form)))); email.focus();
 }
 const langSel = () => langSwitch((v) => { setLang(v); if (S.token && S.user && !S.user.platform) { S.user.lang = v; post('/auth/lang', { lang: v }).catch(() => {}); } S.token && S.user ? (shell(), render()) : loginView(); });
 
 // where each person lands: owners/accountants on the group dashboard, branch managers on their shop board,
 // sales assistants on the scanner, barbers on their own day
 function home() {
-  const u = S.user; if (u.scope === 'org') return '/dashboard';
-  if (can('sales.approve') || can('services.approve')) return '/shop';
-  if (can('orders.create') && !can('sales.create') && u.modules.includes('sales')) return '/scan';
-  return can('dashboard.view') ? '/shop' : '/dashboard';
+  const u = S.user; const has = (p) => NAV().some((i) => i.path === p);
+  const order = u.scope === 'org' ? ['/dashboard', '/shop'] : can('sales.approve') || can('services.approve') ? ['/shop', '/dashboard']
+    : can('orders.create') && !can('sales.create') ? ['/scan', '/shop'] : can('sales.create') ? ['/pos', '/scan', '/visits', '/shop'] : can('services.create') ? ['/visits', '/shop'] : ['/shop', '/repairs', '/commissions', '/dashboard'];
+  return order.find(has) || NAV()[0]?.path || '/dashboard';
 }
+const NAV_ICONS = { '/dashboard': 'grid', '/shop': 'home', '/scan': 'maximize', '/orders': 'inbox', '/pos': 'shopping-cart', '/visits': 'scissors', '/queue': 'clock', '/quotes': 'file-text', '/sales': 'list', '/repairs': 'tool', '/inventory': 'package', '/transfers': 'repeat', '/purchases': 'truck', '/devices': 'smartphone', '/labels': 'tag', '/reorder': 'refresh-cw', '/customers': 'users', '/suppliers': 'briefcase', '/expenses': 'trending-down', '/registers': 'archive', '/payments': 'credit-card', '/commissions': 'percent', '/reports': 'bar-chart-2', '/approvals': 'check-circle', '/staff': 'user-check', '/roles': 'shield', '/organisation': 'layers', '/settings': 'settings', '/audit': 'activity', '/platform': 'layers' };
 const NAV = () => {
   const u = S.user; const m = (x) => u.modules.includes(x); const items = [];
-  const add = (grp, path, label, ok) => { if (ok) items.push({ grp, path, label }); };
+  const add = (grp, path, label, ok) => { if (ok) items.push({ grp, path, label, icon: NAV_ICONS[path] }); };
   add('', '/dashboard', 'Dashboard', can('dashboard.view') && (u.scope === 'org' || !can('sales.approve')));
   add('', '/shop', 'My shop', can('dashboard.view'));
   add('Sell', '/scan', 'Scan & sell', (can('orders.create') || can('sales.create')) && m('sales'));
   add('Sell', '/orders', 'Orders', (can('orders.create') || can('sales.approve')) && m('sales'));
-  add('Sell', '/pos', 'Point of sale', can('sales.create') && m('sales')); add('Sell', '/visits', 'Barber visits', (can('services.create') || can('services.view')) && m('services'));
+  add('Sell', '/pos', 'Point of sale', can('sales.create') && m('sales')); add('Sell', '/visits', 'Barber visits', (can('services.create') || can('services.view')) && m('services')); add('Sell', '/queue', 'Waiting queue', (can('services.create') || can('services.view')) && m('services'));
   add('Sell', '/quotes', 'Quotations', can('sales.view') && m('sales')); add('Sell', '/sales', 'Sales', can('sales.view') && m('sales') || can('services.view') && m('services')); add('Sell', '/repairs', 'Repairs', can('repairs.view') && m('repairs'));
   add('Stock', '/inventory', 'Inventory', can('products.view') && (m('inventory') || m('products'))); add('Stock', '/transfers', 'Transfers', can('inventory.view') && m('inventory')); add('Stock', '/purchases', 'Purchases', can('purchases.view') && m('purchases')); add('Stock', '/devices', 'Devices', can('devices.view') && m('devices')); add('Stock', '/labels', 'Price tags', can('products.view') && m('products'));
   add('People', '/customers', 'Customers', can('customers.view')); add('People', '/suppliers', 'Suppliers', can('suppliers.view'));
@@ -53,19 +57,53 @@ const NAV = () => {
 let bell;
 function shell() {
   clear(app); if (S.user.platform) { return app.append(h('div', { class: 'main' }, topbar(), h('div', { class: 'content', id: 'view' }))); }
-  let last = null; const nav = h('nav', { class: 'nav', 'aria-label': 'Main' }, NAV().map((i) => { const a = [i.grp !== last ? h('div', { class: 'grp' }, i.grp ? t(i.grp) : null) : null, h('a', { href: '#' + i.path, 'data-path': i.path }, t(i.label))]; last = i.grp; return a; }));
+  const items = NAV(); let last = null;
+  const nav = h('nav', { class: 'nav', 'aria-label': t('Menu') }, items.map((i) => { const a = [i.grp !== last ? h('div', { class: 'grp' }, i.grp ? t(i.grp) : null) : null, h('a', { href: '#' + i.path, 'data-path': i.path }, icon(i.icon || 'chevron-right'), h('span', {}, t(i.label)))]; last = i.grp; return a; }));
   const side = h('aside', { class: 'side', id: 'side' }, h('a', { class: 'brand', href: '#' + home(), 'aria-label': S.brand.name }, brandLogo()), nav);
-  app.append(h('div', { class: 'shell' }, side, h('div', { class: 'main' }, topbar(side), h('div', { class: 'content', id: 'view' }))));
+  // phones: the four most used screens of this role at the bottom, everything else in the menu
+  const pick = [home(), ...['/scan', '/queue', '/visits', '/orders', '/pos', '/sales', '/inventory', '/reports'].filter((p) => p !== home())].filter((p, k, arr) => arr.indexOf(p) === k && items.some((i) => i.path === p)).slice(0, 4);
+  const bottom = h('nav', { class: 'bottomnav', 'aria-label': t('Quick menu') }, pick.map((p) => { const i = items.find((x) => x.path === p); return h('a', { href: '#' + p, 'data-path': p }, icon(i.icon), h('span', {}, t(i.label))); }), h('button', { type: 'button', onclick: () => side.classList.toggle('open') }, icon('menu'), h('span', {}, t('Menu'))));
+  app.append(h('div', { class: 'shell' }, side, h('div', { class: 'main' }, topbar(side), h('div', { class: 'content', id: 'view', tabindex: '-1' }))), bottom);
   side.addEventListener('click', (e) => { if (e.target.closest('a')) side.classList.remove('open'); });
 }
 function topbar(side) {
-  bell = h('button', { class: 'btn', 'aria-label': t('Notifications'), onclick: showNotifs }, '🔔', h('span', { id: 'nbadge', class: 'pill bad', style: 'display:none' }));
-  const theme = h('button', { class: 'btn', title: t('Dark mode'), 'aria-label': t('Dark mode'), onclick: () => { const dark = document.documentElement.getAttribute('data-theme') === 'dark' || (S.theme === 'auto' && matchMedia('(prefers-color-scheme: dark)').matches); setTheme(dark ? 'light' : 'dark'); } }, '◐');
+  bell = h('button', { class: 'btn iconbtn', title: t('Notifications'), 'aria-label': t('Notifications'), onclick: showNotifs }, icon('bell'), h('span', { id: 'nbadge', class: 'pill bad', style: 'display:none' }));
+  const isDark = () => document.documentElement.getAttribute('data-theme') === 'dark' || (S.theme === 'auto' && matchMedia('(prefers-color-scheme: dark)').matches);
+  const theme = h('button', { class: 'btn iconbtn', title: t('Dark mode'), 'aria-label': t('Dark mode'), onclick: () => { setTheme(isDark() ? 'light' : 'dark'); theme.replaceChildren(icon(isDark() ? 'sun' : 'moon')); } }, icon(isDark() ? 'sun' : 'moon'));
   const ro = S.user.read_only ? h('span', { class: 'pill warn' }, t('Read-only support session')) : null;
+  const initials = (S.user.name || '?').split(/\s+/).filter((x) => /^[A-Za-z]/.test(x)).slice(0, 2).map((x) => x[0].toUpperCase()).join('') || '?';
   setTimeout(pollNotifs, 300);
-  return h('div', { class: 'top' }, side ? h('button', { class: 'btn burger', 'aria-label': 'Menu', onclick: () => side.classList.toggle('open') }, '☰') : null, h('b', {}, S.user.org?.name || S.brand.name), S.user.branches && S.user.branches.length <= 4 ? S.user.branches.map((b) => h('span', { class: 'chip', title: b.name }, h('i', { style: `background:${b.color || 'var(--brand)'}` }), b.name)) : null, ro, h('span', { class: 'sp' }), installButton(), S.user.platform ? null : bell, langSel(), theme,
-    h('button', { class: 'btn', onclick: userMenu }, S.user.name, ' ', h('small', {}, tx(S.user.role) || (S.user.platform ? 'Platform' : ''))));
+  return h('div', { class: 'top' }, side ? h('button', { class: 'btn iconbtn burger', 'aria-label': t('Menu'), onclick: () => side.classList.toggle('open') }, icon('menu')) : null,
+    h('span', { class: 'org' }, S.user.org?.name || S.brand.name), S.user.branches && S.user.branches.length <= 4 ? S.user.branches.map((b) => h('span', { class: 'chip', title: b.name }, h('i', { style: `background:${b.color || 'var(--brand)'}` }), b.name)) : null, ro, h('span', { class: 'sp' }),
+    S.user.platform ? null : searchBox(), installButton(), S.user.platform ? null : bell, langSel(), theme,
+    h('button', { class: 'btn userbtn', onclick: userMenu, 'aria-label': S.user.name }, h('span', { class: 'avatar' }, initials), h('span', { class: 'nm' }, S.user.name.replace(/\s*\(.*\)$/, '')), h('small', {}, tx(S.user.role) || (S.user.platform ? 'Platform' : ''))));
 }
+// Global search (Ctrl+K or /): items by name, SKU or barcode, customers, sales and visits, repairs, orders
+function searchBox() {
+  const input = h('input', { type: 'search', placeholder: t('Search items, barcodes, customers, sales…'), 'aria-label': t('Search'), autocomplete: 'off' }); const box = h('div', { class: 'gresults', style: 'display:none', role: 'listbox' });
+  const wrap = h('div', { class: 'gsearch' }, icon('search'), input, h('kbd', {}, 'Ctrl K'), box); let timer = null, seq = 0;
+  const close = () => { box.style.display = 'none'; };
+  const go = (href) => { close(); input.value = ''; location.hash = href; };
+  async function run() {
+    const q = input.value.trim(); if (q.length < 2) return close(); const my = ++seq; let r; try { r = await get('/search', { q }); } catch { return; } if (my !== seq) return;
+    const grp = (label, rows, f) => (rows.length ? [h('div', { class: 'grp' }, t(label)), ...rows.map(f)] : []);
+    const att = (a) => { try { return Object.values(typeof a === 'string' ? JSON.parse(a) : a || {}).join(' / '); } catch { return ''; } };
+    const el = [
+      ...grp('Items', r.items, (x) => h('a', { href: '#', onclick: (e) => { e.preventDefault(); go(hashQ('/inventory', { q: x.sku })); } }, h('span', {}, h('b', {}, x.name), ' ', h('small', { class: 'muted' }, [att(x.attrs), x.sku].filter(Boolean).join(' · '))), h('small', {}, `${x.qty} · ${money(x.price, S.user.branches.find((b) => b.business_id === x.business_id)?.currency || 'USD')}`))),
+      ...grp('Customers', r.customers, (x) => h('a', { href: '#', onclick: (e) => { e.preventDefault(); go(hashQ('/customers', { q: x.name })); } }, h('span', {}, x.name), h('small', {}, x.phone || ''))),
+      ...grp('Sales', r.sales, (x) => h('a', { href: '#', onclick: (e) => { e.preventDefault(); go(hashQ('/sales', { q: x.ref, preset: 'custom', open: x.id })); } }, h('span', {}, h('b', {}, x.ref), ' ', h('small', { class: 'muted' }, tx(x.customer_name) || '')), h('small', {}, money(x.total, x.currency)))),
+      ...grp('Repairs', r.repairs, (x) => h('a', { href: '#', onclick: (e) => { e.preventDefault(); go(hashQ('/repairs', { q: x.ref })); } }, h('span', {}, h('b', {}, x.ref), ' ', h('small', { class: 'muted' }, x.customer_name || '')), h('small', {}, t(x.status)))),
+      ...grp('Orders', r.orders, (x) => h('a', { href: '#', onclick: (e) => { e.preventDefault(); go(hashQ('/orders', { status: '' })); } }, h('span', {}, h('b', {}, x.ref)), h('small', {}, money(x.total, x.currency)))),
+    ];
+    clear(box); box.append(...(el.length ? el : [h('div', { class: 'empty', style: 'border:0' }, t('Nothing found'))])); box.style.display = '';
+  }
+  input.addEventListener('input', () => { clearTimeout(timer); timer = setTimeout(run, 220); });
+  input.addEventListener('keydown', (e) => { if (e.key === 'Escape') { close(); input.blur(); } if (e.key === 'Enter') { const a = box.querySelector('a'); if (a) a.click(); } });
+  input.addEventListener('focus', () => { if (input.value.trim().length >= 2) run(); });
+  document.addEventListener('click', (e) => { if (!wrap.contains(e.target)) close(); });
+  return wrap;
+}
+addEventListener('keydown', (e) => { if ((e.key === 'k' && (e.ctrlKey || e.metaKey)) || (e.key === '/' && !/INPUT|TEXTAREA|SELECT/.test(document.activeElement?.tagName || ''))) { const i = document.querySelector('.gsearch input'); if (i) { e.preventDefault(); i.focus(); i.select(); } } });
 async function pollNotifs() { if (S.user.platform) return; try { const r = await get('/notifications', { unread: 1 }); const b = $('#nbadge'); if (b) { b.textContent = r.unread; b.style.display = r.unread ? '' : 'none'; } } catch { /* ignore */ } }
 async function showNotifs() {
   const body = h('div', {}, loading()); const m = modal({ title: t('Notifications'), wide: true, body, actions: (close) => [h('button', { class: 'btn', onclick: close }, t('Close'))] });
@@ -84,10 +122,11 @@ function userMenu() {
   modal({ title: S.user.name, body: h('div', { class: 'stack' }, h('div', {}, S.user.email, ' · ', tx(S.user.role)), cur, np, chg, h('div', { class: 'sep' }), setup, tf), actions: (close) => [out, h('button', { class: 'btn', onclick: close }, t('Close'))] });
 }
 async function render() {
-  const r = route(); const view = $('#view'); if (!view) return; document.querySelectorAll('.nav a').forEach((a) => a.classList.toggle('on', r.path.startsWith(a.dataset.path)));
+  const r = route(); const view = $('#view'); if (!view) return; document.querySelectorAll('.nav a, .bottomnav a').forEach((a) => a.classList.toggle('on', r.path.startsWith(a.dataset.path)));
+  if ((!r.parts[0] || r.parts[0] === 'dashboard') && !can('dashboard.view') && !S.user.platform && home() !== '/dashboard') { location.hash = '#' + home(); return; } // nobody lands on a page they cannot open
   const v = views[r.parts[0] || 'dashboard'] || views.notfound; clear(view); view.append(loading());
   try { const el = await v(r); clear(view); if (el) view.append(el); } catch (e) { clear(view); view.append(h('div', { class: 'card' }, h('p', { style: 'color:var(--bad)' }, errText(e)))); }
-  view.focus?.();
+  view.focus?.({ preventScroll: true });
 }
 addEventListener('hashchange', () => { if (S.token && S.user) render(); });
 boot();

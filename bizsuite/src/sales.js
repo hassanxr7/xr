@@ -231,7 +231,7 @@ export function listSales(ctx, f = {}) {
   return { total: total.c, sum_total: total.t, rows };
 }
 export function getSale(ctx, id) {
-  const s = ctx.get('SELECT s.*, br.name branch_name, br.code branch_code, br.address, br.phone, br.receipt_header, br.receipt_footer, br.invoice_terms, u.name user_name FROM sales s JOIN branches br ON br.id=s.branch_id JOIN users u ON u.id=s.user_id WHERE s.id=? AND s.org_id=?', id, ctx.org_id);
+  const s = ctx.get('SELECT s.*, br.name branch_name, br.code branch_code, br.address, br.phone, br.receipt_header, br.receipt_footer, br.invoice_terms, u.name user_name, cu.phone customer_phone FROM sales s JOIN branches br ON br.id=s.branch_id JOIN users u ON u.id=s.user_id LEFT JOIN customers cu ON cu.id=s.customer_id WHERE s.id=? AND s.org_id=?', id, ctx.org_id);
   if (!s || !ctx.branchIds().includes(s.branch_id)) throw notFound('sale');
   ctx.need(s.kind === 'service' ? 'services.view' : 'sales.view');
   let lines = ctx.all('SELECT l.*, u.name barber_name, d.serial FROM sale_lines l LEFT JOIN users u ON u.id=l.barber_id LEFT JOIN devices d ON d.id=l.device_id WHERE l.sale_id=? ORDER BY l.id', id);

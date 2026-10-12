@@ -409,7 +409,7 @@ test('exports: CSV (formula-safe), PDF, print HTML; thermal & A4 documents', asy
   const pdf = api('GET', '/api/reports/consolidated', {}, { format: 'pdf', preset: 'year' }); assert.equal(pdf.type, 'application/pdf'); assert.equal(pdf.body.subarray(0, 5).toString(), '%PDF-'); assert.ok(pdf.body.toString('latin1').includes('%%EOF'));
   for (const mode of ['thermal', 'a4']) { const h = api('GET', '/api/print/sale/' + s.id, {}, { mode }); assert.equal(h.status, 200); assert.ok(h.body.includes(s.ref) && h.body.includes('Mahadsanid')); assert.ok(!h.body.includes('<script')); }
   assert.equal(api('GET', '/api/reports/consolidated', {}, { format: 'html', preset: 'year' }).status, 200);
-  assert.ok(api('GET', '/api/export/sales').body.includes(s.ref)); assert.equal(api('GET', '/api/reports').body.rows.length, 22);
+  assert.ok(api('GET', '/api/export/sales').body.includes(s.ref)); assert.equal(api('GET', '/api/reports').body.rows.length, 23);
   const cashier = (w.user('Cash', 'Cashier', [A]), await client(w.db).login('cash@t.so')); assert.equal(cashier('GET', '/api/reports/consolidated', {}, { format: 'csv' }).status, 403);
 });
 

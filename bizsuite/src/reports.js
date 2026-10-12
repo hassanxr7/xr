@@ -165,6 +165,7 @@ export const REPORTS = {
   item_profit: { perm: 'reports.view', title: 'Items sold: cost and profit', needs: 'profit.view' },
   slow_movers: { perm: 'inventory.view', title: 'Slow-moving stock (discount candidates)' },
   profit_potential: { perm: 'inventory.view', title: 'Stock on hand: expected profit', needs: 'cost.view' },
+  reorder: { perm: 'inventory.view', title: 'Reorder list (what to buy, how many)' },
 };
 export function runReport(ctx, name, f = {}) {
   const def = REPORTS[name]; if (!def) throw bad('unknown_report', 'Unknown report'); ctx.need(def.perm); if (def.needs) ctx.need(def.needs);
@@ -220,6 +221,10 @@ export function runReport(ctx, name, f = {}) {
       columns = [col('branch', 'Branch'), col('name', 'Item'), col('sku', 'SKU'), col('qty', 'On hand'), ...money([['cost', 'Cost per unit'], ['price', 'Selling price']]), col('max_discount', 'Max discount %'), ...money([['unit_profit', 'Profit per unit'], ['unit_profit_min', 'Profit per unit at max discount'], ['total_profit', 'Expected profit (full price)'], ['total_profit_min', 'Expected profit (max discount)']]), col('currency', 'Currency')];
       rows = profitPotential(ctx, ids); totals = totalsBy(rows, columns, ['total_profit', 'total_profit_min']); break;
     }
+    case 'reorder': {
+      columns = [col('branch', 'Branch'), col('name', 'Item'), col('sku', 'SKU'), col('qty', 'On hand'), col('sold_30', 'Sold in 30 days'), col('per_day', 'Per day'), col('days_left', 'Days of stock left'), col('suggested', 'Suggested order'), ...(ctx.can('cost.view') ? [col('est_cost', 'Estimated cost', M)] : []), col('supplier', 'Last supplier'), col('currency', 'Currency')];
+      rows = reorderList(ctx, ids, r); if (!ctx.can('cost.view')) rows.forEach((x) => { delete x.est_cost; delete x.unit_cost; }); totals = ctx.can('cost.view') ? totalsBy(rows, columns, ['est_cost']) : null; break;
+    }
     case 'audit': { columns = [col('created_at', 'Time'), col('user_name', 'User'), col('action', 'Action'), col('entity', 'Record'), col('entity_id', 'ID'), col('before', 'Before'), col('after', 'After')]; rows = ctx.all(`SELECT a.created_at, u.name user_name, a.action, a.entity, a.entity_id, a.before, a.after FROM audit_log a LEFT JOIN users u ON u.id=a.user_id WHERE a.org_id=? AND (a.branch_id IS NULL OR a.branch_id IN (${ids})) AND substr(a.created_at,1,10) BETWEEN ? AND ? ORDER BY a.id DESC LIMIT 2000`, ctx.org_id, r.from, r.to); break; }
   }
   return { name, columns, rows, totals, meta: meta(), note };
@@ -265,14 +270,14 @@ export function itemProfit(ctx, ids, { from, to, employee }, limit = 5000) {
 }
 // Items in stock that sold little or nothing in the period (default: last 30 days) - candidates for a discount.
 export function slowMovers(ctx, ids, { from, to, today }, limit = 5000) {
-  const rows = ctx.all(`SELECT b.name branch, b.currency, p.name, v.attrs, v.sku, v.price, v.max_discount_bp, st.qty, st.value,
+  const rows = ctx.all(`SELECT b.name branch, b.currency, v.id variant_id, p.name, v.attrs, v.sku, v.price, v.max_discount_bp, st.qty, st.value,
       (SELECT COALESCE(SUM(l.qty),0) FROM sale_lines l JOIN sales s ON s.id=l.sale_id WHERE l.variant_id=v.id AND s.branch_id=b.id AND s.status='completed' AND s.business_date BETWEEN ? AND ?) sold,
       (SELECT MAX(s.business_date) FROM sale_lines l JOIN sales s ON s.id=l.sale_id WHERE l.variant_id=v.id AND s.branch_id=b.id AND s.status='completed') last_sold,
       (SELECT MIN(substr(m.created_at,1,10)) FROM stock_movements m WHERE m.variant_id=v.id AND m.branch_id=b.id AND m.qty>0) first_in
     FROM stock st JOIN variants v ON v.id=st.variant_id JOIN products p ON p.id=v.product_id JOIN branches b ON b.id=st.branch_id
     WHERE st.branch_id IN (${ids}) AND st.qty>0 AND v.active=1 AND p.active=1 AND p.is_part=0`, from, to);
   const days = (d) => (d ? Math.max(0, Math.round((Date.parse(today + 'T00:00:00Z') - Date.parse(d + 'T00:00:00Z')) / 864e5)) : null);
-  return rows.map((x) => { const idle = days(x.last_sold || x.first_in); return { branch: x.branch, currency: x.currency, name: `${x.name} ${attrsText(x.attrs)}`.trim(), sku: x.sku, qty: x.qty, sold: x.sold, last_sold: x.last_sold || '', days_idle: idle ?? 0, price: x.price, value: x.value, max_discount_bp: x.max_discount_bp,
+  return rows.map((x) => { const idle = days(x.last_sold || x.first_in); return { branch: x.branch, currency: x.currency, variant_id: x.variant_id, name: `${x.name} ${attrsText(x.attrs)}`.trim(), sku: x.sku, qty: x.qty, sold: x.sold, last_sold: x.last_sold || '', days_idle: idle ?? 0, price: x.price, value: x.value, max_discount_bp: x.max_discount_bp,
     suggestion: x.sold === 0 && idle >= 30 ? 'Discount now' : x.sold === 0 ? 'Watch' : x.sold * 4 < x.qty ? 'Consider a discount' : '' }; })
     .filter((x) => x.suggestion).sort((a, b) => b.days_idle - a.days_idle || a.sold - b.sold).slice(0, limit);
 }
@@ -316,9 +321,27 @@ export function shopBoard(ctx, f = {}) {
     out.running_out = ctx.all(`SELECT p.name, v.attrs, v.sku, COALESCE(s.qty,0) qty, v.min_stock FROM variants v JOIN products p ON p.id=v.product_id LEFT JOIN stock s ON s.variant_id=v.id AND s.branch_id=? WHERE v.org_id=? AND p.business_id=? AND v.active=1 AND p.active=1 AND p.kind='standard' AND COALESCE(s.qty,0)<=v.min_stock ORDER BY qty, p.name LIMIT 12`, b.id, ctx.org_id, b.business_id)
       .map((x) => ({ name: `${x.name} ${attrsText(x.attrs)}`.trim(), sku: x.sku, qty: x.qty, min_stock: x.min_stock }));
     out.slow_movers = slowMovers(ctx, String(b.id), P.d30, 10).map(strip);
+    out.reorder = reorderList(ctx, String(b.id), { today }, { limit: 12 }).map((x) => { if (!canC) { delete x.unit_cost; delete x.est_cost; } return x; });
   }
   if (canC && sellsGoods) { const pp = profitPotential(ctx, String(b.id)); out.potential = { items: pp.length, units: pp.reduce((a, x) => a + x.qty, 0), stock_cost: pp.reduce((a, x) => a + x.qty * x.cost, 0), at_full_price: pp.reduce((a, x) => a + x.qty * x.price, 0), ...(canP ? { profit_full: pp.reduce((a, x) => a + x.total_profit, 0), profit_min: pp.reduce((a, x) => a + x.total_profit_min, 0) } : {}), top: pp.slice(0, 8).map(strip) }; }
   if (ctx.can('expenses.view')) out.expenses = ctx.all(`SELECT e.id, e.ref, e.expense_date, c.name category, e.description, a.amount, e.status FROM expenses e JOIN expense_allocations a ON a.expense_id=e.id AND a.branch_id=? JOIN expense_categories c ON c.id=e.category_id WHERE e.org_id=? AND e.status<>'void' AND e.expense_date BETWEEN ? AND ? ORDER BY e.expense_date DESC, e.id DESC LIMIT 8`, b.id, ctx.org_id, P.month.from, P.month.to);
   out.orders_open = ctx.get(`SELECT COUNT(*) c FROM orders WHERE org_id=? AND branch_id=? AND status='open'${ctx.can('sales.approve') ? '' : ' AND created_by=' + ctx.user.id}`, ctx.org_id, b.id).c;
   return out;
+}
+
+// What to buy and how many: sales speed over the last 30 days, days of stock left, and an order that covers
+// `cover` days plus the minimum stock. Items at or below their minimum are always listed.
+export function reorderList(ctx, ids, { today }, { cover = 30, limit = 5000 } = {}) {
+  const from = addDays(today, -29);
+  const rows = ctx.all(`SELECT b.id branch_id, b.name branch, b.currency, v.id variant_id, p.name, v.attrs, v.sku, v.min_stock, v.cost, COALESCE(st.qty,0) qty, COALESCE(st.value,0) value,
+      (SELECT COALESCE(SUM(l.qty - l.returned_qty),0) FROM sale_lines l JOIN sales s ON s.id=l.sale_id WHERE l.variant_id=v.id AND s.branch_id=b.id AND s.status='completed' AND s.business_date BETWEEN ? AND ?) sold,
+      (SELECT su.name FROM purchase_lines pl JOIN purchases pu ON pu.id=pl.purchase_id JOIN suppliers su ON su.id=pu.supplier_id WHERE pl.variant_id=v.id AND pu.branch_id=b.id ORDER BY pu.id DESC LIMIT 1) supplier,
+      (SELECT pu.supplier_id FROM purchase_lines pl JOIN purchases pu ON pu.id=pl.purchase_id WHERE pl.variant_id=v.id AND pu.branch_id=b.id ORDER BY pu.id DESC LIMIT 1) supplier_id
+    FROM branches b JOIN variants v ON v.org_id=b.org_id JOIN products p ON p.id=v.product_id AND p.business_id=b.business_id LEFT JOIN stock st ON st.branch_id=b.id AND st.variant_id=v.id
+    WHERE b.id IN (${ids}) AND v.active=1 AND p.active=1 AND p.kind='standard'`, from, today);
+  return rows.map((x) => {
+    const perDay = x.sold / 30; const daysLeft = perDay > 0 ? Math.floor(x.qty / perDay) : null; const unit = x.qty > 0 ? Math.round(x.value / x.qty) : x.cost;
+    const suggested = Math.max(0, Math.ceil(perDay * cover + x.min_stock - x.qty)); const need = x.qty <= x.min_stock || (daysLeft !== null && daysLeft < 14);
+    return need && suggested > 0 ? { branch_id: x.branch_id, branch: x.branch, currency: x.currency, variant_id: x.variant_id, name: `${x.name} ${attrsText(x.attrs)}`.trim(), sku: x.sku, qty: x.qty, sold_30: x.sold, per_day: Math.round(perDay * 10) / 10, days_left: daysLeft ?? '', suggested, unit_cost: unit, est_cost: suggested * unit, supplier: x.supplier || '', supplier_id: x.supplier_id || null } : null;
+  }).filter(Boolean).sort((a, b) => (a.days_left === '' ? 999 : a.days_left) - (b.days_left === '' ? 999 : b.days_left) || b.sold_30 - a.sold_30).slice(0, limit);
 }

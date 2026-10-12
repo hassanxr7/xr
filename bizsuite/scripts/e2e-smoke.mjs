@@ -90,7 +90,7 @@ await session('manager.store@demo.so', async (page) => {
   await visit(page, '/orders'); const n = await page.locator('.order.open').count(); ok(n >= 1, 'manager sees baskets waiting for payment');
   await page.locator('text=Payment received - complete').first().click(); await page.waitForSelector('.overlay footer .btn.p'); await page.click('.overlay footer .btn.p'); await page.waitForTimeout(1200); ok((await page.locator('.overlay').last().innerText()).includes('INV-RST-'), 'completing the order creates the sale');
   await page.evaluate(() => document.querySelectorAll('.overlay').forEach((o) => o.remove())); await visit(page, '/orders?x=2'); ok(await page.locator('.order.open').count() === n - 1, 'completed order leaves the waiting list');
-  await visit(page, '/labels'); await page.locator('.pick').first().check(); await page.click('text=Print labels'); await page.waitForSelector('.overlay iframe'); await page.waitForTimeout(800); ok(await page.frameLocator('.overlay iframe').locator('.lb svg').count() > 0, 'QR labels print with a QR code per piece');
+  await visit(page, '/labels'); await page.locator('.pick').first().check(); await page.click('text=Print tags'); await page.waitForSelector('.overlay iframe'); await page.waitForTimeout(800); ok(await page.frameLocator('.overlay iframe').locator('.lb svg[aria-label^="EAN-13"]').count() > 0, 'price tags print with a shop barcode (EAN-13) per piece');
 });
 await session('owner@demo.so', async (page) => {
   await visit(page, '/commissions?tab=rates'); ok(await page.locator('text=Farah (Barber)').count() > 0 && await page.locator('input[aria-label="Fixed fee per service"]').count() >= 3, 'owner sets % and fixed fee per haircut for each barber');
