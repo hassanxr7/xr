@@ -1,18 +1,13 @@
-UI SWEEP RESULTS - every nav page, every button, every dialog form (submitted empty), all 10 demo roles
+UI SWEEP RESULTS - every nav page, every button, every dialog form (submitted empty), all 11 demo roles (incl. the sales assistant)
 Fails on: JavaScript errors, HTTP 5xx, English UI text visible in Somali mode, horizontal overflow at 390 px.
 
-== English (incl. phone-width checks)
-Sweep: 128 pages, 1101 buttons clicked, 657 dialogs opened, 165 forms submitted empty.
-SWEEP PASSED
-
-== Somali
-Sweep: 128 pages, 1104 buttons clicked, 658 dialogs opened, 164 forms submitted empty.
-  - "Cashier"  (cashier-store/pos, cashier-store/pos modal[🔔])
-  - "Technician"  (technician/repairs, technician/repairs modal[🔔])
-  - "Barber"  (barber/dashboard?preset=year, barber/dashboard?preset=year modal[🔔])
+== Full run: English + Somali, all roles (after: shop board, scan & sell, orders, QR labels, barber rates, PWA)
+Sweep: 316 pages, 2808 buttons clicked, 1732 dialogs opened, 350 forms submitted empty.
+English text visible in Somali mode (1):
+  - "service"  (owner/audit, owner/audit modal[🔔])
 FAILED (1)
--> fixed: role name in the top bar was not translated (commit 'Translate the signed-in user's role name')
+-> fixed: the rate column used the word 'service', which also appears as stored data (record type) on the audit page; replaced by 'per service' (commit 'Somali wording fix')
 
-== Somali re-check of the affected roles after the fix
-Sweep: 22 pages, 107 buttons clicked, 50 dialogs opened, 1 forms submitted empty.
+== Somali re-check of the owner after the fix
+Sweep: 30 pages, 347 buttons clicked, 211 dialogs opened, 69 forms submitted empty.
 SWEEP PASSED
