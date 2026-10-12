@@ -14,6 +14,8 @@ export function range(preset, from, to, today) {
     case 'yesterday': return [addDays(t, -1), addDays(t, -1)];
     case 'week': return [addDays(t, -dow), t];
     case 'month': return [t.slice(0, 8) + '01', t];
+    case 'last_month': { const first = t.slice(0, 8) + '01'; const end = addDays(first, -1); return [end.slice(0, 8) + '01', end]; }
+    case 'last_30': return [addDays(t, -29), t];
     case 'year': return [t.slice(0, 5) + '01-01', t];
     default: return [from || '0000-01-01', to || '9999-12-31'];
   }

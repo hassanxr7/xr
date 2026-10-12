@@ -48,6 +48,11 @@ export function createSale(ctx, s, opts = {}) {
   const orderDisc = int(s.discount ?? 0, 'discount', { min: 0 });
   const afterLine = prepared.map((p, i) => gross[i] - p.discount); if (orderDisc > afterLine.reduce((a, b) => a + b, 0)) throw bad('discount_too_large', 'Discount exceeds total');
   const share = allocate(orderDisc, afterLine); prepared.forEach((p, i) => { p.discountTotal = p.discount + share[i]; p.net = gross[i] - p.discountTotal; });
+  // per-item ceiling (variants.max_discount_bp): sellers cannot go past it; a manager with approval rights may
+  if (!opts.approvedBy && !ctx.can('sales.approve')) prepared.forEach((p, i) => {
+    if (p.variant && p.variant.max_discount_bp != null && p.discountTotal > mulBp(gross[i], p.variant.max_discount_bp))
+      throw bad('discount_above_item_max', `Maximum discount on ${p.desc} is ${(p.variant.max_discount_bp / 100).toFixed(2)}%`, { variant_id: p.variant.id, max_discount_bp: p.variant.max_discount_bp, max_amount: mulBp(gross[i], p.variant.max_discount_bp) });
+  });
   const totalDisc = prepared.reduce((a, p) => a + p.discountTotal, 0); const totalGross = gross.reduce((a, b) => a + b, 0);
   const discBp = totalGross ? divRound(totalDisc * 10000, totalGross) : 0;
   if (!opts.approvedBy && totalDisc > 0 && !ctx.limitOk('discount_bp', discBp))
@@ -64,7 +69,7 @@ export function createSale(ctx, s, opts = {}) {
     const tip = int(s.tip ?? 0, 'tip', { min: 0 });
     const sid = ctx.run(`INSERT INTO sales(org_id,business_id,branch_id,department_id,ref,kind,customer_id,customer_name,currency,subtotal,discount,tax,total,tip,tip_to,user_id,approved_by,note,created_at,business_date)
       VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)`, ctx.org_id, br.business_id, br.id, s.department_id || null, ctx.ref(kind === 'service' ? 'VIS' : 'INV', br), kind, s.customer_id || null, customerName || (kind === 'service' ? 'Walk-in' : null),
-    br.currency, subtotal, totalDisc, tax, total, tip, tip ? br.tip_to : null, ctx.user.id, opts.approvedBy || null, s.note || null, nowIso(), date).lastInsertRowid;
+    br.currency, subtotal, totalDisc, tax, total, tip, tip ? br.tip_to : null, opts.sellerId || ctx.user.id, opts.approvedBy || null, s.note || null, nowIso(), date).lastInsertRowid;
     for (const p of prepared) {
       let cost = 0, warrantyEnd = null;
       if (p.service) cost = p.cost;
@@ -74,8 +79,8 @@ export function createSale(ctx, s, opts = {}) {
         cost = stockOut(ctx, br.id, p.variant.id, 1, 'sale', 'sale', sid, { exactCost: d.cost });
         warrantyEnd = p.variant.warranty_months ? addMonths(date, p.variant.warranty_months) : null;
       } else cost = stockOut(ctx, br.id, p.variant.id, p.qty, 'sale', 'sale', sid);
-      const lid = ctx.run(`INSERT INTO sale_lines(sale_id,variant_id,device_id,service_id,barber_id,description,qty,unit_price,discount,net,tax,cost_total,commission_bp,warranty_end) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?)`,
-        sid, p.variant?.id || null, p.device?.id || null, p.service?.id || null, p.barber?.id || null, p.desc, p.qty, p.price, p.discountTotal, p.net, p.tax, cost, p.barber ? p.barber.commission_bp : 0, warrantyEnd).lastInsertRowid;
+      const lid = ctx.run(`INSERT INTO sale_lines(sale_id,variant_id,device_id,service_id,barber_id,description,qty,unit_price,discount,net,tax,cost_total,commission_bp,commission_fixed,warranty_end) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)`,
+        sid, p.variant?.id || null, p.device?.id || null, p.service?.id || null, p.barber?.id || null, p.desc, p.qty, p.price, p.discountTotal, p.net, p.tax, cost, p.barber ? p.barber.commission_bp : 0, p.barber ? p.barber.commission_fixed || 0 : 0, warrantyEnd).lastInsertRowid;
       if (p.device) {
         ctx.run("UPDATE devices SET status='sold', sale_id=?, sale_line_id=?, customer_id=?, sold_at=?, warranty_start=?, warranty_end=? WHERE id=?", sid, lid, s.customer_id, nowIso(), warrantyEnd ? date : null, warrantyEnd, p.device.id);
         deviceEvent(ctx, p.device.id, 'sold', ['sale', sid], customerName);
@@ -239,7 +244,7 @@ export function getSale(ctx, id) {
 }
 export function posSearch(ctx, { branch_id, q, barcode }) { // fast POS lookup by barcode/SKU/name, with in-branch devices
   const br = ctx.branch(branch_id); ctx.need('sales.view');
-  const rows = ctx.all(`SELECT v.id,v.sku,v.barcode,v.price,v.attrs,p.name,p.kind,p.warranty_months,COALESCE(s.qty,0) qty FROM variants v JOIN products p ON p.id=v.product_id LEFT JOIN stock s ON s.variant_id=v.id AND s.branch_id=? WHERE v.org_id=? AND p.business_id=? AND v.active=1 AND p.active=1 AND (${barcode ? 'v.barcode=? OR v.sku=?' : 'p.name LIKE ? OR v.sku LIKE ? OR v.barcode LIKE ?'}) ORDER BY p.name LIMIT 30`,
+  const rows = ctx.all(`SELECT v.id,v.sku,v.barcode,v.price,v.max_discount_bp,v.attrs,p.name,p.category,p.kind,p.warranty_months,COALESCE(s.qty,0) qty FROM variants v JOIN products p ON p.id=v.product_id LEFT JOIN stock s ON s.variant_id=v.id AND s.branch_id=? WHERE v.org_id=? AND p.business_id=? AND v.active=1 AND p.active=1 AND (${barcode ? 'v.barcode=? OR v.sku=?' : 'p.name LIKE ? OR v.sku LIKE ? OR v.barcode LIKE ?'}) ORDER BY p.name LIMIT 30`,
     br.id, ctx.org_id, br.business_id, ...(barcode ? [barcode, barcode] : [`%${q}%`, `%${q}%`, `%${q}%`]));
   return rows.map((r) => ({ ...r, attrs: JSON.parse(r.attrs), devices: r.kind === 'serialized' ? ctx.all("SELECT id,serial FROM devices WHERE variant_id=? AND branch_id=? AND status='in_stock' ORDER BY id LIMIT 50", r.id, br.id) : undefined }));
 }

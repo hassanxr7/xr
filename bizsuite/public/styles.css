@@ -37,3 +37,7 @@ table{border-collapse:collapse;width:100%}th,td{padding:8px 10px;border-bottom:1
 .login .brandlogo{margin:0 auto 14px;max-width:340px}.pstat{border-left:4px solid var(--brand);padding-left:10px}
 tr.strong td{font-weight:700;border-top:2px solid var(--text);background:var(--panel2)}tr.memo td{color:var(--muted);font-size:12px}
 @media print{.side,.top{display:none}.shell{display:block}.content{padding:0}}
+
+.logoswap{display:block}.logoswap .logo-d{display:none}
+:root[data-theme=dark] .logoswap .logo-d{display:block}:root[data-theme=dark] .logoswap .logo-l{display:none}
+@media (prefers-color-scheme:dark){:root:not([data-theme=light]) .logoswap .logo-d{display:block}:root:not([data-theme=light]) .logoswap .logo-l{display:none}}

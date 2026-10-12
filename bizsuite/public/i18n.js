@@ -2,6 +2,7 @@
 import { more } from './i18n_more.js';
 import { errSo } from './i18n_err.js';
 import { docsSo } from './i18n_docs.js';
+import { v3 } from './i18n_v3.js';
 const base = {
   'Sign in': 'Gal', 'Email': 'Iimayl', 'Password': 'Erayga sirta', 'Authentication code': 'Koodhka xaqiijinta', 'Sign out': 'Ka bax',
   'Dashboard': 'Dashboard-ka', 'Sales': 'Iibka', 'Point of sale': 'Goobta iibka', 'Barber visits': 'Booqashooyinka timo-jarka', 'Repairs': 'Hagaajinta', 'Inventory': 'Bakhaarka', 'Products': 'Alaabta',
@@ -32,4 +33,4 @@ const base = {
   'err.balance_due': 'Marka hore ururi haraagga lacagta', 'err.qc_required': 'Marka hore dhammaystir hubinta tayada', 'err.duplicate': 'Diiwaankan hore ayuu u jiray', 'err.invalid_integer': 'Qadarka waa inuu noqdaa tiro sax ah', 'err.invalid_amount': 'Qadarka waa khalad', 'err.nothing_to_settle': 'Wax aan la dhammaystirin ma jiro',
   'err.customer_required_for_credit': 'Macmiil socda waa inuu bixiyaa lacagta oo dhan; dooro macmiil si deyn loogu siiyo', 'err.device_unavailable': 'Aaladdan lama heli karo', 'err.module_not_available': 'Qaybtan looma furin laantan',
 };
-export const so = { ...base, ...more, ...errSo, ...docsSo };
+export const so = { ...base, ...more, ...errSo, ...docsSo, ...v3 };

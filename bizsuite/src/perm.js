@@ -2,8 +2,9 @@
 export const ACTIONS = ['view', 'create', 'edit', 'approve', 'refund', 'void', 'export', 'print', 'settings'];
 export const MODULES = ['dashboard', 'sales', 'purchases', 'inventory', 'products', 'devices', 'customers', 'suppliers', 'expenses', 'repairs',
   'services', 'commissions', 'payouts', 'registers', 'payments', 'reports', 'staff', 'roles', 'branches', 'approvals', 'audit', 'settings'];
-// Extra sensitivity flags (not CRUD): cost.view, profit.view, commissions.viewall, services.viewall, repairs.viewall, sales.viewall
-export const SPECIAL = ['cost.view', 'profit.view', 'commissions.viewall', 'services.viewall', 'repairs.viewall', 'sales.viewall', 'services.record_any'];
+// Extra sensitivity flags (not CRUD): cost.view, profit.view, commissions.viewall, services.viewall, repairs.viewall, sales.viewall;
+// orders.create = may send a scanned basket to the branch manager, who completes it (sales.approve) once the money is received
+export const SPECIAL = ['cost.view', 'profit.view', 'commissions.viewall', 'services.viewall', 'repairs.viewall', 'sales.viewall', 'services.record_any', 'orders.create'];
 export const ALL_PERMS = [...MODULES.flatMap((m) => ACTIONS.map((a) => `${m}.${a}`)), ...SPECIAL];
 
 const p = (m, ...a) => a.map((x) => `${m}.${x}`);
@@ -17,12 +18,16 @@ export const DEFAULT_ROLES = {
       ...p('repairs', 'view', 'create', 'edit', 'approve', 'print'), ...p('services', 'view', 'create', 'refund', 'void', 'approve', 'print'),
       ...p('commissions', 'view'), ...p('payouts', 'view', 'create', 'approve'), ...p('registers', 'view', 'create', 'edit', 'approve'),
       ...p('payments', 'view', 'create'), ...p('reports', 'view', 'export', 'print'), ...p('staff', 'view'), ...p('approvals', 'view', 'approve'),
-      'cost.view', 'profit.view', 'commissions.viewall', 'services.viewall', 'repairs.viewall', 'sales.viewall', 'services.record_any'],
+      'cost.view', 'profit.view', 'commissions.viewall', 'services.viewall', 'repairs.viewall', 'sales.viewall', 'services.record_any', 'orders.create'],
   },
   Cashier: {
     scope: 'assigned', limits: { discount_bp: 500, refund_max: 0, expense_max: 0, adjust_qty: 0 },
     perms: [...p('sales', 'view', 'create', 'print'), ...p('customers', 'view', 'create'), ...p('products', 'view'), ...p('inventory', 'view'), ...p('registers', 'view', 'create'),
-      ...p('payments', 'view', 'create'), ...p('services', 'view', 'create', 'print'), ...p('repairs', 'view', 'create', 'edit', 'print'), ...p('devices', 'view'), 'services.record_any'],
+      ...p('payments', 'view', 'create'), ...p('services', 'view', 'create', 'print'), ...p('repairs', 'view', 'create', 'edit', 'print'), ...p('devices', 'view'), 'services.record_any', 'orders.create'],
+  },
+  'Sales Assistant': { // scans items and sends the basket to the manager; cannot take money or complete a sale
+    scope: 'assigned', limits: { discount_bp: 0 },
+    perms: [...p('dashboard', 'view'), ...p('sales', 'view', 'print'), ...p('products', 'view'), ...p('inventory', 'view'), ...p('customers', 'view', 'create'), 'orders.create'],
   },
   Technician: {
     scope: 'assigned', limits: {},

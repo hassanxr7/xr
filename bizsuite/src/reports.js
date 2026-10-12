@@ -162,6 +162,9 @@ export const REPORTS = {
   cash_discrepancies: { perm: 'registers.view', title: 'Cash register discrepancies' },
   payment_reconciliation: { perm: 'payments.view', title: 'Payment reconciliation' },
   audit: { perm: 'audit.view', title: 'Audit activity' },
+  item_profit: { perm: 'reports.view', title: 'Items sold: cost and profit', needs: 'profit.view' },
+  slow_movers: { perm: 'inventory.view', title: 'Slow-moving stock (discount candidates)' },
+  profit_potential: { perm: 'inventory.view', title: 'Stock on hand: expected profit', needs: 'cost.view' },
 };
 export function runReport(ctx, name, f = {}) {
   const def = REPORTS[name]; if (!def) throw bad('unknown_report', 'Unknown report'); ctx.need(def.perm); if (def.needs) ctx.need(def.needs);
@@ -205,6 +208,18 @@ export function runReport(ctx, name, f = {}) {
     }
     case 'cash_discrepancies': { columns = [col('business_date', 'Date'), col('branch', 'Branch'), col('cashier', 'Cashier'), col('expected', 'Expected', M), col('counted', 'Counted', M), col('difference', 'Difference', M), col('explanation', 'Explanation'), col('approved', 'Approved by')]; rows = ctx.all(`SELECT r.business_date, b.name branch, u.name cashier, r.expected, r.counted, r.difference, r.explanation, a.name approved FROM register_sessions r JOIN branches b ON b.id=r.branch_id JOIN users u ON u.id=r.opened_by LEFT JOIN users a ON a.id=r.approved_by WHERE r.branch_id IN (${ids}) AND r.status='closed' AND r.difference<>0 AND r.business_date BETWEEN ? AND ? ORDER BY r.id DESC`, r.from, r.to).map((x) => ({ ...x, currency: '' })); break; }
     case 'payment_reconciliation': { columns = [col('method_kind', 'Method'), col('status', 'Status'), col('currency', 'Currency'), col('n', 'Count'), col('received', 'Received', M), col('paid_out', 'Paid out', M), col('unreconciled', 'Unreconciled', M)]; rows = ctx.all(`SELECT method_kind, status, currency, COUNT(*) n, SUM(CASE WHEN direction='in' THEN amount ELSE 0 END) received, SUM(CASE WHEN direction='out' THEN amount ELSE 0 END) paid_out, SUM(CASE WHEN reconciled_at IS NULL AND status='confirmed' THEN CASE direction WHEN 'in' THEN amount ELSE -amount END ELSE 0 END) unreconciled FROM payments WHERE branch_id IN (${ids}) AND business_date BETWEEN ? AND ? GROUP BY 1,2,3 ORDER BY 1,2`, r.from, r.to); break; }
+    case 'item_profit': {
+      columns = [col('name', 'Item'), col('sku', 'SKU'), col('category', 'Category'), col('currency', 'Currency'), col('qty', 'Qty sold'), ...money([['revenue', 'Net revenue'], ['discount', 'Discounts'], ['cost', 'Cost'], ['profit', 'Profit']]), col('margin', 'Margin %')];
+      rows = itemProfit(ctx, ids, r); totals = totalsBy(rows, columns, ['revenue', 'discount', 'cost', 'profit']); break;
+    }
+    case 'slow_movers': {
+      columns = [col('branch', 'Branch'), col('name', 'Item'), col('sku', 'SKU'), col('qty', 'On hand'), col('sold', 'Sold in period'), col('last_sold', 'Last sold'), col('days_idle', 'Days without a sale'), col('price', 'Price', M), ...(ctx.can('cost.view') ? [col('value', 'Stock value', M)] : []), col('suggestion', 'Suggestion'), col('currency', 'Currency')];
+      rows = slowMovers(ctx, ids, r); if (!ctx.can('cost.view')) rows.forEach((x) => delete x.value); break;
+    }
+    case 'profit_potential': {
+      columns = [col('branch', 'Branch'), col('name', 'Item'), col('sku', 'SKU'), col('qty', 'On hand'), ...money([['cost', 'Cost per unit'], ['price', 'Selling price']]), col('max_discount', 'Max discount %'), ...money([['unit_profit', 'Profit per unit'], ['unit_profit_min', 'Profit per unit at max discount'], ['total_profit', 'Expected profit (full price)'], ['total_profit_min', 'Expected profit (max discount)']]), col('currency', 'Currency')];
+      rows = profitPotential(ctx, ids); totals = totalsBy(rows, columns, ['total_profit', 'total_profit_min']); break;
+    }
     case 'audit': { columns = [col('created_at', 'Time'), col('user_name', 'User'), col('action', 'Action'), col('entity', 'Record'), col('entity_id', 'ID'), col('before', 'Before'), col('after', 'After')]; rows = ctx.all(`SELECT a.created_at, u.name user_name, a.action, a.entity, a.entity_id, a.before, a.after FROM audit_log a LEFT JOIN users u ON u.id=a.user_id WHERE a.org_id=? AND (a.branch_id IS NULL OR a.branch_id IN (${ids})) AND substr(a.created_at,1,10) BETWEEN ? AND ? ORDER BY a.id DESC LIMIT 2000`, ctx.org_id, r.from, r.to); break; }
   }
   return { name, columns, rows, totals, meta: meta(), note };
@@ -234,4 +249,72 @@ export function barberProfitLines(ctx, b, { from, to, employee }) {
   line('NET PROFIT of the branch', profit); line('Add: authorised deductions recovered from staff', ded); line('FINAL PROFIT after deductions', profit + ded);
   line('Memo: advances paid to staff (cash timing, not an expense)', com.adv); line('Memo: commission paid out in the period', pd.paid); line('Memo: tips (not income, not commission base)', tips);
   return L;
+}
+
+// ---------- shop-floor analytics (manager dashboard + reports) ----------
+const attrsText = (a) => { try { return Object.values(JSON.parse(a || '{}')).join(' / '); } catch { return ''; } };
+export function itemProfit(ctx, ids, { from, to, employee }, limit = 5000) {
+  const emp = employee ? ` AND s.user_id=${Number(employee)}` : '';
+  const sold = ctx.all(`SELECT v.id, p.name, v.attrs, v.sku, p.category, s.currency, SUM(l.qty) qty, SUM(l.net) net, SUM(l.discount) disc, SUM(l.cost_total) cost FROM sale_lines l JOIN sales s ON s.id=l.sale_id JOIN variants v ON v.id=l.variant_id JOIN products p ON p.id=v.product_id
+    WHERE s.branch_id IN (${ids}) AND s.status='completed' AND s.kind='retail' AND s.business_date BETWEEN ? AND ?${emp} GROUP BY v.id, s.currency`, from, to);
+  const ret = ctx.all(`SELECT l.variant_id id, b.currency, SUM(rl.qty) qty, SUM(rl.net) net, SUM(rl.cost_reversed) cost FROM return_lines rl JOIN returns r ON r.id=rl.return_id JOIN sale_lines l ON l.id=rl.sale_line_id JOIN sales s ON s.id=l.sale_id JOIN branches b ON b.id=r.branch_id
+    WHERE r.branch_id IN (${ids}) AND l.variant_id IS NOT NULL AND r.business_date BETWEEN ? AND ?${emp} GROUP BY l.variant_id, b.currency`, from, to);
+  const rows = sold.map((x) => { const rt = ret.find((y) => y.id === x.id && y.currency === x.currency) || { qty: 0, net: 0, cost: 0 }; const revenue = x.net - rt.net, cost = x.cost - rt.cost, profit = revenue - cost;
+    return { variant_id: x.id, name: `${x.name} ${attrsText(x.attrs)}`.trim(), sku: x.sku, category: x.category, currency: x.currency, qty: x.qty - rt.qty, revenue, discount: x.disc, cost, profit, margin: revenue ? Math.round((profit * 1000) / revenue) / 10 : 0 }; });
+  return rows.sort((a, b) => b.revenue - a.revenue).slice(0, limit);
+}
+// Items in stock that sold little or nothing in the period (default: last 30 days) - candidates for a discount.
+export function slowMovers(ctx, ids, { from, to, today }, limit = 5000) {
+  const rows = ctx.all(`SELECT b.name branch, b.currency, p.name, v.attrs, v.sku, v.price, v.max_discount_bp, st.qty, st.value,
+      (SELECT COALESCE(SUM(l.qty),0) FROM sale_lines l JOIN sales s ON s.id=l.sale_id WHERE l.variant_id=v.id AND s.branch_id=b.id AND s.status='completed' AND s.business_date BETWEEN ? AND ?) sold,
+      (SELECT MAX(s.business_date) FROM sale_lines l JOIN sales s ON s.id=l.sale_id WHERE l.variant_id=v.id AND s.branch_id=b.id AND s.status='completed') last_sold,
+      (SELECT MIN(substr(m.created_at,1,10)) FROM stock_movements m WHERE m.variant_id=v.id AND m.branch_id=b.id AND m.qty>0) first_in
+    FROM stock st JOIN variants v ON v.id=st.variant_id JOIN products p ON p.id=v.product_id JOIN branches b ON b.id=st.branch_id
+    WHERE st.branch_id IN (${ids}) AND st.qty>0 AND v.active=1 AND p.active=1 AND p.is_part=0`, from, to);
+  const days = (d) => (d ? Math.max(0, Math.round((Date.parse(today + 'T00:00:00Z') - Date.parse(d + 'T00:00:00Z')) / 864e5)) : null);
+  return rows.map((x) => { const idle = days(x.last_sold || x.first_in); return { branch: x.branch, currency: x.currency, name: `${x.name} ${attrsText(x.attrs)}`.trim(), sku: x.sku, qty: x.qty, sold: x.sold, last_sold: x.last_sold || '', days_idle: idle ?? 0, price: x.price, value: x.value, max_discount_bp: x.max_discount_bp,
+    suggestion: x.sold === 0 && idle >= 30 ? 'Discount now' : x.sold === 0 ? 'Watch' : x.sold * 4 < x.qty ? 'Consider a discount' : '' }; })
+    .filter((x) => x.suggestion).sort((a, b) => b.days_idle - a.days_idle || a.sold - b.sold).slice(0, limit);
+}
+// What the stock on hand should earn: cost (weighted average), selling price, and the profit at full price and at the item's maximum discount.
+export function profitPotential(ctx, ids, limit = 5000) {
+  return ctx.all(`SELECT b.name branch, b.currency, p.name, v.attrs, v.sku, v.price, v.max_discount_bp, st.qty, st.value FROM stock st JOIN variants v ON v.id=st.variant_id JOIN products p ON p.id=v.product_id JOIN branches b ON b.id=st.branch_id
+    WHERE st.branch_id IN (${ids}) AND st.qty>0 AND v.active=1 AND p.active=1 ORDER BY p.name`).map((x) => {
+    const cost = Math.round(x.value / x.qty); const minPrice = x.price - Math.round((x.price * (x.max_discount_bp || 0)) / 10000);
+    return { branch: x.branch, currency: x.currency, name: `${x.name} ${attrsText(x.attrs)}`.trim(), sku: x.sku, qty: x.qty, cost, price: x.price, max_discount: (x.max_discount_bp || 0) / 100, unit_profit: x.price - cost, unit_profit_min: minPrice - cost, total_profit: x.qty * x.price - x.value, total_profit_min: x.qty * minPrice - x.value };
+  }).sort((a, b) => b.total_profit - a.total_profit).slice(0, limit);
+}
+
+// One-screen board for a branch manager: today, this month, best sellers, what is running out, what is not selling,
+// what the stock on hand should earn, open baskets waiting for payment, and last month's statement. Polled by the UI (live).
+export function shopBoard(ctx, f = {}) {
+  ctx.need('dashboard.view');
+  const ids = ctx.branchIds(); const bid = Number(f.branch_id) || ids[0]; if (!bid) throw bad('no_branch', 'No branch assigned');
+  const b = ctx.branch(bid); const base = resolveFilters(ctx, { branch_id: b.id }); const B = base.branches[0]; const today = base.today; const emp = base.employee;
+  const canP = ctx.can('profit.view'), canC = ctx.can('cost.view'), canInv = ctx.can('inventory.view') || ctx.can('products.view');
+  const pick = (m) => { const o = { net_sales: m.net_sales, sales_count: m.sales_count, visits: m.visits, services_count: m.services_count, collected: m.collected, discounts: m.discounts, returns: m.returns, repair_revenue: m.repair_revenue };
+    if (canC) o.cogs = m.cogs; if (canP) Object.assign(o, { gross_profit: m.gross_profit, commission: m.commission, opex: m.opex, net_profit: m.net_profit }); return o; };
+  const period = (preset) => { const [from, to] = range(preset, null, null, today); return { from, to, employee: emp, today }; };
+  const P = { today: period('today'), month: period('month'), last: period('last_month'), d30: period('last_30') };
+  const out = { branch: { id: b.id, name: b.name, code: b.code, color: b.color, currency: b.currency, type: B.btype }, today, generated_at: nowIso(), restricted: base.restricted,
+    periods: { today: [P.today.from, P.today.to], month: [P.month.from, P.month.to], last_month: [P.last.from, P.last.to] },
+    kpi: { today: pick(branchMetrics(ctx, B, P.today)), month: pick(branchMetrics(ctx, B, P.month)), last_month: pick(branchMetrics(ctx, B, P.last)) },
+    series: dailySeries(ctx, { branches: [B], ...P.d30 }).map((s) => ({ date: s.date, net_sales: s.net_sales, collected: s.collected, ...(canP ? { expenses: s.expenses } : {}) })) };
+  const strip = (x) => { if (!canC) { delete x.cost; delete x.value; } if (!canP) { delete x.profit; delete x.margin; delete x.unit_profit; delete x.unit_profit_min; delete x.total_profit; delete x.total_profit_min; } return x; };
+  out.top_items = itemProfit(ctx, String(b.id), P.month).sort((a, c) => c.qty - a.qty || c.revenue - a.revenue).slice(0, 8).map(strip);
+  const cats = {}; for (const x of itemProfit(ctx, String(b.id), P.month)) { const k = x.category || '—'; const c = (cats[k] ||= { category: k, qty: 0, revenue: 0 }); c.qty += x.qty; c.revenue += x.revenue; }
+  out.top_categories = Object.values(cats).sort((a, c) => c.revenue - a.revenue).slice(0, 6);
+  if (B.btype === 'barber' || ctx.get("SELECT 1 x FROM departments WHERE branch_id=? AND kind='barber'", b.id)) {
+    out.top_services = ctx.all(`SELECT l.description name, SUM(l.qty) qty, SUM(l.net) revenue FROM sale_lines l JOIN sales s ON s.id=l.sale_id WHERE s.branch_id=? AND s.kind='service' AND s.status='completed' AND s.business_date BETWEEN ? AND ?${emp ? ' AND l.barber_id=' + emp : ''} GROUP BY l.service_id ORDER BY qty DESC LIMIT 8`, b.id, P.month.from, P.month.to);
+    out.barbers_today = ctx.all(`SELECT u.name, COUNT(DISTINCT s.id) customers, SUM(l.qty) services, SUM(l.net) income FROM sale_lines l JOIN sales s ON s.id=l.sale_id JOIN users u ON u.id=l.barber_id WHERE s.branch_id=? AND s.kind='service' AND s.status='completed' AND s.business_date=?${emp ? ' AND l.barber_id=' + emp : ''} GROUP BY u.id ORDER BY income DESC`, b.id, today);
+  }
+  if (canInv) {
+    out.running_out = ctx.all(`SELECT p.name, v.attrs, v.sku, COALESCE(s.qty,0) qty, v.min_stock FROM variants v JOIN products p ON p.id=v.product_id LEFT JOIN stock s ON s.variant_id=v.id AND s.branch_id=? WHERE v.org_id=? AND p.business_id=? AND v.active=1 AND p.active=1 AND p.kind='standard' AND COALESCE(s.qty,0)<=v.min_stock ORDER BY qty, p.name LIMIT 12`, b.id, ctx.org_id, b.business_id)
+      .map((x) => ({ name: `${x.name} ${attrsText(x.attrs)}`.trim(), sku: x.sku, qty: x.qty, min_stock: x.min_stock }));
+    out.slow_movers = slowMovers(ctx, String(b.id), P.d30, 10).map(strip);
+  }
+  if (canC) { const pp = profitPotential(ctx, String(b.id)); out.potential = { items: pp.length, units: pp.reduce((a, x) => a + x.qty, 0), stock_cost: pp.reduce((a, x) => a + x.qty * x.cost, 0), at_full_price: pp.reduce((a, x) => a + x.qty * x.price, 0), ...(canP ? { profit_full: pp.reduce((a, x) => a + x.total_profit, 0), profit_min: pp.reduce((a, x) => a + x.total_profit_min, 0) } : {}), top: pp.slice(0, 8).map(strip) }; }
+  if (ctx.can('expenses.view')) out.expenses = ctx.all(`SELECT e.id, e.ref, e.expense_date, c.name category, e.description, a.amount, e.status FROM expenses e JOIN expense_allocations a ON a.expense_id=e.id AND a.branch_id=? JOIN expense_categories c ON c.id=e.category_id WHERE e.org_id=? AND e.status<>'void' AND e.expense_date BETWEEN ? AND ? ORDER BY e.expense_date DESC, e.id DESC LIMIT 8`, b.id, ctx.org_id, P.month.from, P.month.to);
+  out.orders_open = ctx.get(`SELECT COUNT(*) c FROM orders WHERE org_id=? AND branch_id=? AND status='open'${ctx.can('sales.approve') ? '' : ' AND created_by=' + ctx.user.id}`, ctx.org_id, b.id).c;
+  return out;
 }

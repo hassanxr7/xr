@@ -20,6 +20,8 @@ import * as ex from './exporter.js';
 import { listNotifications, markRead, scanAlerts } from './notify.js';
 import { createBackup, listBackups } from './backup.js';
 import * as quo from './quotes.js';
+import * as ord from './orders.js';
+import { qrSvg } from './qr.js';
 import { fileURLToPath } from 'node:url';
 import { prepareImage } from './image.js';
 import { translateReport, translateNotification } from './lang.js';
@@ -90,7 +92,7 @@ export function createApi(db, { dataDir = './data', loginLimit = 10 } = {}) {
   on('POST', '/api/branches', (c, r) => admin.createBranch(c, r.body));
   on('PATCH', '/api/branches/:id', (c, r) => admin.updateBranch(c, num(r.params.id), r.body));
   on('POST', '/api/branches/:id/departments', (c, r) => admin.addDepartment(c, num(r.params.id), r.body));
-  on('GET', '/api/branches/:id/team', (c, r) => { const br = c.branch(num(r.params.id)); return { rows: c.all("SELECT u.id,u.name,ro.name role,u.commission_bp FROM users u JOIN roles ro ON ro.id=u.role_id WHERE u.org_id=? AND u.active=1 AND (EXISTS(SELECT 1 FROM user_branches ub WHERE ub.user_id=u.id AND ub.branch_id=?) OR ro.scope='org') ORDER BY u.name", c.org_id, br.id).map((u) => ({ id: u.id, name: u.name, role: u.role, ...(c.can('commissions.viewall') ? { commission_bp: u.commission_bp } : {}) })) }; });
+  on('GET', '/api/branches/:id/team', (c, r) => { const br = c.branch(num(r.params.id)); return { rows: c.all("SELECT u.id,u.name,ro.name role,u.commission_bp,u.commission_fixed FROM users u JOIN roles ro ON ro.id=u.role_id WHERE u.org_id=? AND u.active=1 AND (EXISTS(SELECT 1 FROM user_branches ub WHERE ub.user_id=u.id AND ub.branch_id=?) OR ro.scope='org') ORDER BY u.name", c.org_id, br.id).map((u) => ({ id: u.id, name: u.name, role: u.role, ...(c.can('commissions.viewall') ? { commission_bp: u.commission_bp, commission_fixed: u.commission_fixed } : {}) })) }; });
   on('GET', '/api/transfer-destinations', (c, r) => { const f = c.branch(num(r.query.from_branch_id)); return { rows: c.all('SELECT id,name,code FROM branches WHERE org_id=? AND business_id=? AND id<>? AND active=1 AND currency=? ORDER BY name', c.org_id, f.business_id, f.id, f.currency) }; });
   on('GET', '/api/roles', (c) => ({ rows: admin.listRoles(c), actions: ACTIONS, modules: MODULES, special: SPECIAL }));
   on('POST', '/api/roles', (c, r) => admin.saveRole(c, null, r.body));
@@ -102,6 +104,24 @@ export function createApi(db, { dataDir = './data', loginLimit = 10 } = {}) {
 
   // ---------- products / inventory ----------
   on('GET', '/api/variants', (c, r) => inv.listVariants(c, r.query));
+  // QR item labels (the code is the SKU) and a single QR image for on-screen display
+  on('GET', '/api/qr', (c, r) => { c.need('products.view'); const text = String(r.query.text || '').slice(0, 300); if (!text) throw bad('text_required', 'Nothing to encode'); return { raw: qrSvg(text, { size: Math.min(Number(r.query.size) || 160, 600) }), type: 'image/svg+xml', cache: 'private, max-age=3600' }; });
+  on('GET', '/api/print/labels', (c, r) => {
+    c.need('products.view'); const br = r.query.branch_id ? c.branch(num(r.query.branch_id)) : null;
+    const ids = String(r.query.ids || '').split(',').map(Number).filter((x) => x > 0).slice(0, 500); if (!ids.length) throw bad('lines_required', 'Select at least one item');
+    const per = r.query.copies === 'stock' ? 'stock' : Math.max(1, Math.min(Number(r.query.copies) || 1, 200)); let total = 0;
+    const items = ids.map((id) => { const v = inv.variantInOrg(c, id); const b = br || c.get(`SELECT * FROM branches WHERE org_id=? AND business_id=? AND id IN (${c.branchIds().join(',') || 0}) ORDER BY id LIMIT 1`, c.org_id, v.business_id); if (!b) throw notFound('variant');
+      const stock = c.get('SELECT qty FROM stock WHERE branch_id=? AND variant_id=?', b.id, v.id)?.qty || 0; const copies = Math.min(per === 'stock' ? Math.max(stock, 1) : per, 2000 - total); total += copies;
+      return { sku: v.sku, name: v.pname, attrs: Object.values(JSON.parse(v.attrs)).join(' / '), price: v.price, max_discount_bp: v.max_discount_bp, currency: b.currency, copies }; });
+    const company = c.get('SELECT name FROM orgs WHERE id=?', c.org_id).name;
+    return { raw: ex.labelsDoc(items, { mode: r.query.mode === 'thermal' ? 'thermal' : 'a4', lang: r.query.lang, company, qr: (t) => qrSvg(t) }), type: 'text/html; charset=utf-8' };
+  });
+  // baskets scanned on the floor / phone, completed by the manager when the money is received
+  on('GET', '/api/orders', (c, r) => ord.listOrders(c, r.query));
+  on('POST', '/api/orders', (c, r) => ord.createOrder(c, r.body));
+  on('POST', '/api/orders/:id/complete', (c, r) => ord.completeOrder(c, num(r.params.id), r.body));
+  on('POST', '/api/orders/:id/cancel', (c, r) => ord.cancelOrder(c, num(r.params.id), r.body));
+  on('GET', '/api/shop', (c, r) => rpt.shopBoard(c, r.query));
   on('POST', '/api/products', (c, r) => inv.createProduct(c, r.body));
   on('PATCH', '/api/products/:id', (c, r) => inv.updateProduct(c, num(r.params.id), r.body));
   on('POST', '/api/products/:id/variants', (c, r) => inv.addVariant(c, num(r.params.id), r.body));
@@ -216,7 +236,7 @@ export function createApi(db, { dataDir = './data', loginLimit = 10 } = {}) {
     if (fmtq === 'json') return rp;
     if (['csv', 'pdf', 'xlsx'].includes(fmtq)) { if (!c.can('reports.export') && !c.can(mod + '.export')) throw forbidden('Export not permitted', 'missing_permission'); c.audit('report.export', 'report', null, null, { name: r.params.name, format: fmtq, ...r.query }); }
     else if (!c.can('reports.print') && !c.can('reports.export') && !c.can(mod + '.print')) throw forbidden('Printing not permitted', 'missing_permission');
-    const logo = orgLogo(c.org_id);
+    const logo = orgLogo(c.org_id, 'light');
     if (fmtq === 'csv') return { raw: ex.reportCsv(rp), type: 'text/csv; charset=utf-8', filename: `${r.params.name}.csv` };
     if (fmtq === 'xlsx') return { raw: sheetXlsx(rp), type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', filename: `${r.params.name}.xlsx` };
     if (fmtq === 'pdf') return { raw: ex.reportPdf(rp, logo ? prepareImage(logo.buf, logo.mime) : null), type: 'application/pdf', filename: `${r.params.name}.pdf` };
@@ -272,14 +292,15 @@ export function createApi(db, { dataDir = './data', loginLimit = 10 } = {}) {
 
   function uploadedLogo(orgId, fileId) { try { if (!fileId) return null; const f = db.prepare('SELECT * FROM files WHERE id=? AND org_id=?').get(fileId, orgId); return f ? { mime: f.mime, buf: fs.readFileSync(path.join(dataDir, 'uploads', String(orgId), f.path)) } : null; } catch { return null; } }
   // company logo: uploaded in Settings -> Branding, else the default shipped in public/brand/logo.(png|jpg|webp|svg)
-  function orgLogo(orgId) { const o = db.prepare('SELECT logo_file_id FROM orgs WHERE id=?').get(orgId); const up = o && uploadedLogo(orgId, o.logo_file_id); if (up) return up; for (const ext of ['.png', '.jpg', '.jpeg', '.webp', '.svg']) { const f = path.join(BRAND_DIR, 'logo' + ext); if (fs.existsSync(f)) return { mime: BRAND_MIME[ext], buf: fs.readFileSync(f) }; } return null; }
+  // variant 'light' = artwork for light backgrounds (paper, light theme): public/brand/logo-light.* when shipped
+  function orgLogo(orgId, variant) { const o = db.prepare('SELECT logo_file_id FROM orgs WHERE id=?').get(orgId); const up = o && uploadedLogo(orgId, o.logo_file_id); if (up) return up; for (const name of variant === 'light' ? ['logo-light', 'logo'] : ['logo']) for (const ext of ['.png', '.jpg', '.jpeg', '.webp', '.svg']) { const f = path.join(BRAND_DIR, name + ext); if (fs.existsSync(f)) return { mime: BRAND_MIME[ext], buf: fs.readFileSync(f), variant: name === 'logo-light' }; } return null; }
   const dataUri = (l) => `data:${l.mime};base64,${l.buf.toString('base64')}`;
-  function logoUri(c, branchId) { const b = c.get('SELECT logo_file_id FROM branches WHERE id=?', branchId); const l = (b && uploadedLogo(c.org_id, b.logo_file_id)) || orgLogo(c.org_id); return l ? dataUri(l) : null; }
+  function logoUri(c, branchId) { const b = c.get('SELECT logo_file_id FROM branches WHERE id=?', branchId); const l = (b && uploadedLogo(c.org_id, b.logo_file_id)) || orgLogo(c.org_id, 'light'); return l ? dataUri(l) : null; }
 
   // ---------- branding ----------
   const brandOrg = () => db.prepare("SELECT id,name,tagline FROM orgs WHERE status='active' ORDER BY saas_enabled, id LIMIT 1").get();
-  on('GET', '/api/branding', () => { const o = brandOrg(); return o ? { name: o.name, tagline: o.tagline, has_logo: !!orgLogo(o.id) } : { name: 'BizSuite', has_logo: false }; }, { public: true });
-  on('GET', '/api/branding/logo', () => { const o = brandOrg(); const l = o && orgLogo(o.id); if (!l) throw notFound('logo'); return { raw: l.buf, type: l.mime, cache: 'public, max-age=300' }; }, { public: true });
+  on('GET', '/api/branding', () => { const o = brandOrg(); return o ? { name: o.name, tagline: o.tagline, has_logo: !!orgLogo(o.id), themed_logo: !!orgLogo(o.id, 'light')?.variant } : { name: 'BizSuite', has_logo: false }; }, { public: true });
+  on('GET', '/api/branding/logo', (c, r) => { const o = brandOrg(); const l = o && orgLogo(o.id, r.query.variant); if (!l) throw notFound('logo'); return { raw: l.buf, type: l.mime, cache: 'public, max-age=300' }; }, { public: true });
   on('GET', '/api/org', (c) => c.get('SELECT id,name,tagline,reporting_currency FROM orgs WHERE id=?', c.org_id));
   on('PATCH', '/api/org', (c, r) => { c.need('settings.settings'); const before = c.get('SELECT name,tagline FROM orgs WHERE id=?', c.org_id); const name = admin.str(r.body.name ?? before.name, 'name', { max: 100 }); c.run('UPDATE orgs SET name=?, tagline=? WHERE id=?', name, r.body.tagline ?? before.tagline, c.org_id); c.audit('org.update', 'org', c.org_id, before, { name, tagline: r.body.tagline }); return { ok: true }; });
   on('POST', '/api/org/logo', (c, r) => {

@@ -132,7 +132,13 @@ export function payRows(ccy, methods, getTotal) {
     read: () => [...rows.children].map((r) => ({ method_id: Number(r.querySelector('select').value), amountStr: r.querySelector('.amt').value, external_ref: r.querySelector('.ref').value.trim() || undefined })).filter((p) => p.amountStr.trim() !== '').map((p) => ({ method_id: p.method_id, amount: parseMoney(p.amountStr, ccy), external_ref: p.external_ref })), clear: () => { rows.innerHTML = ''; } };
 }
 
-export const brandLogo = (cls = 'brandlogo') => (S.brand.has_logo ? h('img', { class: cls, src: '/api/branding/logo?v=' + (S.brand.v || 0), alt: S.brand.name }) : h('b', { class: 'brandtext' }, S.brand.name));
+// the shipped Hubdex artwork has a light-background variant; CSS shows the one matching the active theme
+export const brandLogo = (cls = 'brandlogo') => {
+  if (!S.brand.has_logo) return h('b', { class: 'brandtext' }, S.brand.name);
+  const src = (v) => '/api/branding/logo?v=' + (S.brand.v || 0) + (v ? '&variant=' + v : '');
+  if (!S.brand.themed_logo) return h('img', { class: cls, src: src(), alt: S.brand.name });
+  return h('span', { class: 'logoswap' }, h('img', { class: cls + ' logo-d', src: src(), alt: S.brand.name }), h('img', { class: cls + ' logo-l', src: src('light'), alt: S.brand.name }));
+};
 export async function loadBrand() { try { const r = await fetch('/api/branding'); if (r.ok) { S.brand = { ...(await r.json()), v: Date.now() }; document.title = S.brand.name; } } catch { /* keep defaults */ } }
 // CSV / Excel / PDF / Print buttons for a server report (permission + branch scope are enforced by the server)
 export function exportButtons(path, params, base) {

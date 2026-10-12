@@ -18,12 +18,14 @@ function reconcileTo(ctx, br, src, targetE, targetP, reason) {
   if (dE || dP) post(ctx, br, { ...src, type: c.n === 0 ? 'accrual' : reason, earned: dE, payable: dP });
 }
 export function syncSaleCommission(ctx, saleId, reason = 'adjustment') {
-  const s = ctx.get('SELECT * FROM sales WHERE id=?', saleId); const lines = ctx.all('SELECT * FROM sale_lines WHERE sale_id=? AND commission_bp>0 AND barber_id IS NOT NULL', saleId);
+  const s = ctx.get('SELECT * FROM sales WHERE id=?', saleId); const lines = ctx.all('SELECT * FROM sale_lines WHERE sale_id=? AND (commission_bp>0 OR commission_fixed>0) AND barber_id IS NOT NULL', saleId);
   if (!lines.length) return;
   const br = ctx.get('SELECT * FROM branches WHERE id=?', s.branch_id);
   const totalEff = s.status === 'void' ? 0 : s.total - s.returned_total; const paid = Math.max(s.paid, 0);
   for (const l of lines) {
-    const base = s.status === 'void' ? 0 : l.net - l.returned_net; const eT = mulBp(base, l.commission_bp);
+    const base = s.status === 'void' ? 0 : l.net - l.returned_net;
+    // percentage of the net service amount plus a fixed fee per service performed (never more than the amount charged)
+    const eT = Math.min(base, mulBp(base, l.commission_bp) + (s.status === 'void' ? 0 : l.commission_fixed * (l.qty - l.returned_qty)));
     const pT = totalEff <= 0 ? 0 : paid >= totalEff ? eT : Math.floor((eT * paid) / totalEff);
     reconcileTo(ctx, br, { employee_id: l.barber_id, source_type: 'sale_line', source_id: l.id, sale_id: saleId, base, rate_bp: l.commission_bp }, eT, pT, s.status === 'void' ? 'void' : reason === 'payment' ? 'payment_release' : reason);
   }

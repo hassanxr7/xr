@@ -30,8 +30,10 @@ const hideCost = (ctx, row) => { if (!ctx.can('cost.view')) { delete row.cost; d
 
 // ---------- Products ----------
 function validVariant(ctx, v) {
-  return { sku: str(v.sku, 'sku', { max: 60 }), barcode: v.barcode || null, attrs: JSON.stringify(v.attrs || {}), cost: int(v.cost ?? 0, 'cost', { min: 0 }), price: int(v.price ?? 0, 'price', { min: 0 }), min_stock: int(v.min_stock ?? 0, 'min_stock', { min: 0 }) };
+  return { sku: str(v.sku, 'sku', { max: 60 }), barcode: v.barcode || null, attrs: JSON.stringify(v.attrs || {}), cost: int(v.cost ?? 0, 'cost', { min: 0 }), price: int(v.price ?? 0, 'price', { min: 0 }), min_stock: int(v.min_stock ?? 0, 'min_stock', { min: 0 }), max_discount_bp: maxDisc(v.max_discount_bp) };
 }
+// per-item discount ceiling in basis points (1000 = 10%); empty = no item ceiling
+export const maxDisc = (v) => (v == null || v === '' ? null : int(v, 'max_discount_bp', { min: 0, max: 10000 }));
 export function createProduct(ctx, p) {
   ctx.need('products.create');
   return ctx.tx(() => {
@@ -47,7 +49,7 @@ export function createProduct(ctx, p) {
 }
 function addVariantRow(ctx, productId, v) {
   const x = validVariant(ctx, v);
-  try { return ctx.run('INSERT INTO variants(org_id,product_id,sku,barcode,attrs,cost,price,min_stock) VALUES(?,?,?,?,?,?,?,?)', ctx.org_id, productId, x.sku, x.barcode, x.attrs, x.cost, x.price, x.min_stock).lastInsertRowid; }
+  try { return ctx.run('INSERT INTO variants(org_id,product_id,sku,barcode,attrs,cost,price,min_stock,max_discount_bp) VALUES(?,?,?,?,?,?,?,?,?)', ctx.org_id, productId, x.sku, x.barcode, x.attrs, x.cost, x.price, x.min_stock, x.max_discount_bp).lastInsertRowid; }
   catch (e) { if (/UNIQUE/.test(e.message)) throw new AppError(409, 'duplicate_sku_or_barcode', 'SKU or barcode already exists', { sku: x.sku }); throw e; }
 }
 export function addVariant(ctx, productId, v) {
@@ -60,10 +62,11 @@ export function updateVariant(ctx, id, v) {
   const sets = [], vals = [];
   for (const k of ['barcode']) if (k in v) { sets.push(`${k}=?`); vals.push(v[k] || null); }
   for (const k of ['price', 'cost', 'min_stock']) if (k in v) { sets.push(`${k}=?`); vals.push(int(v[k], k, { min: 0 })); }
+  if ('max_discount_bp' in v) { sets.push('max_discount_bp=?'); vals.push(maxDisc(v.max_discount_bp)); }
   if ('active' in v) { sets.push('active=?'); vals.push(v.active ? 1 : 0); }
   if ('attrs' in v) { sets.push('attrs=?'); vals.push(JSON.stringify(v.attrs)); }
   if (!sets.length) return { id };
-  try { ctx.tx(() => { ctx.run(`UPDATE variants SET ${sets.join(',')} WHERE id=? AND org_id=?`, ...vals, id, ctx.org_id); ctx.audit('variant.update', 'variant', id, { price: old.price, cost: old.cost, barcode: old.barcode }, v); }); }
+  try { ctx.tx(() => { ctx.run(`UPDATE variants SET ${sets.join(',')} WHERE id=? AND org_id=?`, ...vals, id, ctx.org_id); ctx.audit('variant.update', 'variant', id, { price: old.price, cost: old.cost, barcode: old.barcode, max_discount_bp: old.max_discount_bp }, v); }); }
   catch (e) { if (/UNIQUE/.test(e.message)) throw new AppError(409, 'duplicate_sku_or_barcode', 'Barcode already exists'); throw e; }
   return { id };
 }
@@ -89,7 +92,7 @@ export function listVariants(ctx, { q, branch_id, business_id, barcode, low, pag
   if (q) { where.push('(p.name LIKE ? OR v.sku LIKE ? OR v.barcode LIKE ? OR p.brand LIKE ? OR p.model LIKE ?)'); const l = `%${q.replace(/[%_]/g, '')}%`; args.push(l, l, l, l, l); }
   if (active !== undefined && active !== '') { where.push('v.active=?'); args.push(active ? 1 : 0); }
   const having = low ? `WHERE qty <= min_stock` : '';
-  const base = `SELECT v.id,v.sku,v.barcode,v.attrs,v.cost,v.price,v.min_stock,v.active,p.id product_id,p.image_file_id,p.name,p.category,p.brand,p.model,p.kind,p.is_part,p.business_id,p.warranty_months,${stockSql} qty,${valSql} value,
+  const base = `SELECT v.id,v.sku,v.barcode,v.attrs,v.cost,v.price,v.min_stock,v.max_discount_bp,v.active,p.id product_id,p.image_file_id,p.name,p.category,p.brand,p.model,p.kind,p.is_part,p.business_id,p.warranty_months,${stockSql} qty,${valSql} value,
     CASE WHEN ${stockSql}>0 THEN ${valSql}/${stockSql} ELSE v.cost END avg_cost FROM variants v JOIN products p ON p.id=v.product_id WHERE ${where.join(' AND ')}`;
   limit = Math.min(Number(limit) || 25, 200); const off = (Math.max(Number(page) || 1, 1) - 1) * limit;
   const total = ctx.get(`SELECT COUNT(*) c FROM (${base}) ${having}`, ...args).c;
