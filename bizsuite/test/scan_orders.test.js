@@ -125,3 +125,13 @@ test('manager "I bought these": product, sizes, stock, supplier balance, payment
   const again = api('POST', '/api/shop/stock-in', { branch_id: A, name: 'Polo shirt', qty: 1, cost: 800, price: 2000 }); assert.equal(again.status, 200); assert.equal(w.db.prepare('SELECT sku FROM variants WHERE id=?').get(again.body.variant_ids[0]).sku, 'RST-POLOSHIR2', 'SKUs stay unique');
   const lab = api('GET', '/api/print/labels', {}, { ids: r.body.variant_ids.join(','), copies: 'stock', branch_id: A }); assert.equal((lab.body.match(/class="lb"/g) || []).length, 10);
 });
+
+test('labels and the board stay inside the user\'s branches and businesses', async () => {
+  const w = world(); const b1 = w.biz('Rio Store', 'clothing'), b2 = w.biz('Reyxaan', 'electronics_retail'); const A = w.branch(b1, 'RST'), B = w.branch(b2, 'RYX');
+  const shirt = w.product(b1, 'S1'), phone = w.product(b2, 'P1'); w.user('Mgr', 'Branch Manager', [A]); const api = await client(w.db).login('mgr@t.so');
+  assert.equal(api('GET', '/api/print/labels', {}, { ids: String(phone), branch_id: A }).status, 404, 'item of another business');
+  assert.equal(api('GET', '/api/print/labels', {}, { ids: String(phone) }).status, 404, 'no branch of that business');
+  assert.equal(api('GET', '/api/print/labels', {}, { ids: String(shirt), branch_id: B }).status, 404, 'foreign branch');
+  assert.equal(api('GET', '/api/shop', {}, { branch_id: B }).status, 404); assert.equal(api('GET', '/api/shop').body.branch.id, A);
+  assert.equal(api('GET', '/api/orders', {}, { branch_id: B }).status, 404);
+});

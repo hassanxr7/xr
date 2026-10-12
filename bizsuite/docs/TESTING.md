@@ -4,8 +4,8 @@
 ```bash
 npm test                 # 48 unit/integration tests (node:test) – ~8 s, in-memory databases
 npm run i18n             # Somali coverage audit (must report missing: 0)
-npm run e2e              # fresh demo DB + server + headless Chromium: 102 workflow checks
-npm run e2e:sweep        # exhaustive sweep: every page, button and dialog form for 10 roles, English + Somali, phone width
+npm run e2e              # fresh demo DB + server + headless Chromium: 128 workflow checks (incl. scan & sell, orders, QR labels, shop board, barber rates)
+npm run e2e:sweep        # exhaustive sweep: every page, button and dialog form for 11 roles (incl. the sales assistant), English + Somali, phone width
 npm run preflight        # production go-live checker (run on the server)
 ```
 
@@ -43,6 +43,7 @@ Further tests: money rounding/allocation, TOTP, permissions matrix & escalation,
 
 ## Manual acceptance checklist (tick during UAT)
 Use the demo accounts in `README.md` (or your own data). Record the result and date.
+- [ ] Print QR labels on your sticker paper / label printer; scan them with a phone (installed app) and with the laptop camera; send a basket from the phone and complete it as the manager.
 - [ ] POS: scan a real barcode with your scanner; split payment cash + mobile; print thermal receipt on the real printer (80 mm) and A4 invoice
 - [ ] POS: discount above cashier limit → approval → manager approves → sale appears
 - [ ] Credit sale to a customer; collect the balance in two instalments; statement shows both

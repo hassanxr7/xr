@@ -1,3 +1,4 @@
+up on 3121
 
 == owner@demo.so
   ✓ page /dashboard renders
@@ -113,8 +114,40 @@
   ✓ accountant has no POS
   ✓ accountant@demo.so: no JS errors
 
+== assistant.store@demo.so
+  ✓ sales assistant lands on Scan & sell
+  ✓ page /scan?code=JEAN-32&cam=0 renders
+  ✓ scanned item shows price, stock and maximum discount
+  ✓ discount above the item maximum is refused
+  ✓ basket sent to the manager as an order
+  ✓ assistant.store@demo.so: no JS errors
+
+== manager.store@demo.so
+  ✓ branch manager lands on the shop board
+  ✓ shop board: Best sellers this month
+  ✓ shop board: Running out
+  ✓ shop board: Not selling - consider a discount
+  ✓ shop board: What your stock should earn
+  ✓ shop board: Statement for last month
+  ✓ shop board: Expenses this month
+  ✓ page /orders renders
+  ✓ manager sees baskets waiting for payment
+  ✓ completing the order creates the sale
+  ✓ page /orders?x=2 renders
+  ✓ completed order leaves the waiting list
+  ✓ page /labels renders
+  ✓ QR labels print with a QR code per piece
+  ✓ manager.store@demo.so: no JS errors
+
+== owner@demo.so
+  ✓ page /commissions?tab=rates renders
+  ✓ owner sets % and fixed fee per haircut for each barber
+  ✓ page /staff renders
+  ✓ one manager login per branch offered
+  ✓ owner@demo.so: no JS errors
+
 == platform@bizsuite.local
   ✓ platform admin console loads
   ✓ platform@bizsuite.local: no JS errors
 
-102/102 checks passed
+128/128 checks passed

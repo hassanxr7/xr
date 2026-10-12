@@ -111,7 +111,7 @@ export function createApi(db, { dataDir = './data', loginLimit = 10 } = {}) {
     c.need('products.view'); const br = r.query.branch_id ? c.branch(num(r.query.branch_id)) : null;
     const ids = String(r.query.ids || '').split(',').map(Number).filter((x) => x > 0).slice(0, 500); if (!ids.length) throw bad('lines_required', 'Select at least one item');
     const per = r.query.copies === 'stock' ? 'stock' : Math.max(1, Math.min(Number(r.query.copies) || 1, 200)); let total = 0;
-    const items = ids.map((id) => { const v = inv.variantInOrg(c, id); const b = br || c.get(`SELECT * FROM branches WHERE org_id=? AND business_id=? AND id IN (${c.branchIds().join(',') || 0}) ORDER BY id LIMIT 1`, c.org_id, v.business_id); if (!b) throw notFound('variant');
+    const items = ids.map((id) => { const v = inv.variantInOrg(c, id); if (br && v.business_id !== br.business_id) throw notFound('variant'); const b = br || c.get(`SELECT * FROM branches WHERE org_id=? AND business_id=? AND id IN (${c.branchIds().join(',') || 0}) ORDER BY id LIMIT 1`, c.org_id, v.business_id); if (!b) throw notFound('variant');
       const stock = c.get('SELECT qty FROM stock WHERE branch_id=? AND variant_id=?', b.id, v.id)?.qty || 0; const copies = Math.min(per === 'stock' ? Math.max(stock, 1) : per, 2000 - total); total += copies;
       return { sku: v.sku, name: v.pname, attrs: Object.values(JSON.parse(v.attrs)).join(' / '), price: v.price, max_discount_bp: v.max_discount_bp, currency: b.currency, copies }; });
     const company = c.get('SELECT name FROM orgs WHERE id=?', c.org_id).name;
