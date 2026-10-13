@@ -789,6 +789,43 @@ function wordmark(string $name): string
     return '<span class="logo-text">' . e($parts[0]) . (isset($parts[1]) ? ' <span class="logo-text-2">' . e($parts[1]) . '</span>' : '') . '</span>';
 }
 
+/**
+ * Official round company stamp (blue ink) with the logo mark in the centre.
+ * $label is the word on the centre band (e.g. VERIFIED, PAID); $date is shown under it.
+ */
+function company_stamp(string $label, string $date): string
+{
+    static $n = 0;
+    $id = 'stamp' . (++$n);
+    $name = mb_strtoupper(setting('site_name', 'Hufan Exchange'));
+    $place = mb_strtoupper(setting('contact_address', 'Mogadishu, Somalia'));
+    $ink = '#1a3ea8';
+    return '<svg class="doc-stamp" viewBox="0 0 200 200" role="img" aria-label="' . e($name . ' ' . $label) . '">'
+        . '<defs>'
+        . '<path id="' . $id . 't" d="M 28 100 A 72 72 0 0 1 172 100"/>'
+        . '<path id="' . $id . 'b" d="M 22 100 A 78 78 0 0 0 178 100"/>'
+        . '<filter id="' . $id . 'f"><feTurbulence type="fractalNoise" baseFrequency="1.3" numOctaves="1" seed="4"/>'
+        . '<feColorMatrix values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 -0.35 1.12"/><feComposite in="SourceGraphic" operator="in"/></filter>'
+        . '</defs>'
+        . '<g fill="none" stroke="' . $ink . '" filter="url(#' . $id . 'f)">'
+        . '<circle cx="100" cy="100" r="96" stroke-width="4.6"/>'
+        . '<circle cx="100" cy="100" r="89" stroke-width="1.8"/>'
+        . '<circle cx="100" cy="100" r="58" stroke-width="2"/>'
+        . '<text font-family="Inter, Arial, sans-serif" font-weight="800" font-size="14.5" letter-spacing="2.2" fill="' . $ink . '" stroke="none" text-anchor="middle">'
+        . '<textPath href="#' . $id . 't" startOffset="50%">' . e($name) . '</textPath></text>'
+        . '<text font-family="Inter, Arial, sans-serif" font-weight="700" font-size="10.5" letter-spacing="2.4" fill="' . $ink . '" stroke="none" text-anchor="middle" dominant-baseline="hanging">'
+        . '<textPath href="#' . $id . 'b" startOffset="50%">' . e($place) . '</textPath></text>'
+        . '<g fill="' . $ink . '" stroke="none"><circle cx="20" cy="100" r="2.6"/><circle cx="180" cy="100" r="2.6"/></g>'
+        // logo mark (H formed by up/down exchange arrows)
+        . '<g transform="translate(74 47) scale(.82)" stroke-width="6.2" stroke-linecap="round" stroke-linejoin="round">'
+        . '<rect x="0" y="0" width="64" height="64" rx="16" stroke-width="3.4"/>'
+        . '<path d="M23 47V18.5"/><path d="M15.8 25.2 23 18l7.2 7.2"/><path d="M23 32h18"/><path d="M41 17v28.5"/><path d="M33.8 38.8 41 46l7.2-7.2"/></g>'
+        . '<rect x="36" y="104" width="128" height="25" rx="3" fill="' . $ink . '" stroke="none"/>'
+        . '<text x="100" y="121.5" font-family="Inter, Arial, sans-serif" font-weight="800" font-size="15" letter-spacing="3" fill="#fff" stroke="none" text-anchor="middle">' . e(mb_strtoupper($label)) . '</text>'
+        . '<text x="100" y="145" font-family="Inter, Arial, sans-serif" font-weight="700" font-size="11" letter-spacing="1.5" fill="' . $ink . '" stroke="none" text-anchor="middle">' . e($date) . '</text>'
+        . '</g></svg>';
+}
+
 function whatsapp_link(string $text = ''): string
 {
     $num = preg_replace('/\D/', '', setting('contact_whatsapp'));

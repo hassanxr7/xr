@@ -100,7 +100,7 @@ require APP_PATH . '/views/doc_head.php';
       <p><?= e(t('receipt_note', ['url' => preg_replace('#^https?://#', '', full_url('track.php'))])) ?></p>
     </div>
     <div class="doc-sign">
-      <?php if ($isDone): ?><div class="doc-stamp"><span><?= e(mb_strtoupper(setting('site_name', 'Hufan Exchange'))) ?></span><strong><?= e(t('paid_stamp')) ?></strong><span><?= date('d.m.Y', strtotime($order['completed_at'])) ?></span></div><?php endif; ?>
+      <?php if ($isDone): ?><?= company_stamp(t('paid_stamp'), date('d.m.Y', strtotime($order['completed_at']))) ?><?php endif; ?>
       <div class="doc-sign-line"><?= e(t('authorized_signature')) ?></div>
     </div>
   </section>

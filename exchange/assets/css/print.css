@@ -138,13 +138,7 @@ a { color: inherit; }
 .doc-note { flex: 1; border-left: 3px solid var(--brand); padding: 4px 0 4px 12px; }
 .doc-note p { margin: 0; color: var(--ink-2); font-size: 10.5px; }
 .doc-sign { width: 200px; text-align: center; }
-.doc-stamp {
-  width: 104px; height: 104px; margin: 0 auto 8px; border-radius: 50%;
-  border: 2.5px solid color-mix(in srgb, var(--brand) 75%, transparent); outline: 1px solid color-mix(in srgb, var(--brand) 40%, transparent); outline-offset: -8px;
-  color: color-mix(in srgb, var(--brand) 85%, #000); display: flex; flex-direction: column; align-items: center; justify-content: center;
-  transform: rotate(-12deg); opacity: .85; font-size: 7.5px; font-weight: 700; letter-spacing: .08em; text-align: center; padding: 10px;
-}
-.doc-stamp strong { font-size: 13px; letter-spacing: .12em; margin: 3px 0; text-transform: uppercase; }
+.doc-stamp { display: block; width: 128px; height: 128px; margin: 0 auto 6px; transform: rotate(-9deg); opacity: .96; mix-blend-mode: multiply; }
 .doc-sign-line { border-top: 1px solid var(--ink); padding-top: 5px; font-size: 10px; color: var(--muted); position: relative; }
 .doc-footer { display: flex; justify-content: space-between; gap: 10px; border-top: 1px solid var(--line); margin-top: 18px; padding-top: 8px; color: var(--muted); font-size: 9.5px; }
 
