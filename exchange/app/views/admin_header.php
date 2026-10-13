@@ -1,7 +1,7 @@
 <?php
 defined('APP') || exit;
 $adm = admin();
-$siteName = setting('site_name', 'XR Exchange');
+$siteName = setting('site_name', 'Hufan Exchange');
 $current = basename($_SERVER['SCRIPT_NAME'] ?? '');
 $pendingCount = (int) val("SELECT COUNT(*) FROM orders WHERE status IN ('pending','processing')");
 $nav = [
@@ -22,6 +22,7 @@ $nav = [
 <meta name="robots" content="noindex, nofollow">
 <title><?= e(($pageTitle ?? t('a_dashboard')) . ' · Admin · ' . $siteName) ?></title>
 <link rel="icon" href="<?= e(asset('img/favicon.svg')) ?>" type="image/svg+xml">
+<link rel="apple-touch-icon" href="<?= e(asset('img/apple-touch-icon.png')) ?>">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap">

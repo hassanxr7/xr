@@ -1,15 +1,15 @@
 <?php
-// Tusaale config ah. Installer-ka (install/) ayaa si toos ah u abuura app/config.php.
-// Haddii aad gacanta ku samaynayso: koobiyee faylkan, u magacow config.php, buuxi xogta.
+// Example configuration. The web installer (install/) creates app/config.php automatically.
+// To configure manually: copy this file to app/config.php and fill in your details.
 return [
     'db' => [
         'host' => 'localhost',
         'port' => '',
-        'name' => 'u123456789_xr',
-        'user' => 'u123456789_xr',
+        'name' => 'u123456789_hufan',
+        'user' => 'u123456789_hufan',
         'pass' => 'PASSWORD',
     ],
-    'base_url' => '',      // Ka tag madhan si uu si toos ah u ogaado (auto-detect)
-    'debug'    => false,   // true = muuji khaladaadka (ha isticmaalin marka website-ku shaqeynayo)
+    'base_url' => '',      // Leave empty to auto-detect (works in public_html or a sub-folder)
+    'debug'    => false,   // true = show errors on screen (never leave on for a live site)
     'app_key'  => 'change-me-to-a-long-random-string',
 ];

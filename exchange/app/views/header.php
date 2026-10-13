@@ -1,6 +1,6 @@
 <?php
 defined('APP') || exit;
-$siteName = setting('site_name', 'XR Exchange');
+$siteName = setting('site_name', 'Hufan Exchange');
 $docTitle = isset($pageTitle) ? $pageTitle . ' · ' . $siteName : $siteName . ' — ' . setting('site_tagline');
 $me = user();
 $current = basename($_SERVER['SCRIPT_NAME'] ?? '');
@@ -13,7 +13,11 @@ $announcement = setting('announcement');
 <title><?= e($docTitle) ?></title>
 <meta name="description" content="<?= e(setting('site_tagline')) ?>">
 <meta name="theme-color" content="<?= e(brand_color()) ?>">
+<meta property="og:title" content="<?= e($docTitle) ?>">
+<meta property="og:description" content="<?= e(setting('site_tagline')) ?>">
+<meta property="og:image" content="<?= e(full_url('assets/img/icon-512.png')) ?>">
 <link rel="icon" href="<?= e(asset('img/favicon.svg')) ?>" type="image/svg+xml">
+<link rel="apple-touch-icon" href="<?= e(asset('img/apple-touch-icon.png')) ?>">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap">

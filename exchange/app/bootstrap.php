@@ -1,7 +1,7 @@
 <?php
 /**
- * XR Exchange — bootstrap.
- * Waxaa la soo dhex galiyaa (require) bog kasta oo nidaamka ka mid ah.
+ * Hufan Exchange — bootstrap.
+ * Required at the top of every page.
  */
 declare(strict_types=1);
 
@@ -32,7 +32,7 @@ if (config('debug')) {
 }
 
 set_exception_handler(function (Throwable $e) {
-    error_log('[XR] ' . $e->getMessage() . ' in ' . $e->getFile() . ':' . $e->getLine());
+    error_log('[Hufan] ' . $e->getMessage() . ' in ' . $e->getFile() . ':' . $e->getLine());
     if (!headers_sent()) {
         http_response_code(500);
     }
@@ -41,8 +41,8 @@ set_exception_handler(function (Throwable $e) {
     } else {
         echo '<!doctype html><meta charset="utf-8"><title>Error</title>'
             . '<div style="font-family:system-ui;max-width:520px;margin:12vh auto;padding:24px;text-align:center">'
-            . '<h1 style="font-size:22px">Khalad ayaa dhacay</h1>'
-            . '<p style="color:#64748b">Fadlan isku day mar kale. Something went wrong, please try again.</p>'
+            . '<h1 style="font-size:22px">Something went wrong</h1>'
+            . '<p style="color:#64748b">Please try again in a moment.</p>'
             . '<p><a href="' . htmlspecialchars(url('')) . '">&larr; Home</a></p></div>';
     }
     exit;
@@ -54,7 +54,7 @@ header('X-Content-Type-Options: nosniff');
 header('Referrer-Policy: strict-origin-when-cross-origin');
 
 // Session
-session_name('XRSESS');
+session_name('HUFANSESS');
 session_set_cookie_params([
     'lifetime' => 0,
     'path'     => (base_url() ?: '') . '/',

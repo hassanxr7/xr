@@ -392,7 +392,7 @@ return [
     'a_address'              => 'Address',
     'a_whatsapp_help'        => 'International format, e.g. 25261xxxxxxx.',
     'a_order_prefix'         => 'Order prefix',
-    'a_order_prefix_help'    => 'e.g. XR → XR261013ABCDE',
+    'a_order_prefix_help'    => 'e.g. HX → HX261013ABCDE',
     'a_expiry'               => 'Payment window (minutes)',
     'a_expiry_help'          => 'Unpaid orders expire after this time.',
     'a_brand_color'          => 'Brand colour',

@@ -1,4 +1,4 @@
-/* XR Exchange — main stylesheet (public site + shared components) */
+/* Hufan Exchange — main stylesheet (public site + shared components) */
 :root {
   --brand: #0e7c66;
   --brand-600: color-mix(in srgb, var(--brand) 82%, #000);
@@ -67,11 +67,10 @@ p { margin: 0 0 1em; }
 .nav { display: flex; align-items: center; justify-content: space-between; min-height: 66px; gap: 16px; }
 .brand { display: inline-flex; align-items: center; gap: 10px; font-weight: 800; font-size: 19px; color: var(--ink); letter-spacing: -.02em; }
 .brand:hover { color: var(--ink); }
-.logo-mark {
-  width: 36px; height: 36px; border-radius: 11px; display: grid; place-items: center; color: #fff;
-  background: linear-gradient(135deg, var(--brand), var(--brand-700));
-  box-shadow: 0 6px 16px -6px var(--brand);
-}
+.logo-mark { width: 38px; height: 38px; border-radius: 11px; flex-shrink: 0; box-shadow: 0 8px 18px -8px rgba(6, 63, 52, .7); }
+.logo-text { white-space: nowrap; }
+.logo-text-2 { font-weight: 500; color: var(--brand); }
+.brand-light .logo-text-2 { color: #5eead4; }
 .logo-img { height: 38px; width: auto; }
 .brand-light { color: #fff; }
 .brand-light:hover { color: #fff; }

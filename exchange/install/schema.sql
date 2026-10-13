@@ -1,5 +1,5 @@
--- XR Exchange — database schema (MySQL 5.7+ / MariaDB 10.3+)
--- Installer-ka (install/index.php) ayaa si toos ah u maamula faylkan.
+-- Hufan Exchange — database schema (MySQL 5.7+ / MariaDB 10.3+)
+-- Run automatically by the web installer (install/index.php).
 
 SET NAMES utf8mb4;
 
@@ -142,17 +142,17 @@ CREATE TABLE IF NOT EXISTS `login_attempts` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- ---------------------------------------------------------------------------
--- Xogta bilowga ah (seed data). Admin-ka ayaa ka beddeli kara panel-ka.
+-- Seed data. Everything below can be changed later from the admin panel.
 -- ---------------------------------------------------------------------------
 
 INSERT IGNORE INTO `gateways`
   (`id`, `code`, `name`, `currency`, `decimals`, `color`, `reserve`, `account_label`, `account_placeholder`, `account_pattern`, `pay_to`, `pay_to_name`, `ussd_template`, `instructions`, `is_active`, `sort_order`)
 VALUES
-  (1, 'evc', 'EVC Plus', 'USD', 2, '#16a34a', 10000, 'Lambarka EVC Plus', '61xxxxxxx', '^\\+?[0-9]{7,15}$', '61xxxxxxx', 'XR Exchange', '*712*{to}*{amount}#', 'Ka dir lacagta lambarkaaga EVC Plus. Kadib geli Transaction ID-ga ku jira fariinta (SMS) aad heshay.', 1, 1),
-  (2, 'moneygo', 'MoneyGo', 'USD', 2, '#2563eb', 5000, 'MoneyGo Account / Wallet ID', 'Tusaale: U12345678', NULL, NULL, NULL, NULL, NULL, 1, 2),
-  (3, 'usdt_trc20', 'USDT (TRC20)', 'USDT', 2, '#26a17b', 5000, 'USDT TRC20 Wallet Address', 'T...', '^T[1-9A-HJ-NP-Za-km-z]{33}$', NULL, NULL, NULL, 'Hubi in cinwaanku yahay shabakadda TRON (TRC20).', 1, 3),
-  (4, 'usdt_bep20', 'USDT (BEP20)', 'USDT', 2, '#d4a017', 5000, 'USDT BEP20 Wallet Address', '0x...', '^0x[a-fA-F0-9]{40}$', NULL, NULL, NULL, 'Hubi in cinwaanku yahay shabakadda BNB Smart Chain (BEP20).', 1, 4),
-  (5, 'paypal', 'PayPal', 'USD', 2, '#1d4ed8', 3000, 'PayPal Email', 'magac@email.com', '^[^@\\s]+@[^@\\s]+\\.[^@\\s]+$', NULL, NULL, NULL, NULL, 1, 5);
+  (1, 'evc', 'EVC Plus', 'USD', 2, '#16a34a', 10000, 'EVC Plus number', '61xxxxxxx', '^\\+?[0-9]{7,15}$', '61xxxxxxx', 'Hufan Exchange', '*712*{to}*{amount}#', 'Send from your own EVC Plus number, then enter the Transaction ID from the confirmation SMS.', 1, 1),
+  (2, 'moneygo', 'MoneyGo', 'USD', 2, '#2563eb', 5000, 'MoneyGo account / wallet ID', 'e.g. U12345678', NULL, NULL, NULL, NULL, NULL, 1, 2),
+  (3, 'usdt_trc20', 'USDT (TRC20)', 'USDT', 2, '#26a17b', 5000, 'USDT TRC20 wallet address', 'T...', '^T[1-9A-HJ-NP-Za-km-z]{33}$', NULL, NULL, NULL, 'Make sure the address is on the TRON (TRC20) network.', 1, 3),
+  (4, 'usdt_bep20', 'USDT (BEP20)', 'USDT', 2, '#d4a017', 5000, 'USDT BEP20 wallet address', '0x...', '^0x[a-fA-F0-9]{40}$', NULL, NULL, NULL, 'Make sure the address is on BNB Smart Chain (BEP20).', 1, 4),
+  (5, 'paypal', 'PayPal', 'USD', 2, '#1d4ed8', 3000, 'PayPal email', 'name@email.com', '^[^@\\s]+@[^@\\s]+\\.[^@\\s]+$', NULL, NULL, NULL, NULL, 1, 5);
 
 INSERT IGNORE INTO `pairs`
   (`id`, `from_gateway_id`, `to_gateway_id`, `rate`, `fee_percent`, `fee_fixed`, `min_amount`, `max_amount`, `is_active`, `sort_order`)
@@ -167,21 +167,21 @@ VALUES
   (8, 5, 1, 1, 8.000, 0, 10, 2000, 0, 8);
 
 INSERT IGNORE INTO `settings` (`key`, `value`) VALUES
-  ('site_name', 'XR Exchange'),
-  ('site_tagline', 'Sarrif lacageed oo degdeg ah, ammaan ah oo la isku halleyn karo'),
+  ('site_name', 'Hufan Exchange'),
+  ('site_tagline', 'Fast, secure and trusted money exchange'),
   ('brand_color', '#0e7c66'),
   ('logo', ''),
   ('contact_phone', ''),
   ('contact_whatsapp', ''),
   ('contact_email', ''),
-  ('contact_address', 'Muqdisho, Soomaaliya'),
+  ('contact_address', 'Mogadishu, Somalia'),
   ('working_hours', '24/7'),
   ('timezone', 'Africa/Mogadishu'),
-  ('default_lang', 'so'),
-  ('order_prefix', 'XR'),
+  ('default_lang', 'en'),
+  ('order_prefix', 'HX'),
   ('order_expiry_minutes', '60'),
   ('telegram_bot_token', ''),
   ('telegram_chat_id', ''),
-  ('statement_note', 'Bayaankan waxaa si toos ah u soo saaray nidaamka. Haddii aad aragto khalad, fadlan nala soo xiriir muddo 7 maalmood gudahood ah.'),
-  ('terms_text', '1. Lacagta waa in laga diraa lambarka aad ku qortay dalabka.\n2. Hubi cinwaanka/akoonka aad lacagta ku helayso; lacag khalad loo diray lama soo celin karo.\n3. Dalabyada waxaa la fuliyaa marka lacagta la xaqiijiyo.\n4. Sicirada iyo khidmadaha waa la beddeli karaa wakhti kasta, laakiin dalabkaaga wuxuu xafidayaa sicirka markii aad samaysay.'),
+  ('statement_note', 'This statement was generated automatically by the system. If you notice any error, please contact us within 7 days.'),
+  ('terms_text', '1. Payment must be sent from the number you entered on the order.\n2. Double-check the account/address you will receive on. Funds sent to a wrong address cannot be recovered.\n3. Orders are processed once your payment has been verified.\n4. Rates and fees may change at any time, but your order keeps the rate it was created with.'),
   ('announcement', '');

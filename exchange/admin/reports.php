@@ -175,7 +175,7 @@ require APP_PATH . '/views/doc_head.php';
       <p><?= e(t('a_report_note')) ?></p>
     </div>
     <div class="doc-sign">
-      <div class="doc-stamp"><span><?= e(mb_strtoupper(setting('site_name', 'XR Exchange'))) ?></span><strong><?= e(t('verified')) ?></strong><span><?= date('d.m.Y') ?></span></div>
+      <div class="doc-stamp"><span><?= e(mb_strtoupper(setting('site_name', 'Hufan Exchange'))) ?></span><strong><?= e(t('verified')) ?></strong><span><?= date('d.m.Y') ?></span></div>
       <div class="doc-sign-line"><?= e(t('authorized_signature')) ?> · <?= e(admin()['name'] ?? '') ?></div>
     </div>
   </section>

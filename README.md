@@ -1,7 +1,7 @@
 # xcash_user
 
-## XR Exchange — website-ka sarrifka (PHP / MySQL)
+## Hufan Exchange — money exchange website (PHP / MySQL)
 
-Galka [`exchange/`](exchange/) wuxuu ka kooban yahay nidaam sarrif lacageed oo dhammaystiran
-(EVC Plus → MoneyGo · USDT · PayPal), oo leh bayaan iyo rasiid la daabici karo iyo admin panel.
-Waxaa loogu talagalay Hostinger Shared Hosting — eeg [`exchange/README.md`](exchange/README.md) si aad u rakibto.
+The [`exchange/`](exchange/) folder contains a complete money exchange platform
+(EVC Plus → MoneyGo · USDT · PayPal) with printable statements and receipts and a full admin panel.
+It is built for Hostinger Shared Hosting — see [`exchange/README.md`](exchange/README.md) for installation.

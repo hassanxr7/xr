@@ -1,161 +1,189 @@
-# XR Exchange — Nidaamka Sarrifka Lacagaha
+<p align="center"><img src="assets/img/logo.svg" alt="Hufan Exchange" width="420"></p>
 
-Nidaam web ah oo lagu sarrifo lacagaha: **EVC Plus → MoneyGo**, **EVC Plus → USDT (TRC20 / BEP20)**, iyo **EVC Plus → PayPal**.
-Wuxuu leeyahay **bayaan (statement) iyo rasiid la daabici karo** (A4, "Save as PDF"), admin panel buuxa, iyo wuxuu si toos ah ugu shaqeeyaa **Hostinger Shared Hosting** (PHP + MySQL — Node.js, Composer ama SSH looma baahna).
+# Hufan Exchange — Money Exchange Platform
 
----
+A complete web platform for exchanging **EVC Plus → MoneyGo**, **EVC Plus → USDT (TRC20 / BEP20)** and **EVC Plus → PayPal**.
+It includes **printable account statements and receipts** (A4, "Save as PDF"), a full admin panel, and runs as-is on **Hostinger Shared Hosting** (plain PHP + MySQL — no Node.js, Composer or SSH needed).
 
-## Waxa uu qabto
-
-**Macmiilka (customer)**
-- Calculator sarrif oo toos ah: geli lacagta aad diraysid → wuxuu ku tusayaa inta aad helayso (khidmad, sicir, xad, kayd).
-- Is-diiwaangelin (lambarka taleefanka + password) iyo galitaan.
-- Dalab samee → wuxuu helayaa tilmaamaha lacag-bixinta EVC: lambarka lagu dirayo, lacagta, iyo **koodhka USSD** (`*712*61xxxxxxx*100#`) oo hal taabasho lagu wici karo.
-- Wuxuu gelinayaa **Transaction ID**-ga SMS-ka EVC (iyo sawir screenshot ah haddii uu rabo).
-- Waqti xaddidan (default 60 daqiiqo); dalabka aan la bixin si toos ah ayuu u dhacaa.
-- Dashboard: dalabyadiisa, xaaladooda, iyo taariikhda dalab kasta.
-- **Bayaanka xisaabta (Account Statement)** — muddo la doorto (bishan, bishii hore, 3 bilood, sannadkan, dhammaan), daabac ama PDF.
-- **Rasiid** dalab kasta — daabac ama PDF.
-- Raadi dalab (lambarka dalabka + taleefan).
-- Luqad: **Soomaali / English**.
-
-**Admin-ka**
-- Dashboard: dalabyada sugaya hubin, lacagta maanta, khidmadda, jaantus 7 maalmood, kaydka.
-- Dalabyada: shaandhee (xaalad, sarrif, taariikh, raadin), eeg sawirka caddaynta, dhammee / diid / fuli, geli TXID-ga lacag-bixinta, fariin u dir macmiilka, qoraal gudaha ah. **CSV export** (Excel).
-- Sicirada & sarrifyada: beddel sicirka, khidmadda (% + go'an), xadka ugu yar/badan; ku dar sarrif cusub (tusaale USDT → EVC).
-- Hababka lacag-bixinta: EVC Plus, MoneyGo, USDT TRC20, USDT BEP20, PayPal — lambarka EVC-gaaga, koodhka USSD, logo, midab, hubinta qaabka wallet-ka (regex), **kaydka (reserve)**.
-- Kaydku si toos ah ayuu isu beddelaa marka dalab la dhammeeyo (ama dib loo furo).
-- Macaamiisha: raadi, eeg dalabyadooda, **daabac bayaankooda**, xir/fur akoonka, beddel password-ka.
-- **Warbixin la daabici karo** (Exchange Report): muddo, xaalad, sarrif — wadarta, khidmadda, sarrif kasta, iyo liiska dhaqdhaqaaqyada.
-- Dejinta: magaca, logo, midabka, xiriirka, WhatsApp, ogeysiis, waqtiga dalabka, shuruudaha, qoraalka bayaanka.
-- **Ogeysiis Telegram** marka dalab cusub yimaado ama macmiil bixiyo.
-- Admin-yo badan.
-
-**Amniga**: password hashing (bcrypt), CSRF token foom kasta, PDO prepared statements, xaddidaadda isku-dayga login-ka, sawirrada caddaynta oo aan si toos ah looga furi karin internetka, `.htaccess` oo xiraya `app/`, `install/schema.sql` iyo PHP ku jira `uploads/`.
+Interface languages: **English (default)** and Somali — visitors can switch with the EN/SO button.
 
 ---
 
-## Shuruudaha
+## Features
 
-- PHP **8.1** ama ka sareeya (8.2 / 8.3 ayaa lagu talinayaa)
-- MySQL 5.7+ ama MariaDB 10.3+
-- Extensions: `pdo_mysql`, `mbstring`, `curl` (Telegram), `gd`/`fileinfo` — dhammaantood Hostinger way ku jiraan.
+**Customers**
+- Live exchange calculator: enter what you send → see what you receive (fee, rate, limits, reserve). Works both ways.
+- Sign up with phone number + password, log in, profile, change password.
+- Create an order → get EVC payment instructions: the number to pay, the amount, and a one-tap **USSD code** (`*712*61xxxxxxx*100#`).
+- Submit the **Transaction ID** from the EVC SMS (plus an optional screenshot).
+- Payment window (default 60 minutes); unpaid orders expire automatically.
+- Dashboard with all orders, status progress and order history.
+- **Printable account statement** — choose a period (this month, last month, 3 months, this year, all time), print or save as PDF.
+- **Printable receipt** for every order.
+- Track an order by order number + phone.
+
+**Admin**
+- Dashboard: orders to review, today's volume and fees, 7-day chart, reserves.
+- Orders: filter (status, pair, date, search), view payment screenshot, process / complete / reject, record the payout TXID, message the customer, internal notes, **CSV export** (Excel).
+- Rates & pairs: rate, fee (% + fixed), min/max; add new directions (e.g. USDT → EVC).
+- Payment methods: EVC Plus, MoneyGo, USDT TRC20, USDT BEP20, PayPal — your receiving number/address, USSD template, logo, colour, wallet format check (regex), **reserve**.
+- Reserves update automatically when an order is completed (and are restored if it is re-opened).
+- Customers: search, order history, **print their statement**, block/unblock, reset password.
+- **Printable business report**: period, status, pair — totals, fees, per-pair breakdown and transaction list.
+- Settings: name, logo, brand colour, contact details, WhatsApp, announcement bar, payment window, terms, statement footer note, default language.
+- **Telegram notifications** when a new order arrives or a customer pays.
+- Multiple admin accounts.
+
+**Security**: bcrypt password hashing, CSRF token on every form, PDO prepared statements, login throttling, payment screenshots stored privately (served only to the owner/admin), `.htaccess` rules that block `app/`, `install/schema.sql` and any script inside `uploads/`.
 
 ---
 
-## Sida loogu rakibo Hostinger (tallaabo-tallaabo)
+## Requirements
 
-### 1. Diyaari faylasha
-1. GitHub-ka, riix **Code → Download ZIP**, kadib furo (extract) kombiyuutarkaaga.
-2. Gal galka **`exchange`**. Dooro **dhammaan** waxa ku jira (`admin`, `app`, `assets`, `install`, `uploads`, `index.php`, `.htaccess` …) kadib **Compress → ZIP** (tusaale `exchange.zip`).
-   > Hubi in `.htaccess` ay ku jirto — waa fayl qarsoon. Windows: View → Show hidden items. Mac: `Cmd + Shift + .`
+- PHP **8.1** or newer (8.2 / 8.3 recommended)
+- MySQL 5.7+ or MariaDB 10.3+
+- PHP extensions: `pdo_mysql`, `mbstring`, `curl` (Telegram), `gd`/`fileinfo` — all enabled on Hostinger by default.
 
-### 2. Samee database
+---
+
+## Installing on Hostinger (step by step)
+
+### 1. Prepare the files
+Use the ready-made **`hufan-exchange.zip`**, or build it yourself: open the `exchange` folder, select **everything inside it** (`admin`, `app`, `assets`, `install`, `uploads`, `index.php`, `.htaccess` …) and compress it to a ZIP.
+> Make sure `.htaccess` is included — it is a hidden file. Windows: View → Show hidden items. macOS: `Cmd + Shift + .`
+
+### 2. Create a database
 1. hPanel → **Websites → Manage → Databases → MySQL Databases**.
-2. Samee database cusub: geli magac (tusaale `xr`), user (tusaale `xr`) iyo password adag → **Create**.
-3. Qor meel: **database name**, **username**, **password** (waxay u eg yihiin `u123456789_xr`). Host-ku waa `localhost`.
+2. Enter a database name, user and a strong password → **Create**.
+3. Note the **database name**, **username** and **password** (they look like `u123456789_hufan`). The host is `localhost`.
 
-### 3. Soo geli faylasha
-1. hPanel → **Files → File Manager** → fur galka **`public_html`**.
-2. (Haddii ay ku jiraan faylal default ah sida `default.php`, tirtir.)
-3. **Upload** → dooro `exchange.zip` → kadib midig-riix → **Extract** → `public_html` gudihiisa.
-4. Hubi in `index.php`, `admin/`, `app/` … ay si toos ah ugu jiraan `public_html/` (ma aha `public_html/exchange/`).
-   > Haddii aad rabto inuu ku jiro galka hoose (tusaale `domain.com/sarrif/`), waa la taageeraa — si toos ah ayuu u ogaanayaa.
+### 3. Upload
+1. hPanel → **Files → File Manager** → open **`public_html`**.
+2. Delete default files such as `default.php` if present.
+3. **Upload** `hufan-exchange.zip` → right-click → **Extract** into `public_html`.
+4. Check that `index.php`, `admin/`, `app/` … are directly inside `public_html/` (not `public_html/hufan-exchange/`).
+   > Installing in a sub-folder (e.g. `yourdomain.com/exchange/`) also works — the path is detected automatically.
 
-### 4. Dooro nooca PHP
-hPanel → **Advanced → PHP Configuration** → dooro **PHP 8.2** (ama 8.1/8.3) → Save.
+### 4. Choose the PHP version
+hPanel → **Advanced → PHP Configuration** → select **PHP 8.2** (or 8.1 / 8.3) → Save.
 
-### 5. Rakib
-1. Browser-ka ku fur: **`https://domainkaaga.com/install/`**
-2. Buuxi:
-   - Xogta database-ka (tallaabada 2)
-   - Magaca shirkadda, **lambarka EVC Plus** ee lacagta lagugu soo dirayo, WhatsApp
-   - Akoonka admin-ka (username + password 8+ xaraf)
-3. Riix **Rakib hadda (Install)**.
-4. Ammaanka dartiis, **tirtir galka `install/`** (File Manager). (Installer-ku si toos ah ayuu isu xiraa, laakiin tirtiriddu waa ka wanaagsan tahay.)
+### 5. Run the installer
+1. Open **`https://yourdomain.com/install/`**
+2. Fill in the database details, your business name, the **EVC Plus number** customers pay to, WhatsApp, and the admin account (password 8+ characters).
+3. Click **Install now**.
+4. For security, **delete the `install/` folder** in File Manager (the installer also locks itself).
 
 ### 6. SSL (HTTPS)
-hPanel → **Security → SSL** → hubi in SSL-ku "Active" yahay, kadib shid **Force HTTPS**.
-(Ama ka saar calaamadaha `#` ee qaybta "Force HTTPS" ee faylka `.htaccess`.)
+hPanel → **Security → SSL** → make sure SSL is active, then turn on **Force HTTPS**
+(or remove the `#` signs in the "Force HTTPS" block of `.htaccess`).
 
-✅ Website-ku hadda wuu shaqeynayaa: `https://domainkaaga.com` · Admin: `https://domainkaaga.com/admin/`
-
----
-
-## Kadib rakibidda — dejinta muhiimka ah
-
-1. **Admin → Hababka lacag-bixinta → EVC Plus**: hubi *"Lambarka/akoonka lacagta lagu soo diro"* (lambarkaaga EVC) iyo *Magaca akoonka*. Koodhka USSD default-ka ah: `*712*{to}*{amount}#`.
-2. **Admin → Sicirada & Sarrifyada**: beddel sicirka iyo khidmadda. Xisaabta:
-   - `Khidmad = lacag × % + khidmad go'an`
-   - `Lacagta la helayo = (lacag − khidmad) × sicir`
-   - Tusaale: EVC → USDT, sicir 1, khidmad 3% → $100 = 97.00 USDT
-3. **Kaydka (reserve)**: geli inta USDT / MoneyGo / PayPal aad hayso. Dalab kasta oo ka badan kaydka lama aqbalayo.
-4. **Dejinta**: logo, midabka, taleefanka, WhatsApp (tusaale `252615551234`), cinwaanka, shuruudaha, qoraalka hoose ee bayaanka.
-5. **Telegram (ikhtiyaari)**: Telegram-ka ka raadi `@BotFather` → `/newbot` → koobiyee token-ka. Bot-ka fariin u dir, kadib `@userinfobot` ka hel chat ID-gaaga. Geli labadaba → *Tijaabi Telegram*.
-6. **Sarrif rogan** (tusaale USDT → EVC): Admin → Sicirada → fur (active) sarrifka. Marka hore geli *akoonka lacagta lagu soo diro* ee habkaas (tusaale cinwaankaaga USDT TRC20) gudaha Hababka lacag-bixinta.
+✅ Done: website `https://yourdomain.com` · admin `https://yourdomain.com/admin/`
 
 ---
 
-## Sida uu u shaqeeyo (habraaca dalabka)
+## After installing — important settings
+
+1. **Admin → Payment methods → EVC Plus**: check *Account customers pay into* (your EVC number) and the *Account name*. Default USSD template: `*712*{to}*{amount}#`.
+2. **Admin → Rates & Pairs**: set your rates and fees. Formula:
+   - `Fee = amount × % + fixed fee`
+   - `Received = (amount − fee) × rate`
+   - Example: EVC → USDT, rate 1, fee 3% → $100 = 97.00 USDT
+   - The seeded fees (MoneyGo 2%, USDT 3%, PayPal 6%) are examples only.
+3. **Reserves**: enter how much USDT / MoneyGo / PayPal you actually hold. Orders larger than the reserve are refused.
+4. **Settings**: logo (optional — the Hufan logo is used by default), colour, phone, WhatsApp (e.g. `252615551234`), address, terms, statement note.
+5. **Telegram (optional)**: in Telegram open `@BotFather` → `/newbot` → copy the token. Send your bot a message, get your chat ID from `@userinfobot`, enter both → *Send test*.
+6. **Reverse directions** (e.g. USDT → EVC): first enter your receiving address for that method under Payment methods, then activate the pair under Rates & Pairs.
+
+> Payments are verified manually: the admin checks the EVC SMS, sends the USDT / MoneyGo / PayPal, then marks the order *Completed* with the payout TXID. The system does not connect to EVC, wallets or PayPal automatically.
+
+---
+
+## Order flow
 
 ```
-Macmiil: samee dalab ─► Sugaya lacag-bixin ─► (wuxuu geliyay Transaction ID) ─► La hubinayo
-Admin:   hubi lacagta EVC ─► Waa la fulinayaa ─► dir USDT/MoneyGo/PayPal ─► La dhammeeyay (geli TXID)
+Customer: create order ─► Awaiting payment ─► (submits Transaction ID) ─► Verifying
+Admin:    check the EVC payment ─► Processing ─► send USDT/MoneyGo/PayPal ─► Completed (enter TXID)
 ```
-- Haddii macmiilku aanu bixin muddada (default 60 daqiiqo) → **Waqtigii wuu dhacay**.
-- Admin-ku wuxuu kaloo dooran karaa **La diiday** (sabab waa qasab) ama **La joojiyay**.
+- Not paid within the window (default 60 min) → **Expired**.
+- Admin can also **Reject** (a reason is required) or **Cancel**.
 
 ---
 
-## Daabacaadda (Statement / Rasiid / Warbixin)
+## Printing (statement / receipt / report)
 
-| Dukumenti | Halka laga helo |
+| Document | Where |
 |---|---|
-| Bayaanka macmiilka | Macmiilka: menu → **Bayaanka** · Admin: Macaamiisha → 🖨 |
-| Rasiidka dalabka | Bogga dalabka → **Daabac rasiidka** |
-| Warbixinta ganacsiga | Admin → **Warbixinno** (ama Dalabyada → *Daabac warbixin*) |
+| Customer statement | Customer: menu → **Statement** · Admin: Customers → 🖨 |
+| Order receipt | Order page → **Print receipt** |
+| Business report | Admin → **Reports** (or Orders → *Print report*) |
 
-Riix **Daabac / PDF** → browser-ka ayaa furaya daabacaadda. PDF ahaan u kaydi: *Destination → Save as PDF*.
-Talo: daabacaadda, shid **"Background graphics"** si midabada u muuqdaan.
+Click **Print / PDF** → choose *Save as PDF* to keep a PDF copy. Tip: enable **"Background graphics"** in the print dialog so colours print.
 
 ---
 
-## Dhibaatooyinka caadiga ah
+## Brand assets
 
-| Dhibaato | Xal |
+| File | Use |
 |---|---|
-| **500 Internal Server Error** | Hubi nooca PHP (8.1+). Hubi in `.htaccess` si sax ah loo soo geliyay. |
-| Bog cad / khalad aan la garanayn | Fur `app/config.php` → `'debug' => true` si aad u aragto khaladka; kadib ku celi `false`. Sidoo kale eeg `app/storage/error.log`. |
-| "Database-ka lama xiriiri karo" | Hubi magaca DB, user-ka iyo password-ka (hPanel → Databases). Host-ku waa `localhost`. |
-| Sawirka lama soo gelin karo | Galalka `uploads/` iyo `app/storage/` waa inay ahaadaan `755`. |
-| Admin password-ka waa la ilaaway | phpMyAdmin → table `admins` → ama samee admin cusub adigoo `app/storage/installed.lock` iyo `app/config.php` tirtiraya kadibna `install/` dib u furaya (xogtaada waa la ilaalinayaa). |
-| Saacadda waa khalad | Admin → Dejinta → Timezone (`Africa/Mogadishu`). |
+| `assets/img/logo.svg` | Horizontal logo for light backgrounds |
+| `assets/img/logo-white.svg` | Horizontal logo for dark backgrounds |
+| `assets/img/logo-mark.svg` | App icon / mark (also the favicon) |
+| `assets/img/icon-512.png`, `apple-touch-icon.png` | PNG icons (social preview, phone home screen) |
+| `assets/img/brand/hufan-logo.png`, `hufan-logo-white.png`, `hufan-icon-1024.png` | High-resolution PNGs for social media, flyers and WhatsApp profile |
 
-**Kayd (backup)**: hPanel → Files → Backups, ama phpMyAdmin → Export toddobaad kasta.
+Brand colours: emerald `#0e7c66` · mint `#1fc79a` · gold `#f5a524` · ink `#0f172a`.
 
 ---
 
-## Qaab-dhismeedka faylasha
+## Troubleshooting
+
+| Problem | Fix |
+|---|---|
+| **500 Internal Server Error** | Check the PHP version (8.1+) and that `.htaccess` was uploaded correctly. |
+| Blank page / unknown error | Set `'debug' => true` in `app/config.php` to see the error, then set it back to `false`. Also check `app/storage/error.log`. |
+| "Could not connect to the database" | Re-check database name, user and password (hPanel → Databases). Host is `localhost`. |
+| Images will not upload | `uploads/` and `app/storage/` must be writable (`755`). |
+| Forgot the admin password | Delete `app/storage/installed.lock` and `app/config.php`, open `/install/` again and use the same admin username with a new password. Your data is kept. |
+| Wrong time | Admin → Settings → Timezone (`Africa/Mogadishu`). |
+
+**Backups**: hPanel → Files → Backups, or phpMyAdmin → Export, weekly.
+
+---
+
+## Project structure
 
 ```
 exchange/
-├── index.php          Bogga hore + calculator
-├── exchange.php       Samee dalab
-├── order.php          Faahfaahinta dalabka + lacag-bixinta
-├── account.php        Dashboard-ka macmiilka
-├── statement.php      Bayaanka la daabici karo
-├── receipt.php        Rasiidka la daabici karo
-├── track.php          Raadi dalab
+├── index.php          Home page + calculator
+├── exchange.php       Create an order
+├── order.php          Order details + payment
+├── account.php        Customer dashboard
+├── statement.php      Printable statement
+├── receipt.php        Printable receipt
+├── track.php          Track an order
 ├── login.php · register.php · profile.php · logout.php · terms.php · proof.php
 ├── admin/             Admin panel (dashboard, orders, pairs, gateways, customers, reports, settings, admins)
-├── app/               Koodka gudaha (waa la xiray — .htaccess)
-│   ├── bootstrap.php · helpers.php · config.php (installer-ka ayaa sameeya)
-│   ├── lang/so.php · lang/en.php
-│   ├── views/         Header/footer & qaabka dukumentiyada
-│   └── storage/       Sawirrada caddaynta, error.log
-├── assets/            CSS, JS, sawirro
-├── uploads/           Logo-yada (PHP lagama fulin karo)
-└── install/           Installer (tirtir kadib rakibidda)
+├── app/               Application code (blocked from the web by .htaccess)
+│   ├── bootstrap.php · helpers.php · config.php (created by the installer)
+│   ├── lang/en.php · lang/so.php
+│   ├── views/         Layouts and printable document templates
+│   └── storage/       Payment screenshots, error.log
+├── assets/            CSS, JS, logo and icons
+├── uploads/           Uploaded logos (scripts cannot run here)
+└── install/           Web installer (delete after installing)
 ```
 
-Turjumaadda waxaa laga beddeli karaa `app/lang/so.php` iyo `app/lang/en.php`.
+Texts can be edited in `app/lang/en.php` and `app/lang/so.php`.
+
+---
+
+## Hage kooban (Soomaali)
+
+1. hPanel → Databases → samee database MySQL ah (magac, user, password).
+2. File Manager → `public_html` → soo geli `hufan-exchange.zip` → **Extract**.
+3. hPanel → PHP Configuration → dooro **PHP 8.2**.
+4. Fur `https://domainkaaga.com/install/` → geli xogta database-ka, lambarkaaga EVC iyo akoonka admin-ka → **Install now**.
+5. Tirtir galka `install/`, kadib shid **SSL → Force HTTPS**.
+6. Admin → *Rates & Pairs* → hagaaji khidmadaha; *Payment methods* → geli kaydkaaga (reserve).
+
+Luqadda Soomaaliga waxaa laga doortaa badhanka **SO** ee website-ka, ama Admin → Settings → Default language.

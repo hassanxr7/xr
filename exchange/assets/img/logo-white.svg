@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 64" role="img" aria-label="Hufan Exchange">
+  <defs>
+    <linearGradient id="hufan-bg" x1="6" y1="2" x2="58" y2="62" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#1fc79a"/>
+      <stop offset=".5" stop-color="#0e7c66"/>
+      <stop offset="1" stop-color="#063f34"/>
+    </linearGradient>
+    <linearGradient id="hufan-gold" x1="0" y1="16" x2="0" y2="48" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#ffd978"/>
+      <stop offset="1" stop-color="#f2a01f"/>
+    </linearGradient>
+  </defs>
+  <rect width="64" height="64" rx="18" fill="url(#hufan-bg)"/>
+  <path d="M0 20C0 9 9 0 20 0h24c11 0 20 9 20 20v2C46 13 18 13 0 27z" fill="#fff" opacity=".09"/>
+  <g fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-width="5.4">
+    <path d="M23 47V18.5" stroke="#fff"/>
+    <path d="M15.8 25.2 23 18l7.2 7.2" stroke="#fff"/>
+    <path d="M23 32h18" stroke="#fff"/>
+    <path d="M41 17v28.5" stroke="url(#hufan-gold)"/>
+    <path d="M33.8 38.8 41 46l7.2-7.2" stroke="url(#hufan-gold)"/>
+  </g>
+  <text x="80" y="38" font-family="Inter, 'Segoe UI', Roboto, Arial, sans-serif" font-size="30" letter-spacing="-0.8"><tspan font-weight="800" fill="#ffffff">Hufan</tspan><tspan font-weight="500" fill="#5eead4" dx="8">Exchange</tspan></text>
+  <text x="81" y="56" font-family="Inter, 'Segoe UI', Roboto, Arial, sans-serif" font-size="9.5" font-weight="600" letter-spacing="2.6" fill="#64748b">FAST · SECURE · TRUSTED</text>
+</svg>

@@ -4,7 +4,7 @@
  * Expects: $docHeading, $docSubheading, $docMeta (array label => value)
  */
 defined('APP') || exit;
-$siteName = setting('site_name', 'XR Exchange');
+$siteName = setting('site_name', 'Hufan Exchange');
 $contact = array_filter([
     setting('contact_phone') !== '' ? icon('phone', 11) . ' ' . e(setting('contact_phone')) : '',
     setting('contact_email') !== '' ? icon('mail', 11) . ' ' . e(setting('contact_email')) : '',
@@ -19,10 +19,10 @@ $contact = array_filter([
     <?php if (setting('logo') !== ''): ?>
       <img class="doc-logo-img" src="<?= e(url(setting('logo'))) ?>" alt="<?= e($siteName) ?>">
     <?php else: ?>
-      <span class="doc-logo"><?= icon('swap', 22) ?></span>
+      <img class="doc-logo" src="<?= e(asset('img/logo-mark.svg')) ?>" width="48" height="48" alt="">
     <?php endif; ?>
     <div>
-      <div class="doc-company"><?= e($siteName) ?></div>
+      <div class="doc-company"><?= wordmark($siteName) ?></div>
       <div class="doc-tagline"><?= e(setting('site_tagline')) ?></div>
       <div class="doc-contact"><?= implode('<span class="dot">•</span>', $contact) ?></div>
     </div>

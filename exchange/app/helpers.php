@@ -1,6 +1,6 @@
 <?php
 /**
- * XR Exchange — shared helpers (database, auth, i18n, money, orders, UI).
+ * Hufan Exchange — shared helpers (database, auth, i18n, money, orders, UI).
  */
 defined('APP') || exit;
 
@@ -309,8 +309,8 @@ function render_flashes(): string
 
 function lang(): string
 {
-    $l = $_SESSION['lang'] ?? setting('default_lang', 'so');
-    return in_array($l, ['so', 'en'], true) ? $l : 'so';
+    $l = $_SESSION['lang'] ?? setting('default_lang', 'en');
+    return in_array($l, ['en', 'so'], true) ? $l : 'en';
 }
 
 function t(string $key, array $replace = []): string
@@ -535,7 +535,7 @@ function status_badge(string $status): string
 
 function generate_order_no(): string
 {
-    $prefix = preg_replace('/[^A-Z0-9]/', '', strtoupper(setting('order_prefix', 'XR'))) ?: 'XR';
+    $prefix = preg_replace('/[^A-Z0-9]/', '', strtoupper(setting('order_prefix', 'HX'))) ?: 'HX';
     $alphabet = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
     do {
         $rand = '';
@@ -775,11 +775,18 @@ function gw_badge(?string $name, ?string $color, ?string $logo = null, string $s
 function site_logo(bool $light = false): string
 {
     $logo = setting('logo');
-    $name = setting('site_name', 'XR Exchange');
+    $name = setting('site_name', 'Hufan Exchange');
     if ($logo !== '') {
         return '<img class="logo-img" src="' . e(url($logo)) . '" alt="' . e($name) . '">';
     }
-    return '<span class="logo-mark">' . icon('swap', 18) . '</span><span class="logo-text">' . e($name) . '</span>';
+    return '<img class="logo-mark" src="' . e(asset('img/logo-mark.svg')) . '" width="38" height="38" alt="">' . wordmark($name);
+}
+
+/** Site name with the first word bold and the rest in the brand colour ("Hufan Exchange"). */
+function wordmark(string $name): string
+{
+    $parts = explode(' ', trim($name), 2);
+    return '<span class="logo-text">' . e($parts[0]) . (isset($parts[1]) ? ' <span class="logo-text-2">' . e($parts[1]) . '</span>' : '') . '</span>';
 }
 
 function whatsapp_link(string $text = ''): string

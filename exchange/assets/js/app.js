@@ -1,4 +1,4 @@
-/* XR Exchange — front-end behaviour (no dependencies). */
+/* Hufan Exchange — front-end behaviour (no dependencies). */
 (function () {
   'use strict';
 
@@ -109,7 +109,7 @@
   }
 
   $$('[data-calc]').forEach(function (form) {
-    var data = window.XR || {};
+    var data = window.HUFAN || {};
     var pairs = data.pairs || [];
     var t = data.i18n || {};
     if (!pairs.length) return;

@@ -26,7 +26,7 @@ $wa = whatsapp_link(t('wa_hello'));
     </div>
   </div>
   <div class="container footer-bottom">
-    <span>&copy; <?= date('Y') ?> <?= e(setting('site_name', 'XR Exchange')) ?>. <?= e(t('rights')) ?></span>
+    <span>&copy; <?= date('Y') ?> <?= e(setting('site_name', 'Hufan Exchange')) ?>. <?= e(t('rights')) ?></span>
   </div>
 </footer>
 <?php if ($wa !== ''): ?>

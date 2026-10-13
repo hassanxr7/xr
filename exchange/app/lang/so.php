@@ -392,7 +392,7 @@ return [
     'a_address'              => 'Cinwaanka',
     'a_whatsapp_help'        => 'Lambar caalami ah, tusaale 25261xxxxxxx.',
     'a_order_prefix'         => 'Horgalaha dalabka',
-    'a_order_prefix_help'    => 'Tusaale: XR → XR261013ABCDE',
+    'a_order_prefix_help'    => 'Tusaale: HX → HX261013ABCDE',
     'a_expiry'               => 'Waqtiga lacag-bixinta (daqiiqo)',
     'a_expiry_help'          => 'Dalabka aan la bixin waxaa la xiraa wakhtigan kadib.',
     'a_brand_color'          => 'Midabka asalka ah',

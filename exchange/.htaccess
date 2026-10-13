@@ -1,4 +1,4 @@
-# XR Exchange — Apache / LiteSpeed (Hostinger) configuration
+# Hufan Exchange — Apache / LiteSpeed (Hostinger) configuration
 Options -Indexes
 DirectoryIndex index.php
 
@@ -13,7 +13,7 @@ DirectoryIndex index.php
   </IfModule>
 </FilesMatch>
 
-# Force HTTPS — ka saar calaamadda "#" marka SSL-ku shaqeeyo (hPanel → Security → SSL).
+# Force HTTPS — remove the "#" signs once SSL is active (hPanel → Security → SSL).
 # <IfModule mod_rewrite.c>
 #   RewriteEngine On
 #   RewriteCond %{HTTPS} !=on

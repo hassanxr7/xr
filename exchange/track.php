@@ -29,7 +29,7 @@ require APP_PATH . '/views/header.php';
     <div class="page-head"><div><h1><?= e(t('track_title')) ?></h1><p><?= e(t('track_sub')) ?></p></div></div>
     <form method="get" class="card card-body">
       <div class="form-row">
-        <div class="form-group"><label for="no"><?= e(t('order_no')) ?></label><input class="input mono" id="no" name="no" value="<?= e($no) ?>" placeholder="XR250101ABCDE" required></div>
+        <div class="form-group"><label for="no"><?= e(t('order_no')) ?></label><input class="input mono" id="no" name="no" value="<?= e($no) ?>" placeholder="HX261013ABCDE" required></div>
         <div class="form-group"><label for="phone"><?= e(t('phone')) ?></label><input class="input" id="phone" name="phone" type="tel" value="<?= e($phone) ?>" placeholder="61xxxxxxx" required></div>
       </div>
       <button class="btn btn-primary" type="submit"><?= icon('search', 17) ?> <?= e(t('track_btn')) ?></button>

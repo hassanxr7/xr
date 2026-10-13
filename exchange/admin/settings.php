@@ -29,7 +29,7 @@ if (is_post()) {
         save_setting($key, mb_substr(input($key), 0, $max));
     }
     save_setting('order_expiry_minutes', (string) max(5, min(1440, (int) input('order_expiry_minutes'))));
-    save_setting('default_lang', in_array(input('default_lang'), ['so', 'en'], true) ? input('default_lang') : 'so');
+    save_setting('default_lang', in_array(input('default_lang'), ['en', 'so'], true) ? input('default_lang') : 'en');
     save_setting('timezone', in_array(input('timezone'), timezone_identifiers_list(), true) ? input('timezone') : 'Africa/Mogadishu');
     save_setting('brand_color', preg_match('/^#[0-9a-fA-F]{6}$/', input('brand_color')) ? input('brand_color') : '#0e7c66');
 
@@ -60,7 +60,7 @@ require APP_PATH . '/views/admin_header.php';
         <div class="form-group"><label><?= e(t('a_announcement')) ?></label><input class="input" name="announcement" value="<?= $v('announcement') ?>"><div class="help"><?= e(t('a_announcement_help')) ?></div></div>
         <div class="form-row">
           <div class="form-group"><label><?= e(t('a_default_lang')) ?></label>
-            <select class="input" name="default_lang"><option value="so" <?= ($s['default_lang'] ?? 'so') === 'so' ? 'selected' : '' ?>>Soomaali</option><option value="en" <?= ($s['default_lang'] ?? '') === 'en' ? 'selected' : '' ?>>English</option></select>
+            <select class="input" name="default_lang"><option value="en" <?= ($s['default_lang'] ?? 'en') === 'en' ? 'selected' : '' ?>>English</option><option value="so" <?= ($s['default_lang'] ?? '') === 'so' ? 'selected' : '' ?>>Soomaali</option></select>
           </div>
           <div class="form-group"><label><?= e(t('a_timezone')) ?></label><input class="input" name="timezone" value="<?= $v('timezone') ?>" list="tz-list"><datalist id="tz-list"><option value="Africa/Mogadishu"><option value="Africa/Nairobi"><option value="Africa/Djibouti"><option value="Africa/Addis_Ababa"><option value="Asia/Dubai"><option value="Europe/London"><option value="UTC"></datalist></div>
         </div>

@@ -1,4 +1,4 @@
-/* XR Exchange — admin panel layout */
+/* Hufan Exchange — admin panel layout */
 body.admin { background: #f3f5f9; }
 .sidebar {
   position: fixed; inset: 0 auto 0 0; width: 250px; z-index: 60;

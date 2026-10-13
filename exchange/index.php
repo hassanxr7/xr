@@ -159,7 +159,7 @@ require APP_PATH . '/views/header.php';
 </section>
 
 <script>
-window.XR = {
+window.HUFAN = {
   pairs: <?= json_encode($jsPairs, JSON_HEX_TAG | JSON_HEX_AMP | JSON_UNESCAPED_UNICODE) ?>,
   i18n: <?= json_encode([
       'min'      => t('js_min'),

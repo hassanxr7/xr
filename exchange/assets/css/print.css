@@ -1,4 +1,4 @@
-/* XR Exchange — printable documents (statement, receipt, reports). A4. */
+/* Hufan Exchange — printable documents (statement, receipt, reports). A4. */
 :root {
   --brand: #0e7c66;
   --brand-dark: color-mix(in srgb, var(--brand) 62%, #000);
@@ -69,7 +69,8 @@ a { color: inherit; }
 /* ---------- Letterhead ---------- */
 .doc-head { display: flex; justify-content: space-between; gap: 24px; padding-bottom: 16px; border-bottom: 2px solid var(--ink); }
 .doc-brand { display: flex; gap: 12px; align-items: flex-start; max-width: 58%; }
-.doc-logo { width: 46px; height: 46px; border-radius: 13px; flex-shrink: 0; display: grid; place-items: center; color: #fff; background: linear-gradient(135deg, var(--brand), var(--brand-dark)); }
+.doc-logo { width: 48px; height: 48px; border-radius: 13px; flex-shrink: 0; }
+.doc-company .logo-text-2 { font-weight: 600; color: var(--brand-dark); }
 .doc-logo-img { height: 48px; width: auto; max-width: 160px; object-fit: contain; }
 .doc-company { font-size: 20px; font-weight: 800; letter-spacing: -.02em; line-height: 1.15; }
 .doc-tagline { color: var(--muted); font-size: 11px; margin-top: 2px; }
