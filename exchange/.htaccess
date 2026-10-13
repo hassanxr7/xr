@@ -1,0 +1,32 @@
+# XR Exchange — Apache / LiteSpeed (Hostinger) configuration
+Options -Indexes
+DirectoryIndex index.php
+
+# Block hidden files and files that must never be downloaded
+<FilesMatch "(^\.|\.(sql|md|lock|log|ini|sh|bak|dist|example)$)">
+  <IfModule mod_authz_core.c>
+    Require all denied
+  </IfModule>
+  <IfModule !mod_authz_core.c>
+    Order allow,deny
+    Deny from all
+  </IfModule>
+</FilesMatch>
+
+# Force HTTPS — ka saar calaamadda "#" marka SSL-ku shaqeeyo (hPanel → Security → SSL).
+# <IfModule mod_rewrite.c>
+#   RewriteEngine On
+#   RewriteCond %{HTTPS} !=on
+#   RewriteRule ^ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
+# </IfModule>
+
+# Cache static assets
+<IfModule mod_expires.c>
+  ExpiresActive On
+  ExpiresByType text/css "access plus 7 days"
+  ExpiresByType application/javascript "access plus 7 days"
+  ExpiresByType image/svg+xml "access plus 30 days"
+  ExpiresByType image/png "access plus 30 days"
+  ExpiresByType image/jpeg "access plus 30 days"
+  ExpiresByType image/webp "access plus 30 days"
+</IfModule>
