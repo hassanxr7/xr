@@ -384,6 +384,8 @@ textarea.input { min-height: 96px; resize: vertical; }
 .pay-target { display: flex; align-items: center; justify-content: space-between; gap: 10px; background: #fff; border: 1px solid var(--line); border-radius: 12px; padding: 12px 14px; margin: 10px 0; }
 .pay-target small { display: block; color: var(--muted); font-size: 12px; }
 .pay-target strong { font-size: 19px; letter-spacing: .02em; word-break: break-all; }
+.toggle-panel { display: none; }
+.toggle-panel.open { display: block; }
 .copy-btn { position: relative; }
 .copy-btn.copied::after {
   content: "✓"; position: absolute; inset: 0; display: grid; place-items: center;

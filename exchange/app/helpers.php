@@ -671,7 +671,7 @@ function set_order_status(array $order, string $status, ?string $note, string $a
                 q('UPDATE gateways SET reserve = reserve + ? WHERE id = ?', [$current['receive_amount'], $current['to_gateway_id']]);
             }
         }
-        if ($status === 'pending' && empty($current['paid_at'])) {
+        if (in_array($status, ['pending', 'processing', 'completed'], true) && empty($current['paid_at'])) {
             $data['paid_at'] = now();
         }
         update('orders', $data, 'id = ?', [$current['id']]);

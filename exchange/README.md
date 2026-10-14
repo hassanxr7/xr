@@ -36,6 +36,8 @@ Interface languages: **English (default)** and Somali — visitors can switch wi
 
 **Security**: bcrypt password hashing, CSRF token on every form, PDO prepared statements, login throttling, payment screenshots stored privately (served only to the owner/admin), `.htaccess` rules that block `app/`, `install/schema.sql` and any script inside `uploads/`.
 
+**Real-time payments (WaafiPay / EVC Plus)**: optionally, customers paying with EVC Plus can confirm instantly with a PIN prompt on their phone instead of typing in a Transaction ID — see [WaafiPay API](#waafipay-api--real-time-evc-plus-payments) below. All other payment methods keep the manual verification flow described above.
+
 ---
 
 ## Requirements
@@ -92,6 +94,25 @@ hPanel → **Security → SSL** → make sure SSL is active, then turn on **Forc
 6. **Reverse directions** (e.g. USDT → EVC): first enter your receiving address for that method under Payment methods, then activate the pair under Rates & Pairs.
 
 > Payments are verified manually: the admin checks the EVC SMS, sends the USDT / MoneyGo / PayPal, then marks the order *Completed* with the payout TXID. The system does not connect to EVC, wallets or PayPal automatically.
+
+---
+
+## WaafiPay API — real-time EVC Plus payments
+
+By default the EVC Plus → anything flow is manual: the customer pays by USSD and types in the Transaction ID, then the admin checks it. You can switch EVC Plus to **instant** verification using the [WaafiPay API](https://docs.waafipay.com/quickstart):
+
+1. Get a WaafiPay merchant account and your **Merchant UID**, **API User ID** and **API Key** from WaafiPay (or your aggregator). Ask for sandbox credentials first to test.
+2. **Admin → Settings → WaafiPay**:
+   - Tick **Enable real-time WaafiPay payments**.
+   - Choose **Sandbox** while testing, **Live** once you have production credentials.
+   - Pick the **payment method to charge in real time** — normally *EVC Plus*.
+   - Enter the Merchant UID, API User ID and API Key, then **Save settings**. The API Key field is always shown blank; leave it empty on later saves to keep the key you already entered.
+3. That's it — on the order page, a customer paying with that gateway now sees a **"Pay instantly with WaafiPay"** button. Tapping it sends a PIN prompt to their phone; once they approve it, the order moves straight to *Processing* with no Transaction ID to type. A **"Pay manually instead"** link stays available as a fallback (e.g. if the API is unreachable or the customer prefers USSD).
+
+Notes:
+- The server calls WaafiPay directly over HTTPS (`cURL`) and waits for the customer's approval, which can take up to a minute — make sure your host's PHP `max_execution_time` isn't capped below ~90 seconds for this to work reliably.
+- If the WaafiPay call fails or times out, the order simply stays "Awaiting payment" and the customer can retry or fall back to the manual Transaction ID form — nothing is charged twice.
+- Every attempt (success or failure) is recorded in the order's history for the admin to review.
 
 ---
 

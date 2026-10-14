@@ -12,10 +12,32 @@ if (!$order) {
 }
 $fromGw = $order['from_gateway_id'] ? row('SELECT * FROM gateways WHERE id = ?', [$order['from_gateway_id']]) : null;
 $self = 'order.php?no=' . urlencode($order['order_no']);
+$waafipayOn = waafipay_active_for($fromGw);
 
 if (is_post()) {
     csrf_check();
     $action = input('action');
+
+    if ($action === 'waafipay_purchase' && $order['status'] === 'awaiting_payment' && $waafipayOn) {
+        $result = waafipay_purchase(
+            $order['sender_account'],
+            (float) $order['send_amount'],
+            $order['from_currency'],
+            $order['order_no'],
+            'Hufan Exchange order ' . $order['order_no']
+        );
+        if ($result['success']) {
+            set_order_status($order, 'processing', t('log_waafipay_paid', ['ref' => $result['transaction_id'] ?: $order['order_no']]), 'customer', (int) $me['id'], [
+                'payment_ref' => $result['transaction_id'] ?: $order['order_no'],
+            ]);
+            telegram_notify(order_telegram_text(row('SELECT * FROM orders WHERE id = ?', [$order['id']]), '💳 WaafiPay payment confirmed'));
+            flash('success', t('waafipay_success'));
+        } else {
+            order_log((int) $order['id'], 'awaiting_payment', t('log_waafipay_failed', ['msg' => $result['message']]), 'customer', (int) $me['id']);
+            flash('error', t('waafipay_failed', ['msg' => $result['message']]));
+        }
+        redirect($self);
+    }
 
     if ($action === 'paid' && $order['status'] === 'awaiting_payment') {
         $ref = mb_substr(input('payment_ref'), 0, 120);
@@ -130,6 +152,16 @@ require APP_PATH . '/views/header.php';
           <?php endif; ?>
           <?php if (!empty($fromGw['instructions'])): ?><p class="small muted"><?= icon('info', 13) ?> <?= e($fromGw['instructions']) ?></p><?php endif; ?>
 
+          <?php if ($waafipayOn): ?>
+          <form method="post" class="mt-3" onsubmit="var b=this.querySelector('button[type=submit]'); b.disabled=true; b.innerHTML='<?= e(icon('clock', 18)) ?> <?= e(t('waafipay_waiting')) ?>';">
+            <?= csrf_field() ?>
+            <input type="hidden" name="action" value="waafipay_purchase">
+            <button class="btn btn-primary btn-lg btn-block" type="submit"><?= icon('bolt', 18) ?> <?= e(t('waafipay_pay_now', ['number' => $order['sender_account']])) ?></button>
+            <p class="help text-center mt-2"><?= icon('info', 13) ?> <?= e(t('waafipay_help')) ?></p>
+          </form>
+          <p class="text-center mt-2"><button type="button" class="btn btn-ghost btn-sm" data-toggle="#manual-pay"><?= e(t('waafipay_pay_manually')) ?></button></p>
+          <div id="manual-pay" class="toggle-panel">
+          <?php endif; ?>
           <form method="post" enctype="multipart/form-data" class="mt-3">
             <?= csrf_field() ?>
             <input type="hidden" name="action" value="paid">
@@ -144,6 +176,7 @@ require APP_PATH . '/views/header.php';
             </div>
             <button class="btn btn-primary btn-lg btn-block" type="submit"><?= icon('check-circle', 18) ?> <?= e(t('i_have_paid')) ?></button>
           </form>
+          <?php if ($waafipayOn): ?></div><?php endif; ?>
           <form method="post" class="text-center mt-2" data-confirm="<?= e(t('confirm_cancel')) ?>">
             <?= csrf_field() ?>
             <input type="hidden" name="action" value="cancel">

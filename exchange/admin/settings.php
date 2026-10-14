@@ -33,6 +33,22 @@ if (is_post()) {
     save_setting('timezone', in_array(input('timezone'), timezone_identifiers_list(), true) ? input('timezone') : 'Africa/Mogadishu');
     save_setting('brand_color', preg_match('/^#[0-9a-fA-F]{6}$/', input('brand_color')) ? input('brand_color') : '#0e7c66');
 
+    $wpEnabled = empty($_POST['waafipay_enabled']) ? '0' : '1';
+    $wpMerchant = mb_substr(input('waafipay_merchant_uid'), 0, 60);
+    $wpApiUser = mb_substr(input('waafipay_api_user_id'), 0, 60);
+    $wpApiKeyInput = input('waafipay_api_key');
+    $wpApiKey = $wpApiKeyInput !== '' ? mb_substr($wpApiKeyInput, 0, 190) : setting('waafipay_api_key');
+    if ($wpEnabled === '1' && ($wpMerchant === '' || $wpApiUser === '' || $wpApiKey === '')) {
+        $wpEnabled = '0';
+        flash('error', t('a_err_waafipay_required'));
+    }
+    save_setting('waafipay_enabled', $wpEnabled);
+    save_setting('waafipay_environment', input('waafipay_environment') === 'live' ? 'live' : 'sandbox');
+    save_setting('waafipay_merchant_uid', $wpMerchant);
+    save_setting('waafipay_api_user_id', $wpApiUser);
+    save_setting('waafipay_api_key', $wpApiKey);
+    save_setting('waafipay_gateway_id', (string) (int) input('waafipay_gateway_id'));
+
     if (has_upload('logo')) {
         try {
             save_setting('logo', 'uploads/logos/' . store_image($_FILES['logo'], UPLOAD_PATH . '/logos', 1048576));
@@ -45,6 +61,7 @@ if (is_post()) {
 }
 
 $s = settings(true);
+$gateways = rows('SELECT id, name FROM gateways ORDER BY sort_order, id');
 $v = fn ($k) => e($s[$k] ?? '');
 $pageTitle = t('a_settings');
 require APP_PATH . '/views/admin_header.php';
@@ -101,6 +118,39 @@ require APP_PATH . '/views/admin_header.php';
             <label class="file-drop"><?= icon('upload', 20) ?> <span id="logo-label"><?= e(t('choose_image')) ?></span><input type="file" name="logo" accept="image/png,image/jpeg,image/webp" data-file-label="#logo-label"></label>
             <div class="help"><?= e(t('a_site_logo_help')) ?></div>
           </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-head"><h3><?= icon('bolt', 18) ?> <?= e(t('a_waafipay')) ?></h3></div>
+      <div class="card-body">
+        <p class="small muted"><?= e(t('a_waafipay_help')) ?></p>
+        <label class="check"><input type="checkbox" name="waafipay_enabled" value="1" <?= ($s['waafipay_enabled'] ?? '') === '1' ? 'checked' : '' ?>> <?= e(t('a_waafipay_enabled')) ?></label>
+        <div class="form-row mt-2">
+          <div class="form-group">
+            <label><?= e(t('a_waafipay_environment')) ?></label>
+            <select class="input" name="waafipay_environment">
+              <option value="sandbox" <?= ($s['waafipay_environment'] ?? 'sandbox') === 'sandbox' ? 'selected' : '' ?>><?= e(t('a_waafipay_sandbox')) ?></option>
+              <option value="live" <?= ($s['waafipay_environment'] ?? '') === 'live' ? 'selected' : '' ?>><?= e(t('a_waafipay_live')) ?></option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label><?= e(t('a_waafipay_gateway')) ?></label>
+            <select class="input" name="waafipay_gateway_id">
+              <?php foreach ($gateways as $g): ?>
+                <option value="<?= (int) $g['id'] ?>" <?= (int) ($s['waafipay_gateway_id'] ?? 0) === (int) $g['id'] ? 'selected' : '' ?>><?= e($g['name']) ?></option>
+              <?php endforeach; ?>
+            </select>
+            <div class="help"><?= e(t('a_waafipay_gateway_help')) ?></div>
+          </div>
+        </div>
+        <div class="form-group"><label><?= e(t('a_waafipay_merchant_uid')) ?></label><input class="input mono" name="waafipay_merchant_uid" value="<?= $v('waafipay_merchant_uid') ?>" autocomplete="off"></div>
+        <div class="form-group"><label><?= e(t('a_waafipay_api_user_id')) ?></label><input class="input mono" name="waafipay_api_user_id" value="<?= $v('waafipay_api_user_id') ?>" autocomplete="off"></div>
+        <div class="form-group">
+          <label><?= e(t('a_waafipay_api_key')) ?></label>
+          <input class="input mono" type="password" name="waafipay_api_key" placeholder="<?= !empty($s['waafipay_api_key']) ? '••••••••••••' : '' ?>" autocomplete="off">
+          <div class="help"><?= e(t('a_waafipay_api_key_help')) ?> <?= !empty($s['waafipay_api_key']) ? e(t('a_waafipay_key_saved')) : e(t('a_waafipay_key_missing')) ?></div>
         </div>
       </div>
     </div>
