@@ -408,17 +408,20 @@
         AC.setRegMode(d.m);
         break;
       case 'deposit':
-        closeDrawers();
-        AC.openDeposit(d.tab);
+        A.go('deposit');
+        break;
+      case 'pm':
+        DB.P.pick(d.pm);
+        break;
+      case 'cashier-mode':
+        DB.P.setCashierMode(d.m);
+        renderView(true);
         break;
       case 'sova-amt': {
         const inp = U.$('#sova-amount');
         if (inp) inp.value = d.v;
         break;
       }
-      case 'dep-tab':
-        AC.openDeposit(d.tab);
-        break;
       case 'dep-amt': {
         const inp = U.$('#dep-amount');
         if (inp) inp.value = d.v;

@@ -48,7 +48,9 @@ Tests: `cd demo-betting && npm test`.
 
 ## SovaMoney sandbox deposits
 
-The Deposit window has a **SovaMoney** tab that runs a real hosted-checkout payment against
+The **Deposit** page (`#deposit`) lists payment methods as tiles: SovaMoney and Demo coins work;
+EVC Plus, E-Dahab, WAAFI, Sahal, MiFinity and MoneyGo show **Coming soon**. The **SovaMoney**
+tile runs a real hosted-checkout payment against
 SovaMoney's **sandbox**. Once SovaMoney confirms the payment, the amount is added to the player's
 balance as demo coins (1 USD = 1 DC). No real money moves.
 
@@ -136,11 +138,12 @@ js/betslip.js     bet slip
 js/account.js     auth, top-up, my bets, account, promotions, about
 js/casino.js      casino lobby, Crash, Mines, Dice, Slots
 js/app.js         router, layout, event handling, 1-second live tick
-js/payments.js    SovaMoney deposit tab and deposit status page (browser side)
+js/payments.js    deposit page (payment-method tiles), SovaMoney window, deposit status page
 server/server.js  static site + deposit API + IPN handler
 server/sovamoney.js  initiate request, checkout-host check, IPN signature
 server/store.js   deposit records and ledger (atomic JSON file)
 img/logo.png      logo sent to SovaMoney as site_logo
+img/sovamoney-icon.png  SovaMoney icon on the deposit tile
 tests/engine.test.js    odds calibration, settlement and RTP checks
 tests/payments.test.js  SovaMoney flow: signatures, idempotency, ownership, failures
 ```

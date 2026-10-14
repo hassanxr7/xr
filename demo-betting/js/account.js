@@ -128,21 +128,12 @@
   };
 
   /* ================= deposit ================= */
-  let depTab = 'dep';
-  AC.openDeposit = (tab) => {
+  // Deposits start from the cashier page (#deposit); each method opens its own window.
+  AC.openDeposit = (method) => {
     if (!S.user) return AC.openAuth('register');
-    tab = ['dep', 'sova', 'wd'].indexOf(tab) >= 0 ? tab : 'dep';
-    depTab = tab;
-    const tabBtn = (k, label) =>
-      '<button type="button" role="tab" class="' + (tab === k ? 'on' : '') + '" data-act="dep-tab" data-tab="' + k + '">' + U.esc(label) + '</button>';
-    const tabs = '<div class="auth-tabs" role="tablist">' + tabBtn('dep', t('dep_tab_demo')) + tabBtn('sova', 'SovaMoney') + tabBtn('wd', t('withdraw')) + '</div>';
-    let body;
-    if (tab === 'sova') {
-      body = DB.P.tabHTML();
-    } else if (tab === 'wd') {
-      body = '<div class="notice">' + U.icon('shield') + '<p>' + U.esc(t('wd_note')) + '</p></div>';
-    } else {
-      body =
+    if (method === 'sova') return DB.P.openSova();
+    U.modal.open(
+      '<h2 class="modal-title">' + U.esc(t('dep_tab_demo')) + '</h2>' +
         '<form id="dep-form" class="form" novalidate>' +
         '<p class="muted">' + U.esc(t('dep_note')) + '</p>' +
         '<div class="amt-grid">' +
@@ -151,14 +142,10 @@
         '<label for="dep-amount">' + U.esc(t('dep_amount')) + ' (' + U.esc(t('coins')) + ')</label>' +
         '<input id="dep-amount" name="amount" class="inp" type="text" inputmode="decimal" value="1000" autocomplete="off">' +
         '<p class="fine">' + U.esc(t('dep_max')) + '</p>' +
-        '<button class="btn btn-go btn-block" type="submit" data-dep-btn>' + U.esc(t('dep_btn', { n: U.money(1000) })) + '</button></form>';
-    }
-    U.modal.open('<h2 class="modal-title">' + U.esc(t('deposit')) + '</h2>' + tabs + body, { cls: 'auth', label: t('deposit') });
+        '<button class="btn btn-go btn-block" type="submit" data-dep-btn>' + U.esc(t('dep_btn', { n: U.money(1000) })) + '</button></form>',
+      { cls: 'auth', label: t('dep_tab_demo') }
+    );
   };
-  // re-draw the SovaMoney tab once the server's payment settings arrive
-  DB.bus.on('pay-config', () => {
-    if (U.modal.isOpen() && depTab === 'sova' && U.$('.modal-card [data-tab="sova"].on')) AC.openDeposit('sova');
-  });
   AC.depAmountChanged = () => {
     const inp = U.$('#dep-amount');
     const btn = U.$('[data-dep-btn]');

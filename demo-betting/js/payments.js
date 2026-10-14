@@ -172,6 +172,107 @@
     );
   };
 
+  P.openSova = () => {
+    if (!S.user) return DB.A.openAuth('register');
+    U.modal.open(
+      '<h2 class="sova-head"><img src="img/sovamoney-icon.png" alt="" width="40" height="40"><span class="sova-word">Sova<b>money</b></span></h2>' + P.tabHTML(),
+      { cls: 'auth', label: 'SovaMoney' }
+    );
+  };
+  // re-draw the SovaMoney window once the server's payment settings arrive
+  DB.bus.on('pay-config', () => {
+    if (U.modal.isOpen() && U.$('.modal-card .sova-head')) P.openSova();
+    if (DB.A.route === 'deposit' && !DB.A.arg) DB.A.refreshView();
+  });
+
+  /* ---------- cashier page (#deposit) ---------- */
+  // live: true = works now; everything else shows "Coming soon"
+  const METHODS = [
+    { id: 'sovamoney', name: 'SovaMoney', group: 'rec', live: true, icon: 'img/sovamoney-icon.png' },
+    { id: 'evc', name: 'EVC Plus', sub: 'Hormuud', group: 'rec' },
+    { id: 'edahab', name: 'E-Dahab', sub: 'Somtel', group: 'rec' },
+    { id: 'waafi', name: 'WAAFI', subKey: 'pm_sub_wallet', group: 'rec' },
+    { id: 'sahal', name: 'Sahal', sub: 'Golis', group: 'rec' },
+    { id: 'mifinity', name: 'MiFinity', subKey: 'pm_sub_ewallet', group: 'ew' },
+    { id: 'moneygo', name: 'MoneyGo', subKey: 'pm_sub_usd', group: 'ew' },
+    { id: 'demo', nameKey: 'dep_tab_demo', subKey: 'pm_sub_demo', group: 'demo', live: true, coin: true },
+  ];
+  const GROUPS = [['rec', 'pm_rec'], ['ew', 'pm_ewallets'], ['demo', 'pm_demo']];
+  let cashierMode = 'dep';
+  const mName = (m) => (m.nameKey ? t(m.nameKey) : m.name);
+  const mSub = (m) => (m.subKey ? t(m.subKey) : m.sub || '');
+  P.accountNo = () => (S.user ? String(100000000 + (U.hash(S.user.name.toLowerCase(), 31) % 900000000)) : '');
+
+  function tile(m) {
+    const soon = !m.live;
+    const logo = m.icon
+      ? '<span class="pm-brand"><img src="' + m.icon + '" alt="" width="44" height="44"><span class="sova-word">Sova<b>money</b></span></span>'
+      : m.coin
+        ? '<span class="pm-coin">DC</span>'
+        : '<span class="pm-word">' + U.esc(m.name) + '</span>' + (mSub(m) ? '<span class="pm-sub">' + U.esc(mSub(m)) + '</span>' : '');
+    const tag =
+      m.id === 'sovamoney' ? '<span class="pm-tag live">SANDBOX</span>' : soon ? '<span class="pm-tag">' + U.esc(t('pm_soon')) + '</span>' : '';
+    return (
+      '<button type="button" class="pm' + (soon ? ' soon' : '') + '" data-act="pm" data-pm="' + m.id + '"' +
+      ' aria-label="' + U.esc(mName(m) + (soon ? ' — ' + t('pm_soon') : '')) + '">' +
+      '<span class="pm-logo">' + logo + '</span><span class="pm-name">' + U.esc(mName(m)) + '</span>' + tag + '</button>'
+    );
+  }
+
+  P.pick = (id) => {
+    const m = METHODS.find((x) => x.id === id);
+    if (!m) return;
+    if (m.id === 'sovamoney') return P.openSova();
+    if (m.id === 'demo') return DB.AC.openDeposit('demo');
+    U.modal.open(
+      '<div class="soon-box"><span class="soon-ic">' + U.icon('clock') + '</span>' +
+        '<h2 class="modal-title">' + U.esc(t('pm_soon_t', { name: mName(m) })) + '</h2>' +
+        '<p class="muted">' + U.esc(t('pm_soon_p')) + '</p>' +
+        '<button type="button" class="btn btn-go btn-block" data-act="pm" data-pm="sovamoney">' + U.esc(t('pm_use_sova')) + '</button>' +
+        '<button type="button" class="link-btn" data-act="modal-close">' + U.esc(t('close')) + '</button></div>',
+      { cls: 'auth', label: t('pm_soon') }
+    );
+  };
+  P.setCashierMode = (m) => {
+    cashierMode = m === 'wd' ? 'wd' : 'dep';
+  };
+
+  function cashierHTML() {
+    const wd = cashierMode === 'wd';
+    const acc = S.user
+      ? '<div class="acc-line"><span class="acc-label">' + U.esc(t(wd ? 'cashier_acc_wd' : 'cashier_acc')) + '</span>' +
+        '<span class="acc-no"><b id="acc-no">' + P.accountNo() + '</b><button type="button" class="btn btn-sm" data-act="copy" data-target="acc-no">' + U.esc(t('copy')) + '</button></span></div>' +
+        '<div class="acc-bal"><span>' + U.esc(t('balance')) + '</span><b data-balance>' + U.money(S.balance()) + '</b><small>' + U.esc(t('coins')) + '</small></div>'
+      : '<div class="acc-line"><p class="muted">' + U.esc(t('pm_login')) + '</p><div class="row-btns"><button type="button" class="btn" data-act="login">' + U.esc(t('login')) + '</button>' +
+        '<button type="button" class="btn btn-go" data-act="register">' + U.esc(t('register')) + '</button></div></div>';
+    const mode =
+      '<div class="segs cashier-mode" role="group">' +
+      '<button type="button" class="seg' + (wd ? '' : ' on') + '" data-act="cashier-mode" data-m="dep">' + U.esc(t('deposit')) + '</button>' +
+      '<button type="button" class="seg' + (wd ? ' on' : '') + '" data-act="cashier-mode" data-m="wd">' + U.esc(t('withdraw')) + '</button></div>';
+    let body;
+    if (wd) {
+      body = '<div class="notice">' + U.icon('shield') + '<p>' + U.esc(t('wd_note')) + '</p></div>';
+    } else {
+      body =
+        '<h2 class="pm-types">' + U.esc(t('pm_types')) + '</h2>' +
+        GROUPS.map(([g, key]) =>
+          '<section class="pm-sec"><h3>' + U.esc(t(key)) + '</h3><div class="pm-grid">' + METHODS.filter((m) => m.group === g).map(tile).join('') + '</div></section>'
+        ).join('');
+      const recent = localDeposits().slice(0, 5);
+      if (S.user && recent.length) {
+        body +=
+          '<section class="pm-sec"><h3>' + U.esc(t('sova_recent')) + '</h3><ul class="dep-list">' +
+          recent.map((d) => '<li><a href="#deposit.' + d.id + '" data-go="deposit.' + d.id + '"><span>' + U.esc(d.amount + ' ' + d.currency) + '</span><span class="muted">' + U.dt(d.t) + '</span>' + badge(d.status) + '</a></li>').join('') +
+          '</ul></section>';
+      }
+    }
+    return (
+      '<header class="cashier-head"><a class="icon-btn" href="#home" data-go="home" aria-label="' + U.esc(t('nav_home')) + '">' + U.icon('back') + '</a>' +
+      '<h1>' + U.esc(t(wd ? 'withdraw' : 'deposit')) + '</h1></header>' +
+      '<section class="panel cashier-acc">' + acc + mode + '</section>' + body
+    );
+  }
+
   /* ---------- deposit status page (#deposit.<id>) ---------- */
   const pageState = {}; // id -> { dep, error, busy, last }
   function pollDue(id) {
@@ -194,11 +295,12 @@
       });
   }
 
-  V.deposit = {
-    sig(id) {
-      const s = pageState[id] || {};
-      return [S.user ? S.user.name : '', S.settings.lang, s.error || '', s.dep ? s.dep.status + s.dep.delivered : 'none'].join(':');
-    },
+  const isId = (arg) => /^[A-Z0-9]{20}$/.test(arg || '');
+  function statusSig(id) {
+    const s = pageState[id] || {};
+    return [S.user ? S.user.name : '', S.settings.lang, s.error || '', s.dep ? s.dep.status + s.dep.delivered : 'none'].join(':');
+  }
+  const statusView = {
     render(id) {
       const head = '<header class="page-head"><h1>' + U.icon('wallet') + U.esc(t('dpst_title')) + '</h1><span class="pill">SANDBOX</span></header>';
       if (!S.user) return head + '<div class="empty">' + U.icon('user', 'empty-ic') + '<p>' + U.esc(t('need_login')) + '</p><button type="button" class="btn btn-go" data-act="login">' + U.esc(t('login')) + '</button></div>';
@@ -225,15 +327,26 @@
         '<div class="dep-status">' + (status ? badge(status) : '') + '<p>' + U.esc(msg) + '</p></div>' +
         (s.error === 'offline' ? '<p class="muted">' + U.esc(t('dpst_offline')) + '</p>' : '') +
         '<div class="row-btns"><a class="btn" href="#sports" data-go="sports">' + U.esc(t('back_home')) + '</a>' +
-        '<button type="button" class="btn btn-go" data-act="deposit" data-tab="sova">' + U.esc(t('dpst_new')) + '</button></div>' +
+        '<a class="btn btn-go" href="#deposit" data-go="deposit">' + U.esc(t('dpst_new')) + '</a></div>' +
         '</section>'
       );
     },
-    mount(id) {
-      pollDue(id);
+  };
+
+  V.deposit = {
+    sig(arg) {
+      if (isId(arg)) return statusSig(arg);
+      const recent = localDeposits().slice(0, 5).map((d) => d.status).join();
+      return ['cashier', cashierMode, S.user ? S.user.name : '', S.settings.lang, P.checked, P.enabled(), recent].join(':');
     },
-    update(id) {
-      pollDue(id);
+    render(arg) {
+      return isId(arg) ? statusView.render(arg) : cashierHTML();
+    },
+    mount(arg) {
+      if (isId(arg)) pollDue(arg);
+    },
+    update(arg) {
+      if (isId(arg)) pollDue(arg);
     },
   };
 })();
