@@ -13,10 +13,26 @@ if (!$order) {
 $fromGw = $order['from_gateway_id'] ? row('SELECT * FROM gateways WHERE id = ?', [$order['from_gateway_id']]) : null;
 $self = 'order.php?no=' . urlencode($order['order_no']);
 $waafipayOn = waafipay_active_for($fromGw);
+$sovamoneyOn = sovamoney_active_for($fromGw);
+$realtimePayOn = $waafipayOn || $sovamoneyOn;
 
 if (is_post()) {
     csrf_check();
     $action = input('action');
+
+    if ($action === 'sovamoney_initiate' && $order['status'] === 'awaiting_payment' && $sovamoneyOn) {
+        $email = input('customer_email');
+        if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+            flash('error', t('err_email'));
+            redirect($self);
+        }
+        $result = sovamoney_initiate_payment($order, $email, $me);
+        if ($result['success'] && $result['url']) {
+            redirect($result['url']);
+        }
+        flash('error', t('sovamoney_failed', ['msg' => $result['message']]));
+        redirect($self);
+    }
 
     if ($action === 'waafipay_purchase' && $order['status'] === 'awaiting_payment' && $waafipayOn) {
         $result = waafipay_purchase(
@@ -159,7 +175,21 @@ require APP_PATH . '/views/header.php';
             <button class="btn btn-primary btn-lg btn-block" type="submit"><?= icon('bolt', 18) ?> <?= e(t('waafipay_pay_now', ['number' => $order['sender_account']])) ?></button>
             <p class="help text-center mt-2"><?= icon('info', 13) ?> <?= e(t('waafipay_help')) ?></p>
           </form>
-          <p class="text-center mt-2"><button type="button" class="btn btn-ghost btn-sm" data-toggle="#manual-pay"><?= e(t('waafipay_pay_manually')) ?></button></p>
+          <?php endif; ?>
+          <?php if ($sovamoneyOn): ?>
+          <form method="post" class="mt-3">
+            <?= csrf_field() ?>
+            <input type="hidden" name="action" value="sovamoney_initiate">
+            <div class="form-group">
+              <label for="customer_email"><?= e(t('sovamoney_email_label')) ?></label>
+              <input class="input" id="customer_email" type="email" name="customer_email" value="<?= e($me['email'] ?? '') ?>" placeholder="<?= e(t('sovamoney_email_ph')) ?>" required>
+            </div>
+            <button class="btn btn-primary btn-lg btn-block" type="submit"><?= icon('bolt', 18) ?> <?= e(t('sovamoney_pay_now')) ?></button>
+            <p class="help text-center mt-2"><?= icon('info', 13) ?> <?= e(t('sovamoney_help')) ?></p>
+          </form>
+          <?php endif; ?>
+          <?php if ($realtimePayOn): ?>
+          <p class="text-center mt-2"><button type="button" class="btn btn-ghost btn-sm" data-toggle="#manual-pay"><?= e(t('pay_manually_instead')) ?></button></p>
           <div id="manual-pay" class="toggle-panel">
           <?php endif; ?>
           <form method="post" enctype="multipart/form-data" class="mt-3">
@@ -176,7 +206,7 @@ require APP_PATH . '/views/header.php';
             </div>
             <button class="btn btn-primary btn-lg btn-block" type="submit"><?= icon('check-circle', 18) ?> <?= e(t('i_have_paid')) ?></button>
           </form>
-          <?php if ($waafipayOn): ?></div><?php endif; ?>
+          <?php if ($realtimePayOn): ?></div><?php endif; ?>
           <form method="post" class="text-center mt-2" data-confirm="<?= e(t('confirm_cancel')) ?>">
             <?= csrf_field() ?>
             <input type="hidden" name="action" value="cancel">

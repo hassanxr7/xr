@@ -36,7 +36,7 @@ Interface languages: **English (default)** and Somali — visitors can switch wi
 
 **Security**: bcrypt password hashing, CSRF token on every form, PDO prepared statements, login throttling, payment screenshots stored privately (served only to the owner/admin), `.htaccess` rules that block `app/`, `install/schema.sql` and any script inside `uploads/`.
 
-**Real-time payments (WaafiPay / EVC Plus)**: optionally, customers paying with EVC Plus can confirm instantly with a PIN prompt on their phone instead of typing in a Transaction ID — see [WaafiPay API](#waafipay-api--real-time-evc-plus-payments) below. All other payment methods keep the manual verification flow described above.
+**Real-time payments**: optionally, any payment method can skip manual Transaction ID verification. [WaafiPay](#waafipay-api--real-time-evc-plus-payments) gives EVC Plus customers an instant PIN-prompt confirmation; [SovaMoney](#sovamoney-api--real-time-hosted-checkout) sends customers to a hosted checkout page with automatic webhook confirmation. Methods without either configured keep the manual verification flow described above.
 
 ---
 
@@ -116,6 +116,25 @@ Notes:
 
 ---
 
+## SovaMoney API — real-time hosted checkout
+
+[SovaMoney](https://sovamoney.com/api/documentation) is a hosted checkout: instead of a PIN prompt, the customer is redirected to SovaMoney's own secure payment page, then brought back once they're done. It can be used for any gateway (bank transfer, card, wallet — whatever payment methods your SovaMoney account supports), independently from WaafiPay.
+
+1. Get your **Public Key** and **Secret Key** from your SovaMoney merchant dashboard (Dashboard → API Key). Use sandbox mode first to test — it doesn't touch live money.
+2. **Admin → Settings → SovaMoney**:
+   - Tick **Enable real-time SovaMoney payments**.
+   - Choose **Sandbox** while testing, **Live** once ready.
+   - Pick the **payment method to check out with SovaMoney** (e.g. PayPal, or any gateway you want to automate).
+   - Enter the Public Key and Secret Key, then **Save settings**. The Secret Key field is always shown blank; leave it empty on later saves to keep the key already entered.
+3. On the order page, a customer paying with that gateway now sees a **"Pay with SovaMoney"** button (it asks for their email, used for the SovaMoney receipt). Tapping it sends them to SovaMoney's checkout page; once they pay, SovaMoney confirms it automatically in the background and the order moves straight to *Processing*. The same **"Pay manually instead"** fallback stays available.
+
+Notes:
+- Confirmation happens through a signed webhook (`sovamoney_ipn.php`) that SovaMoney calls directly — no need to add anything in your SovaMoney dashboard unless it explicitly asks for an IPN URL (shown under Admin → Settings → SovaMoney once configured).
+- The webhook verifies SovaMoney's HMAC-SHA256 signature before touching any order, so it can't be spoofed by a third party.
+- The browser redirect to SovaMoney's checkout (`success_url`/`cancel_url`) is only for the customer's convenience — the actual payment confirmation always comes from the signed webhook, so refreshing or closing the tab mid-payment doesn't lose the result.
+
+---
+
 ## Order flow
 
 ```
@@ -182,6 +201,7 @@ exchange/
 ├── statement.php      Printable statement
 ├── receipt.php        Printable receipt
 ├── track.php          Track an order
+├── sovamoney_ipn.php  SovaMoney payment webhook (signed, no login required)
 ├── login.php · register.php · profile.php · logout.php · terms.php · proof.php
 ├── admin/             Admin panel (dashboard, orders, pairs, gateways, customers, reports, settings, admins)
 ├── app/               Application code (blocked from the web by .htaccess)

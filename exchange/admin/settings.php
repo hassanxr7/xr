@@ -49,6 +49,20 @@ if (is_post()) {
     save_setting('waafipay_api_key', $wpApiKey);
     save_setting('waafipay_gateway_id', (string) (int) input('waafipay_gateway_id'));
 
+    $smEnabled = empty($_POST['sovamoney_enabled']) ? '0' : '1';
+    $smPublicKey = mb_substr(input('sovamoney_public_key'), 0, 60);
+    $smSecretKeyInput = input('sovamoney_secret_key');
+    $smSecretKey = $smSecretKeyInput !== '' ? mb_substr($smSecretKeyInput, 0, 190) : setting('sovamoney_secret_key');
+    if ($smEnabled === '1' && ($smPublicKey === '' || $smSecretKey === '')) {
+        $smEnabled = '0';
+        flash('error', t('a_err_sovamoney_required'));
+    }
+    save_setting('sovamoney_enabled', $smEnabled);
+    save_setting('sovamoney_environment', input('sovamoney_environment') === 'live' ? 'live' : 'sandbox');
+    save_setting('sovamoney_public_key', $smPublicKey);
+    save_setting('sovamoney_secret_key', $smSecretKey);
+    save_setting('sovamoney_gateway_id', (string) (int) input('sovamoney_gateway_id'));
+
     if (has_upload('logo')) {
         try {
             save_setting('logo', 'uploads/logos/' . store_image($_FILES['logo'], UPLOAD_PATH . '/logos', 1048576));
@@ -152,6 +166,39 @@ require APP_PATH . '/views/admin_header.php';
           <input class="input mono" type="password" name="waafipay_api_key" placeholder="<?= !empty($s['waafipay_api_key']) ? '••••••••••••' : '' ?>" autocomplete="off">
           <div class="help"><?= e(t('a_waafipay_api_key_help')) ?> <?= !empty($s['waafipay_api_key']) ? e(t('a_waafipay_key_saved')) : e(t('a_waafipay_key_missing')) ?></div>
         </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-head"><h3><?= icon('bolt', 18) ?> <?= e(t('a_sovamoney')) ?></h3></div>
+      <div class="card-body">
+        <p class="small muted"><?= e(t('a_sovamoney_help')) ?></p>
+        <label class="check"><input type="checkbox" name="sovamoney_enabled" value="1" <?= ($s['sovamoney_enabled'] ?? '') === '1' ? 'checked' : '' ?>> <?= e(t('a_sovamoney_enabled')) ?></label>
+        <div class="form-row mt-2">
+          <div class="form-group">
+            <label><?= e(t('a_sovamoney_environment')) ?></label>
+            <select class="input" name="sovamoney_environment">
+              <option value="sandbox" <?= ($s['sovamoney_environment'] ?? 'sandbox') === 'sandbox' ? 'selected' : '' ?>><?= e(t('a_waafipay_sandbox')) ?></option>
+              <option value="live" <?= ($s['sovamoney_environment'] ?? '') === 'live' ? 'selected' : '' ?>><?= e(t('a_waafipay_live')) ?></option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label><?= e(t('a_sovamoney_gateway')) ?></label>
+            <select class="input" name="sovamoney_gateway_id">
+              <?php foreach ($gateways as $g): ?>
+                <option value="<?= (int) $g['id'] ?>" <?= (int) ($s['sovamoney_gateway_id'] ?? 0) === (int) $g['id'] ? 'selected' : '' ?>><?= e($g['name']) ?></option>
+              <?php endforeach; ?>
+            </select>
+            <div class="help"><?= e(t('a_sovamoney_gateway_help')) ?></div>
+          </div>
+        </div>
+        <div class="form-group"><label><?= e(t('a_sovamoney_public_key')) ?></label><input class="input mono" name="sovamoney_public_key" value="<?= $v('sovamoney_public_key') ?>" autocomplete="off"></div>
+        <div class="form-group">
+          <label><?= e(t('a_sovamoney_secret_key')) ?></label>
+          <input class="input mono" type="password" name="sovamoney_secret_key" placeholder="<?= !empty($s['sovamoney_secret_key']) ? '••••••••••••' : '' ?>" autocomplete="off">
+          <div class="help"><?= e(t('a_waafipay_api_key_help')) ?> <?= !empty($s['sovamoney_secret_key']) ? e(t('a_waafipay_key_saved')) : e(t('a_waafipay_key_missing')) ?></div>
+        </div>
+        <p class="help"><?= e(t('a_sovamoney_ipn_help', ['url' => full_url('sovamoney_ipn.php')])) ?></p>
       </div>
     </div>
 

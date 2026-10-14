@@ -14,6 +14,7 @@ define('UPLOAD_PATH', BASE_PATH . '/uploads');
 
 require APP_PATH . '/helpers.php';
 require APP_PATH . '/waafipay.php';
+require APP_PATH . '/sovamoney.php';
 
 $configFile = APP_PATH . '/config.php';
 if (!is_file($configFile)) {
