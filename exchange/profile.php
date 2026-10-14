@@ -24,7 +24,7 @@ if (is_post()) {
         $confirm = (string) ($_POST['password_confirm'] ?? '');
         if (!password_verify($current, $me['password_hash'])) {
             flash('error', t('err_current_password'));
-        } elseif (strlen($new) < 6) {
+        } elseif (strlen($new) < 8) {
             flash('error', t('err_password_short'));
         } elseif ($new !== $confirm) {
             flash('error', t('err_password_match'));

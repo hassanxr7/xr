@@ -14,7 +14,8 @@ if (is_post()) {
         flash('error', t('too_many_attempts'));
     } else {
         $a = row('SELECT * FROM admins WHERE username = ? AND is_active = 1', [$username]);
-        if ($a && password_verify($password, $a['password_hash'])) {
+        $ok = password_verify($password, $a['password_hash'] ?? '$2y$10$usesomesillystringfore7hnbRJHxXVLeakoG8K30oukPsA.ztMG');
+        if ($a && $ok) {
             throttle_clear('admin', $username);
             login_admin($a);
             redirect(safe_next($_GET['next'] ?? '', 'admin/'));

@@ -15,7 +15,8 @@ if (is_post()) {
         flash('error', t('too_many_attempts'));
     } else {
         $u = $phone !== '' ? row('SELECT * FROM users WHERE phone = ?', [$phone]) : null;
-        if ($u && password_verify($password, $u['password_hash'])) {
+        $ok = password_verify($password, $u['password_hash'] ?? '$2y$10$usesomesillystringfore7hnbRJHxXVLeakoG8K30oukPsA.ztMG');
+        if ($u && $ok) {
             if ($u['status'] !== 'active') {
                 flash('error', t('account_blocked'));
             } else {

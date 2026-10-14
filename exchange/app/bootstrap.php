@@ -49,11 +49,21 @@ set_exception_handler(function (Throwable $e) {
 });
 
 // Security headers
+header_remove('X-Powered-By');
 header('X-Frame-Options: SAMEORIGIN');
 header('X-Content-Type-Options: nosniff');
 header('Referrer-Policy: strict-origin-when-cross-origin');
+header('Permissions-Policy: camera=(), microphone=(), geolocation=(), payment=()');
+header("Content-Security-Policy: default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; "
+    . "font-src 'self' https://fonts.gstatic.com; img-src 'self' data:; connect-src 'self'; object-src 'none'; "
+    . "base-uri 'self'; form-action 'self'; frame-ancestors 'self'");
+if (is_https()) {
+    header('Strict-Transport-Security: max-age=31536000');
+}
 
 // Session
+ini_set('session.use_strict_mode', '1');
+ini_set('session.use_only_cookies', '1');
 session_name('HUFANSESS');
 session_set_cookie_params([
     'lifetime' => 0,

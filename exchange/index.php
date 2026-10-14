@@ -158,15 +158,10 @@ require APP_PATH . '/views/header.php';
   </div>
 </section>
 
-<script>
-window.HUFAN = {
-  pairs: <?= json_encode($jsPairs, JSON_HEX_TAG | JSON_HEX_AMP | JSON_UNESCAPED_UNICODE) ?>,
-  i18n: <?= json_encode([
+<script type="application/json" id="hufan-data">{"pairs": <?= json_encode($jsPairs, JSON_HEX_TAG | JSON_HEX_AMP | JSON_UNESCAPED_UNICODE) ?>, "i18n": <?= json_encode([
       'min'      => t('js_min'),
       'max'      => t('js_max'),
       'reserve'  => t('js_reserve'),
       'invalid'  => t('js_invalid'),
-  ], JSON_HEX_TAG | JSON_HEX_AMP | JSON_UNESCAPED_UNICODE) ?>
-};
-</script>
+  ], JSON_HEX_TAG | JSON_HEX_AMP | JSON_UNESCAPED_UNICODE) ?>}</script>
 <?php require APP_PATH . '/views/footer.php'; ?>

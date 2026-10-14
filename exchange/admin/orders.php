@@ -49,11 +49,11 @@ if (qs('export') === 'csv') {
     $st = q("SELECT o.*, u.name AS customer, u.phone AS customer_phone $baseSql ORDER BY o.id DESC", $params);
     while ($o = $st->fetch()) {
         fputcsv($out, [
-            $o['order_no'], $o['created_at'], $o['customer'], $o['customer_phone'], $o['from_name'], $o['to_name'],
+            $o['order_no'], $o['created_at'], csv_safe($o['customer']), csv_safe($o['customer_phone']), $o['from_name'], $o['to_name'],
             number_format((float) $o['send_amount'], (int) $o['from_decimals'], '.', ''), $o['from_currency'],
             number_format((float) $o['fee_amount'], (int) $o['from_decimals'], '.', ''), (float) $o['rate'],
             number_format((float) $o['receive_amount'], (int) $o['to_decimals'], '.', ''), $o['to_currency'],
-            $o['sender_account'], $o['receiver_account'], $o['payment_ref'], $o['payout_ref'], $o['status'], $o['completed_at'],
+            csv_safe($o['sender_account']), csv_safe($o['receiver_account']), csv_safe($o['payment_ref']), csv_safe($o['payout_ref']), $o['status'], $o['completed_at'],
         ]);
     }
     fclose($out);

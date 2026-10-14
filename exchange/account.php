@@ -59,7 +59,7 @@ require APP_PATH . '/views/header.php';
       <div class="card-head">
         <h2><?= icon('list', 18) ?> <?= e(t('my_orders')) ?></h2>
         <form method="get" class="btn-group">
-          <select class="input" name="status" onchange="this.form.submit()" style="width:auto;padding:8px 12px">
+          <select class="input" name="status" data-autosubmit style="width:auto;padding:8px 12px">
             <option value=""><?= e(t('all_statuses')) ?></option>
             <?php foreach (statuses() as $k => $label): ?>
               <option value="<?= e($k) ?>" <?= $status === $k ? 'selected' : '' ?>><?= e($label) ?></option>

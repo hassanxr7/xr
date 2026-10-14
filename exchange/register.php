@@ -17,6 +17,9 @@ if (is_post()) {
     $password = (string) ($_POST['password'] ?? '');
     $confirm = (string) ($_POST['password_confirm'] ?? '');
 
+    if (throttle_blocked('register', 'register', 5, 60, false)) {
+        $errors[] = t('too_many_attempts');
+    }
     if (mb_strlen($old['name']) < 3) {
         $errors[] = t('err_name');
     }
@@ -28,7 +31,7 @@ if (is_post()) {
     if ($old['email'] !== '' && !filter_var($old['email'], FILTER_VALIDATE_EMAIL)) {
         $errors[] = t('err_email');
     }
-    if (strlen($password) < 6) {
+    if (strlen($password) < 8) {
         $errors[] = t('err_password_short');
     } elseif ($password !== $confirm) {
         $errors[] = t('err_password_match');
@@ -46,6 +49,7 @@ if (is_post()) {
             'status'        => 'active',
             'created_at'    => now(),
         ]);
+        throttle_hit('register', 'register');
         login_user(row('SELECT * FROM users WHERE id = ?', [$id]));
         flash('success', t('register_success'));
         redirect(safe_next($_GET['next'] ?? '', 'account.php'));

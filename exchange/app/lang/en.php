@@ -116,7 +116,7 @@ return [
     'err_phone'           => 'The phone number is not valid.',
     'err_phone_taken'     => 'This phone number is already registered.',
     'err_email'           => 'The email address is not valid.',
-    'err_password_short'  => 'Password must be at least 6 characters.',
+    'err_password_short'  => 'Password must be at least 8 characters.',
     'err_password_match'  => 'The passwords do not match.',
     'err_current_password'=> 'Your current password is wrong.',
     'err_terms'           => 'Please accept the terms of service.',

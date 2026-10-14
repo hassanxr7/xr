@@ -61,6 +61,13 @@ function db(): PDO
     return $pdo;
 }
 
+/** Neutralise spreadsheet formulas (=, +, -, @) in user-supplied CSV cells. */
+function csv_safe($v): string
+{
+    $v = (string) $v;
+    return $v !== '' && strpos("=+-@\t\r", $v[0]) !== false ? "'" . $v : $v;
+}
+
 /** Search value for "LIKE ? ESCAPE '!'" (works on MySQL and SQLite). */
 function like_param(string $search): string
 {
@@ -404,6 +411,13 @@ function admin(): ?array
     if (!$id) {
         return null;
     }
+    // Admins are signed out after 60 minutes without activity.
+    $seen = (int) ($_SESSION['admin_seen'] ?? 0);
+    if ($seen && time() - $seen > 3600) {
+        unset($_SESSION['admin_id'], $_SESSION['admin_seen']);
+        return null;
+    }
+    $_SESSION['admin_seen'] = time();
     if ($cache === null || (int) $cache['id'] !== $id) {
         $cache = row('SELECT * FROM admins WHERE id = ? AND is_active = 1', [$id]);
     }
@@ -424,25 +438,35 @@ function login_admin(array $a): void
 {
     session_regenerate_id(true);
     $_SESSION['admin_id'] = (int) $a['id'];
+    $_SESSION['admin_seen'] = time();
     update('admins', ['last_login_at' => now()], 'id = ?', [$a['id']]);
 }
 
 /** Login throttling: max $max failed attempts per $minutes for the same scope+identifier+IP. */
-function throttle_key(string $ident): string
+function throttle_key(string $ident, bool $withIp = true): string
 {
-    return hash('sha256', strtolower($ident) . '|' . client_ip());
+    return hash('sha256', strtolower($ident) . ($withIp ? '|' . client_ip() : ''));
 }
 
-function throttle_blocked(string $scope, string $ident, int $max = 5, int $minutes = 15): bool
+/**
+ * Blocked after $max failures from this IP, or after $max × 4 failures for the same
+ * account from any IP (stops distributed guessing of one password). Pass $global = false
+ * for identifiers shared by everyone (e.g. the order tracker) so one attacker cannot lock others out.
+ */
+function throttle_blocked(string $scope, string $ident, int $max = 5, int $minutes = 15, bool $global = true): bool
 {
     $since = date('Y-m-d H:i:s', time() - $minutes * 60);
-    $n = (int) val('SELECT COUNT(*) FROM login_attempts WHERE scope = ? AND ident = ? AND created_at > ?', [$scope, throttle_key($ident), $since]);
-    return $n >= $max;
+    $sql = 'SELECT COUNT(*) FROM login_attempts WHERE scope = ? AND ident = ? AND created_at > ?';
+    if ((int) val($sql, [$scope, throttle_key($ident), $since]) >= $max) {
+        return true;
+    }
+    return $global && (int) val($sql, [$scope . '*', throttle_key($ident, false), $since]) >= $max * 4;
 }
 
 function throttle_hit(string $scope, string $ident): void
 {
     insert('login_attempts', ['scope' => $scope, 'ident' => throttle_key($ident), 'created_at' => now()]);
+    insert('login_attempts', ['scope' => $scope . '*', 'ident' => throttle_key($ident, false), 'created_at' => now()]);
     if (random_int(1, 50) === 1) {
         q('DELETE FROM login_attempts WHERE created_at < ?', [date('Y-m-d H:i:s', time() - 86400)]);
     }

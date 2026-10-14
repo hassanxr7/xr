@@ -19,7 +19,8 @@ session_start();
 
 $configFile = APP_PATH . '/config.php';
 $lockFile = STORAGE_PATH . '/installed.lock';
-$installed = is_file($configFile) && is_file($lockFile);
+// Locked once a configuration exists, even if the lock file is removed.
+$installed = is_file($configFile);
 
 date_default_timezone_set('Africa/Mogadishu');
 

@@ -7,7 +7,7 @@ $no = strtoupper(qs('no'));
 $phone = normalize_phone(qs('phone'));
 
 if ($no !== '' && $phone !== '') {
-    if (throttle_blocked('track', 'track', 20, 10)) {
+    if (throttle_blocked('track', 'track', 20, 10, false)) {
         flash('error', t('too_many_attempts'));
     } else {
         $found = row(

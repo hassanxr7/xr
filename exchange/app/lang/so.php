@@ -116,7 +116,7 @@ return [
     'err_phone'           => 'Lambarka taleefanku sax ma aha.',
     'err_phone_taken'     => 'Lambarkan horay ayaa loo diiwaangeliyay.',
     'err_email'           => 'Iimaylku sax ma aha.',
-    'err_password_short'  => 'Password-ku waa inuu ahaadaa ugu yaraan 6 xaraf.',
+    'err_password_short'  => 'Password-ku waa inuu ahaadaa ugu yaraan 8 xaraf.',
     'err_password_match'  => 'Labada password isma laha.',
     'err_current_password'=> 'Password-ka hadda waa khalad.',
     'err_terms'           => 'Fadlan aqbal shuruudaha adeegga.',

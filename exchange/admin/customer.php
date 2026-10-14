@@ -17,7 +17,7 @@ if (is_post()) {
         flash('success', t('saved'));
     } elseif ($action === 'password') {
         $pw = (string) ($_POST['new_password'] ?? '');
-        if (strlen($pw) < 6) {
+        if (strlen($pw) < 8) {
             flash('error', t('err_password_short'));
         } else {
             update('users', ['password_hash' => password_hash($pw, PASSWORD_DEFAULT)], 'id = ?', [$u['id']]);
@@ -116,7 +116,7 @@ require APP_PATH . '/views/admin_header.php';
       <?= csrf_field() ?><input type="hidden" name="action" value="password">
       <div class="card-head"><h3><?= icon('lock', 18) ?> <?= e(t('a_reset_password')) ?></h3></div>
       <div class="card-body">
-        <div class="form-group"><label><?= e(t('new_password')) ?></label><input class="input" name="new_password" type="text" autocomplete="off" minlength="6" required></div>
+        <div class="form-group"><label><?= e(t('new_password')) ?></label><input class="input" name="new_password" type="text" autocomplete="off" minlength="8" required></div>
         <button class="btn btn-outline btn-sm" type="submit"><?= e(t('a_reset_password')) ?></button>
       </div>
     </form>

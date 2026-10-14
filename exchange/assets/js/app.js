@@ -46,6 +46,10 @@
     });
   });
 
+  $$('[data-autosubmit]').forEach(function (el) {
+    el.addEventListener('change', function () { if (el.form) el.form.submit(); });
+  });
+
   // ---- Print -------------------------------------------------------------
   $$('[data-print]').forEach(function (btn) {
     btn.addEventListener('click', function () { window.print(); });
@@ -109,7 +113,8 @@
   }
 
   $$('[data-calc]').forEach(function (form) {
-    var data = window.HUFAN || {};
+    var dataEl = document.getElementById('hufan-data');
+    var data = dataEl ? JSON.parse(dataEl.textContent) : {};
     var pairs = data.pairs || [];
     var t = data.i18n || {};
     if (!pairs.length) return;
