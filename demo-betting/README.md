@@ -6,7 +6,7 @@ there are no payment forms, and coins can't be withdrawn.
 
 > **Soomaali:** Demo Betting waa goob tababar oo sharad isboorti iyo kasiino ah. Ciyaaraha
 > waa la dayday, lacagtuna waa tijaabo (DC). Lacag dhab ah lama dhigo, lamana bixiyo.
-> Luqadda caadiga ah waa Soomaali; English waa la dooran karaa.
+> Luqadda caadiga ah waa English; Soomaali waa la dooran karaa.
 
 ## Run it
 
@@ -40,7 +40,7 @@ No build step and no server needed — it's plain HTML, CSS and JavaScript.
 **Account**
 - One-click or username registration with a 1,000 DC welcome bonus.
 - Demo top-ups, transaction history, stats, account reset.
-- Somali/English, dark/light theme, decimal/fractional/American odds.
+- English (default) and Somali, dark/light theme, decimal/fractional/American odds.
 - Responsive: three-column desktop layout, drawers and a bottom tab bar on phones.
 
 ## How the simulation works
@@ -67,7 +67,7 @@ css/style.css     all styles (dark-first, light theme via prefers-color-scheme o
 js/util.js        DOM, random numbers, storage, formatting, toasts, modal, icons
 js/data.js        sports, leagues, teams
 js/engine.js      match generator, live state, markets/odds, settlement
-js/i18n.js        Somali + English text, market labels, odds formats
+js/i18n.js        English + Somali text, market labels, odds formats
 js/store.js       accounts, wallet, bets, settlement, cash out
 js/sports.js      home, live, upcoming, league, event, results, search views
 js/betslip.js     bet slip

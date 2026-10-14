@@ -1,4 +1,4 @@
-/* Demo Betting — Somali (default) and English text, plus label helpers for markets, odds and clocks. */
+/* Demo Betting — English (default) and Somali text, plus label helpers for markets, odds and clocks. */
 'use strict';
 (function () {
   const DB = window.DB;
@@ -228,7 +228,7 @@
   };
   DB.I18N = D;
 
-  DB.lang = 'so';
+  DB.lang = 'en';
   DB.t = (k, v) => {
     let s = (D[DB.lang] && D[DB.lang][k]) != null ? D[DB.lang][k] : D.en[k] != null ? D.en[k] : k;
     if (v) s = s.replace(/\{(\w+)\}/g, (m, x) => (v[x] != null ? v[x] : m));

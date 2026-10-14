@@ -14,10 +14,10 @@
   S.ACCA_BOOST_ODDS = 1.3; // each leg must have at least these odds
   S.ACCA_BOOST = 1.1;
 
-  S.settings = Object.assign(
-    { lang: 'so', theme: 'auto', oddsFmt: 'dec', accept: 'any' },
-    U.store.get('db_settings', {}) || {}
-  );
+  // v2: English became the default language, so a language saved under v1 is reset once
+  const savedSettings = U.store.get('db_settings', {}) || {};
+  if ((savedSettings.v || 1) < 2) delete savedSettings.lang;
+  S.settings = Object.assign({ lang: 'en', theme: 'auto', oddsFmt: 'dec', accept: 'any' }, savedSettings, { v: 2 });
   S.saveSettings = () => U.store.set('db_settings', S.settings);
 
   S.users = U.store.get('db_users', {}) || {};

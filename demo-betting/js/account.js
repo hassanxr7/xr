@@ -283,7 +283,7 @@
       '</select>';
     return (
       '<div class="panel form settings">' +
-      '<label for="set-lang">' + U.esc(t('lang_label')) + '</label>' + sel('lang', [['so', 'Soomaali'], ['en', 'English']]) +
+      '<label for="set-lang">' + U.esc(t('lang_label')) + '</label>' + sel('lang', [['en', 'English'], ['so', 'Soomaali']]) +
       '<label for="set-theme">' + U.esc(t('theme_label')) + '</label>' + sel('theme', [['auto', t('theme_auto')], ['dark', t('theme_dark')], ['light', t('theme_light')]]) +
       '<label for="set-oddsFmt">' + U.esc(t('odds_fmt')) + '</label>' + sel('oddsFmt', [['dec', t('fmt_dec')], ['frac', t('fmt_frac')], ['us', t('fmt_us')]]) +
       '<label for="set-accept">' + U.esc(t('accept_label')) + '</label>' + sel('accept', [['any', t('accept_any')], ['up', t('accept_up')], ['none', t('accept_none')]]) +

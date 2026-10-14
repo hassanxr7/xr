@@ -263,7 +263,7 @@
     S.settings[key] = val;
     S.saveSettings();
     if (key === 'lang') {
-      DB.lang = val === 'en' ? 'en' : 'so';
+      DB.lang = val === 'so' ? 'so' : 'en';
       renderAll();
     } else if (key === 'theme') {
       applyTheme();
@@ -617,7 +617,7 @@
 
   /* ================= boot ================= */
   function boot() {
-    DB.lang = S.settings.lang === 'en' ? 'en' : 'so';
+    DB.lang = S.settings.lang === 'so' ? 'so' : 'en';
     applyTheme();
     E.load();
     S.restore();
