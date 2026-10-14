@@ -45,7 +45,7 @@ function loadConfig(env) {
       publicKey: env.SOVAMONEY_PUBLIC_KEY || '',
       secretKey: env.SOVAMONEY_SECRET_KEY || '',
       mode,
-      publicUrl: String(env.PUBLIC_URL || '').replace(/\/+$/, ''),
+      publicUrl: sova.siteOrigin(env.PUBLIC_URL),
       currency: String(env.SOVAMONEY_CURRENCY || 'USD').toUpperCase(),
     },
     provider: {
@@ -161,7 +161,7 @@ function createApp(config) {
     const s = admin.sova;
     const d = config.defaults;
     const P = config.provider;
-    const publicUrl = String(s.publicUrl || d.publicUrl || '').replace(/\/+$/, '');
+    const publicUrl = sova.siteOrigin(s.publicUrl) || d.publicUrl;
     const cfg = Object.assign({}, P, {
       publicKey: s.publicKey || d.publicKey,
       secretKey: s.secretKey || d.secretKey,

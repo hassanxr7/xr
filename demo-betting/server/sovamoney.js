@@ -84,6 +84,23 @@ async function initiate(opts, fields) {
   throw new ProviderError(String((json && json.message) || 'SovaMoney could not start the payment'));
 }
 
+// The site's own public origin (where SovaMoney sends the IPN and returns customers).
+// Adds https:// when missing; returns '' for anything unusable, including SovaMoney's own hosts.
+function siteOrigin(raw) {
+  let s = String(raw || '').trim();
+  if (!s) return '';
+  if (!/^[a-z]+:\/\//i.test(s)) s = 'https://' + s;
+  let u;
+  try {
+    u = new URL(s);
+  } catch (e) {
+    return '';
+  }
+  if (u.protocol !== 'https:' && u.protocol !== 'http:') return '';
+  if (CHECKOUT_HOSTS.includes(u.host.toLowerCase()) || /(^|\.)sovamoney\.com$/i.test(u.hostname)) return '';
+  return u.origin;
+}
+
 function signature(amount, identifier, secret) {
   return crypto.createHmac('sha256', secret).update(String(amount) + String(identifier)).digest('hex').toUpperCase();
 }
@@ -108,4 +125,4 @@ function toCents(value) {
 }
 const centsToString = (c) => Math.floor(c / 100) + '.' + String(c % 100).padStart(2, '0');
 
-module.exports = { SANDBOX_URL, CHECKOUT_HOSTS, ProviderError, initiate, signature, verifySignature, checkoutUrlAllowed, toCents, centsToString };
+module.exports = { SANDBOX_URL, CHECKOUT_HOSTS, siteOrigin, ProviderError, initiate, signature, verifySignature, checkoutUrlAllowed, toCents, centsToString };

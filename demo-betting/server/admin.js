@@ -126,6 +126,9 @@ class Admin {
       }
       const local = u.hostname === 'localhost' || u.hostname === '127.0.0.1';
       if (u.protocol !== 'https:' && !(local && u.protocol === 'http:')) return 'Public URL must start with https:// so SovaMoney can reach it.';
+      if (/(^|\.)sovamoney\.com$/i.test(u.hostname)) {
+        return 'Public site address must be this website (for example https://nssr.studio), not SovaMoney\'s address.';
+      }
       next.publicUrl = u.origin;
     }
     if (body.currency != null && String(body.currency).trim()) {

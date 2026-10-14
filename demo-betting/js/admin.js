@@ -102,8 +102,11 @@
         '<form id="sova-settings" class="form" novalidate>' +
         keyField('publicKey', 'Public key', s.publicKey, 'text') +
         keyField('secretKey', 'Secret key', s.secretKey, 'password') +
-        '<label for="publicUrl">Public site address (HTTPS)</label>' +
-        '<input id="publicUrl" name="publicUrl" class="inp" type="url" placeholder="https://your-domain.com" value="' + esc(s.publicUrl) + '">' +
+        '<label for="publicUrl">Public site address (HTTPS) — this website, not SovaMoney</label>' +
+        '<input id="publicUrl" name="publicUrl" class="inp" type="url" placeholder="' + esc(location.origin) + '" value="' + esc(s.publicUrl || location.origin) + '">' +
+        (s.publicUrl && s.publicUrl !== location.origin
+          ? '<p class="form-err">Saved address is ' + esc(s.publicUrl) + ' but this site is ' + esc(location.origin) + '. Payments will return to the saved address — change it and save.</p>'
+          : '') +
         '<label for="currency">Currency</label><input id="currency" name="currency" class="inp" maxlength="4" value="' + esc(s.currency) + '">' +
         '<div class="key-row"><span class="muted">Mode</span><span class="pill">Sandbox</span></div>' +
         '<p class="form-err" data-err role="alert"></p>' +

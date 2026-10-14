@@ -272,6 +272,9 @@ function listen(server) {
     assert.strictEqual((await adm('POST', '/api/admin/settings', { mode: 'live' })).status, 400, 'live mode cannot be switched on');
     assert.match((await adm('POST', '/api/admin/settings', { secretKey: 'owner-password-1' })).json.error, /admin password/, 'browser-autofilled admin password is refused');
     assert.strictEqual((await adm('POST', '/api/admin/settings', { publicUrl: 'http://demo.example' })).status, 400, 'public URL must be https');
+    assert.match((await adm('POST', '/api/admin/settings', { publicUrl: 'https://sovamoney.com' })).json.error, /this website/, "SovaMoney's own address is refused");
+    assert.strictEqual(loadConfig({ PUBLIC_URL: 'nssr.studio/' }).defaults.publicUrl, 'https://nssr.studio', 'env address without scheme is normalised');
+    assert.strictEqual(loadConfig({ PUBLIC_URL: 'https://www.sovamoney.com' }).defaults.publicUrl, '', 'env pointing at SovaMoney is ignored');
     const NEW_PK = 'NewPublicKey123';
     const NEW_SK = 'NewSecretKey456789';
     const st2 = await adm('POST', '/api/admin/settings', { publicKey: NEW_PK, secretKey: NEW_SK, publicUrl: 'https://new.example/', currency: 'usd' });
