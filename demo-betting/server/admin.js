@@ -110,7 +110,10 @@ class Admin {
       next.publicKey = pk;
     }
     if (sk) {
-      if (!/^[A-Za-z0-9]{8,100}$/.test(sk)) return 'Secret key should be 8–100 letters and digits.';
+      if (this.data.admin && safeEqual(hashPassword(sk, this.data.admin.salt), this.data.admin.hash)) {
+        return 'That is your admin password (filled in by the browser). Paste the SovaMoney secret key instead.';
+      }
+      if (!/^[A-Za-z0-9]{8,100}$/.test(sk)) return 'Secret key should be 8–100 letters and digits, copied from SovaMoney.';
       next.secretKey = sk;
     }
     if (body.mode != null && body.mode !== 'sandbox') return 'Only sandbox mode is enabled in this build.';

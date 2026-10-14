@@ -76,7 +76,7 @@
       : '<span class="key-state">Not set</span>';
     return (
       '<div class="key-row"><label for="' + id + '">' + esc(label) + '</label>' + status + '</div>' +
-      '<input id="' + id + '" name="' + id + '" class="inp" type="' + type + '" autocomplete="off" spellcheck="false" placeholder="' + (info.set ? 'Leave empty to keep the saved key' : 'Paste the key from SovaMoney → API Key') + '">'
+      '<input id="' + id + '" name="' + id + '" class="inp" type="' + type + '" autocomplete="' + (type === 'password' ? 'new-password' : 'off') + '" data-lpignore="true" data-1p-ignore spellcheck="false" placeholder="' + (info.set ? 'Leave empty to keep the saved key' : 'Paste the key from SovaMoney → API Key') + '">'
     );
   }
 

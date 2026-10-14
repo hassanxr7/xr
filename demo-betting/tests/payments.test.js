@@ -270,6 +270,7 @@ function listen(server) {
     assert.strictEqual(st1.json.sova.secretKey.hint, '••••' + SECRET.slice(-4));
     assert(!st1.text.includes(SECRET) && !st1.text.includes('pk_test_123'), 'settings page never receives full keys');
     assert.strictEqual((await adm('POST', '/api/admin/settings', { mode: 'live' })).status, 400, 'live mode cannot be switched on');
+    assert.match((await adm('POST', '/api/admin/settings', { secretKey: 'owner-password-1' })).json.error, /admin password/, 'browser-autofilled admin password is refused');
     assert.strictEqual((await adm('POST', '/api/admin/settings', { publicUrl: 'http://demo.example' })).status, 400, 'public URL must be https');
     const NEW_PK = 'NewPublicKey123';
     const NEW_SK = 'NewSecretKey456789';
