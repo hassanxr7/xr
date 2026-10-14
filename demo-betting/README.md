@@ -65,8 +65,19 @@ SOVAMONEY_PUBLIC_KEY=... SOVAMONEY_SECRET_KEY=... \
 npm start
 ```
 
-All settings are listed in `server/.env.example`. Set the keys in your host's environment or
-secret store. Never commit them, and never put them in the browser code.
+**Admin page.** Open `/admin` on the running server to enter the keys yourself:
+
+1. On first start the server log prints `[admin] First-time setup: … setup code ABCDE-12345`.
+2. Open `https://your-domain/admin`, enter that code and choose an owner password (10+ characters).
+3. Paste the **public key** and **secret key** from SovaMoney → API Key, enter the public HTTPS
+   address of the site, and save.
+
+The keys are stored on the server in `server/data/settings.json` (owner-only file, git-ignored).
+They are never sent back to the page in full or written to logs. They override the environment
+variables in `server/.env.example`, which still work if you prefer them. On hosts whose disk
+is wiped on every deploy, use a persistent disk (`DATA_DIR`) or the environment variables.
+Never commit keys or put them in browser code. If a key was ever pasted into a chat, generate
+a new one in SovaMoney first.
 
 `PUBLIC_URL` must be a public HTTPS address so SovaMoney can reach the notification URL.
 For a quick test from your own computer, a tunnel such as ngrok or Cloudflare Tunnel works.
@@ -102,7 +113,8 @@ SovaMoney document. Its own section 11 lists what to confirm against a real sand
 | Acknowledgement | replies `200 OK` | change the reply in `handleIpn` |
 | Checkout host | `sovamoney.com`, `www.sovamoney.com` | `CHECKOUT_HOSTS` in `server/sovamoney.js` |
 
-**Live payments are switched off on purpose.** `SOVAMONEY_MODE=live` refuses to start. Wallets,
+**Live payments are not enabled in this build.** `SOVAMONEY_MODE=live` refuses to start and the
+admin page only offers sandbox. Wallets,
 bets and game results still live in each player's browser, where players can edit them. Real
 money first needs server-side accounts, wallet, bet settlement and game randomness, plus a
 gambling licence and SovaMoney's approval for a betting merchant.
@@ -142,6 +154,8 @@ js/payments.js    deposit page (payment-method tiles), SovaMoney window, deposit
 server/server.js  static site + deposit API + IPN handler
 server/sovamoney.js  initiate request, checkout-host check, IPN signature
 server/store.js   deposit records and ledger (atomic JSON file)
+server/admin.js   owner setup/login and saved SovaMoney settings
+admin.html, js/admin.js  owner admin page (/admin)
 img/logo.png      logo sent to SovaMoney as site_logo
 img/sovamoney-icon.png  SovaMoney icon on the deposit tile
 tests/engine.test.js    odds calibration, settlement and RTP checks

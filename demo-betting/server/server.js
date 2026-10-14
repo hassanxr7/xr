@@ -1,10 +1,10 @@
-/* Demo Betting server: serves the site and runs SovaMoney sandbox deposits.
+/* Demo Betting server: serves the site, runs SovaMoney sandbox deposits and the owner admin page.
  *
- *   node server/server.js
+ *   node server/server.js        then open /admin to enter the merchant keys
  *
- * Merchant keys come from environment variables only (see server/.env.example) and never
- * reach the browser. Live charging is deliberately not supported: player wallets and bets
- * still live in the browser, so real money would have nothing safe to land in.
+ * Keys come from the admin page (stored server-side) or environment variables, and never
+ * reach the browser. Only SovaMoney's sandbox is wired up: live charging is not enabled in
+ * this build (player wallets and bets still live in the browser).
  */
 'use strict';
 const http = require('http');
@@ -13,9 +13,11 @@ const path = require('path');
 const crypto = require('crypto');
 const sova = require('./sovamoney');
 const { DepositStore } = require('./store');
+const { Admin, hashPassword, safeEqual } = require('./admin');
 
 const SITE_ROOT = path.join(__dirname, '..');
 const STATIC_DIRS = ['css', 'js', 'img'];
+const ROOT_FILES = ['index.html', 'admin.html'];
 const MIME = {
   '.html': 'text/html; charset=utf-8',
   '.css': 'text/css; charset=utf-8',
@@ -25,32 +27,31 @@ const MIME = {
   '.ico': 'image/x-icon',
 };
 const SANDBOX_TEST_ACCOUNT = { email: 'test_mode@mail.com', code: '222666' };
+const CSP =
+  "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data:; connect-src 'self'; form-action 'self'; frame-ancestors 'none'; base-uri 'self'";
 
 /* ================= configuration ================= */
 function loadConfig(env) {
   const mode = String(env.SOVAMONEY_MODE || 'sandbox').toLowerCase();
-  if (mode !== 'sandbox') {
-    throw new Error(
-      'SOVAMONEY_MODE=' + mode + ' is not supported. Only sandbox deposits are wired up: wallets and bets ' +
-        'are still stored in the browser, so live payments would have no secure balance to credit.'
-    );
-  }
-  const publicUrl = String(env.PUBLIC_URL || '').replace(/\/+$/, '');
-  const missing = ['SOVAMONEY_PUBLIC_KEY', 'SOVAMONEY_SECRET_KEY', 'PUBLIC_URL'].filter((k) => !env[k]);
+  if (mode !== 'sandbox') throw new Error('SOVAMONEY_MODE=' + mode + ' is not supported: only sandbox deposits are enabled in this build.');
+  const dataDir = env.DATA_DIR || path.join(__dirname, 'data');
   return {
     port: Number(env.PORT) || 8080,
-    publicUrl,
     trustProxy: env.TRUST_PROXY === '1',
-    dataFile: env.DATA_FILE || path.join(__dirname, 'data', 'deposits.json'),
-    sova: {
-      enabled: missing.length === 0,
-      missing,
+    dataFile: env.DATA_FILE || path.join(dataDir, 'deposits.json'),
+    settingsFile: env.SETTINGS_FILE || path.join(dataDir, 'settings.json'),
+    // fallbacks when the admin page has not set a value
+    defaults: {
       publicKey: env.SOVAMONEY_PUBLIC_KEY || '',
       secretKey: env.SOVAMONEY_SECRET_KEY || '',
+      mode,
+      publicUrl: String(env.PUBLIC_URL || '').replace(/\/+$/, ''),
       currency: String(env.SOVAMONEY_CURRENCY || 'USD').toUpperCase(),
+    },
+    provider: {
       endpoint: sova.SANDBOX_URL,
       encoding: ['json', 'form'].includes(env.SOVAMONEY_ENCODING) ? env.SOVAMONEY_ENCODING : 'multipart',
-      siteLogo: env.SOVAMONEY_SITE_LOGO || publicUrl + '/img/logo.png',
+      siteLogo: env.SOVAMONEY_SITE_LOGO || '',
       checkoutTheme: env.SOVAMONEY_CHECKOUT_THEME === 'light' ? 'light' : 'dark',
       checkoutHosts: sova.CHECKOUT_HOSTS,
       allowHttp: false,
@@ -134,6 +135,14 @@ function readBody(req, limit) {
   });
 }
 
+// admin calls must be JSON: a cross-site form cannot send that without a CORS preflight
+async function readJson(req) {
+  if (!String(req.headers['content-type'] || '').toLowerCase().startsWith('application/json')) {
+    throw Object.assign(new Error('JSON body required'), { status: 415 });
+  }
+  return readBody(req, 16 * 1024);
+}
+
 function clientIp(req, trustProxy) {
   if (trustProxy && req.headers['x-forwarded-for']) return String(req.headers['x-forwarded-for']).split(',')[0].trim();
   return req.socket.remoteAddress || '';
@@ -141,13 +150,31 @@ function clientIp(req, trustProxy) {
 
 /* ================= app ================= */
 function createApp(config) {
-  const store = new DepositStore(config.dataFile);
-  const S = config.sova;
-  const hits = new Map(); // key -> recent deposit-creation timestamps
   const log = config.log || ((...a) => console.log(...a));
+  const store = new DepositStore(config.dataFile);
+  const admin = new Admin(config.settingsFile, log);
+  const hits = new Map(); // key -> recent deposit-creation timestamps
   const limits = Object.assign({ perAccount: 10, perIp: 60, windowMs: 10 * 60e3 }, config.rateLimit);
 
-  // per account, plus a looser per-IP cap: mobile carriers put many customers behind one IP
+  // effective SovaMoney settings: admin page first, then environment
+  function sovaCfg() {
+    const s = admin.sova;
+    const d = config.defaults;
+    const P = config.provider;
+    const publicUrl = String(s.publicUrl || d.publicUrl || '').replace(/\/+$/, '');
+    const cfg = Object.assign({}, P, {
+      publicKey: s.publicKey || d.publicKey,
+      secretKey: s.secretKey || d.secretKey,
+      mode: 'sandbox',
+      publicUrl,
+      currency: s.currency || d.currency || 'USD',
+      siteLogo: P.siteLogo || publicUrl + '/img/logo.png',
+    });
+    cfg.enabled = !!(cfg.publicKey && cfg.secretKey && cfg.publicUrl);
+    return cfg;
+  }
+  const depositAccess = (req, S) => (S.enabled ? 'ok' : 'not_configured');
+
   function rateLimited(keys) {
     const now = Date.now();
     let over = false;
@@ -166,6 +193,7 @@ function createApp(config) {
       id: dep.id,
       amount: sova.centsToString(dep.cents),
       currency: dep.currency,
+      mode: dep.mode || 'sandbox',
       status: dep.status,
       createdAt: dep.createdAt,
       confirmedAt: dep.confirmedAt || null,
@@ -181,7 +209,9 @@ function createApp(config) {
   }
 
   async function createDeposit(req, res) {
-    if (!S.enabled) return sendJson(res, 503, { error: 'SovaMoney is not configured on this server.' });
+    const S = sovaCfg();
+    const access = depositAccess(req, S);
+    if (access !== 'ok') return sendJson(res, 503, { error: 'SovaMoney is not configured on this server.' });
     const token = String(req.headers['x-wallet-token'] || '');
     if (!/^[a-f0-9]{64}$/.test(token)) return sendJson(res, 401, { error: 'Log in again to make a deposit.' });
     if (rateLimited([['acct:' + sha256(token), limits.perAccount], ['ip:' + clientIp(req, config.trustProxy), limits.perIp]])) {
@@ -202,6 +232,7 @@ function createApp(config) {
       id,
       cents,
       currency: S.currency,
+      mode: S.mode,
       status: 'pending',
       createdAt: Date.now(),
       ownerHash: sha256(token),
@@ -213,9 +244,9 @@ function createApp(config) {
       currency: S.currency,
       amount: sova.centsToString(cents),
       details: 'Demo Betting sandbox deposit',
-      ipn_url: config.publicUrl + '/payments/sovamoney/ipn',
-      success_url: config.publicUrl + '/payments/success?d=' + id,
-      cancel_url: config.publicUrl + '/payments/cancel?d=' + id,
+      ipn_url: S.publicUrl + '/payments/sovamoney/ipn',
+      success_url: S.publicUrl + '/payments/success?d=' + id,
+      cancel_url: S.publicUrl + '/payments/cancel?d=' + id,
       site_logo: S.siteLogo,
       checkout_theme: S.checkoutTheme,
       customer_name: name,
@@ -225,7 +256,7 @@ function createApp(config) {
       const out = await sova.initiate(S, fields);
       dep.checkoutHost = new URL(out.url).host;
       store.save();
-      log('[deposit] ' + id + ' started ' + fields.amount + ' ' + S.currency);
+      log('[deposit] ' + id + ' started ' + fields.amount + ' ' + S.currency + ' (' + S.mode + ')');
       return sendJson(res, 201, { deposit: publicView(dep), checkoutUrl: out.url });
     } catch (e) {
       const msg = e instanceof sova.ProviderError ? e.message : 'Unexpected error';
@@ -236,6 +267,7 @@ function createApp(config) {
   }
 
   async function handleIpn(req, res) {
+    const S = sovaCfg();
     let body;
     try {
       body = await readBody(req, 64 * 1024);
@@ -275,19 +307,79 @@ function createApp(config) {
     res.end('OK');
   }
 
+  /* ---------- admin API ---------- */
+  async function handleAdmin(req, res, p) {
+    const ip = clientIp(req, config.trustProxy);
+    const secure = sovaCfg().publicUrl.startsWith('https://') || req.headers['x-forwarded-proto'] === 'https';
+    if (req.method === 'GET' && p === '/api/admin/state') {
+      return sendJson(res, 200, { setupNeeded: !admin.data.admin, loggedIn: admin.isAdmin(req) });
+    }
+    if (req.method === 'POST' && p === '/api/admin/setup') {
+      const body = await readJson(req);
+      if (admin.data.admin) return sendJson(res, 409, { error: 'Setup is already done. Log in instead.' });
+      if (admin.tooManyFailures(ip)) return sendJson(res, 429, { error: 'Too many attempts. Wait 15 minutes.' });
+      if (!admin.setupCode || !safeEqual(String(body.code || '').trim().toUpperCase(), admin.setupCode)) {
+        admin.fail(ip);
+        return sendJson(res, 403, { error: 'Wrong setup code. It is printed in the server log.' });
+      }
+      if (String(body.password || '').length < 10) return sendJson(res, 400, { error: 'Choose a password of at least 10 characters.' });
+      const salt = crypto.randomBytes(16).toString('hex');
+      admin.data.admin = { salt, hash: hashPassword(body.password, salt), created: Date.now() };
+      admin.setupCode = null;
+      admin.save();
+      admin.startSession(res, secure);
+      log('[admin] owner password set');
+      return sendJson(res, 200, { ok: true });
+    }
+    if (req.method === 'POST' && p === '/api/admin/login') {
+      const body = await readJson(req);
+      if (!admin.data.admin) return sendJson(res, 409, { error: 'Finish setup first.' });
+      if (admin.tooManyFailures(ip)) return sendJson(res, 429, { error: 'Too many attempts. Wait 15 minutes.' });
+      if (!safeEqual(hashPassword(body.password || '', admin.data.admin.salt), admin.data.admin.hash)) {
+        admin.fail(ip);
+        log('[admin] failed login from ' + ip);
+        return sendJson(res, 403, { error: 'Wrong password.' });
+      }
+      admin.startSession(res, secure);
+      return sendJson(res, 200, { ok: true });
+    }
+    if (req.method === 'POST' && p === '/api/admin/logout') {
+      const t = admin.token(req);
+      if (t) admin.sessions.delete(t);
+      res.setHeader('Set-Cookie', 'db_admin=; Path=/; HttpOnly; SameSite=Strict; Max-Age=0');
+      return sendJson(res, 200, { ok: true });
+    }
+    if (!admin.isAdmin(req)) return sendJson(res, 401, { error: 'Log in to the admin page first.' });
+    if (req.method === 'GET' && p === '/api/admin/settings') return sendJson(res, 200, { sova: admin.view(sovaCfg()) });
+    if (req.method === 'POST' && p === '/api/admin/settings') {
+      const err = admin.update(await readJson(req));
+      if (err) return sendJson(res, 400, { error: err });
+      const S = sovaCfg();
+      log('[admin] SovaMoney settings saved (mode ' + S.mode + ', keys ' + (S.publicKey && S.secretKey ? 'set' : 'missing') + ')');
+      return sendJson(res, 200, { sova: admin.view(S) });
+    }
+    if (req.method === 'GET' && p === '/api/admin/deposits') {
+      const list = Object.values(store.deposits)
+        .sort((a, b) => b.createdAt - a.createdAt)
+        .slice(0, 100)
+        .map((d) => Object.assign(publicView(d), { customer: d.customer || null, trx: (d.provider && d.provider.trx) || '' }));
+      return sendJson(res, 200, { deposits: list });
+    }
+    return sendJson(res, 404, { error: 'not found' });
+  }
+
   function serveStatic(req, res, pathname) {
-    let rel = pathname === '/' ? 'index.html' : decodeURIComponent(pathname.slice(1));
+    const rel = pathname === '/' ? 'index.html' : pathname === '/admin' ? 'admin.html' : decodeURIComponent(pathname.slice(1));
     const top = rel.split('/')[0];
-    if (rel !== 'index.html' && !STATIC_DIRS.includes(top)) return notFound(res);
+    if (!ROOT_FILES.includes(rel) && !STATIC_DIRS.includes(top)) return notFound(res);
     const file = path.normalize(path.join(SITE_ROOT, rel));
     if (!file.startsWith(SITE_ROOT + path.sep)) return notFound(res);
     fs.stat(file, (err, st) => {
       if (err || !st.isFile()) return notFound(res);
       res.writeHead(200, {
         'Content-Type': MIME[path.extname(file)] || 'application/octet-stream',
-        'Cache-Control': rel === 'index.html' ? 'no-cache' : 'public, max-age=300',
-        'Content-Security-Policy':
-          "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data:; connect-src 'self'; form-action 'self'; frame-ancestors 'none'; base-uri 'self'",
+        'Cache-Control': ROOT_FILES.includes(rel) ? 'no-cache' : 'public, max-age=300',
+        'Content-Security-Policy': CSP,
       });
       if (req.method === 'HEAD') return res.end();
       fs.createReadStream(file).pipe(res);
@@ -309,11 +401,15 @@ function createApp(config) {
     const p = url.pathname;
     const m = /^\/api\/deposits\/([A-Z0-9]{20})(\/collect)?$/.exec(p);
     try {
+      if (p.startsWith('/api/admin/')) return await handleAdmin(req, res, p);
       if (req.method === 'GET' && p === '/api/config') {
+        const S = sovaCfg();
+        const access = depositAccess(req, S);
         return sendJson(res, 200, {
-          sovamoney: S.enabled
-            ? { enabled: true, mode: 'sandbox', currency: S.currency, min: sova.centsToString(S.minCents), max: sova.centsToString(S.maxCents), testAccount: SANDBOX_TEST_ACCOUNT }
-            : { enabled: false },
+          sovamoney:
+            access === 'ok'
+              ? { enabled: true, mode: S.mode, currency: S.currency, min: sova.centsToString(S.minCents), max: sova.centsToString(S.maxCents), testAccount: S.mode === 'sandbox' ? SANDBOX_TEST_ACCOUNT : null }
+              : { enabled: false, reason: access },
         });
       }
       if (req.method === 'POST' && p === '/api/deposits') return await createDeposit(req, res);
@@ -345,7 +441,7 @@ function createApp(config) {
     }
   });
 
-  return { server, store, config };
+  return { server, store, admin, config, sovaCfg };
 }
 
 module.exports = { createApp, loadConfig, parseForm };
@@ -354,8 +450,9 @@ if (require.main === module) {
   const config = loadConfig(process.env);
   const app = createApp(config);
   app.server.listen(config.port, () => {
-    console.log('Demo Betting on http://localhost:' + config.port);
-    if (config.sova.enabled) console.log('SovaMoney sandbox deposits: on (' + config.sova.currency + ', IPN ' + config.publicUrl + '/payments/sovamoney/ipn)');
-    else console.log('SovaMoney sandbox deposits: off — set ' + config.sova.missing.join(', '));
+    const S = app.sovaCfg();
+    console.log('Demo Betting on http://localhost:' + config.port + '   (admin: /admin)');
+    if (S.enabled) console.log('SovaMoney deposits: on (sandbox), IPN ' + S.publicUrl + '/payments/sovamoney/ipn');
+    else console.log('SovaMoney deposits: off — enter the keys and public URL on /admin');
   });
 }

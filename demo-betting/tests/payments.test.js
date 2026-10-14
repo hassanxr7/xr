@@ -47,14 +47,16 @@ function listen(server) {
   const providerPort = await listen(provider);
 
   // ---------- app under test ----------
-  const dataFile = path.join(fs.mkdtempSync(path.join(os.tmpdir(), 'dbet-')), 'deposits.json');
-  const config = loadConfig({ SOVAMONEY_PUBLIC_KEY: 'pk_test_123', SOVAMONEY_SECRET_KEY: SECRET, PUBLIC_URL: 'https://demo.example', DATA_FILE: dataFile });
-  Object.assign(config.sova, {
+  const dataDir = fs.mkdtempSync(path.join(os.tmpdir(), 'dbet-'));
+  const dataFile = path.join(dataDir, 'deposits.json');
+  const config = loadConfig({ SOVAMONEY_PUBLIC_KEY: 'pk_test_123', SOVAMONEY_SECRET_KEY: SECRET, PUBLIC_URL: 'https://demo.example', DATA_DIR: dataDir });
+  Object.assign(config.provider, {
     endpoint: 'http://127.0.0.1:' + providerPort + '/sandbox/payment/initiate',
     checkoutHosts: ['127.0.0.1:' + providerPort],
     allowHttp: true,
   });
-  config.log = () => {};
+  const logs = [];
+  config.log = (m) => logs.push(m);
   const app = createApp(config);
   const port = await listen(app.server);
   const base = 'http://127.0.0.1:' + port;
@@ -105,12 +107,15 @@ function listen(server) {
   try {
     // configuration
     assert.throws(() => loadConfig({ SOVAMONEY_MODE: 'live' }), /not supported/);
-    assert.strictEqual(loadConfig({}).sova.enabled, false);
+    const bare = createApp(Object.assign(loadConfig({ DATA_DIR: fs.mkdtempSync(path.join(os.tmpdir(), 'dbet-')) }), { log: () => {} }));
+    assert.strictEqual(bare.sovaCfg().enabled, false);
     const cfg = await call('GET', '/api/config');
     assert.strictEqual(cfg.json.sovamoney.enabled, true);
     assert.strictEqual(cfg.json.sovamoney.mode, 'sandbox');
     assert(!cfg.text.includes(SECRET) && !cfg.text.includes('pk_test_123'), 'keys must not reach the browser');
     ok('live mode refused, sandbox config exposes no keys');
+    assert(logs.some((l) => /setup code [A-F0-9]{5}-[A-F0-9]{5}/.test(l)), 'first run prints a setup code');
+    assert(!logs.join('\n').includes(SECRET), 'secret never logged');
 
     // input validation
     assert.strictEqual((await call('POST', '/api/deposits', { body: { amount: '10' } })).status, 401);
@@ -222,6 +227,81 @@ function listen(server) {
       assert.strictEqual((await call('GET', p)).status, 404, p);
     }
     ok('serves the site but never server code, data or tests');
+
+    // owner admin page
+    let cookie = '';
+    const adm = async (method, p2, body, { raw, type } = {}) => {
+      const headers = {};
+      if (cookie) headers.Cookie = cookie;
+      let payload;
+      if (raw !== undefined) {
+        payload = raw;
+        headers['Content-Type'] = type;
+      } else if (body !== undefined) {
+        payload = JSON.stringify(body);
+        headers['Content-Type'] = 'application/json';
+      }
+      const res = await fetch(base + p2, { method, headers, body: payload });
+      const set = res.headers.get('set-cookie');
+      if (set) cookie = set.split(';')[0];
+      const text = await res.text();
+      let json = null;
+      try {
+        json = JSON.parse(text);
+      } catch (e) {
+        /* not JSON */
+      }
+      return { status: res.status, json, text, set };
+    };
+    const setupCode = /setup code ([A-F0-9]{5}-[A-F0-9]{5})/.exec(logs.join('\n'))[1];
+    assert.deepStrictEqual((await adm('GET', '/api/admin/state')).json, { setupNeeded: true, loggedIn: false });
+    assert.strictEqual((await adm('GET', '/api/admin/settings')).status, 401);
+    assert.strictEqual((await adm('POST', '/api/admin/setup', undefined, { raw: 'code=' + setupCode + '&password=xxxxxxxxxxxx', type: 'application/x-www-form-urlencoded' })).status, 415, 'form posts (CSRF) refused');
+    assert.strictEqual((await adm('POST', '/api/admin/setup', { code: 'AAAAA-00000', password: 'long-enough-pass' })).status, 403);
+    assert.strictEqual((await adm('POST', '/api/admin/setup', { code: setupCode, password: 'short' })).status, 400);
+    const su = await adm('POST', '/api/admin/setup', { code: setupCode.toLowerCase(), password: 'owner-password-1' });
+    assert.strictEqual(su.status, 200);
+    assert(/HttpOnly/.test(su.set) && /SameSite=Strict/.test(su.set) && /Secure/.test(su.set), 'session cookie is HttpOnly, SameSite=Strict, Secure on https');
+    assert.strictEqual((await adm('POST', '/api/admin/setup', { code: setupCode, password: 'another-password' })).status, 409, 'setup code is single use');
+    ok('first-run setup needs the logged code, a 10+ character password and JSON; it works once');
+
+    const st1 = await adm('GET', '/api/admin/settings');
+    assert.strictEqual(st1.json.sova.publicKey.from, 'environment');
+    assert.strictEqual(st1.json.sova.secretKey.hint, '••••' + SECRET.slice(-4));
+    assert(!st1.text.includes(SECRET) && !st1.text.includes('pk_test_123'), 'settings page never receives full keys');
+    assert.strictEqual((await adm('POST', '/api/admin/settings', { mode: 'live' })).status, 400, 'live mode cannot be switched on');
+    assert.strictEqual((await adm('POST', '/api/admin/settings', { publicUrl: 'http://demo.example' })).status, 400, 'public URL must be https');
+    const NEW_PK = 'NewPublicKey123';
+    const NEW_SK = 'NewSecretKey456789';
+    const st2 = await adm('POST', '/api/admin/settings', { publicKey: NEW_PK, secretKey: NEW_SK, publicUrl: 'https://new.example/', currency: 'usd' });
+    assert.strictEqual(st2.status, 200, st2.text);
+    assert(!st2.text.includes(NEW_SK) && !st2.text.includes(NEW_PK));
+    assert.deepStrictEqual([st2.json.sova.publicKey.from, st2.json.sova.secretKey.hint, st2.json.sova.publicUrl, st2.json.sova.ipnUrl], ['admin', '••••6789', 'https://new.example', 'https://new.example/payments/sovamoney/ipn']);
+    const saved = path.join(dataDir, 'settings.json');
+    assert.strictEqual(fs.statSync(saved).mode & 0o777, 0o600, 'settings file is owner-only');
+    assert(!logs.join('\n').includes(NEW_SK), 'new secret never logged');
+    ok('owner can save keys; they are masked, stored owner-only and override the environment');
+
+    const d3 = await newDeposit('7', 'd'.repeat(64));
+    assert.strictEqual(d3.status, 201, d3.text);
+    assert.deepStrictEqual([lastFields.public_key, lastFields.ipn_url], [NEW_PK, 'https://new.example/payments/sovamoney/ipn']);
+    const id3 = d3.json.deposit.id;
+    assert.strictEqual((await sendIpn(id3, '7.00')).status, 400, 'old secret no longer verifies');
+    assert.strictEqual((await sendIpn(id3, '7.00', { signature: sova.signature('7.00', id3, NEW_SK) })).status, 200);
+    assert.strictEqual(app.store.get(id3).status, 'confirmed');
+    ok('deposits and IPN checks use the keys saved on the admin page');
+
+    const dl = await adm('GET', '/api/admin/deposits');
+    assert(dl.json.deposits.some((d) => d.id === id3 && d.customer.email === 'test_mode@mail.com'));
+    await adm('POST', '/api/admin/logout', {});
+    assert.strictEqual((await adm('GET', '/api/admin/settings')).status, 401, 'logout ends the session');
+    // 8 failures per IP in 15 minutes, counting the wrong setup code above
+    const codes = [];
+    for (let i = 0; i < 9; i++) codes.push((await adm('POST', '/api/admin/login', { password: 'wrong-' + i })).status);
+    assert.deepStrictEqual(codes, [403, 403, 403, 403, 403, 403, 403, 429, 429], 'login attempts are rate limited');
+    assert.strictEqual((await call('GET', '/admin')).status, 200);
+    assert.strictEqual((await call('GET', '/server/data/settings.json')).status, 404);
+    ok('deposit list, logout, login throttling; settings file is never served');
 
     // rate limit
     let n = 0;

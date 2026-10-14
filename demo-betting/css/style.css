@@ -756,6 +756,19 @@ select.inp { padding-right: 28px; }
   .pm-name { font-size: 15px; padding: 11px 6px; }
 }
 
+/* owner admin page */
+.admin-tag { background: var(--down); color: #fff; font: 800 12px/1 var(--f-display); letter-spacing: .1em; padding: 4px 7px; border-radius: 3px; }
+.admin-main { max-width: 980px; margin: 0 auto; padding-block: 20px 48px; padding-left: var(--gut-l); padding-right: var(--gut-r); display: flex; flex-direction: column; gap: 14px; }
+.admin-h1 { font-size: 30px; text-transform: uppercase; }
+.admin-card { padding: 18px; display: flex; flex-direction: column; gap: 12px; min-width: 0; }
+.admin-card.narrow { max-width: 460px; width: 100%; margin: 24px auto 0; }
+.admin-card h2 { font-size: 20px; text-transform: uppercase; letter-spacing: .03em; }
+.admin-status { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.key-row { display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap; }
+.key-state { font-size: 12px; font-weight: 600; color: var(--warn); }
+.key-state.on { color: var(--up); }
+.admin-card code { font: 600 13px/1.4 ui-monospace, 'SFMono-Regular', Consolas, monospace; overflow-wrap: anywhere; }
+
 /* ================= account ================= */
 .profile { padding: 16px; display: flex; flex-direction: column; gap: 16px; }
 .pf-head { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; }
