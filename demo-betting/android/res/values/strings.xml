@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Demo Betting</string>
+    <!-- replaced by build.sh from SITE_URL -->
+    <string name="site_url">@SITE_URL@</string>
+</resources>

@@ -133,7 +133,9 @@
     }
     U.$('#top-actions').innerHTML = acts;
     U.$('#ribbon').innerHTML =
-      '<div class="ribbon-in"><span class="demo-tag">DEMO</span><span>' + U.esc(t('demo_ribbon')) + '</span><a href="#info" data-go="info">' + U.esc(t('nav_info')) + '</a></div>';
+      '<div class="ribbon-in"><span class="demo-tag">DEMO</span><span>' + U.esc(t('demo_ribbon')) + '</span>' +
+      (U.inApp ? '' : '<a href="#app" data-go="app" class="rb-app">' + U.icon('phone') + U.esc(t('app_nav')) + '</a>') +
+      '<a href="#info" data-go="info">' + U.esc(t('nav_info')) + '</a></div>';
   }
 
   function renderSide() {
@@ -165,6 +167,7 @@
       NAV.map((n) => '<a href="#' + n[0] + '" data-go="' + n[0] + '">' + (n[2] ? U.icon(n[2]) : '<span class="nav-emoji" aria-hidden="true">' + n[3] + '</span>') + U.esc(t(n[1])) + '</a>').join('') +
       '<a href="#mybets" data-go="mybets">' + U.icon('list') + U.esc(t('my_bets')) + '</a>' +
       '<a href="#account.settings" data-go="account.settings">' + U.icon('gear') + U.esc(t('acc_settings')) + '</a>' +
+      (U.inApp ? '' : '<a href="#app" data-go="app">' + U.icon('phone') + U.esc(t('app_nav')) + '</a>') +
       '<button type="button" data-act="lang">' + U.icon('globe') + (DB.lang === 'so' ? 'English' : 'Soomaali') + '</button>' +
       '<button type="button" data-act="theme">' + U.icon(effTheme() === 'dark' ? 'sun' : 'moon') + U.esc(t('theme_label')) + '</button>' +
       '</nav>' +
@@ -188,7 +191,7 @@
       '<nav class="foot-cols">' +
       '<div><h4>' + U.esc(t('nav_sports')) + '</h4>' + link('live', 'nav_live') + link('sports.football', 'sp_football') + link('sports.basketball', 'sp_basketball') + link('sports.tennis', 'sp_tennis') + link('results', 'nav_results') + '</div>' +
       '<div><h4>' + U.esc(t('nav_casino')) + '</h4>' + link('casino.crash', 'g_crash') + link('casino.mines', 'g_mines') + link('casino.dice', 'g_dice') + link('casino.slots', 'g_slots') + '</div>' +
-      '<div><h4>Info</h4>' + link('info', 'nav_info') + link('promo', 'nav_promo') + link('mybets', 'nav_mybets') + link('account.settings', 'acc_settings') + '</div>' +
+      '<div><h4>Info</h4>' + link('info', 'nav_info') + (U.inApp ? '' : link('app', 'app_nav')) + link('promo', 'nav_promo') + link('mybets', 'nav_mybets') + link('account.settings', 'acc_settings') + '</div>' +
       '</nav>' +
       '<p class="foot-copy">' + U.esc(t('foot_copy', { y: new Date().getFullYear() })) + '</p></div>';
   }

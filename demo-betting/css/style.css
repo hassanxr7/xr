@@ -769,6 +769,18 @@ select.inp { padding-right: 28px; }
 .key-state.on { color: var(--up); }
 .admin-card code { font: 600 13px/1.4 ui-monospace, 'SFMono-Regular', Consolas, monospace; overflow-wrap: anywhere; }
 
+/* Android app page */
+.app-hero { display: flex; align-items: center; gap: 22px; padding: 22px; flex-wrap: wrap; margin-bottom: 12px; }
+.app-ic { width: 96px; height: 96px; border-radius: 22px; box-shadow: var(--shadow); flex: none; }
+.app-copy { flex: 1 1 280px; display: flex; flex-direction: column; align-items: flex-start; gap: 10px; min-width: 0; }
+.app-hero h1 { font-size: 28px; text-transform: uppercase; }
+.app-hero p { color: var(--muted); max-width: 52ch; }
+.app-steps { padding: 20px 22px; display: flex; flex-direction: column; gap: 12px; }
+.app-steps h2 { font-size: 20px; text-transform: uppercase; }
+.app-steps ol { margin: 0; padding-left: 22px; display: flex; flex-direction: column; gap: 8px; max-width: 64ch; }
+.ribbon-in .rb-app { display: inline-flex; align-items: center; gap: 5px; }
+.ribbon-in .rb-app .ic { width: 15px; height: 15px; }
+
 /* ================= account ================= */
 .profile { padding: 16px; display: flex; flex-direction: column; gap: 16px; }
 .pf-head { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; }

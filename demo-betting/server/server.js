@@ -16,7 +16,7 @@ const { DepositStore } = require('./store');
 const { Admin, hashPassword, safeEqual } = require('./admin');
 
 const SITE_ROOT = path.join(__dirname, '..');
-const STATIC_DIRS = ['css', 'js', 'img'];
+const STATIC_DIRS = ['css', 'js', 'img', 'download'];
 const ROOT_FILES = ['index.html', 'admin.html'];
 const MIME = {
   '.html': 'text/html; charset=utf-8',
@@ -25,6 +25,7 @@ const MIME = {
   '.png': 'image/png',
   '.svg': 'image/svg+xml',
   '.ico': 'image/x-icon',
+  '.apk': 'application/vnd.android.package-archive',
 };
 const SANDBOX_TEST_ACCOUNT = { email: 'test_mode@mail.com', code: '222666' };
 const CSP =
@@ -380,6 +381,7 @@ function createApp(config) {
         'Content-Type': MIME[path.extname(file)] || 'application/octet-stream',
         'Cache-Control': ROOT_FILES.includes(rel) ? 'no-cache' : 'public, max-age=300',
         'Content-Security-Policy': CSP,
+        ...(path.extname(file) === '.apk' ? { 'Content-Disposition': 'attachment; filename="' + path.basename(file) + '"' } : {}),
       });
       if (req.method === 'HEAD') return res.end();
       fs.createReadStream(file).pipe(res);

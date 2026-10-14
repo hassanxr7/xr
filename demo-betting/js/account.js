@@ -460,6 +460,29 @@
   };
 
   /* ================= about ================= */
+  /* ================= Android app ================= */
+  const APK = { file: 'download/demo-betting.apk', version: '1.0' };
+  V.app = {
+    sig() {
+      return S.settings.lang;
+    },
+    render() {
+      if (U.inApp) {
+        return '<section class="panel app-hero"><img class="app-ic" src="img/app-icon.png" alt="" width="96" height="96"><div class="app-copy"><h1>' + U.esc(t('app_title')) + '</h1><p>' + U.esc(t('app_in_app')) + '</p></div></section>';
+      }
+      const steps = ['app_step1', 'app_step2', 'app_step3'].map((k) => '<li>' + U.esc(t(k)) + '</li>').join('');
+      return (
+        '<section class="panel app-hero">' +
+        '<img class="app-ic" src="img/app-icon.png" alt="" width="96" height="96">' +
+        '<div class="app-copy"><h1>' + U.esc(t('app_title')) + '</h1><p>' + U.esc(t('app_sub')) + '</p>' +
+        '<a class="btn btn-go btn-xl" href="' + APK.file + '" download="demo-betting.apk">' + U.icon('phone') + U.esc(t('app_btn')) + '</a>' +
+        '<p class="fine">' + U.esc(t('app_meta', { v: APK.version })) + '</p></div></section>' +
+        '<section class="panel app-steps"><h2>' + U.esc(t('app_steps_t')) + '</h2><ol>' + steps + '</ol>' +
+        '<p class="fine">' + U.icon('info') + U.esc(t('app_note')) + '</p></section>'
+      );
+    },
+  };
+
   V.info = {
     sig() {
       return S.settings.lang;

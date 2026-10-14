@@ -223,6 +223,10 @@ function listen(server) {
     assert(idx.headers.get('content-security-policy').includes("script-src 'self'"));
     assert.strictEqual((await call('GET', '/js/app.js')).status, 200);
     assert.strictEqual((await call('GET', '/img/logo.png')).status, 200);
+    const apk = await call('GET', '/download/demo-betting.apk');
+    assert.strictEqual(apk.status, 200);
+    assert.strictEqual(apk.headers.get('content-type'), 'application/vnd.android.package-archive');
+    assert.match(apk.headers.get('content-disposition'), /attachment; filename="demo-betting.apk"/);
     for (const p of ['/server/server.js', '/server/data/deposits.json', '/package.json', '/js/../server/store.js', '/%2e%2e/README.md', '/tests/payments.test.js']) {
       assert.strictEqual((await call('GET', p)).status, 404, p);
     }

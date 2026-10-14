@@ -35,6 +35,24 @@ The server listens on `PORT` from the environment (3000 if unset). After the fir
 the app's runtime logs for the `/admin` setup code. On Premium/Single plans (no Node.js), upload
 only `index.html`, `css/`, `js/` and `img/` to `public_html`. Everything works except SovaMoney.
 
+### Android app
+
+`download/demo-betting.apk` is a small Android app (Android 5.0+) that opens the site full-screen
+in a WebView. The site links to it from the **Android app** page (`#app`), the top ribbon, the
+menu and the footer; those links are hidden inside the app itself. SovaMoney's checkout stays
+inside the app, and other links open in the phone's browser.
+
+Rebuild it (for example after changing the domain) without Android Studio:
+
+```
+sudo apt-get install openjdk-17-jdk aapt dalvik-exchange zipalign apksigner android-sdk-platform-23
+KS_PASS='keystore password' SITE_URL=https://nssr.studio VERSION_CODE=2 VERSION_NAME=1.1 ./android/build.sh
+```
+
+The signing key lives in `android/keystore/release.jks` (git-ignored). Every update must be
+signed with the same key and have a higher `VERSION_CODE`, or phones refuse to install it as an
+update. Keep the key and its password backed up and private.
+
 ## What's inside
 
 **Sportsbook**
@@ -176,6 +194,9 @@ server/admin.js   owner setup/login and saved SovaMoney settings
 admin.html, js/admin.js  owner admin page (/admin)
 img/logo.png      logo sent to SovaMoney as site_logo
 img/sovamoney-icon.png  SovaMoney icon on the deposit tile
+img/app-icon.png  Android app icon shown on the #app page
+download/demo-betting.apk  the Android app
+android/          app source (MainActivity.java, manifest, icons, offline page) and build.sh
 tests/engine.test.js    odds calibration, settlement and RTP checks
 tests/payments.test.js  SovaMoney flow: signatures, idempotency, ownership, failures
 ```

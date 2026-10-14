@@ -1,2 +1,4 @@
 server/data/
 .env
+android/build/
+android/keystore/
