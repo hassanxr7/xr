@@ -409,8 +409,13 @@
         break;
       case 'deposit':
         closeDrawers();
-        AC.openDeposit();
+        AC.openDeposit(d.tab);
         break;
+      case 'sova-amt': {
+        const inp = U.$('#sova-amount');
+        if (inp) inp.value = d.v;
+        break;
+      }
       case 'dep-tab':
         AC.openDeposit(d.tab);
         break;
@@ -634,6 +639,7 @@
     B.render();
     show(parse(location.hash), false);
     setInterval(tick, 1000);
+    DB.P.init();
   }
   boot();
 })();

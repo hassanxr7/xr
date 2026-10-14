@@ -678,6 +678,26 @@ select.inp { padding-right: 28px; }
 .notice { display: flex; gap: 12px; align-items: flex-start; padding: 14px; background: var(--panel-2); border-radius: var(--r-lg); }
 .notice .ic { color: var(--gold); width: 26px; height: 26px; }
 
+/* SovaMoney sandbox deposits */
+.notice.sandbox { align-items: center; border: 1px dashed var(--warn); }
+.notice.sandbox p { font-size: 13px; color: var(--muted); }
+.sbx { flex: none; padding: 3px 7px; border-radius: 4px; background: var(--warn); color: #241800; font: 800 11px/1 var(--f-display); letter-spacing: .08em; }
+.dep-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 4px; }
+.dep-list a { display: grid; grid-template-columns: minmax(0, 1fr) auto auto; gap: 10px; align-items: center; padding: 8px 10px; border-radius: var(--r); background: var(--panel-2); color: var(--fg); font-size: 13px; font-variant-numeric: tabular-nums; }
+.dep-list a:hover { text-decoration: none; background: var(--raise); }
+.ds-pending { background: var(--brand-2); color: #fff; }
+.ds-confirmed { background: var(--up); color: #04210f; }
+.ds-cancelled { background: var(--faint); color: #fff; }
+.ds-failed { background: var(--down); color: #fff; }
+.dep-card { padding: 18px; display: flex; flex-direction: column; gap: 16px; max-width: 620px; }
+.dep-facts { margin: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(min(170px, 100%), 1fr)); gap: 8px; }
+.dep-facts div { background: var(--panel-2); border-radius: var(--r); padding: 10px 12px; min-width: 0; }
+.dep-facts dt { font-size: 12px; color: var(--muted); }
+.dep-facts dd { margin: 2px 0 0; font: 700 18px/1.2 var(--f-display); overflow-wrap: anywhere; }
+.dep-facts code { font: 600 14px/1.3 ui-monospace, 'SFMono-Regular', Consolas, monospace; }
+.dep-status { display: flex; gap: 12px; align-items: flex-start; }
+.dep-status p { max-width: 52ch; }
+
 /* ================= account ================= */
 .profile { padding: 16px; display: flex; flex-direction: column; gap: 16px; }
 .pf-head { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; }
