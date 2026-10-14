@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="so">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Demo Betting</title>
+<meta name="description" content="Demo Betting — a practice sportsbook and casino with simulated matches and virtual coins. No real money.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600;700&family=Saira+Condensed:wght@600;700;800&display=swap">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<a class="skip" href="#view">Skip to content</a>
+<header class="topbar">
+  <div class="topbar-in">
+    <button type="button" class="icon-btn menu-btn" data-act="menu" aria-label="Menu"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 6h16M4 12h16M4 18h16"/></svg></button>
+    <a class="brand" href="#home" data-go="home" aria-label="Demo Betting"><span class="brand-mark">DEMO</span><span class="brand-word">BETTING</span></a>
+    <nav class="mainnav" id="mainnav" aria-label="Main"></nav>
+    <div class="top-actions" id="top-actions"></div>
+  </div>
+</header>
+<div class="ribbon" id="ribbon"></div>
+<div class="shell">
+  <aside class="side-left" id="side-left"></aside>
+  <main id="view" class="view" tabindex="-1"></main>
+  <aside class="side-right" id="side-right"><div class="slip" id="slip"></div></aside>
+</div>
+<footer class="foot" id="foot"></footer>
+<nav class="bottomnav" id="bottomnav" aria-label="Quick"></nav>
+<div class="scrim" id="scrim" data-act="close-drawers" hidden></div>
+<div id="modal" class="modal" hidden></div>
+<div id="toasts" class="toasts" aria-live="polite"></div>
+<noscript><p style="padding:24px">Demo Betting needs JavaScript.</p></noscript>
+<script src="js/util.js"></script>
+<script src="js/data.js"></script>
+<script src="js/engine.js"></script>
+<script src="js/i18n.js"></script>
+<script src="js/store.js"></script>
+<script src="js/sports.js"></script>
+<script src="js/account.js"></script>
+<script src="js/betslip.js"></script>
+<script src="js/casino.js"></script>
+<script src="js/app.js"></script>
+</body>
+</html>
