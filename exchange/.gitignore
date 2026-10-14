@@ -6,3 +6,5 @@ app/storage/proofs/*
 !app/storage/proofs/.gitkeep
 uploads/logos/*
 !uploads/logos/.gitkeep
+# Automatic (SQLite) database created by the installer
+app/storage/database.sqlite*

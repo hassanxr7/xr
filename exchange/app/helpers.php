@@ -20,22 +20,58 @@ function config(string $key, $default = null)
     return $value;
 }
 
+/** Database driver in use: "sqlite" (automatic, default) or "mysql". */
+function db_driver(): string
+{
+    return config('db.driver', 'mysql') === 'sqlite' ? 'sqlite' : 'mysql';
+}
+
+/** Open a PDO connection for the given db config (shared by the app and the installer). */
+function db_connect(array $c): PDO
+{
+    $options = [
+        PDO::ATTR_ERRMODE            => PDO::ERRMODE_EXCEPTION,
+        PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
+        PDO::ATTR_EMULATE_PREPARES   => false,
+    ];
+    if (($c['driver'] ?? 'mysql') === 'sqlite') {
+        $path = $c['path'] ?? 'app/storage/database.sqlite';
+        if ($path[0] !== '/') {
+            $path = BASE_PATH . '/' . $path;
+        }
+        $pdo = new PDO('sqlite:' . $path, null, null, $options);
+        $pdo->exec('PRAGMA foreign_keys = ON');
+        $pdo->exec('PRAGMA busy_timeout = 5000');
+        $pdo->exec('PRAGMA journal_mode = WAL');
+        return $pdo;
+    }
+    $dsn = sprintf('mysql:host=%s;dbname=%s;charset=utf8mb4', $c['host'] ?? 'localhost', $c['name'] ?? '');
+    if (!empty($c['port'])) {
+        $dsn .= ';port=' . (int) $c['port'];
+    }
+    return new PDO($dsn, $c['user'] ?? '', $c['pass'] ?? '', $options);
+}
+
 function db(): PDO
 {
     static $pdo = null;
     if ($pdo === null) {
-        $c = config('db', []);
-        $dsn = sprintf('mysql:host=%s;dbname=%s;charset=utf8mb4', $c['host'] ?? 'localhost', $c['name'] ?? '');
-        if (!empty($c['port'])) {
-            $dsn .= ';port=' . (int) $c['port'];
-        }
-        $pdo = new PDO($dsn, $c['user'] ?? '', $c['pass'] ?? '', [
-            PDO::ATTR_ERRMODE            => PDO::ERRMODE_EXCEPTION,
-            PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
-            PDO::ATTR_EMULATE_PREPARES   => false,
-        ]);
+        $pdo = db_connect(config('db', []));
     }
     return $pdo;
+}
+
+/** Search value for "LIKE ? ESCAPE '!'" (works on MySQL and SQLite). */
+function like_param(string $search): string
+{
+    return '%' . str_replace(['!', '%', '_'], ['!!', '!%', '!_'], $search) . '%';
+}
+
+/** Number without trailing zeros, for form inputs (e.g. 2.500 → 2.5, 10 → 10). */
+function trim_num($n): string
+{
+    $s = number_format((float) $n, 8, '.', '');
+    return rtrim(rtrim($s, '0'), '.') ?: '0';
 }
 
 function q(string $sql, array $params = []): PDOStatement
@@ -116,7 +152,7 @@ function setting(string $key, string $default = ''): string
 
 function save_setting(string $key, ?string $value): void
 {
-    q('INSERT INTO settings (`key`, `value`) VALUES (?, ?) ON DUPLICATE KEY UPDATE `value` = VALUES(`value`)', [$key, $value]);
+    q('REPLACE INTO settings (`key`, `value`) VALUES (?, ?)', [$key, $value]);
 }
 
 function brand_color(): string
@@ -589,7 +625,7 @@ function set_order_status(array $order, string $status, ?string $note, string $a
     $pdo = db();
     $pdo->beginTransaction();
     try {
-        $current = row('SELECT * FROM orders WHERE id = ? FOR UPDATE', [$order['id']]);
+        $current = row('SELECT * FROM orders WHERE id = ?' . (db_driver() === 'mysql' ? ' FOR UPDATE' : ''), [$order['id']]);
         $data = array_merge($extra, ['status' => $status, 'updated_at' => now()]);
         $wasDone = $current['status'] === 'completed';
         $isDone = $status === 'completed';
@@ -600,12 +636,12 @@ function set_order_status(array $order, string $status, ?string $note, string $a
                 q('UPDATE gateways SET reserve = reserve + ? WHERE id = ?', [$current['send_amount'], $current['from_gateway_id']]);
             }
             if ($current['to_gateway_id']) {
-                q('UPDATE gateways SET reserve = GREATEST(0, reserve - ?) WHERE id = ?', [$current['receive_amount'], $current['to_gateway_id']]);
+                q('UPDATE gateways SET reserve = CASE WHEN reserve < ? THEN 0 ELSE reserve - ? END WHERE id = ?', [$current['receive_amount'], $current['receive_amount'], $current['to_gateway_id']]);
             }
         } elseif ($wasDone && !$isDone) {
             $data['completed_at'] = null;
             if ($current['from_gateway_id']) {
-                q('UPDATE gateways SET reserve = GREATEST(0, reserve - ?) WHERE id = ?', [$current['send_amount'], $current['from_gateway_id']]);
+                q('UPDATE gateways SET reserve = CASE WHEN reserve < ? THEN 0 ELSE reserve - ? END WHERE id = ?', [$current['send_amount'], $current['send_amount'], $current['from_gateway_id']]);
             }
             if ($current['to_gateway_id']) {
                 q('UPDATE gateways SET reserve = reserve + ? WHERE id = ?', [$current['receive_amount'], $current['to_gateway_id']]);

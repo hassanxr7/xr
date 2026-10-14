@@ -41,8 +41,9 @@ Interface languages: **English (default)** and Somali — visitors can switch wi
 ## Requirements
 
 - PHP **8.1** or newer (8.2 / 8.3 recommended)
-- MySQL 5.7+ or MariaDB 10.3+
-- PHP extensions: `pdo_mysql`, `mbstring`, `curl` (Telegram), `gd`/`fileinfo` — all enabled on Hostinger by default.
+- **No database setup needed**: by default the installer creates the database automatically (an SQLite file in `app/storage/`).
+  MySQL 5.7+ / MariaDB 10.3+ is supported as an optional alternative.
+- PHP extensions: `pdo_sqlite` (or `pdo_mysql`), `mbstring`, `curl` (Telegram), `gd`/`fileinfo` — all enabled on Hostinger by default.
 
 ---
 
@@ -52,28 +53,24 @@ Interface languages: **English (default)** and Somali — visitors can switch wi
 Use the ready-made **`hufan-exchange.zip`**, or build it yourself: open the `exchange` folder, select **everything inside it** (`admin`, `app`, `assets`, `install`, `uploads`, `index.php`, `.htaccess` …) and compress it to a ZIP.
 > Make sure `.htaccess` is included — it is a hidden file. Windows: View → Show hidden items. macOS: `Cmd + Shift + .`
 
-### 2. Create a database
-1. hPanel → **Websites → Manage → Databases → MySQL Databases**.
-2. Enter a database name, user and a strong password → **Create**.
-3. Note the **database name**, **username** and **password** (they look like `u123456789_hufan`). The host is `localhost`.
-
-### 3. Upload
+### 2. Upload
 1. hPanel → **Files → File Manager** → open **`public_html`**.
 2. Delete default files such as `default.php` if present.
 3. **Upload** `hufan-exchange.zip` → right-click → **Extract** into `public_html`.
 4. Check that `index.php`, `admin/`, `app/` … are directly inside `public_html/` (not `public_html/hufan-exchange/`).
    > Installing in a sub-folder (e.g. `yourdomain.com/exchange/`) also works — the path is detected automatically.
 
-### 4. Choose the PHP version
+### 3. Choose the PHP version
 hPanel → **Advanced → PHP Configuration** → select **PHP 8.2** (or 8.1 / 8.3) → Save.
 
-### 5. Run the installer
-1. Open **`https://yourdomain.com/install/`**
-2. Fill in the database details, your business name, the **EVC Plus number** customers pay to, WhatsApp, and the admin account (password 8+ characters).
+### 4. Run the installer
+1. Open **`https://yourdomain.com`** — you are sent to the installer automatically.
+2. Keep **Database → Automatic** selected (the database is created for you), then fill in your business name, the **EVC Plus number** customers pay to, WhatsApp, and the admin account (password 8+ characters).
+   > Prefer MySQL? Open *Advanced: use a MySQL database instead* and enter the database created in hPanel → Databases.
 3. Click **Install now**.
 4. For security, **delete the `install/` folder** in File Manager (the installer also locks itself).
 
-### 6. SSL (HTTPS)
+### 5. SSL (HTTPS)
 hPanel → **Security → SSL** → make sure SSL is active, then turn on **Force HTTPS**
 (or remove the `#` signs in the "Force HTTPS" block of `.htaccess`).
 
@@ -141,12 +138,15 @@ Brand colours: emerald `#0e7c66` · mint `#1fc79a` · gold `#f5a524` · ink `#0f
 |---|---|
 | **500 Internal Server Error** | Check the PHP version (8.1+) and that `.htaccess` was uploaded correctly. |
 | Blank page / unknown error | Set `'debug' => true` in `app/config.php` to see the error, then set it back to `false`. Also check `app/storage/error.log`. |
-| "Could not connect to the database" | Re-check database name, user and password (hPanel → Databases). Host is `localhost`. |
+| "Could not create the database file" | `app/storage/` must be writable (`755`). |
+| "Could not connect to the database" (MySQL mode) | Re-check database name, user and password (hPanel → Databases). Host is `localhost`. |
 | Images will not upload | `uploads/` and `app/storage/` must be writable (`755`). |
 | Forgot the admin password | Delete `app/storage/installed.lock` and `app/config.php`, open `/install/` again and use the same admin username with a new password. Your data is kept. |
 | Wrong time | Admin → Settings → Timezone (`Africa/Mogadishu`). |
 
-**Backups**: hPanel → Files → Backups, or phpMyAdmin → Export, weekly.
+**Backups**: hPanel → Files → Backups. With the automatic database, also download `app/storage/database.sqlite` weekly (File Manager → right-click → Download). With MySQL use phpMyAdmin → Export.
+
+**Updating to a new version**: upload the new ZIP and extract it over the old files. Never delete `app/config.php` or the `app/storage/` folder — they hold your settings, database and payment screenshots.
 
 ---
 
@@ -179,11 +179,11 @@ Texts can be edited in `app/lang/en.php` and `app/lang/so.php`.
 
 ## Hage kooban (Soomaali)
 
-1. hPanel → Databases → samee database MySQL ah (magac, user, password).
-2. File Manager → `public_html` → soo geli `hufan-exchange.zip` → **Extract**.
-3. hPanel → PHP Configuration → dooro **PHP 8.2**.
-4. Fur `https://domainkaaga.com/install/` → geli xogta database-ka, lambarkaaga EVC iyo akoonka admin-ka → **Install now**.
-5. Tirtir galka `install/`, kadib shid **SSL → Force HTTPS**.
-6. Admin → *Rates & Pairs* → hagaaji khidmadaha; *Payment methods* → geli kaydkaaga (reserve).
+1. File Manager → `public_html` → soo geli `hufan-exchange.zip` → **Extract**.
+2. hPanel → PHP Configuration → dooro **PHP 8.2**.
+3. Fur `https://domainkaaga.com` → installer-ka ayaa furmaya. **Database: Automatic** ha ahaato (database-ka si toos ah ayaa loo sameeyaa — hPanel wax kama samaynaysid). Geli magaca shirkadda, lambarkaaga EVC iyo akoonka admin-ka → **Install now**.
+4. Tirtir galka `install/`, kadib shid **SSL → Force HTTPS**.
+5. Admin → *Rates & Pairs* → hagaaji khidmadaha; *Payment methods* → geli kaydkaaga (reserve).
+6. Kayd (backup): toddobaad kasta soo deji `app/storage/database.sqlite`. Marka aad cusbooneysiinayso, ha tirtirin `app/config.php` iyo galka `app/storage/`.
 
 Luqadda Soomaaliga waxaa laga doortaa badhanka **SO** ee website-ka, ama Admin → Settings → Default language.

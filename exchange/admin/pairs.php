@@ -40,8 +40,8 @@ require APP_PATH . '/views/admin_header.php';
       <?php foreach ($pairs as $p): ?>
         <tr>
           <td><span class="pair-cell"><?= gw_badge($p['from_name'], $p['from_color'], $p['from_logo']) ?><?= icon('arrow-right', 14) ?><?= gw_badge($p['to_name'], $p['to_color'], $p['to_logo']) ?> <strong><?= e($p['from_name']) ?> → <?= e($p['to_name']) ?></strong></span></td>
-          <td><input class="input" style="width:110px;padding:7px 9px" name="rate[<?= (int) $p['id'] ?>]" value="<?= e(rtrim(rtrim($p['rate'], '0'), '.')) ?>" inputmode="decimal"></td>
-          <td><input class="input" style="width:80px;padding:7px 9px" name="fee[<?= (int) $p['id'] ?>]" value="<?= e(rtrim(rtrim($p['fee_percent'], '0'), '.') ?: '0') ?>" inputmode="decimal"></td>
+          <td><input class="input" style="width:110px;padding:7px 9px" name="rate[<?= (int) $p['id'] ?>]" value="<?= e(trim_num($p['rate'])) ?>" inputmode="decimal"></td>
+          <td><input class="input" style="width:80px;padding:7px 9px" name="fee[<?= (int) $p['id'] ?>]" value="<?= e(trim_num($p['fee_percent'])) ?>" inputmode="decimal"></td>
           <td class="num"><?= e(money($p['fee_fixed'], $p['from_currency'], (int) $p['from_decimals'])) ?></td>
           <td class="num small"><?= e(fmt_amount($p['min_amount'], (int) $p['from_decimals'])) ?> – <?= e(fmt_amount($p['max_amount'], (int) $p['from_decimals'])) ?> <?= e($p['from_currency']) ?></td>
           <td class="num"><?= e(money($p['to_reserve'], $p['to_currency'], (int) $p['to_decimals'])) ?></td>

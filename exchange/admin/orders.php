@@ -24,8 +24,8 @@ if ($pairId) {
     $params[] = $pairId;
 }
 if ($search !== '') {
-    $where[] = '(o.order_no LIKE ? OR u.name LIKE ? OR u.phone LIKE ? OR o.sender_account LIKE ? OR o.receiver_account LIKE ? OR o.payment_ref LIKE ? OR o.payout_ref LIKE ?)';
-    $like = '%' . str_replace(['\\', '%', '_'], ['\\\\', '\%', '\_'], $search) . '%';
+    $where[] = "(o.order_no LIKE ? ESCAPE '!' OR u.name LIKE ? ESCAPE '!' OR u.phone LIKE ? ESCAPE '!' OR o.sender_account LIKE ? ESCAPE '!' OR o.receiver_account LIKE ? ESCAPE '!' OR o.payment_ref LIKE ? ESCAPE '!' OR o.payout_ref LIKE ? ESCAPE '!')";
+    $like = like_param($search);
     array_push($params, $like, $like, $like, $like, $like, $like, $like);
 }
 if ($from !== '') {

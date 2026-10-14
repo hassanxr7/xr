@@ -8,8 +8,8 @@ $status = qs('status');
 $where = ['1=1'];
 $params = [];
 if ($search !== '') {
-    $like = '%' . str_replace(['\\', '%', '_'], ['\\\\', '\%', '\_'], $search) . '%';
-    $where[] = '(u.name LIKE ? OR u.phone LIKE ? OR u.email LIKE ?)';
+    $like = like_param($search);
+    $where[] = "(u.name LIKE ? ESCAPE '!' OR u.phone LIKE ? ESCAPE '!' OR u.email LIKE ? ESCAPE '!')";
     array_push($params, $like, $like, $like);
 }
 if (in_array($status, ['active', 'blocked'], true)) {

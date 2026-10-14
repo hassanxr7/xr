@@ -21,23 +21,29 @@ $configFile = APP_PATH . '/config.php';
 $lockFile = STORAGE_PATH . '/installed.lock';
 $installed = is_file($configFile) && is_file($lockFile);
 
+date_default_timezone_set('Africa/Mogadishu');
+
+$hasSqlite = extension_loaded('pdo_sqlite');
+$hasMysql = extension_loaded('pdo_mysql');
 $checks = [
-    'PHP 8.1+'            => version_compare(PHP_VERSION, '8.1.0', '>='),
-    'PDO MySQL'           => extension_loaded('pdo_mysql'),
-    'mbstring'            => extension_loaded('mbstring'),
+    'PHP 8.1+'               => version_compare(PHP_VERSION, '8.1.0', '>='),
+    'SQLite (automatic DB)'  => $hasSqlite,
+    'PDO MySQL (optional)'   => $hasMysql,
+    'mbstring'               => extension_loaded('mbstring'),
     'fileinfo / GD (images)' => function_exists('getimagesize'),
-    'cURL (Telegram)'     => function_exists('curl_init'),
-    'app/ writable'       => is_writable(APP_PATH),
-    'app/storage/ writable' => is_writable(STORAGE_PATH),
-    'uploads/ writable'   => is_writable(BASE_PATH . '/uploads'),
+    'cURL (Telegram)'        => function_exists('curl_init'),
+    'app/ writable'          => is_writable(APP_PATH),
+    'app/storage/ writable'  => is_writable(STORAGE_PATH),
+    'uploads/ writable'      => is_writable(BASE_PATH . '/uploads'),
 ];
-$required = ['PHP 8.1+', 'PDO MySQL', 'mbstring', 'app/storage/ writable', 'uploads/ writable'];
-$canInstall = !in_array(false, array_intersect_key($checks, array_flip($required)), true);
+$required = ['PHP 8.1+', 'mbstring', 'app/storage/ writable', 'uploads/ writable'];
+$canInstall = !in_array(false, array_intersect_key($checks, array_flip($required)), true) && ($hasSqlite || $hasMysql);
 
 $errors = [];
 $manualConfig = null;
 $done = false;
 $old = [
+    'db_mode' => $hasSqlite ? 'auto' : 'mysql',
     'db_host' => 'localhost', 'db_name' => '', 'db_user' => '', 'db_port' => '',
     'site_name' => 'Hufan Exchange', 'evc_number' => '', 'whatsapp' => '',
     'admin_name' => '', 'admin_user' => 'admin', 'admin_email' => '',
@@ -52,13 +58,14 @@ if (!$installed && $canInstall && ($_SERVER['REQUEST_METHOD'] ?? '') === 'POST')
         $errors[] = 'Session expired — please try again.';
     }
     foreach ($old as $k => $_) {
-        $old[$k] = trim((string) ($_POST[$k] ?? ''));
+        $old[$k] = trim((string) ($_POST[$k] ?? $old[$k]));
     }
+    $useSqlite = $old['db_mode'] !== 'mysql' && $hasSqlite;
     $dbPass = (string) ($_POST['db_pass'] ?? '');
     $adminPass = (string) ($_POST['admin_pass'] ?? '');
 
-    if ($old['db_name'] === '' || $old['db_user'] === '') {
-        $errors[] = 'Database name and user are required.';
+    if (!$useSqlite && ($old['db_name'] === '' || $old['db_user'] === '')) {
+        $errors[] = 'Database name and user are required for MySQL.';
     }
     if ($old['admin_name'] === '' || !preg_match('/^[a-z0-9_.]{3,50}$/i', $old['admin_user'])) {
         $errors[] = 'Admin name and a valid username (at least 3 characters) are required.';
@@ -67,18 +74,21 @@ if (!$installed && $canInstall && ($_SERVER['REQUEST_METHOD'] ?? '') === 'POST')
         $errors[] = 'Admin password must be at least 8 characters.';
     }
 
+    $dbConfig = $useSqlite
+        ? ['driver' => 'sqlite', 'path' => 'app/storage/database.sqlite']
+        : ['driver' => 'mysql', 'host' => $old['db_host'], 'port' => $old['db_port'], 'name' => $old['db_name'], 'user' => $old['db_user'], 'pass' => $dbPass];
+
     if (!$errors) {
         try {
-            $dsn = 'mysql:host=' . $old['db_host'] . ';dbname=' . $old['db_name'] . ';charset=utf8mb4' . ($old['db_port'] !== '' ? ';port=' . (int) $old['db_port'] : '');
-            $pdo = new PDO($dsn, $old['db_user'], $dbPass, [PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION]);
+            $pdo = db_connect($dbConfig);
         } catch (PDOException $ex) {
-            $errors[] = 'Could not connect to the database: ' . $ex->getMessage();
+            $errors[] = ($useSqlite ? 'Could not create the database file in app/storage/: ' : 'Could not connect to the database: ') . $ex->getMessage();
         }
     }
 
     if (!$errors) {
         try {
-            $sql = file_get_contents(__DIR__ . '/schema.sql');
+            $sql = file_get_contents(__DIR__ . ($useSqlite ? '/schema.sqlite.sql' : '/schema.sql'));
             $sql = preg_replace('/^\s*--.*$/m', '', $sql);
             foreach (preg_split('/;\s*(?:\r?\n|$)/', $sql) as $stmt) {
                 if (trim($stmt) !== '') {
@@ -86,11 +96,19 @@ if (!$installed && $canInstall && ($_SERVER['REQUEST_METHOD'] ?? '') === 'POST')
                 }
             }
             $now = date('Y-m-d H:i:s');
-            $st = $pdo->prepare('INSERT INTO admins (name, username, email, password_hash, is_active, created_at) VALUES (?, ?, ?, ?, 1, ?)
-                                 ON DUPLICATE KEY UPDATE name = VALUES(name), email = VALUES(email), password_hash = VALUES(password_hash), is_active = 1');
-            $st->execute([$old['admin_name'], strtolower($old['admin_user']), $old['admin_email'] ?: null, password_hash($adminPass, PASSWORD_DEFAULT), $now]);
+            $username = strtolower($old['admin_user']);
+            $hash = password_hash($adminPass, PASSWORD_DEFAULT);
+            $exists = $pdo->prepare('SELECT id FROM admins WHERE username = ?');
+            $exists->execute([$username]);
+            if ($exists->fetchColumn()) {
+                $pdo->prepare('UPDATE admins SET name = ?, email = ?, password_hash = ?, is_active = 1 WHERE username = ?')
+                    ->execute([$old['admin_name'], $old['admin_email'] ?: null, $hash, $username]);
+            } else {
+                $pdo->prepare('INSERT INTO admins (name, username, email, password_hash, is_active, created_at) VALUES (?, ?, ?, ?, 1, ?)')
+                    ->execute([$old['admin_name'], $username, $old['admin_email'] ?: null, $hash, $now]);
+            }
 
-            $set = $pdo->prepare('INSERT INTO settings (`key`, `value`) VALUES (?, ?) ON DUPLICATE KEY UPDATE `value` = VALUES(`value`)');
+            $set = $pdo->prepare('REPLACE INTO settings (`key`, `value`) VALUES (?, ?)');
             $set->execute(['site_name', $old['site_name'] ?: 'Hufan Exchange']);
             if ($old['whatsapp'] !== '') {
                 $set->execute(['contact_whatsapp', preg_replace('/\D/', '', $old['whatsapp'])]);
@@ -104,18 +122,12 @@ if (!$installed && $canInstall && ($_SERVER['REQUEST_METHOD'] ?? '') === 'POST')
             }
 
             $config = [
-                'db' => [
-                    'host' => $old['db_host'],
-                    'port' => $old['db_port'],
-                    'name' => $old['db_name'],
-                    'user' => $old['db_user'],
-                    'pass' => $dbPass,
-                ],
+                'db'       => $dbConfig,
                 'base_url' => '',
                 'debug'    => false,
                 'app_key'  => bin2hex(random_bytes(32)),
             ];
-            $php = "<?php\n// Hufan Exchange configuration — generated by the installer on " . $now . "\n// Keep this file private — it contains the database password.\nreturn " . var_export($config, true) . ";\n";
+            $php = "<?php\n// Hufan Exchange configuration — generated by the installer on " . $now . "\n// Keep this file private.\nreturn " . var_export($config, true) . ";\n";
             if (@file_put_contents($configFile, $php, LOCK_EX) === false) {
                 $manualConfig = $php;
             }
@@ -137,6 +149,7 @@ if (!$installed && $canInstall && ($_SERVER['REQUEST_METHOD'] ?? '') === 'POST')
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap">
 <link rel="stylesheet" href="<?= e(url('assets/css/app.css')) ?>">
 <link rel="stylesheet" href="<?= e(url('assets/css/admin.css')) ?>">
+<style>.db-choice{display:flex;gap:12px;align-items:flex-start;border:1.5px solid var(--line);border-radius:12px;padding:14px;margin:0 0 12px;cursor:pointer;font-weight:500}.db-choice:has(input:checked){border-color:var(--brand);background:var(--brand-50)}.db-choice input{margin-top:4px;accent-color:var(--brand)}.db-advanced{margin-bottom:8px}.db-advanced summary{cursor:pointer;color:var(--muted);font-size:14px;font-weight:600;margin-bottom:12px}</style>
 </head>
 <body>
 <div class="login-wrap">
@@ -177,17 +190,34 @@ if (!$installed && $canInstall && ($_SERVER['REQUEST_METHOD'] ?? '') === 'POST')
 
       <form method="post" autocomplete="off">
         <input type="hidden" name="_csrf" value="<?= e($_SESSION['_install_csrf']) ?>">
-        <h3>2. Database (MySQL)</h3>
-        <p class="small muted">Hostinger: hPanel → Databases → MySQL Databases → create a database, a user and a password. Names look like <code>u123456789_hufan</code>.</p>
-        <div class="form-row">
-          <div class="form-group"><label>DB Host</label><input class="input" name="db_host" value="<?= e($old['db_host']) ?>" required></div>
-          <div class="form-group"><label>DB Port <span class="muted">(optional)</span></label><input class="input" name="db_port" value="<?= e($old['db_port']) ?>" placeholder="3306"></div>
-        </div>
-        <div class="form-row">
-          <div class="form-group"><label>DB Name</label><input class="input" name="db_name" value="<?= e($old['db_name']) ?>" required placeholder="u123456789_hufan"></div>
-          <div class="form-group"><label>DB User</label><input class="input" name="db_user" value="<?= e($old['db_user']) ?>" required placeholder="u123456789_hufan"></div>
-        </div>
-        <div class="form-group"><label>DB Password</label><input class="input" type="password" name="db_pass"></div>
+        <h3>2. Database</h3>
+        <?php if ($hasSqlite): ?>
+        <label class="db-choice">
+          <input type="radio" name="db_mode" value="auto" <?= $old['db_mode'] !== 'mysql' ? 'checked' : '' ?>>
+          <span><strong><?= icon('bolt', 16) ?> Automatic (recommended)</strong><br>
+          <span class="small muted">The database is created for you inside <code>app/storage/</code>. Nothing to set up in hPanel.</span></span>
+        </label>
+        <?php endif; ?>
+        <details class="db-advanced"<?= $old['db_mode'] === 'mysql' ? ' open' : '' ?>>
+          <summary>Advanced: use a MySQL database instead</summary>
+          <?php if ($hasMysql): ?>
+          <label class="db-choice">
+            <input type="radio" name="db_mode" value="mysql" <?= $old['db_mode'] === 'mysql' ? 'checked' : '' ?>>
+            <span><strong>MySQL</strong><br><span class="small muted">hPanel → Databases → MySQL Databases → create a database, a user and a password (names look like <code>u123456789_hufan</code>).</span></span>
+          </label>
+          <div class="form-row">
+            <div class="form-group"><label>DB Host</label><input class="input" name="db_host" value="<?= e($old['db_host']) ?>"></div>
+            <div class="form-group"><label>DB Port <span class="muted">(optional)</span></label><input class="input" name="db_port" value="<?= e($old['db_port']) ?>" placeholder="3306"></div>
+          </div>
+          <div class="form-row">
+            <div class="form-group"><label>DB Name</label><input class="input" name="db_name" value="<?= e($old['db_name']) ?>" placeholder="u123456789_hufan"></div>
+            <div class="form-group"><label>DB User</label><input class="input" name="db_user" value="<?= e($old['db_user']) ?>" placeholder="u123456789_hufan"></div>
+          </div>
+          <div class="form-group"><label>DB Password</label><input class="input" type="password" name="db_pass" autocomplete="new-password"></div>
+          <?php else: ?>
+          <p class="small muted">PDO MySQL is not available on this server.</p>
+          <?php endif; ?>
+        </details>
 
         <h3 class="mt-3">3. Website</h3>
         <div class="form-row">

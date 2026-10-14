@@ -3,7 +3,7 @@ Options -Indexes
 DirectoryIndex index.php
 
 # Block hidden files and files that must never be downloaded
-<FilesMatch "(^\.|\.(sql|md|lock|log|ini|sh|bak|dist|example)$)">
+<FilesMatch "(^\.|\.(sql|sqlite|sqlite3|db|db-wal|db-shm|sqlite-wal|sqlite-shm|md|lock|log|ini|sh|bak|dist|example)$)">
   <IfModule mod_authz_core.c>
     Require all denied
   </IfModule>
