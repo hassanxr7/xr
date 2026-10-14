@@ -36,7 +36,7 @@ function loadConfig(env) {
   if (mode !== 'sandbox') throw new Error('SOVAMONEY_MODE=' + mode + ' is not supported: only sandbox deposits are enabled in this build.');
   const dataDir = env.DATA_DIR || path.join(__dirname, 'data');
   return {
-    port: Number(env.PORT) || 8080,
+    port: Number(env.PORT) || 3000,
     trustProxy: env.TRUST_PROXY === '1',
     dataFile: env.DATA_FILE || path.join(dataDir, 'deposits.json'),
     settingsFile: env.SETTINGS_FILE || path.join(dataDir, 'settings.json'),
@@ -444,9 +444,8 @@ function createApp(config) {
   return { server, store, admin, config, sovaCfg };
 }
 
-module.exports = { createApp, loadConfig, parseForm };
-
-if (require.main === module) {
+// start the server with settings from the environment (used by server.js at the project root)
+function start() {
   const config = loadConfig(process.env);
   const app = createApp(config);
   app.server.listen(config.port, () => {
@@ -455,4 +454,9 @@ if (require.main === module) {
     if (S.enabled) console.log('SovaMoney deposits: on (sandbox), IPN ' + S.publicUrl + '/payments/sovamoney/ipn');
     else console.log('SovaMoney deposits: off — enter the keys and public URL on /admin');
   });
+  return app;
 }
+
+module.exports = { createApp, loadConfig, parseForm, start };
+
+if (require.main === module) start();

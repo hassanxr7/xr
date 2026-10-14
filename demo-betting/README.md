@@ -18,6 +18,23 @@ No build step and no server needed — it's plain HTML, CSS and JavaScript.
 
 Tests: `cd demo-betting && npm test`.
 
+### Hostinger (Node.js web app)
+
+Business Web Hosting and Cloud plans can run the full site, including SovaMoney deposits and `/admin`.
+Upload `demo-betting-full-source.zip` (or connect the repo), then set the build settings:
+
+| Setting | Value |
+| --- | --- |
+| Framework / application type | **Express** (or Other), **not Vite** |
+| Node version | 20 or 22 |
+| Build command | leave empty (or `npm run build`, which only prints a message) |
+| Output directory | leave empty |
+| Entry file | `server.js` |
+
+The server listens on `PORT` from the environment (3000 if unset). After the first deploy, open
+the app's runtime logs for the `/admin` setup code. On Premium/Single plans (no Node.js), upload
+only `index.html`, `css/`, `js/` and `img/` to `public_html`. Everything works except SovaMoney.
+
 ## What's inside
 
 **Sportsbook**
@@ -139,6 +156,7 @@ and upcoming events.
 
 ```
 index.html        page shell
+server.js         entry file: starts server/server.js
 css/style.css     all styles (dark-first, light theme via prefers-color-scheme or data-theme)
 js/util.js        DOM, random numbers, storage, formatting, toasts, modal, icons
 js/data.js        sports, leagues, teams

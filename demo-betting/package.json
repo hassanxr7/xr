@@ -3,9 +3,13 @@
   "version": "1.1.0",
   "private": true,
   "description": "Practice sportsbook and casino with simulated matches, demo coins and SovaMoney sandbox deposits",
-  "engines": { "node": ">=20" },
+  "engines": {
+    "node": ">=20"
+  },
   "scripts": {
-    "start": "node server/server.js",
+    "start": "node server.js",
+    "build": "node -e \"console.log('No build step: plain HTML/CSS/JS served by server.js')\"",
     "test": "node tests/engine.test.js && node tests/payments.test.js"
-  }
+  },
+  "main": "server.js"
 }
