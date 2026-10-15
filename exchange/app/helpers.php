@@ -8,6 +8,16 @@ defined('APP') || exit;
 // Config & database
 // ---------------------------------------------------------------------------
 
+/** One CSP nonce per request, for the few inline <script> tags we control (JSON-LD, optional GA4 bootstrap). */
+function csp_nonce(): string
+{
+    static $nonce = null;
+    if ($nonce === null) {
+        $nonce = base64_encode(random_bytes(16));
+    }
+    return $nonce;
+}
+
 function config(string $key, $default = null)
 {
     $value = $GLOBALS['config'] ?? [];
@@ -826,7 +836,7 @@ function gw_badge(?string $name, ?string $color, ?string $logo = null, string $s
 {
     $cls = 'gw' . ($size ? ' gw-' . $size : '');
     if ($logo) {
-        return '<span class="' . $cls . ' gw-img"><img src="' . e(url($logo)) . '" alt="' . e($name) . '"></span>';
+        return '<span class="' . $cls . ' gw-img"><img src="' . e(url($logo)) . '" alt="' . e($name) . '" loading="lazy" decoding="async"></span>';
     }
     $color = preg_match('/^#[0-9a-fA-F]{6}$/', (string) $color) ? $color : '#64748b';
     return '<span class="' . $cls . '" style="--gw:' . e($color) . '">' . e(initials((string) $name)) . '</span>';

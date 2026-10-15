@@ -8,6 +8,7 @@ $textKeys = [
     'contact_phone' => 40, 'contact_whatsapp' => 40, 'contact_email' => 150, 'contact_address' => 200, 'working_hours' => 100,
     'order_prefix' => 6, 'telegram_bot_token' => 120, 'telegram_chat_id' => 60,
     'statement_note' => 1000, 'terms_text' => 5000,
+    'seo_meta_description' => 300, 'gsc_verification' => 150, 'bing_verification' => 150, 'ga_measurement_id' => 20,
 ];
 
 if (is_post()) {
@@ -133,6 +134,18 @@ require APP_PATH . '/views/admin_header.php';
             <div class="help"><?= e(t('a_site_logo_help')) ?></div>
           </div>
         </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-head"><h3><?= icon('search', 18) ?> <?= e(t('a_seo')) ?></h3></div>
+      <div class="card-body">
+        <p class="small muted"><?= e(t('a_seo_help')) ?></p>
+        <div class="form-group"><label><?= e(t('a_seo_meta_description')) ?></label><textarea class="input" name="seo_meta_description" rows="2" maxlength="300"><?= $v('seo_meta_description') ?></textarea><div class="help"><?= e(t('a_seo_meta_description_help')) ?></div></div>
+        <div class="form-group"><label><?= e(t('a_seo_gsc')) ?></label><input class="input mono" name="gsc_verification" value="<?= $v('gsc_verification') ?>" placeholder="abcDEF123..."><div class="help"><?= e(t('a_seo_gsc_help')) ?></div></div>
+        <div class="form-group"><label><?= e(t('a_seo_bing')) ?></label><input class="input mono" name="bing_verification" value="<?= $v('bing_verification') ?>"><div class="help"><?= e(t('a_seo_bing_help')) ?></div></div>
+        <div class="form-group"><label><?= e(t('a_seo_ga')) ?></label><input class="input mono" name="ga_measurement_id" value="<?= $v('ga_measurement_id') ?>" placeholder="G-XXXXXXXXXX"><div class="help"><?= e(t('a_seo_ga_help')) ?></div></div>
+        <p class="help"><?= e(t('a_seo_sitemap_help', ['url' => full_url('sitemap.xml')])) ?></p>
       </div>
     </div>
 

@@ -22,6 +22,7 @@ if ($no !== '' && $phone !== '') {
 }
 
 $pageTitle = t('nav_track');
+$robotsMeta = 'noindex, follow';
 require APP_PATH . '/views/header.php';
 ?>
 <div class="page">

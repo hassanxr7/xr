@@ -17,6 +17,11 @@ $wa = whatsapp_link(t('wa_hello'));
       <a href="<?= e(url('terms.php')) ?>"><?= e(t('terms')) ?></a>
     </div>
     <div>
+      <h4><?= e(t('footer_guides')) ?></h4>
+      <a href="<?= e(url('send-money-to-somalia.php')) ?>"><?= e(t('footer_guide_somalia')) ?></a>
+      <a href="<?= e(url('horn-of-africa-money-transfer.php')) ?>"><?= e(t('footer_guide_horn')) ?></a>
+    </div>
+    <div>
       <h4><?= e(t('footer_contact')) ?></h4>
       <?php if (setting('contact_phone') !== ''): ?><a href="tel:<?= e(setting('contact_phone')) ?>"><?= icon('phone', 15) ?> <?= e(setting('contact_phone')) ?></a><?php endif; ?>
       <?php if ($wa !== ''): ?><a href="<?= e($wa) ?>" target="_blank" rel="noopener"><?= icon('whatsapp', 15) ?> WhatsApp</a><?php endif; ?>

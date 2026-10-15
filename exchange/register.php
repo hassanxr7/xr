@@ -57,6 +57,7 @@ if (is_post()) {
 }
 
 $pageTitle = t('register');
+$robotsMeta = 'noindex, follow';
 require APP_PATH . '/views/header.php';
 ?>
 <div class="auth-wrap">

@@ -32,6 +32,7 @@ $orders = rows(
 );
 
 $pageTitle = t('my_account');
+$robotsMeta = 'noindex, follow';
 require APP_PATH . '/views/header.php';
 ?>
 <div class="page">

@@ -102,6 +102,7 @@ if (is_post()) {
 
 $q = quote($pair, $amount);
 $pageTitle = t('new_exchange');
+$robotsMeta = 'noindex, follow';
 require APP_PATH . '/views/header.php';
 ?>
 <div class="page">

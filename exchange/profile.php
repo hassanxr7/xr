@@ -38,6 +38,7 @@ if (is_post()) {
 }
 
 $pageTitle = t('profile');
+$robotsMeta = 'noindex, follow';
 require APP_PATH . '/views/header.php';
 ?>
 <div class="page">

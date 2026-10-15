@@ -2,6 +2,19 @@
 Options -Indexes
 DirectoryIndex index.php
 
+# Serve the dynamic robots.txt / sitemap.xml at their conventional URLs
+<IfModule mod_rewrite.c>
+  RewriteEngine On
+  RewriteRule ^robots\.txt$ robots.php [L]
+  RewriteRule ^sitemap\.xml$ sitemap.php [L]
+</IfModule>
+
+# Compress text-based responses (faster loads on mobile/slow connections)
+<IfModule mod_deflate.c>
+  AddOutputFilterByType DEFLATE text/html text/css text/plain text/xml application/xml
+  AddOutputFilterByType DEFLATE application/javascript application/json image/svg+xml
+</IfModule>
+
 # Block hidden files and files that must never be downloaded
 <FilesMatch "(^\.|\.(sql|sqlite|sqlite3|db|db-wal|db-shm|sqlite-wal|sqlite-shm|md|lock|log|ini|sh|bak|dist|example)$)">
   <IfModule mod_authz_core.c>

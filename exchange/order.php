@@ -93,6 +93,7 @@ $stepIndex = array_search($order['status'], $steps, true);
 $wa = whatsapp_link(t('wa_order', ['no' => $order['order_no']]));
 
 $pageTitle = t('order') . ' ' . $order['order_no'];
+$robotsMeta = 'noindex, follow';
 require APP_PATH . '/views/header.php';
 ?>
 <div class="page">

@@ -56,8 +56,14 @@ header('X-Frame-Options: SAMEORIGIN');
 header('X-Content-Type-Options: nosniff');
 header('Referrer-Policy: strict-origin-when-cross-origin');
 header('Permissions-Policy: camera=(), microphone=(), geolocation=(), payment=()');
-header("Content-Security-Policy: default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; "
-    . "font-src 'self' https://fonts.gstatic.com; img-src 'self' data:; connect-src 'self'; object-src 'none'; "
+try {
+    $gaId = setting('ga_measurement_id');
+} catch (Throwable $e) {
+    $gaId = '';
+}
+$cspConnect = "'self'" . ($gaId !== '' ? ' https://www.google-analytics.com https://www.googletagmanager.com' : '');
+header("Content-Security-Policy: default-src 'self'; script-src 'self' 'nonce-" . csp_nonce() . "'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; "
+    . "font-src 'self' https://fonts.gstatic.com; img-src 'self' data:; connect-src $cspConnect; object-src 'none'; "
     . "base-uri 'self'; form-action 'self'; frame-ancestors 'self'");
 if (is_https()) {
     header('Strict-Transport-Security: max-age=31536000');
