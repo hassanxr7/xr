@@ -152,7 +152,9 @@ VALUES
   (2, 'moneygo', 'MoneyGo', 'USD', 2, '#2563eb', 5000, 'MoneyGo account / wallet ID', 'e.g. U12345678', NULL, NULL, NULL, NULL, NULL, 1, 2),
   (3, 'usdt_trc20', 'USDT (TRC20)', 'USDT', 2, '#26a17b', 5000, 'USDT TRC20 wallet address', 'T...', '^T[1-9A-HJ-NP-Za-km-z]{33}$', NULL, NULL, NULL, 'Make sure the address is on the TRON (TRC20) network.', 1, 3),
   (4, 'usdt_bep20', 'USDT (BEP20)', 'USDT', 2, '#d4a017', 5000, 'USDT BEP20 wallet address', '0x...', '^0x[a-fA-F0-9]{40}$', NULL, NULL, NULL, 'Make sure the address is on BNB Smart Chain (BEP20).', 1, 4),
-  (5, 'paypal', 'PayPal', 'USD', 2, '#1d4ed8', 3000, 'PayPal email', 'name@email.com', '^[^@\\s]+@[^@\\s]+\\.[^@\\s]+$', NULL, NULL, NULL, NULL, 1, 5);
+  (5, 'paypal', 'PayPal', 'USD', 2, '#1d4ed8', 3000, 'PayPal email', 'name@email.com', '^[^@\\s]+@[^@\\s]+\\.[^@\\s]+$', NULL, NULL, NULL, NULL, 1, 5),
+  (6, 'zaad', 'ZAAD', 'USD', 2, '#dc2626', 0, 'ZAAD number', 'e.g. 63xxxxxxx', '^\\+?[0-9]{7,15}$', NULL, NULL, NULL, 'Send from your own ZAAD number, then enter the Transaction ID from the confirmation SMS.', 0, 6),
+  (7, 'edahab', 'eDahab', 'USD', 2, '#f59e0b', 0, 'eDahab number', 'e.g. 90xxxxxxx', '^\\+?[0-9]{7,15}$', NULL, NULL, NULL, 'Send from your own eDahab number, then enter the Transaction ID from the confirmation SMS.', 0, 7);
 
 INSERT IGNORE INTO `pairs`
   (`id`, `from_gateway_id`, `to_gateway_id`, `rate`, `fee_percent`, `fee_fixed`, `min_amount`, `max_amount`, `is_active`, `sort_order`)
@@ -164,7 +166,15 @@ VALUES
   (5, 2, 1, 1, 2.000, 0,  5, 5000, 0, 5),
   (6, 3, 1, 1, 2.000, 0, 10, 5000, 0, 6),
   (7, 4, 1, 1, 2.000, 0, 10, 5000, 0, 7),
-  (8, 5, 1, 1, 8.000, 0, 10, 2000, 0, 8);
+  (8, 5, 1, 1, 8.000, 0, 10, 2000, 0, 8),
+  (9, 6, 2, 1, 2.000, 0,  5, 5000, 0, 9),
+  (10, 6, 3, 1, 3.000, 0, 10, 5000, 0, 10),
+  (11, 6, 4, 1, 3.000, 0, 10, 5000, 0, 11),
+  (12, 6, 5, 1, 6.000, 0, 10, 2000, 0, 12),
+  (13, 7, 2, 1, 2.000, 0,  5, 5000, 0, 13),
+  (14, 7, 3, 1, 3.000, 0, 10, 5000, 0, 14),
+  (15, 7, 4, 1, 3.000, 0, 10, 5000, 0, 15),
+  (16, 7, 5, 1, 6.000, 0, 10, 2000, 0, 16);
 
 INSERT IGNORE INTO `settings` (`key`, `value`) VALUES
   ('site_name', 'Hufan Exchange'),
