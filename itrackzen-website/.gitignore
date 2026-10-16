@@ -9,3 +9,6 @@ public_html/data/*.tmp
 public_html/assets/uploads/*
 !public_html/assets/uploads/.htaccess
 !public_html/assets/uploads/index.html
+
+public_html/data/*.sqlite
+public_html/data/*.sqlite-*

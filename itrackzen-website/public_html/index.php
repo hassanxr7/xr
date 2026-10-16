@@ -39,6 +39,7 @@ if (isset($aliases[$path])) { header('Location: ' . $aliases[$path], true, 301);
 if ($_SERVER['REQUEST_URI'] !== '/' && preg_match('#^[^?]*/(\?.*)?$#', $_SERVER['REQUEST_URI']) && $path !== '/') {
     header('Location: ' . $path . (isset($_SERVER['QUERY_STRING']) && $_SERVER['QUERY_STRING'] !== '' ? '?' . $_SERVER['QUERY_STRING'] : ''), true, 301); exit;
 }
+if ($path === '/delete-account/verify') { require __DIR__ . '/pages/delete-verify.php'; exit; }
 if (!in_array($_SERVER['REQUEST_METHOD'] ?? 'GET', ['GET', 'HEAD'], true)) { http_response_code(405); header('Allow: GET, HEAD'); exit; }
 
 $slug = ltrim($path, '/');

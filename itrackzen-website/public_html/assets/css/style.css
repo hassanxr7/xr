@@ -251,3 +251,6 @@ mark{background:#fff0a8;color:inherit;border-radius:3px}
 }
 @media (prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important;scroll-behavior:auto!important}.js .reveal{opacity:1;transform:none}}
 @media print{.site-header,.site-footer,.wa-float,.cookie,.cta-band{display:none}}
+
+.alert-ok{display:flex;gap:12px;align-items:flex-start;background:#e2f7ec;color:#0b5c34;border:1px solid #bfe9d2;border-radius:12px;padding:14px 16px;margin-bottom:18px}.alert-ok .ico{margin-top:.2em}
+.num-list.big{padding-left:1.4rem;gap:12px}.legal-layout.del .form-card{padding:26px;box-shadow:none}.legal .table-wrap{margin:12px 0}.legal .compare th[scope=row]{font-weight:600}

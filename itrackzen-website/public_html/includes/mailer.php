@@ -113,3 +113,20 @@ function smtp_send(string $from, array $to, string $data): array
         return [false, $e->getMessage()];
     }
 }
+
+
+/** Simple branded HTML email body. $paras: array of plain-text paragraphs; $button: [label, url] or null. */
+function mail_wrap(string $title, array $paras, ?array $button = null, array $rows = []): array
+{
+    $h = '<div style="font-family:Arial,Helvetica,sans-serif;max-width:620px;margin:0 auto;color:#0a1f44"><div style="background:#0a1f44;color:#fff;padding:18px 24px;border-radius:10px 10px 0 0"><strong style="font-size:18px">' . e(site('brand')) . '</strong> <span style="color:#9db7e3">by ' . e(site('company')) . '</span></div><div style="border:1px solid #dbe5f5;border-top:0;padding:24px;border-radius:0 0 10px 10px"><h2 style="margin:0 0 14px;font-size:20px">' . e($title) . '</h2>';
+    $t = $title . "\n\n";
+    foreach ($paras as $p) { $h .= '<p style="line-height:1.6;margin:0 0 14px">' . nl2br(e($p)) . '</p>'; $t .= $p . "\n\n"; }
+    if ($rows) {
+        $h .= '<table style="width:100%;border-collapse:collapse;margin:0 0 16px">';
+        foreach ($rows as $k => $v) { if ($v === '' || $v === null) { continue; } $h .= '<tr><td style="padding:8px 10px;background:#f6f9ff;border:1px solid #e3ecfa;width:170px;font-weight:bold;vertical-align:top">' . e($k) . '</td><td style="padding:8px 10px;border:1px solid #e3ecfa">' . nl2br(e((string)$v)) . '</td></tr>'; $t .= $k . ': ' . $v . "\n"; }
+        $h .= '</table>'; $t .= "\n";
+    }
+    if ($button) { $h .= '<p style="margin:20px 0"><a href="' . e($button[1]) . '" style="background:#1e6bff;color:#fff;text-decoration:none;padding:12px 22px;border-radius:8px;font-weight:bold;display:inline-block">' . e($button[0]) . '</a></p><p style="font-size:12px;color:#6b7ea3;word-break:break-all">If the button does not work, copy this link: ' . e($button[1]) . '</p>'; $t .= $button[0] . ': ' . $button[1] . "\n\n"; }
+    $h .= '<p style="font-size:12px;color:#6b7ea3;margin-top:24px">' . e(site('company')) . ' &middot; ' . e(site('emails.info')) . '</p></div></div>';
+    return [$t, $h];
+}

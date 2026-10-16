@@ -1,0 +1,77 @@
+{
+  "app_name": "ITrackZen",
+  "developer": "LibDex Ltd",
+  "platform_url": "https://itrackzen.com",
+  "intro": "This page explains how to delete your ITrackZen tracking account and the personal data linked to it. It applies to the ITrackZen web platform at itrackzen.com and the ITrackZen mobile apps for Android and iOS, all provided by LibDex Ltd. You do not need to sign in to use this page.",
+  "in_app_path": "",
+  "in_app_note": "",
+  "steps": [
+    {
+      "title": "Submit the request",
+      "text": "Complete the form below with the email address registered on your account and tell us whether you want your whole account deleted or only some of your data."
+    },
+    {
+      "title": "Confirm your email",
+      "text": "We email a confirmation link to the address you entered. Open it and press Confirm. Without this step, nothing is processed."
+    },
+    {
+      "title": "We verify your identity",
+      "text": "Our support team checks that the request matches the account holder. We may ask you for extra information if the details do not match our records."
+    },
+    {
+      "title": "We delete the data",
+      "text": "After verification, the account and its data are deleted from the ITrackZen platform as described below."
+    },
+    {
+      "title": "You receive confirmation",
+      "text": "We email you when deletion is complete, including anything we are required to keep."
+    }
+  ],
+  "verification": [
+    "You must confirm a link sent to the registered email address. This proves you control that mailbox.",
+    "Our team compares your name, email and account ID or username with the platform record before approving deletion.",
+    "If you have lost access to the registered email, write to the support address on this page from any address and explain. We will ask for other proof of ownership, such as details only the account holder would know. We will not delete an account on the strength of an unverified message.",
+    "For company accounts, a request to delete the whole company account must come from the account owner or an authorised administrator. Users of a company account can ask to delete their own profile only.",
+    "We never ask for your password."
+  ],
+  "deleted": [
+    "Your account profile: name, email address, phone number and login credentials",
+    "Saved settings, notification preferences and mobile app push tokens",
+    "Vehicles, devices, drivers, geofences and other records you created in the account (full account deletion by the account owner)",
+    "Tracking history linked to the account: locations, trips, alerts and reports",
+    "Photos or video clips from connected dashcams stored in the account, where used",
+    "API keys and sessions"
+  ],
+  "retained": [
+    {
+      "data": "Invoices, payment and subscription records",
+      "reason": "Accounting and tax obligations",
+      "period": "Up to 7 years, then deleted"
+    },
+    {
+      "data": "Security and access logs (for example sign-in attempts)",
+      "reason": "Fraud prevention and platform security",
+      "period": "Up to 12 months, then deleted"
+    },
+    {
+      "data": "A minimal record of your deletion request (reference, date, outcome, how identity was verified)",
+      "reason": "To prove we handled the request correctly",
+      "period": "3 years, then deleted"
+    },
+    {
+      "data": "Encrypted backups containing your data",
+      "reason": "Disaster recovery. Data is not restored to live systems after deletion",
+      "period": "Removed as backups expire, within 90 days"
+    }
+  ],
+  "partial": "If you want to keep your account but remove some data (for example your location history), choose \"Delete some data only\" and describe what you want removed. Fleet data belonging to a company account is controlled by the company, and requests about that data may be directed to the account owner.",
+  "timeframe_days": 30,
+  "timeframe_text": "We aim to complete verified requests within 30 days of email confirmation, and usually sooner. If we need more information to verify you, the 30 days start once verification is complete.",
+  "notify": [
+    "info@libdexltd.com",
+    "sales@itrackzen.net"
+  ],
+  "support_email": "info@libdexltd.com",
+  "platforms": "Android, iOS and web",
+  "store_names": "Listed in app stores as \"ItrackZen\""
+}

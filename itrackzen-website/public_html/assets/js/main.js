@@ -150,7 +150,7 @@
         .then(function (r) { return r.json().catch(function () { return { ok: false, message: 'Unexpected server response. Please email us directly.' }; }); })
         .then(function (res) {
           if (res.ok) {
-            if (window.gtag) { gtag('event', 'generate_lead', { form_type: form.elements.form_type.value }); }
+            if (window.gtag) { gtag('event', 'generate_lead', { form_type: (form.elements.form_type || {}).value || 'form' }); }
             if (window.fbq) { fbq('track', 'Lead'); }
             if (res.redirect) { window.location.href = res.redirect; return; }
             say('ok', res.message); form.reset();

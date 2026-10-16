@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 394 460" width="44" height="44" role="img" aria-label="iTrackzen"><g transform="translate(0,-410)"><defs><linearGradient id="ring" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#2088ff"/><stop offset="1" stop-color="#0a5cff"/></linearGradient>
+<linearGradient id="arw" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#0a62ff"/><stop offset="1" stop-color="#0236e8"/></linearGradient></defs>
+<path d="M80 715A160.5 160.5 0 1 1 314 715" fill="none" stroke="url(#ring)" stroke-width="47" stroke-linecap="round"/>
+<circle cx="197" cy="577" r="57" fill="#1473ff"/>
+<path d="M197 692L118 838L197 812L276 838Z" fill="url(#arw)" stroke="url(#arw)" stroke-width="46" stroke-linejoin="round"/></g></svg>

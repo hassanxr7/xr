@@ -15,6 +15,8 @@ $__defaults = [
     'SMTP_HOST' => '', 'SMTP_PORT' => 465, 'SMTP_SECURE' => 'ssl', // ssl | tls | none
     'SMTP_USER' => '', 'SMTP_PASS' => '',
     'MAIL_FROM' => '', 'ADMIN_SETUP_KEY' => '', 'APP_DEBUG' => false,
+    'DB_DSN' => '', 'DB_USER' => '', 'DB_PASS' => '',
+    'DELETION_WEBHOOK_URL' => '', 'DELETION_WEBHOOK_SECRET' => '',
 ];
 foreach ($__defaults as $k => $v) { if (!defined($k)) { define($k, $v); } }
 unset($__defaults);
@@ -24,36 +26,63 @@ ini_set('display_errors', APP_DEBUG ? '1' : '0');
 date_default_timezone_set('UTC');
 mb_internal_encoding('UTF-8');
 
-/* ---------- JSON data store ---------- */
+/* ---------- Content store (database, with JSON files in /data as first-run defaults) ---------- */
 function data(string $name): array
 {
     static $cache = [];
     if (!isset($cache[$name])) {
-        $file = DATA_DIR . '/' . basename($name) . '.json';
-        $json = is_file($file) ? file_get_contents($file) : '';
-        $arr = $json !== '' ? json_decode($json, true) : null;
+        $name = basename($name); $arr = null;
+        try {
+            $body = db_val('SELECT body FROM content WHERE name=?', [$name]);
+            if ($body !== false && $body !== null) { $arr = json_decode((string)$body, true); }
+        } catch (Throwable $e) { error_log('[ITrackZen] content db: ' . $e->getMessage()); }
+        if (!is_array($arr)) {
+            $file = DATA_DIR . '/' . $name . '.json';
+            $json = is_file($file) ? file_get_contents($file) : '';
+            $arr = $json !== '' ? json_decode($json, true) : null;
+        }
         $cache[$name] = is_array($arr) ? $arr : [];
     }
     return $cache[$name];
 }
 
-function data_save(string $name, array $value): bool
+function data_default(string $name): array
+{
+    $file = DATA_DIR . '/' . basename($name) . '.json';
+    $arr = is_file($file) ? json_decode((string)file_get_contents($file), true) : null;
+    return is_array($arr) ? $arr : [];
+}
+
+function data_save(string $name, array $value, string $by = 'admin'): bool
 {
     $name = basename($name);
-    $file = DATA_DIR . '/' . $name . '.json';
-    if (is_file($file)) {
-        if (!is_dir(DATA_DIR . '/backups')) { @mkdir(DATA_DIR . '/backups', 0755, true); }
-        @copy($file, DATA_DIR . '/backups/' . $name . '-' . gmdate('Ymd-His') . '.json');
-        // keep the 15 newest backups per file
-        $old = glob(DATA_DIR . '/backups/' . $name . '-*.json') ?: [];
-        rsort($old);
-        foreach (array_slice($old, 15) as $f) { @unlink($f); }
-    }
-    $json = json_encode($value, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+    $json = json_encode($value, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
     if ($json === false) { return false; }
-    $tmp = $file . '.tmp';
-    if (file_put_contents($tmp, $json, LOCK_EX) === false) { return false; }
-    return rename($tmp, $file);
+    $pdo = db();
+    try {
+        $pdo->beginTransaction();
+        $cur = db_val('SELECT body FROM content WHERE name=?', [$name]);
+        if ($cur === false || $cur === null) { $cur = json_encode(data_default($name), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES); }
+        db_insert('content_versions', ['name' => $name, 'body' => $cur, 'saved_at' => now_utc(), 'saved_by' => $by]);
+        db_run('DELETE FROM content WHERE name=?', [$name]);
+        db_insert_named('content', ['name' => $name, 'body' => $json, 'updated_at' => now_utc(), 'updated_by' => $by]);
+        // keep the 25 newest versions per document
+        $ids = db_all('SELECT id FROM content_versions WHERE name=? ORDER BY id DESC', [$name]);
+        foreach (array_slice($ids, 25) as $r) { db_run('DELETE FROM content_versions WHERE id=?', [$r['id']]); }
+        $pdo->commit();
+        return true;
+    } catch (Throwable $e) {
+        if ($pdo->inTransaction()) { $pdo->rollBack(); }
+        error_log('[ITrackZen] data_save: ' . $e->getMessage());
+        return false;
+    }
+}
+
+/** Insert into a table whose primary key is not auto-increment. */
+function db_insert_named(string $table, array $row): void
+{
+    $cols = array_keys($row);
+    db_run("INSERT INTO $table (" . implode(',', $cols) . ') VALUES (' . implode(',', array_fill(0, count($cols), '?')) . ')', array_values($row));
 }
 
 function site(?string $key = null, $default = '')
@@ -159,4 +188,5 @@ function all_service_items(): array
     return $out;
 }
 
+require_once __DIR__ . '/db.php';
 require_once __DIR__ . '/icons.php';
