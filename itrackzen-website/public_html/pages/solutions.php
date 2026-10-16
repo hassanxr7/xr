@@ -10,12 +10,12 @@ page_hero($m['h1'], $s['intro'], 'Solutions');
   <div class="container sol-list">
     <?php foreach ($s['items'] as $n => $i): ?>
     <article class="sol reveal<?= $n % 2 ? ' flip' : '' ?>" id="<?= e($i['id']) ?>">
-      <div class="sol-ico"><span class="ico-wrap xl"><?= icon($i['icon']) ?></span></div>
+      <div class="sol-ico"><?php $im = cms_img($i['image'] ?? '', $i['image_alt'] ?? '', 'sol-photo', 300, 220); echo $im ?: '<span class="ico-wrap xl">' . icon($i['icon']) . '</span>'; ?></div>
       <div class="sol-body">
         <h2><?= e($i['title']) ?></h2>
         <p class="lead-sm"><?= e($i['summary']) ?></p>
         <?php check_list($i['points']); ?>
-        <a class="btn btn-outline btn-sm" href="/contact-sales?service=<?= rawurlencode('Fleet management software') ?>&amp;topic=<?= rawurlencode($i['title']) ?>">Get a <?= e($i['title']) ?> quote <?= icon('arrow') ?></a>
+        <a class="btn btn-outline btn-sm" href="/request-quote?service=<?= rawurlencode('Fleet management software') ?>&amp;topic=<?= rawurlencode($i['title']) ?>">Get a <?= e($i['title']) ?> quote <?= icon('arrow') ?></a>
       </div>
     </article>
     <?php endforeach; ?>

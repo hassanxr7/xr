@@ -9,28 +9,29 @@
       "Driver safety",
       "Smart reports"
     ],
-    "image": ""
+    "image": "",
+    "image_alt": ""
   },
   "trust": [
     {
       "icon": "lock",
-      "title": "HTTPS encrypted",
-      "text": "Data is protected in transit"
-    },
-    {
-      "icon": "headset",
-      "title": "Responsive support",
-      "text": "Email and WhatsApp assistance"
+      "title": "Secure website",
+      "text": "Encrypted with HTTPS"
     },
     {
       "icon": "chip",
-      "title": "Hardware flexible",
-      "text": "Many tracker brands and protocols"
+      "title": "Many tracker brands",
+      "text": "Teltonika, Concox, Queclink and more"
     },
     {
       "icon": "globe",
-      "title": "Built for Africa",
-      "text": "Designed for long routes and mixed networks"
+      "title": "East & Central Africa focus",
+      "text": "Plus international fleets"
+    },
+    {
+      "icon": "headset",
+      "title": "Talk to a person",
+      "text": "Email and WhatsApp enquiries"
     }
   ],
   "overview_heading": "Everything you need to track, protect and optimise your fleet",
@@ -139,5 +140,34 @@
   "cta": {
     "title": "Ready to see every vehicle in your fleet?",
     "text": "Talk to our team about the right tracking setup for your vehicles, drivers and routes. We reply fast on email and WhatsApp."
-  }
+  },
+  "banner": {
+    "image": "",
+    "alt": "",
+    "eyebrow": "Business website",
+    "title": "New to ITrackZen?",
+    "text": "This website explains our services and helps you request a quote or partner with us. The tracking software itself runs on our platform, where customers sign in and where you can try the demo.",
+    "cta1": "Request a Quote",
+    "cta2": "Try the demo"
+  },
+  "paths": [
+    {
+      "icon": "video",
+      "title": "Try the demo",
+      "text": "Explore the live tracking platform with demo data before you decide.",
+      "kind": "demo"
+    },
+    {
+      "icon": "mail",
+      "title": "Request a quote",
+      "text": "Tell us about your vehicles and countries. Our team replies with a proposal.",
+      "kind": "quote"
+    },
+    {
+      "icon": "login",
+      "title": "Existing customer",
+      "text": "Sign in to the ITrackZen platform to track your vehicles.",
+      "kind": "login"
+    }
+  ]
 }

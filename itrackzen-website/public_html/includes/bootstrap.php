@@ -115,6 +115,31 @@ function asset(string $path): string
     return '/' . ltrim($path, '/') . '?v=' . $v;
 }
 
+/** URL of the separate ITrackZen tracking platform (itrackzen.com): login | demo | register | base */
+function platform_url(string $key = 'base'): string
+{
+    $p = (array)site('platform', []);
+    $map = ['base' => 'base_url', 'login' => 'login_url', 'demo' => 'demo_url', 'register' => 'register_url'];
+    return trim((string)($p[$map[$key] ?? 'base_url'] ?? ''));
+}
+
+/** Brand asset path (admin-uploaded logo or built-in default). */
+function brand_asset(string $slot): string
+{
+    $defaults = ['logo' => '/assets/img/logo.svg', 'logo_light' => '/assets/img/logo-light.svg', 'icon' => '/assets/img/app-icon.svg', 'favicon32' => '/assets/img/favicon-32.png',
+                 'apple' => '/assets/img/apple-touch-icon.png', 'icon192' => '/assets/img/logo-192.png', 'icon512' => '/assets/img/logo-512.png'];
+    $custom = (string)(site('brand_assets', [])[$slot] ?? '');
+    return $custom !== '' ? $custom : ($defaults[$slot] ?? '');
+}
+
+/** Responsive, lazy image from a CMS image path. Returns '' when no image is set. */
+function cms_img(?string $path, string $alt, string $class = '', int $w = 800, int $h = 450, bool $eager = false): string
+{
+    $path = trim((string)$path);
+    if ($path === '' || !preg_match('#^(/|https://)#', $path)) { return ''; }
+    return '<img' . ($class ? ' class="' . e($class) . '"' : '') . ' src="' . e($path) . '" alt="' . e($alt) . '" width="' . $w . '" height="' . $h . '" decoding="async"' . ($eager ? ' fetchpriority="high"' : ' loading="lazy"') . '>';
+}
+
 function wa_link(string $text = ''): string
 {
     $num = preg_replace('/\D+/', '', (string)site('whatsapp'));

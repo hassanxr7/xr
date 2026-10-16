@@ -13,7 +13,7 @@ page_hero($m['h1'], $f['intro'], 'Fleet Management');
       <h2>See, manage and improve your entire fleet</h2>
       <p>The ITrackZen fleet management dashboard gives dispatchers, managers and owners a shared, real-time picture of vehicles, drivers, alerts and costs, on desktop and mobile.</p>
       <?php check_list(['Live status for every vehicle: moving, idle, parked or offline', 'Driver identification with RFID / iButton and behaviour scoring', 'Fuel, maintenance and compliance in the same view', 'Daily, weekly and monthly business reports']); ?>
-      <div class="btn-row"><a class="btn btn-primary" href="/demo">Request a demo</a><a class="btn btn-outline" href="/pricing">View plans</a></div>
+      <div class="btn-row"><a class="btn btn-primary" href="/demo">Try the demo</a><a class="btn btn-outline" href="/pricing">View plans</a></div>
     </div>
   </div>
 </section>

@@ -1,0 +1,141 @@
+{
+  "pages": {
+    "fuel-monitoring": {
+      "pagekey": "fuel",
+      "icon": "fuel",
+      "eyebrow": "Fuel Monitoring",
+      "intro": "Fuel is usually a fleet's biggest running cost. ITrackZen combines vehicle location, ignition status and fuel data so you can see where fuel is used, spot unusual drops and compare vehicles and drivers.",
+      "image": "",
+      "image_alt": "Fuel tanker being monitored with GPS fuel sensors",
+      "sections": [
+        {
+          "title": "What you can monitor",
+          "points": [
+            "Fuel level over time, shown against location and ignition events",
+            "Refuelling events and consumption per trip, vehicle and period",
+            "Alerts for sudden fuel drops while parked or moving, where a fuel sensor is fitted",
+            "Idling time and its fuel impact, from ignition and movement data",
+            "Reports to compare vehicles, routes and drivers"
+          ]
+        },
+        {
+          "title": "How the data reaches the platform",
+          "points": [
+            "A fuel level sensor (for example analog, RS232 or RS485 types) or vehicle data (CAN bus) is connected to a compatible tracker",
+            "The tracker sends readings with its position to the ITrackZen platform",
+            "Accurate readings need correct installation and calibration for the tank shape"
+          ]
+        }
+      ],
+      "conditions": [
+        "Fuel monitoring needs a compatible tracker and a fuel sensor or CAN data. Not every tracker model supports it.",
+        "Accuracy depends on the sensor, tank, installation and calibration. Readings can vary on slopes and with fuel movement.",
+        "Check the Supported GPS Trackers page for fuel-sensor-ready devices, or ask us to confirm your model."
+      ],
+      "faq": [
+        {
+          "q": "Do I need a special tracker for fuel monitoring?",
+          "a": "Yes. The tracker needs an input for a fuel sensor or access to the vehicle's fuel data. We can recommend compatible devices."
+        },
+        {
+          "q": "Can it catch fuel theft?",
+          "a": "With a fitted sensor, sudden drops in fuel level can raise an alert with the time and place. It is an aid, not a guarantee, and depends on the installation."
+        }
+      ]
+    },
+    "driver-behaviour-safety": {
+      "pagekey": "driver",
+      "icon": "driver",
+      "eyebrow": "Driver Behaviour & Safety",
+      "intro": "Safer driving lowers accident risk, repair costs and fuel use. ITrackZen turns speed, movement and event data into clear alerts and reports, and adds camera-based alerts where AI dashcams are installed.",
+      "image": "",
+      "image_alt": "Bus driver monitored by an in-cabin AI dashcam",
+      "sections": [
+        {
+          "title": "Driving behaviour",
+          "points": [
+            "Overspeed alerts by vehicle, driver or zone",
+            "Harsh braking, harsh acceleration and sharp cornering events, where the tracker reports them",
+            "Unusual stops, idling and route deviations",
+            "Driver identification with RFID or iButton readers, so trips are linked to a named driver"
+          ]
+        },
+        {
+          "title": "Safety and emergencies",
+          "points": [
+            "SOS or panic button alerts on supported devices",
+            "Crash or impact detection where the device supports it",
+            "AI dashcam alerts for driver distraction, drowsiness, phone use and smoking on supported cameras",
+            "Event video clips linked to GPS position and time"
+          ]
+        }
+      ],
+      "conditions": [
+        "Behaviour events depend on the tracker's accelerometer and configuration. Entry-level devices may report fewer event types.",
+        "Camera detections need a compatible AI dashcam and good installation. Accuracy varies with lighting and camera position.",
+        "Tell drivers what is monitored and why, and follow your local privacy and employment rules."
+      ],
+      "faq": [
+        {
+          "q": "Can I see which driver was driving?",
+          "a": "Yes, when an RFID or iButton reader is installed and drivers use their tags, trips are linked to the driver."
+        },
+        {
+          "q": "Do I need cameras for driver safety?",
+          "a": "No. Speed and driving-event monitoring work with GPS trackers. Cameras add visual evidence and in-cabin alerts."
+        }
+      ]
+    },
+    "alerts-geofencing-reports": {
+      "pagekey": "alerts",
+      "icon": "bell",
+      "eyebrow": "Alerts, Geofencing & Reports",
+      "intro": "Know about problems when they happen and have the records to prove what happened. ITrackZen sends alerts, enforces zones and produces reports that suit managers, customers and auditors.",
+      "image": "",
+      "image_alt": "Fleet manager reviewing geofences and reports on a dashboard",
+      "sections": [
+        {
+          "title": "Alerts",
+          "points": [
+            "Overspeed, ignition on/off, stop and movement alerts",
+            "Route deviation and unauthorised-use alerts",
+            "Geofence entry and exit alerts",
+            "SOS, door and sensor alerts where hardware is fitted",
+            "Maintenance reminders by distance, engine hours or date"
+          ]
+        },
+        {
+          "title": "Geofencing",
+          "points": [
+            "Draw zones around depots, customer sites, ports, borders and restricted areas",
+            "Alert when vehicles enter, leave or stay too long",
+            "Use zones to measure dwell time and visit confirmations"
+          ]
+        },
+        {
+          "title": "Reports",
+          "points": [
+            "Trip, stop and route history reports",
+            "Daily, weekly and monthly summaries",
+            "Fuel, driver and utilisation reports where the data is available",
+            "Exports for sharing with management and customers"
+          ]
+        }
+      ],
+      "conditions": [
+        "Alert and report availability depends on the plan, tracker model and sensors installed.",
+        "How alerts are delivered (for example on screen, email or push notification) depends on your account settings in the platform."
+      ],
+      "faq": [
+        {
+          "q": "Can I get alerts on my phone?",
+          "a": "Notifications can reach you through the platform and mobile app. Available channels depend on your account configuration."
+        },
+        {
+          "q": "Can I schedule reports?",
+          "a": "Regular daily, weekly and monthly reporting is supported. Ask us which formats and schedules your plan includes."
+        }
+      ]
+    }
+  }
+}

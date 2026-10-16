@@ -10,7 +10,7 @@ page_hero($m['h1'], 'Use the GPS trackers you prefer. ITrackZen works with leadi
 ?>
 <section class="section tight">
   <div class="container">
-    <div class="notice reveal"><?= icon('chip') ?><p><strong><?= e($t['notice']) ?></strong> Our team will confirm compatibility and help you configure it.</p><a class="btn btn-primary btn-sm" href="/contact-sales?service=Bring+my+own+trackers">Check my device</a></div>
+    <div class="notice reveal"><?= icon('chip') ?><p><strong><?= e($t['notice']) ?></strong> Our team will confirm compatibility and help you configure it.</p><a class="btn btn-primary btn-sm" href="/request-quote?service=Bring+my+own+trackers">Check my device</a></div>
 
     <div class="device-cards">
       <?php foreach ($t['categories'] as $c): ?>
@@ -55,7 +55,7 @@ page_hero($m['h1'], 'Use the GPS trackers you prefer. ITrackZen works with leadi
       <?= icon('search') ?>
       <h3>No exact match, but we probably support it</h3>
       <p>ITrackZen supports many GPS tracker models and protocols. Contact us if your device is not listed and we will check it for you.</p>
-      <a class="btn btn-primary" href="/contact-sales?service=Bring+my+own+trackers">Ask about my device</a>
+      <a class="btn btn-primary" href="/request-quote?service=Bring+my+own+trackers">Ask about my device</a>
     </div>
   </div>
 </section>
@@ -72,9 +72,9 @@ page_hero($m['h1'], 'Use the GPS trackers you prefer. ITrackZen works with leadi
       <p class="eyebrow">Not sure what to buy?</p>
       <h2>We will recommend the right device</h2>
       <p>Tell us your vehicle types, countries and goals. We will suggest OBD, hardwired, 4G, motorcycle, asset or dashcam hardware that matches your budget and risk level, and help with installation.</p>
-      <div class="btn-row"><a class="btn btn-primary" href="/contact-sales?service=Tracker+hardware+%26+installation">Get a hardware recommendation</a><a class="btn btn-outline" href="/faq">Read the FAQ</a></div>
+      <div class="btn-row"><a class="btn btn-primary" href="/request-quote?service=Tracker+hardware+%26+installation">Get a hardware recommendation</a><a class="btn btn-outline" href="/faq">Read the FAQ</a></div>
       <p class="fine"><?= e($t['disclaimer']) ?></p>
     </div>
   </div>
 </section>
-<?php cta_band('Is your tracker supported?', 'Send us the model name or protocol and we will confirm compatibility, usually within one business day.'); layout_end();
+<?php cta_band('Is your tracker supported?', 'Send us the model name or protocol and we will confirm compatibility.'); layout_end();

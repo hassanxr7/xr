@@ -13,7 +13,7 @@ function art_dashboard(): string
   <rect x="2" y="2" width="636" height="416" rx="18" fill="#0b2148" stroke="#27487f" stroke-width="2"/>
   <rect x="2" y="2" width="636" height="34" rx="18" fill="#0f2b5b"/><rect x="2" y="20" width="636" height="16" fill="#0f2b5b"/>
   <circle cx="22" cy="19" r="4.5" fill="#ff6b6b"/><circle cx="38" cy="19" r="4.5" fill="#ffc94d"/><circle cx="54" cy="19" r="4.5" fill="#3ddc97"/>
-  <rect x="86" y="10" width="220" height="18" rx="9" fill="#173a70"/><text x="100" y="23" font-size="10" fill="#9db7e3">app.itrackzen.net / live-map</text>
+  <rect x="86" y="10" width="220" height="18" rx="9" fill="#173a70"/><text x="100" y="23" font-size="10" fill="#9db7e3">itrackzen.com / live-map</text>
   <!-- sidebar -->
   <rect x="14" y="48" width="46" height="358" rx="10" fill="#0f2b5b"/>
   <g stroke="#6f93cf" stroke-width="1.6" fill="none" stroke-linecap="round"><path d="M30 72h14M30 86h14M30 100h14"/><circle cx="37" cy="134" r="8"/><path d="M29 170h16M29 178h10"/><rect x="29" y="206" width="16" height="12" rx="2"/><path d="M29 250l5 5 9-10"/></g>
@@ -67,8 +67,7 @@ function art_truck(): string
   <ellipse cx="260" cy="228" rx="230" ry="14" fill="#0a1f44" opacity=".18"/>
   <rect x="20" y="52" width="290" height="130" rx="10" fill="#f4f8ff" stroke="#c9d8f2" stroke-width="2"/>
   <rect x="20" y="52" width="290" height="28" rx="10" fill="url(#tr1)"/>
-  <text x="40" y="106" font-size="30" font-weight="800" fill="#0a1f44" font-family="inherit">ITrack<tspan fill="#12b76a">Zen</tspan></text>
-  <text x="41" y="130" font-size="12" letter-spacing="2" fill="#4b6591">LIBDEX LOGISTICS SOLUTION</text>
+  <g transform="translate(40 78) scale(.085)"><path d="M80 715A160.5 160.5 0 1 1 314 715" fill="none" stroke="#1473ff" stroke-width="47" stroke-linecap="round" transform="translate(0 -400)"/><circle cx="197" cy="177" r="57" fill="#1473ff"/><path d="M197 292L118 438L197 412L276 438Z" fill="#0a4dff" stroke="#0a4dff" stroke-width="46" stroke-linejoin="round"/></g><text x="102" y="120" font-size="38" font-weight="800" fill="#1d1d24" font-family="Inter,Segoe UI,Arial,sans-serif" letter-spacing="-1">iTrackzen</text>
   <path d="M40 160h250" stroke="#12b76a" stroke-width="5" stroke-linecap="round"/>
   <path d="M318 182V84h92l56 56v42z" fill="url(#tr1)"/>
   <path d="M338 100h62l36 36h-98z" fill="#cfe2ff"/><path d="M338 100h62l36 36h-98z" fill="none" stroke="#fff" stroke-width="2" opacity=".6"/>

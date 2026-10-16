@@ -11,7 +11,9 @@
         "Geofences for depots, ports and customer sites",
         "Fuel and idle-time control across mixed fleets",
         "Customer-ready trip and delivery reports"
-      ]
+      ],
+      "image": "",
+      "image_alt": ""
     },
     {
       "id": "transport",
@@ -23,7 +25,9 @@
         "Driver ID and working-hours reporting",
         "Maintenance reminders by distance and engine hours",
         "Overspeed and harsh driving scoring"
-      ]
+      ],
+      "image": "",
+      "image_alt": ""
     },
     {
       "id": "taxi",
@@ -35,7 +39,9 @@
         "Trip history for dispute resolution",
         "Driver ID and shift reports",
         "Speed and safe-driving monitoring"
-      ]
+      ],
+      "image": "",
+      "image_alt": ""
     },
     {
       "id": "delivery",
@@ -47,7 +53,9 @@
         "Stop-by-stop route replay",
         "Compact trackers for riders and bikes",
         "Geofence alerts at customer locations"
-      ]
+      ],
+      "image": "",
+      "image_alt": ""
     },
     {
       "id": "construction",
@@ -59,7 +67,9 @@
         "Engine-hours based maintenance schedules",
         "After-hours movement and theft alerts",
         "Fuel usage reports per machine"
-      ]
+      ],
+      "image": "",
+      "image_alt": ""
     },
     {
       "id": "tankers",
@@ -71,7 +81,9 @@
         "Door and valve sensor alerts",
         "Strict route and geofence enforcement",
         "Engine cut-off support on compatible installs"
-      ]
+      ],
+      "image": "",
+      "image_alt": ""
     },
     {
       "id": "buses",
@@ -83,7 +95,9 @@
         "Driver behaviour and speed monitoring",
         "In-cabin and road cameras for passenger safety",
         "SOS alerts for emergencies"
-      ]
+      ],
+      "image": "",
+      "image_alt": ""
     },
     {
       "id": "government",
@@ -95,7 +109,9 @@
         "Audit-ready trip, fuel and usage reports",
         "Restricted-use and after-hours alerts",
         "Clear driver accountability with ID support"
-      ]
+      ],
+      "image": "",
+      "image_alt": ""
     },
     {
       "id": "security",
@@ -107,7 +123,9 @@
         "SOS and panic alerts to control rooms",
         "Geofenced patrol zones with compliance reports",
         "Video evidence from AI dashcams"
-      ]
+      ],
+      "image": "",
+      "image_alt": ""
     },
     {
       "id": "rental",
@@ -119,7 +137,9 @@
         "Geofence and territory limit alerts",
         "Mileage and usage reports for billing",
         "Ignition and engine cut-off support where fitted"
-      ]
+      ],
+      "image": "",
+      "image_alt": ""
     },
     {
       "id": "personal",
@@ -131,7 +151,9 @@
         "Theft and unauthorised movement alerts",
         "Compact, discreet trackers",
         "Simple setup with guided support"
-      ]
+      ],
+      "image": "",
+      "image_alt": ""
     },
     {
       "id": "cross-border",
@@ -143,7 +165,9 @@
         "Border and port geofences with dwell-time reports",
         "Multi-country fleets and users in one dashboard",
         "Hardware options for remote areas and variable coverage"
-      ]
+      ],
+      "image": "",
+      "image_alt": ""
     }
   ]
 }

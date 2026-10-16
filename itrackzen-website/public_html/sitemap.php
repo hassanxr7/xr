@@ -8,7 +8,7 @@ $urls = [
     ['/', '1.0', 'weekly'], ['/gps-tracking-services', '0.9', 'monthly'], ['/fleet-management', '0.9', 'monthly'],
     ['/ai-dashcam-video-telematics', '0.9', 'monthly'], ['/supported-gps-trackers', '0.9', 'weekly'], ['/solutions', '0.8', 'monthly'],
     ['/pricing', '0.8', 'monthly'], ['/demo', '0.8', 'monthly'], ['/contact-sales', '0.8', 'monthly'], ['/about-us', '0.7', 'yearly'],
-    ['/faq', '0.7', 'monthly'], ['/blog', '0.6', 'weekly'], ['/privacy-policy', '0.3', 'yearly'], ['/terms-and-conditions', '0.3', 'yearly'], ['/delete-account', '0.3', 'yearly'],
+    ['/faq', '0.7', 'monthly'], ['/blog', '0.6', 'weekly'], ['/fuel-monitoring', '0.8', 'monthly'], ['/driver-behaviour-safety', '0.8', 'monthly'], ['/alerts-geofencing-reports', '0.8', 'monthly'], ['/partnerships', '0.7', 'monthly'], ['/request-quote', '0.8', 'monthly'], ['/countries', '0.8', 'monthly'], ['/privacy-policy', '0.3', 'yearly'], ['/terms-and-conditions', '0.3', 'yearly'], ['/delete-account', '0.3', 'yearly'],
 ];
 foreach (data('countries')['items'] ?? [] as $c) { $urls[] = ['/' . $c['slug'], '0.8', 'monthly']; }
 foreach (data('blog')['posts'] ?? [] as $p) { $urls[] = ['/blog/' . $p['slug'], '0.6', 'yearly', $p['date']]; }

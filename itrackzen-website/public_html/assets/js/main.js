@@ -162,6 +162,19 @@
     form.addEventListener('input', function (e) { e.target.classList.remove('invalid'); });
   });
 
+  /* ---------- Country chooser + soft suggestion (never redirects automatically) ---------- */
+  $$('[data-country-select]').forEach(function (sel) { sel.addEventListener('change', function () { if (sel.value) { window.location.href = sel.value; } }); });
+  try {
+    var tzMap = { 'Africa/Nairobi': ['/gps-tracking-kenya', 'Kenya'], 'Africa/Kampala': ['/gps-tracking-uganda', 'Uganda'], 'Africa/Addis_Ababa': ['/gps-tracking-ethiopia', 'Ethiopia'], 'Africa/Mogadishu': ['/gps-tracking-somalia', 'Somalia'], 'Africa/Juba': ['/gps-tracking-south-sudan', 'South Sudan'], 'Africa/Kinshasa': ['/gps-tracking-dr-congo', 'DR Congo'], 'Africa/Lubumbashi': ['/gps-tracking-dr-congo', 'DR Congo'] };
+    var hit = tzMap[Intl.DateTimeFormat().resolvedOptions().timeZone];
+    if (hit && location.pathname === '/' && !sessionStorage.getItem('itz_suggest')) {
+      var bar = document.createElement('div'); bar.className = 'suggest';
+      bar.innerHTML = '<div class="container"><span>Looking for GPS tracking in ' + hit[1] + '?</span> <a href="' + hit[0] + '"><strong>View the ' + hit[1] + ' guide</strong></a> <button type="button" aria-label="Dismiss">&times;</button></div>';
+      document.body.insertBefore(bar, document.querySelector('.topbar').nextSibling);
+      bar.querySelector('button').addEventListener('click', function () { bar.remove(); try { sessionStorage.setItem('itz_suggest', '1'); } catch (e) {} });
+    }
+  } catch (e) {}
+
   /* ---------- Cookie consent + analytics + chat ---------- */
   var A = window.ITZ_ANALYTICS, KEY = 'itz_consent';
   var get = function () { try { return localStorage.getItem(KEY); } catch (e) { return null; } };

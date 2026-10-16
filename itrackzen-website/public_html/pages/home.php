@@ -7,7 +7,6 @@ $countries = data('countries')['items'] ?? [];
 $brands = data('trackers')['brands'] ?? [];
 add_ld(ld_faq($faq));
 layout_start(['title' => $m['title'], 'description' => $m['description'], 'keywords' => $m['keywords'], 'path' => '/']);
-$loginUrl = site('client_login_url');
 ?>
 <section class="hero">
   <div class="hero-bg" aria-hidden="true"></div>
@@ -17,18 +16,19 @@ $loginUrl = site('client_login_url');
       <h1 class="reveal"><?= e($m['h1']) ?></h1>
       <p class="lead reveal"><?= e($h['subtext']) ?></p>
       <div class="hero-cta reveal">
-        <a class="btn btn-primary btn-lg" href="/pricing">Get Started <?= icon('arrow') ?></a>
-        <a class="btn btn-light btn-lg" href="/demo">Request Demo</a>
+        <a class="btn btn-primary btn-lg" href="/request-quote">Get Started <?= icon('arrow') ?></a>
+        <a class="btn btn-light btn-lg" href="<?= e(platform_url('demo')) ?>" target="_blank" rel="noopener">Try the Demo</a>
         <a class="btn btn-outline-light btn-lg" href="/contact-sales">Contact Sales</a>
-        <a class="btn btn-ghost-light btn-lg" href="<?= e($loginUrl) ?>" rel="noopener"><?= icon('login') ?>Client Login</a>
+        <a class="btn btn-ghost-light btn-lg" href="<?= e(platform_url('login')) ?>" rel="noopener"><?= icon('login') ?>Client Login</a>
       </div>
       <ul class="chips reveal"><?php foreach ($h['chips'] as $c): ?><li><?= icon('check') ?><?= e($c) ?></li><?php endforeach; ?></ul>
     </div>
     <div class="hero-visual reveal">
-      <?php if (!empty($h['image'])): ?><img src="<?= e($h['image']) ?>" alt="ITrackZen fleet dashboard" width="640" height="420" fetchpriority="high"><?php else: echo art_dashboard(); endif; ?>
+      <?php if (!empty($h['image'])) { echo cms_img($h['image'], $h['image_alt'] ?? 'Fleet vehicles monitored with ITrackZen GPS tracking', 'hero-photo', 960, 640, true); } else { echo art_dashboard(); } ?>
+      <p class="illus">Illustrative interface with sample data</p>
       <div class="float-card fc-1"><span class="dot dot-green"></span><div><strong>TRK-204 &middot; Moving</strong><small>62 km/h &middot; Nairobi &rarr; Mombasa</small></div></div>
       <div class="float-card fc-2"><span class="fc-ico"><?= icon('camera') ?></span><div><strong>AI dashcam alert</strong><small>Phone use detected</small></div></div>
-      <div class="float-card fc-3 art-card"><?= art_tracker('wired') ?><div><strong>Any tracker</strong><small><?= count_models() ?>+ models</small></div></div>
+      <div class="float-card fc-3 art-card"><?= art_tracker('wired') ?><div><strong>Any tracker</strong><small><?= count_models() ?>+ models listed</small></div></div>
     </div>
   </div>
   <div class="container trust">
@@ -44,6 +44,21 @@ $loginUrl = site('client_login_url');
     <div class="marquee"><div class="marquee-track">
       <?php for ($i = 0; $i < 2; $i++): foreach ($brands as $b): ?><a href="/supported-gps-trackers" tabindex="<?= $i ? '-1' : '0' ?>"<?= $i ? ' aria-hidden="true"' : '' ?>><?= e($b['name']) ?></a><?php endforeach; endfor; ?>
     </div></div>
+  </div>
+</section>
+
+<section class="section tight paths-sec">
+  <div class="container">
+    <div class="banner reveal<?= !empty($home['banner']['image']) ? ' has-img' : '' ?>">
+      <?php if (!empty($home['banner']['image'])): ?><?= cms_img($home['banner']['image'], $home['banner']['alt'] ?? '', 'banner-img', 1200, 520) ?><?php endif; ?>
+      <div class="banner-copy"><p class="eyebrow light"><?= e($home['banner']['eyebrow']) ?></p><h2><?= e($home['banner']['title']) ?></h2><p><?= e($home['banner']['text']) ?></p>
+        <div class="btn-row"><a class="btn btn-primary" href="/request-quote"><?= e($home['banner']['cta1']) ?></a><a class="btn btn-light" href="<?= e(platform_url('demo')) ?>" target="_blank" rel="noopener"><?= e($home['banner']['cta2']) ?></a></div></div>
+    </div>
+    <div class="grid grid-3 paths">
+      <?php foreach ($home['paths'] as $pth): $href = ['demo' => platform_url('demo'), 'quote' => '/request-quote', 'login' => platform_url('login')][$pth['kind']] ?? '/'; $ext = $pth['kind'] !== 'quote'; ?>
+      <a class="card path reveal" href="<?= e($href) ?>"<?= $pth['kind'] === 'demo' ? ' target="_blank"' : '' ?><?= $ext ? ' rel="noopener"' : '' ?>><span class="ico-wrap"><?= icon($pth['icon']) ?></span><h3><?= e($pth['title']) ?></h3><p><?= e($pth['text']) ?></p><span class="more"><?= $ext ? 'Open on itrackzen.com' : 'Go to quote form' ?> <?= icon('arrow') ?></span></a>
+      <?php endforeach; ?>
+    </div>
   </div>
 </section>
 
@@ -114,7 +129,7 @@ $loginUrl = site('client_login_url');
     <div class="stat reveal"><b data-count="<?= count_models() ?>"><?= count_models() ?>+</b><span>supported tracker models</span></div>
     <div class="stat reveal"><b data-count="<?= count($brands) ?>"><?= count($brands) ?></b><span>brands and protocol families</span></div>
     <div class="stat reveal"><b data-count="<?= count(all_service_items()) ?>"><?= count(all_service_items()) ?></b><span>tracking and fleet features</span></div>
-    <div class="stat reveal"><b>24/7</b><span>live monitoring access</span></div>
+    <div class="stat reveal"><b data-count="<?= count($countries) ?>"><?= count($countries) ?></b><span>focus country guides</span></div>
   </div>
 </section>
 
@@ -139,11 +154,12 @@ $loginUrl = site('client_login_url');
 
 <section class="section">
   <div class="container">
-    <?php section_head('Coverage', 'GPS tracking across Africa and beyond', 'Dedicated support for East Africa, Central Africa and international fleets.'); ?>
+    <?php section_head('Coverage', 'GPS tracking across Africa and beyond', 'Our focus markets today. Each guide explains local use cases, connectivity conditions and how to start.'); ?>
     <ul class="country-grid">
       <?php foreach ($countries as $c): ?><li class="reveal"><a href="/<?= e($c['slug']) ?>"><?= icon('pin') ?><span>GPS Tracking <?= e($c['name']) ?></span><?= icon('arrow') ?></a></li><?php endforeach; ?>
     </ul>
-    <p class="center muted mt">Also serving Tanzania, Rwanda, Djibouti, Sudan, Egypt, Nigeria, Zambia, South Africa and global clients wherever mobile data coverage exists.</p>
+    <div class="country-pick center reveal"><label for="country-select">Choose your country</label> <select id="country-select" data-country-select><option value="">Select a country</option><?php foreach ($countries as $c): ?><option value="/<?= e($c['slug']) ?>"><?= e($c['name']) ?></option><?php endforeach; ?><option value="/countries">Other countries</option></select> <noscript><a href="/countries">All countries</a></noscript></div>
+    <p class="center muted mt">Not on the list? We confirm availability case by case. <a href="/countries">See how we expand</a>.</p>
   </div>
 </section>
 

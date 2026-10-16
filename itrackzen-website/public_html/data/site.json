@@ -18,7 +18,6 @@
   "region": "",
   "postal_code": "",
   "country_code": "",
-  "client_login_url": "https://app.itrackzen.net",
   "app_links": {
     "android": "",
     "ios": ""
@@ -51,40 +50,120 @@
       "href": "/gps-tracking-services",
       "children": [
         {
-          "label": "GPS Tracking Services",
+          "label": "GPS Tracking & Fleet Management",
           "href": "/gps-tracking-services",
           "icon": "pin",
-          "text": "Live tracking, alerts, fuel and reports"
+          "text": "Live tracking, routes and the fleet dashboard"
         },
         {
-          "label": "Fleet Management",
-          "href": "/fleet-management",
-          "icon": "dashboard",
-          "text": "One dashboard for your whole fleet"
-        },
-        {
-          "label": "AI Dashcam & Video Telematics",
+          "label": "Video Telematics & AI Dashcams",
           "href": "/ai-dashcam-video-telematics",
           "icon": "camera",
           "text": "Road and driver cameras with AI alerts"
+        },
+        {
+          "label": "Fuel Monitoring",
+          "href": "/fuel-monitoring",
+          "icon": "fuel",
+          "text": "Fuel level, consumption and theft alerts"
+        },
+        {
+          "label": "Driver Behaviour & Safety",
+          "href": "/driver-behaviour-safety",
+          "icon": "driver",
+          "text": "Speed, events, driver ID and SOS"
+        },
+        {
+          "label": "Alerts, Geofencing & Reports",
+          "href": "/alerts-geofencing-reports",
+          "icon": "bell",
+          "text": "Zones, notifications and reporting"
         }
       ]
     },
     {
-      "label": "Supported Trackers",
+      "label": "Trackers",
       "href": "/supported-gps-trackers"
     },
     {
-      "label": "Solutions",
+      "label": "Industries",
       "href": "/solutions"
+    },
+    {
+      "label": "Countries",
+      "href": "/countries",
+      "children": [
+        {
+          "label": "Kenya",
+          "href": "/gps-tracking-kenya",
+          "icon": "pin",
+          "text": "Northern Corridor and city fleets"
+        },
+        {
+          "label": "Uganda",
+          "href": "/gps-tracking-uganda",
+          "icon": "pin",
+          "text": "Transit trucks and boda boda"
+        },
+        {
+          "label": "Ethiopia",
+          "href": "/gps-tracking-ethiopia",
+          "icon": "pin",
+          "text": "Djibouti corridor logistics"
+        },
+        {
+          "label": "Somalia",
+          "href": "/gps-tracking-somalia",
+          "icon": "pin",
+          "text": "Ports, security and humanitarian"
+        },
+        {
+          "label": "South Sudan",
+          "href": "/gps-tracking-south-sudan",
+          "icon": "pin",
+          "text": "Long supply routes"
+        },
+        {
+          "label": "DR Congo",
+          "href": "/gps-tracking-dr-congo",
+          "icon": "pin",
+          "text": "Mining and long-haul"
+        }
+      ]
     },
     {
       "label": "Pricing",
       "href": "/pricing"
     },
     {
-      "label": "About",
-      "href": "/about-us"
+      "label": "Company",
+      "href": "/about-us",
+      "children": [
+        {
+          "label": "About ITrackZen & LibDex",
+          "href": "/about-us",
+          "icon": "building",
+          "text": "Who we are"
+        },
+        {
+          "label": "Partnerships",
+          "href": "/partnerships",
+          "icon": "users",
+          "text": "Resellers, installers, corporate"
+        },
+        {
+          "label": "FAQ & Support",
+          "href": "/faq",
+          "icon": "headset",
+          "text": "Answers and how to reach us"
+        },
+        {
+          "label": "Contact",
+          "href": "/contact-sales",
+          "icon": "mail",
+          "text": "Talk to our team"
+        }
+      ]
     }
   ],
   "interest_options": [
@@ -92,12 +171,12 @@
     "Fleet management software",
     "AI dashcam & video telematics",
     "Fuel monitoring",
+    "Driver behaviour & safety",
     "Truck / logistics tracking",
     "Motorcycle tracking",
     "Asset tracking",
     "Tracker hardware & installation",
     "Bring my own trackers",
-    "Reseller / partnership",
     "Other"
   ],
   "countries": [
@@ -162,5 +241,14 @@
     "Germany",
     "France",
     "Other"
-  ]
+  ],
+  "platform": {
+    "name": "ITrackZen tracking platform",
+    "base_url": "https://itrackzen.com",
+    "login_url": "https://itrackzen.com/authentication/create",
+    "demo_url": "https://itrackzen.com/demo",
+    "register_url": "",
+    "note": "register_url is empty until the platform's customer registration page is confirmed"
+  },
+  "brand_assets": {}
 }

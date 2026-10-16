@@ -11,7 +11,7 @@ page_hero($m['h1'], $a['intro'], site('tagline'));
       <h2>Professional fleet visibility, made accessible</h2>
       <p><?= e($a['mission']) ?></p>
       <p>ITrackZen is part of <?= e(site('company')) ?>, whose focus is logistics technology. We combine <a href="/gps-tracking-services">GPS tracking services</a>, <a href="/fleet-management">fleet management software</a> and <a href="/ai-dashcam-video-telematics">AI dashcams</a> into a single, practical platform.</p>
-      <div class="btn-row"><a class="btn btn-primary" href="/contact-sales">Talk to our team</a><a class="btn btn-outline" href="/demo">Request a demo</a></div>
+      <div class="btn-row"><a class="btn btn-primary" href="/contact-sales">Talk to our team</a><a class="btn btn-outline" href="/demo">Try the demo</a></div>
     </div>
     <div class="split-art reveal"><?= art_dashboard() ?></div>
   </div>

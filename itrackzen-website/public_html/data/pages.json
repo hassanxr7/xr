@@ -48,22 +48,22 @@
     "h1": "Simple Plans for Fleets of Every Size"
   },
   "demo": {
-    "title": "Request a Free GPS Tracking Demo | ITrackZen",
-    "description": "Book a live ITrackZen demo. See real-time tracking, fleet reports, fuel monitoring and AI dashcam features with a specialist.",
+    "title": "Try the ITrackZen Demo | GPS Tracking Platform",
+    "description": "Try the live ITrackZen demo on our tracking platform or request a guided demo from our team. See live tracking, fleet reports and alerts.",
     "keywords": "GPS tracking demo, fleet management demo, ITrackZen demo",
-    "h1": "Request a Live ITrackZen Demo"
+    "h1": "Try the ITrackZen Demo"
   },
   "contact": {
-    "title": "Contact Sales | ITrackZen GPS Tracking by LibDex Ltd",
-    "description": "Talk to ITrackZen sales about GPS tracking, fleet management and AI dashcams. Send an inquiry, email us or message us on WhatsApp.",
-    "keywords": "contact ITrackZen, GPS tracking sales, LibDex Ltd contact, fleet tracking quote",
-    "h1": "Contact ITrackZen Sales"
+    "title": "Contact ITrackZen | LibDex Ltd",
+    "description": "Contact the ITrackZen team about GPS tracking, fleet management and AI dashcams. Send a message, email us or use WhatsApp.",
+    "keywords": "contact ITrackZen, LibDex Ltd contact, GPS tracking enquiry",
+    "h1": "Contact ITrackZen"
   },
   "faq": {
-    "title": "GPS Tracking FAQ | Questions About ITrackZen",
-    "description": "Answers about ITrackZen GPS tracking: supported devices, coverage in Africa, fuel monitoring, AI dashcams, apps, data security, pricing and demos.",
-    "keywords": "GPS tracking FAQ, ITrackZen questions, fleet tracking help",
-    "h1": "Frequently Asked Questions"
+    "title": "FAQ & Support | ITrackZen GPS Tracking",
+    "description": "Answers about ITrackZen GPS tracking, supported devices, coverage, fuel monitoring, AI dashcams, accounts and support, plus how to contact us.",
+    "keywords": "GPS tracking FAQ, ITrackZen support, fleet tracking help",
+    "h1": "FAQ & Support"
   },
   "privacy": {
     "title": "Privacy Policy | ITrackZen by LibDex Ltd",
@@ -100,5 +100,41 @@
     "description": "The page you are looking for could not be found.",
     "keywords": "",
     "h1": "Page not found"
+  },
+  "fuel": {
+    "title": "Fuel Monitoring for Fleets | ITrackZen GPS",
+    "description": "Monitor fuel level, consumption and unusual fuel drops with compatible GPS trackers and fuel sensors. Fuel monitoring for fleets in Africa and worldwide.",
+    "keywords": "fuel monitoring GPS, fuel theft detection, fuel sensor tracker, fleet fuel management Africa",
+    "h1": "Fuel Monitoring for Fleets"
+  },
+  "driver": {
+    "title": "Driver Behaviour & Safety Monitoring | ITrackZen",
+    "description": "Reduce risk with overspeed alerts, driving-event monitoring, driver ID, SOS alerts and AI dashcam safety alerts. Driver safety for fleets in Africa.",
+    "keywords": "driver behaviour monitoring, driver safety fleet, driver ID RFID, SOS alert GPS",
+    "h1": "Driver Behaviour & Safety Monitoring"
+  },
+  "alerts": {
+    "title": "Alerts, Geofencing & Fleet Reports | ITrackZen",
+    "description": "Overspeed, ignition, route deviation and geofence alerts plus trip, fuel and driver reports. Alerts and reporting for GPS fleet tracking.",
+    "keywords": "geofencing alerts, GPS fleet reports, overspeed alert, route deviation alert",
+    "h1": "Alerts, Geofencing & Reports"
+  },
+  "partners": {
+    "title": "Partnerships & Corporate Enquiries | ITrackZen",
+    "description": "Become an ITrackZen reseller, installer, technology or corporate partner. Send a partnership enquiry to LibDex Ltd.",
+    "keywords": "GPS tracking reseller Africa, installer partner, fleet tracking distributor, LibDex partnership",
+    "h1": "Partnerships & Corporate Enquiries"
+  },
+  "quote": {
+    "title": "Request a GPS Tracking Quote | ITrackZen",
+    "description": "Request a quote for GPS vehicle tracking, fleet management or AI dashcams. Tell us your vehicles and countries. This form does not create a tracking account.",
+    "keywords": "GPS tracking quote, fleet tracking price request, vehicle tracking quotation Africa",
+    "h1": "Request a Quote"
+  },
+  "countries": {
+    "title": "GPS Tracking by Country | East & Central Africa | ITrackZen",
+    "description": "Find GPS tracking and fleet management guidance for Somalia, Kenya, Uganda, Ethiopia, South Sudan and DR Congo, and ask about other countries.",
+    "keywords": "GPS tracking Africa countries, vehicle tracking East Africa, fleet tracking Central Africa",
+    "h1": "GPS Tracking by Country"
   }
 }

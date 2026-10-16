@@ -1,0 +1,43 @@
+{
+  "intro": "ITrackZen by LibDex Ltd welcomes cooperation with businesses that can bring tracking solutions to customers in their markets, install and support hardware, or integrate with our platform.",
+  "types": [
+    {
+      "icon": "building",
+      "title": "Resellers & distributors",
+      "text": "Offer ITrackZen subscriptions and compatible hardware to your customers in your territory."
+    },
+    {
+      "icon": "wrench",
+      "title": "Installation partners",
+      "text": "Vehicle electronics, auto-electrical and security companies that can install and service trackers, sensors and dashcams."
+    },
+    {
+      "icon": "chip",
+      "title": "Technology & hardware partners",
+      "text": "Tracker, sensor and camera manufacturers or integrators who want to confirm compatibility."
+    },
+    {
+      "icon": "truck",
+      "title": "Corporate & fleet cooperation",
+      "text": "Logistics, transport, mining, NGO and government fleets interested in pilots or framework agreements."
+    }
+  ],
+  "process": [
+    {
+      "n": "1",
+      "title": "Tell us about your business",
+      "text": "Use the partnership form: your company, countries, customers and the cooperation you have in mind."
+    },
+    {
+      "n": "2",
+      "title": "We review and respond",
+      "text": "Our team reviews fit and coverage and contacts you to discuss next steps."
+    },
+    {
+      "n": "3",
+      "title": "Agree terms",
+      "text": "If we proceed, we agree scope, responsibilities and commercial terms in writing before any activity starts."
+    }
+  ],
+  "note": "We do not currently list approved partners or local offices on this website. Partner details will be published only once agreements are confirmed."
+}

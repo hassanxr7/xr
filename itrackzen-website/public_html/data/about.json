@@ -1,5 +1,5 @@
 {
-  "intro": "ITrackZen is the GPS tracking and fleet management brand of LibDex Ltd, a logistics and technology company. We help businesses see, protect and optimise their vehicles, drivers and assets through reliable telematics, practical software and responsive support.",
+  "intro": "ITrackZen is the GPS tracking and fleet management brand of LibDex Ltd, a logistics and technology company. This website presents our services and helps businesses ask for a quote or discuss a partnership. The tracking software itself is the ITrackZen platform at itrackzen.com.",
   "mission": "Our mission is to make professional fleet visibility accessible to businesses across Africa and around the world, so that every vehicle on the road is safer, more efficient and more accountable.",
   "pillars": [
     {
@@ -41,13 +41,15 @@
     }
   ],
   "why": [
-    "Works with many GPS tracker brands, so you are not locked into one device vendor",
-    "One platform for GPS, fuel, sensors, driver ID and AI video",
-    "Web dashboard and mobile access for managers, dispatchers and owners",
-    "Support for single vehicles, mixed fleets and multi-country operations",
-    "Onboarding help for device setup, alerts and reports",
-    "Flexible plans from small fleets to enterprise deployments"
+    "Support for many GPS tracker brands and protocols, so you are not tied to one device vendor",
+    "One platform for GPS tracking, sensors, driver ID and AI video, where your hardware supports them",
+    "Web and mobile access to your fleet",
+    "Plans for single vehicles, mixed fleets and multi-country operations",
+    "Honest advice on which hardware fits your vehicles",
+    "Flexible cooperation for resellers, installers and corporate fleets"
   ],
   "regions_heading": "Serving Africa and global clients",
-  "regions_text": "We support businesses in Somalia, Kenya, Uganda, Ethiopia, South Sudan, DR Congo and across East Africa, Central Africa and the wider continent, as well as international clients with fleets anywhere GSM data coverage is available."
+  "regions_text": "Our focus markets are Somalia, Kenya, Uganda, Ethiopia, South Sudan and DR Congo, and we serve other countries where we can support the customer's hardware, connectivity and installation needs. We confirm availability case by case.",
+  "image": "",
+  "image_alt": ""
 }

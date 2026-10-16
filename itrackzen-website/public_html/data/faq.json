@@ -5,6 +5,10 @@
       "a": "ITrackZen is a GPS tracking and fleet management platform from LibDex Ltd. It lets businesses monitor vehicles, drivers, fuel, routes and safety in real time through a web dashboard and mobile access, and it includes AI dashcam and video telematics options."
     },
     {
+      "q": "Is this website the tracking platform?",
+      "a": "No. This is the ITrackZen business website. The tracking platform is at itrackzen.com, where customers sign in and where you can try the demo. Sending a form here does not create a tracking account."
+    },
+    {
       "q": "Which GPS trackers does ITrackZen support?",
       "a": "ITrackZen supports many GPS tracker models and protocols, including Teltonika, Concox, Queclink, Meitrack, Ruptela, Jimi IoT, Suntech, Coban, TopflyTech, Sinotrack, TKSTAR and the GT06 family. Our Supported GPS Trackers page lists popular models. If your device is not listed, contact us and we will check compatibility."
     },
@@ -51,6 +55,10 @@
     {
       "q": "How can I delete my account and data?",
       "a": "Submit a request on our Account & Data Deletion page or email info@libdexltd.com from your registered address. We will verify your identity and process the request in line with our Privacy Policy."
+    },
+    {
+      "q": "How do I get support as an existing customer?",
+      "a": "Sign in to the platform first, then contact us by email or WhatsApp with your account name and a description of the problem. Never send your password."
     }
   ]
 }

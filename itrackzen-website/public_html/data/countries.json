@@ -1,46 +1,14 @@
 {
   "items": [
     {
-      "slug": "gps-tracking-somalia",
-      "name": "Somalia",
-      "title": "GPS Tracking Somalia | Vehicle & Fleet Tracking | ITrackZen",
-      "description": "GPS vehicle tracking and fleet management in Somalia. ITrackZen offers real-time tracking, fuel monitoring, AI dashcams and reports for businesses in Somalia.",
-      "keywords": "GPS tracking Somalia, vehicle tracking Somalia, fleet management Somalia, truck tracking Somalia, ITrackZen Somalia",
-      "h1": "GPS Tracking & Fleet Management in Somalia",
-      "intro": [
-        "ITrackZen helps businesses in Somalia monitor vehicles, trucks, motorcycles and assets in real time. Our platform combines live GPS tracking, fuel monitoring, driver safety and AI dashcam video so you can run your fleet with confidence.",
-        "Long distances and remote stretches make live visibility, geofencing and SOS alerts especially valuable for fleets operating in Somalia."
-      ],
-      "cities": [
-        "Mogadishu",
-        "Hargeisa",
-        "Bosaso",
-        "Kismayo",
-        "Garowe",
-        "Baidoa"
-      ],
-      "sectors": [
-        "Transport and trucking",
-        "Humanitarian and NGO convoys",
-        "Security companies",
-        "Fuel distribution",
-        "Port and import logistics",
-        "Taxi and delivery"
-      ],
-      "corridor": "Port-to-city and inter-regional trucking routes",
-      "extra": "Because trackers store data when signal drops and upload when coverage returns, route history stays complete even on remote legs."
-    },
-    {
       "slug": "gps-tracking-kenya",
       "name": "Kenya",
       "title": "GPS Tracking Kenya | Vehicle & Fleet Tracking | ITrackZen",
-      "description": "GPS vehicle tracking and fleet management in Kenya. ITrackZen offers real-time tracking, fuel monitoring, AI dashcams and reports for businesses in Kenya.",
+      "description": "Track trucks, matatus, delivery vans, motorcycles and company cars across Kenya with live location, fuel monitoring and driver safety tools from ITrackZen.",
       "keywords": "GPS tracking Kenya, vehicle tracking Kenya, fleet management Kenya, truck tracking Kenya, ITrackZen Kenya",
       "h1": "GPS Tracking & Fleet Management in Kenya",
-      "intro": [
-        "ITrackZen helps businesses in Kenya monitor vehicles, trucks, motorcycles and assets in real time. Our platform combines live GPS tracking, fuel monitoring, driver safety and AI dashcam video so you can run your fleet with confidence.",
-        "From Nairobi city fleets to long-haul trucks on the Mombasa corridor, ITrackZen gives Kenyan operators one dashboard for tracking, fuel and driver behaviour."
-      ],
+      "hero_text": "Track trucks, matatus, delivery vans, motorcycles and company cars across Kenya with live location, fuel monitoring and driver safety tools from ITrackZen.",
+      "snapshot": "Kenya is East Africa's busiest freight gateway. Cargo leaves the port of Mombasa for Nairobi and continues along the Northern Corridor towards Uganda, Rwanda, Burundi and eastern DR Congo, while Nairobi, Mombasa, Kisumu and Nakuru run dense passenger, courier and boda boda networks. A tracking setup for Kenya usually has to cover long-haul visibility and congested city operations at the same time.",
       "cities": [
         "Nairobi",
         "Mombasa",
@@ -49,28 +17,73 @@
         "Eldoret",
         "Thika"
       ],
-      "sectors": [
-        "Logistics and freight",
-        "Matatu and bus operators",
-        "Delivery and courier",
-        "Construction",
-        "Rental and tours",
-        "Fuel tankers"
+      "corridors": "Mombasa to Nairobi, then onwards on the Northern Corridor to Malaba and Busia and into Uganda.",
+      "use_cases": [
+        {
+          "title": "Port-to-inland haulage",
+          "text": "Follow containers and bulk cargo from Mombasa, set geofences around yards and depots, and measure dwell time and turnaround."
+        },
+        {
+          "title": "Matatu and bus operators",
+          "text": "Monitor speed, route adherence and driver behaviour for passenger service vehicles, with alerts that reach supervisors straight away."
+        },
+        {
+          "title": "Courier and boda boda delivery",
+          "text": "Use compact trackers on motorcycles and vans to see where each rider is and to review completed delivery routes."
+        },
+        {
+          "title": "Construction and project fleets",
+          "text": "Control fuel use and after-hours movement of tippers, lorries and plant across sites in and around Nairobi."
+        }
       ],
-      "corridor": "Mombasa to Nairobi and the Northern Corridor towards Uganda and beyond",
-      "extra": "Cross-border trips are easy to follow, with geofences for depots, ports and border points and dwell-time reports."
+      "connectivity": "Trackers need a data SIM from a local mobile network such as Safaricom, Airtel or Telkom. Coverage is strong along major roads and in towns and weaker in remote northern and border areas, where devices store positions and upload them when signal returns.",
+      "steps": [
+        {
+          "title": "Choose your hardware path",
+          "text": "Use trackers you already own if their model is supported, or ask us to recommend OBD, hardwired, motorcycle or dashcam devices."
+        },
+        {
+          "title": "Request a quote",
+          "text": "Tell us your vehicle count and routes. We confirm device compatibility, plan and how hardware supply and installation can be arranged for your location."
+        },
+        {
+          "title": "Activate and monitor",
+          "text": "Once your devices report to the platform, you sign in at itrackzen.com on web or mobile and set your alerts."
+        }
+      ],
+      "conditions": [
+        "Hardware supply and installation availability is confirmed during your quote, not assumed.",
+        "Tracking depends on mobile data coverage and an active SIM plan on each device.",
+        "Fuel monitoring needs a compatible tracker and a fuel sensor, installed and calibrated."
+      ],
+      "partners": "We are interested in hearing from Kenyan logistics operators, vehicle dealers, security firms and installers who want to offer ITrackZen to their own customers, and from corporate fleets that want a joint pilot.",
+      "faq": [
+        {
+          "q": "Can I track vehicles that cross into Uganda?",
+          "a": "Yes, as long as the tracker has data coverage. Many fleets use a SIM that supports roaming or a regional data plan. Tell us your routes when you request a quote."
+        },
+        {
+          "q": "Do you support motorcycle trackers for boda boda fleets?",
+          "a": "Compact motorcycle trackers are among the supported device types. Compatibility depends on the exact model, so check the Supported GPS Trackers page or ask us."
+        }
+      ],
+      "related": [
+        "gps-tracking-uganda",
+        "gps-tracking-ethiopia",
+        "gps-tracking-south-sudan"
+      ],
+      "image": "",
+      "image_alt": "Fleet vehicles on a road in Kenya"
     },
     {
       "slug": "gps-tracking-uganda",
       "name": "Uganda",
-      "title": "GPS Tracking Uganda | Vehicle & Fleet Tracking | ITrackZen",
-      "description": "GPS vehicle tracking and fleet management in Uganda. ITrackZen offers real-time tracking, fuel monitoring, AI dashcams and reports for businesses in Uganda.",
+      "title": "GPS Tracking Uganda | Fleet & Boda Boda Tracking | ITrackZen",
+      "description": "GPS tracking for Uganda: real-time vehicle tracking for trucks in transit, buses, courier vans and boda boda fleets, with fuel and driver monitoring from I.",
       "keywords": "GPS tracking Uganda, vehicle tracking Uganda, fleet management Uganda, truck tracking Uganda, ITrackZen Uganda",
       "h1": "GPS Tracking & Fleet Management in Uganda",
-      "intro": [
-        "ITrackZen helps businesses in Uganda monitor vehicles, trucks, motorcycles and assets in real time. Our platform combines live GPS tracking, fuel monitoring, driver safety and AI dashcam video so you can run your fleet with confidence.",
-        "Ugandan companies use ITrackZen for truck and transit visibility, compact motorcycle trackers for boda-boda and delivery riders, and reports that keep costs under control."
-      ],
+      "hero_text": "GPS tracking for Uganda: real-time vehicle tracking for trucks in transit, buses, courier vans and boda boda fleets, with fuel and driver monitoring from ITrackZen.",
+      "snapshot": "Uganda is landlocked, so most imports and exports travel hundreds of kilometres by road from Mombasa or Dar es Salaam. At the same time Kampala and its surrounding towns depend on boda boda motorcycles, taxis and delivery vans. Fleet operators here need visibility on long transit legs and discipline in dense city traffic.",
       "cities": [
         "Kampala",
         "Entebbe",
@@ -79,28 +92,73 @@
         "Mbarara",
         "Mbale"
       ],
-      "sectors": [
-        "Freight and transit trucking",
-        "Boda-boda and motorcycle fleets",
-        "Delivery and courier",
-        "NGO and project vehicles",
-        "Bus and passenger transport",
-        "Fuel distribution"
+      "corridors": "Northern Corridor via Malaba and Busia, the Kampala to Gulu and Elegu route towards South Sudan, and western routes towards Rwanda and DR Congo.",
+      "use_cases": [
+        {
+          "title": "Transit and cross-border trucks",
+          "text": "See where each truck is between border posts and your depot, and use border and warehouse geofences to track waiting times."
+        },
+        {
+          "title": "Boda boda and rider fleets",
+          "text": "Install small, tamper-resistant trackers on motorcycles to check routes, stops and after-hours use for rider-based businesses."
+        },
+        {
+          "title": "NGO and project vehicles",
+          "text": "Give programme managers a clear record of trips, mileage and fuel for vehicles working in different districts."
+        },
+        {
+          "title": "Bus and staff transport",
+          "text": "Monitor speed and route compliance for school, staff and long-distance coach services."
+        }
       ],
-      "corridor": "Northern Corridor routes linking Kenya, Uganda, Rwanda and DR Congo",
-      "extra": "Fuel monitoring and after-hours alerts help owners reduce waste and unauthorised use."
+      "connectivity": "Trackers need a data SIM from a local network such as MTN Uganda or Airtel Uganda. Coverage is good around Kampala and main highways, and reduced in some rural areas and national parks.",
+      "steps": [
+        {
+          "title": "Pick the right device",
+          "text": "Tell us whether you track trucks, motorbikes or cars so we can suggest a suitable tracker type."
+        },
+        {
+          "title": "Send an enquiry",
+          "text": "Request a quote with your fleet size and routes. We confirm compatibility and how supply and installation can be organised."
+        },
+        {
+          "title": "Go live",
+          "text": "After activation you sign in at itrackzen.com to follow vehicles, receive alerts and run reports."
+        }
+      ],
+      "conditions": [
+        "Installation capacity in Uganda is confirmed per request. We do not assume local installation teams.",
+        "A data SIM with credit is required in every tracker.",
+        "Features such as fuel monitoring or engine cut-off depend on device model and correct installation."
+      ],
+      "partners": "Ugandan transport companies, vehicle importers, security companies and electronics installers are welcome to contact us about reseller and installation partnerships, as are corporate fleets interested in a trial.",
+      "faq": [
+        {
+          "q": "Can I track boda boda motorcycles?",
+          "a": "Yes, compact motorcycle trackers are supported. Choose a model from the supported list or ask us to check one you already own."
+        },
+        {
+          "q": "Is tracking possible on the Northern Corridor?",
+          "a": "Tracking works wherever the device has mobile data. Positions are stored on the tracker during signal gaps and uploaded when it reconnects."
+        }
+      ],
+      "related": [
+        "gps-tracking-kenya",
+        "gps-tracking-south-sudan",
+        "gps-tracking-dr-congo"
+      ],
+      "image": "",
+      "image_alt": "Fleet vehicles on a road in Uganda"
     },
     {
       "slug": "gps-tracking-ethiopia",
       "name": "Ethiopia",
-      "title": "GPS Tracking Ethiopia | Vehicle & Fleet Tracking | ITrackZen",
-      "description": "GPS vehicle tracking and fleet management in Ethiopia. ITrackZen offers real-time tracking, fuel monitoring, AI dashcams and reports for businesses in Ethiopia.",
+      "title": "GPS Tracking Ethiopia | Logistics & Fleet Tracking | ITrackZen",
+      "description": "Vehicle tracking and fleet management for Ethiopia: follow trucks on the Djibouti corridor, manage company fleets and add fuel, driver and camera monitorin.",
       "keywords": "GPS tracking Ethiopia, vehicle tracking Ethiopia, fleet management Ethiopia, truck tracking Ethiopia, ITrackZen Ethiopia",
       "h1": "GPS Tracking & Fleet Management in Ethiopia",
-      "intro": [
-        "ITrackZen helps businesses in Ethiopia monitor vehicles, trucks, motorcycles and assets in real time. Our platform combines live GPS tracking, fuel monitoring, driver safety and AI dashcam video so you can run your fleet with confidence.",
-        "Ethiopia's size and busy freight corridors reward strong route control. ITrackZen provides route history, geofencing, fuel monitoring and driver ID for transport and logistics operators."
-      ],
+      "hero_text": "Vehicle tracking and fleet management for Ethiopia: follow trucks on the Djibouti corridor, manage company fleets and add fuel, driver and camera monitoring with ITrackZen.",
+      "snapshot": "Ethiopia has no coastline, and most foreign trade moves by road between Addis Ababa and the port of Djibouti through Adama and Dire Dawa. This makes freight visibility, fuel control and driver monitoring especially valuable for transport and logistics companies, while Addis Ababa fleets need tools for staff transport, ride services and delivery.",
       "cities": [
         "Addis Ababa",
         "Dire Dawa",
@@ -109,28 +167,148 @@
         "Bahir Dar",
         "Mekelle"
       ],
-      "sectors": [
-        "Import and export logistics",
-        "Public and staff transport",
-        "Construction and mining",
-        "Government and NGO fleets",
-        "Fuel and cargo tankers",
-        "Taxi and ride services"
+      "corridors": "The Addis Ababa, Adama, Dire Dawa and Djibouti corridor, plus routes towards Hawassa in the south and the northern regions.",
+      "use_cases": [
+        {
+          "title": "Import and export freight",
+          "text": "Track trucks between the port, dry ports and warehouses, review stops and measure round-trip times."
+        },
+        {
+          "title": "Fuel and cargo tankers",
+          "text": "Where compatible sensors are fitted, monitor fuel level and unusual drops, and restrict vehicles to approved routes."
+        },
+        {
+          "title": "Staff and school transport",
+          "text": "Give transport managers live location, speed alerts and trip history for buses and minibuses."
+        },
+        {
+          "title": "Ride and delivery services",
+          "text": "Use trip history and driver ID to settle disputes and keep service quality consistent."
+        }
       ],
-      "corridor": "Djibouti to Addis Ababa and other major freight corridors",
-      "extra": "Multi-branch structures let head offices see every region while local supervisors manage their own vehicles."
+      "connectivity": "Trackers need a data SIM from a local operator such as Ethio Telecom or Safaricom Ethiopia. Network availability and import rules for electronic devices can affect how quickly hardware can be supplied, so we confirm both during the quote.",
+      "steps": [
+        {
+          "title": "Check your devices",
+          "text": "Share the models you already use or describe your vehicles, and we confirm which trackers fit."
+        },
+        {
+          "title": "Request a quote",
+          "text": "We advise on hardware supply options, SIM and installation for your location before you commit."
+        },
+        {
+          "title": "Start monitoring",
+          "text": "Sign in to the platform at itrackzen.com when your devices are reporting."
+        }
+      ],
+      "conditions": [
+        "Customs, import and installation arrangements are confirmed per request.",
+        "Data coverage and SIM availability influence how well a tracker reports on remote stretches.",
+        "Camera and video features depend on the specific dashcam model and network bandwidth."
+      ],
+      "partners": "We welcome enquiries from Ethiopian logistics firms, vehicle technology resellers and corporate fleets that would like to cooperate or pilot ITrackZen, subject to local requirements.",
+      "faq": [
+        {
+          "q": "Can ITrackZen follow trucks to Djibouti?",
+          "a": "Yes, tracking continues across borders as long as the device has data coverage. A cross-border data plan is recommended; we can advise when you request a quote."
+        },
+        {
+          "q": "Can I use a tracker I already have?",
+          "a": "Very likely if it uses a supported protocol. Send us the model and we will confirm."
+        }
+      ],
+      "related": [
+        "gps-tracking-kenya",
+        "gps-tracking-somalia",
+        "gps-tracking-south-sudan"
+      ],
+      "image": "",
+      "image_alt": "Fleet vehicles on a road in Ethiopia"
+    },
+    {
+      "slug": "gps-tracking-somalia",
+      "name": "Somalia",
+      "title": "GPS Tracking Somalia | Vehicle & Security Tracking | ITrackZen",
+      "description": "GPS tracking for Somalia: live vehicle tracking, geofencing, SOS alerts and reports for transport, security and humanitarian fleets, with ITrackZen.",
+      "keywords": "GPS tracking Somalia, vehicle tracking Somalia, fleet management Somalia, truck tracking Somalia, ITrackZen Somalia",
+      "h1": "GPS Tracking & Fleet Management in Somalia",
+      "hero_text": "GPS tracking for Somalia: live vehicle tracking, geofencing, SOS alerts and reports for transport, security and humanitarian fleets, with ITrackZen.",
+      "snapshot": "Operating vehicles in Somalia means long distances, varied road conditions and a strong need to know where drivers and cargo are. Ports at Mogadishu, Berbera, Bosaso and Kismayo feed inland trucking, while security companies, NGOs and fuel distributors depend on dependable location data and fast alerts.",
+      "cities": [
+        "Mogadishu",
+        "Hargeisa",
+        "Bosaso",
+        "Kismayo",
+        "Garowe",
+        "Baidoa"
+      ],
+      "corridors": "Port-to-city and inter-regional routes, including links from Berbera towards Hargeisa and Ethiopia.",
+      "use_cases": [
+        {
+          "title": "Trucking from the ports",
+          "text": "Follow cargo leaving Mogadishu, Berbera, Bosaso and Kismayo and review stops, speed and route history."
+        },
+        {
+          "title": "Security and escort vehicles",
+          "text": "Use SOS alerts, geofenced zones and live location to coordinate patrols and escorts from a control room."
+        },
+        {
+          "title": "Humanitarian and project fleets",
+          "text": "Keep an auditable record of trips, mileage and fuel for vehicles serving programmes in different regions."
+        },
+        {
+          "title": "Fuel distribution",
+          "text": "Monitor tanker routes and, with compatible sensors, fuel level and unusual drops."
+        }
+      ],
+      "connectivity": "Trackers need a data SIM from a local mobile operator such as Hormuud, Telesom or Golis, and coverage varies by region. Devices keep positions in memory when signal is lost and upload them once they reconnect.",
+      "steps": [
+        {
+          "title": "Describe your operation",
+          "text": "Tell us your vehicle types, regions and what must be monitored."
+        },
+        {
+          "title": "Get a quote",
+          "text": "We confirm supported hardware and discuss how supply and installation can be arranged for your location before any commitment."
+        },
+        {
+          "title": "Activate and track",
+          "text": "Sign in at itrackzen.com on web or mobile when your trackers report."
+        }
+      ],
+      "conditions": [
+        "We do not assume local installers or stock in Somalia. Supply and installation are confirmed in each quote.",
+        "Real-time tracking needs mobile data coverage; remote areas may report with delay.",
+        "Sensitive operations should use appropriate hardware concealment and access control, which we can discuss."
+      ],
+      "partners": "Somali transport companies, security firms and technology resellers can contact us about installation and reseller partnerships, and about corporate cooperation.",
+      "faq": [
+        {
+          "q": "Does tracking work without a signal?",
+          "a": "The tracker records positions while offline and sends them when coverage returns, so your route history stays complete, although live updates pause during the gap."
+        },
+        {
+          "q": "Can drivers send an emergency alert?",
+          "a": "Where the tracker has a panic or SOS input and a button is installed, an SOS event can raise an alert in the platform."
+        }
+      ],
+      "related": [
+        "gps-tracking-kenya",
+        "gps-tracking-ethiopia",
+        "gps-tracking-south-sudan"
+      ],
+      "image": "",
+      "image_alt": "Fleet vehicles on a road in Somalia"
     },
     {
       "slug": "gps-tracking-south-sudan",
       "name": "South Sudan",
-      "title": "GPS Tracking South Sudan | Vehicle & Fleet Tracking | ITrackZen",
-      "description": "GPS vehicle tracking and fleet management in South Sudan. ITrackZen offers real-time tracking, fuel monitoring, AI dashcams and reports for businesses in South Sudan.",
+      "title": "GPS Tracking South Sudan | Fleet & Logistics | ITrackZen",
+      "description": "Vehicle tracking for South Sudan: live GPS location, geofences, SOS alerts and trip reports for logistics, humanitarian and project fleets with ITrackZen.",
       "keywords": "GPS tracking South Sudan, vehicle tracking South Sudan, fleet management South Sudan, truck tracking South Sudan, ITrackZen South Sudan",
       "h1": "GPS Tracking & Fleet Management in South Sudan",
-      "intro": [
-        "ITrackZen helps businesses in South Sudan monitor vehicles, trucks, motorcycles and assets in real time. Our platform combines live GPS tracking, fuel monitoring, driver safety and AI dashcam video so you can run your fleet with confidence.",
-        "Challenging roads and long supply lines make accurate tracking, SOS alerts and geofenced safe zones essential. ITrackZen helps operators in South Sudan stay informed about where their vehicles are and how they are being driven."
-      ],
+      "hero_text": "Vehicle tracking for South Sudan: live GPS location, geofences, SOS alerts and trip reports for logistics, humanitarian and project fleets with ITrackZen.",
+      "snapshot": "Supplies for Juba and other South Sudanese centres travel long distances from Uganda and Kenya, often over roads that become difficult in the rainy season. Fleets in this setting benefit from reliable route history, geofenced safe zones, fuel control and clear records for donors and partners.",
       "cities": [
         "Juba",
         "Wau",
@@ -139,28 +317,73 @@
         "Bor",
         "Torit"
       ],
-      "sectors": [
-        "Humanitarian logistics",
-        "Cross-border trucking",
-        "Security and escort vehicles",
-        "Construction and oil-field support",
-        "Government fleets",
-        "Fuel supply"
+      "corridors": "Routes from Uganda through Elegu and Nimule to Juba, and from Kenya towards Juba, with onward legs to regional towns.",
+      "use_cases": [
+        {
+          "title": "Humanitarian and NGO logistics",
+          "text": "Provide trip logs, mileage and fuel records that support programme reporting and accountability."
+        },
+        {
+          "title": "Long-haul supply trucks",
+          "text": "Follow convoys from border crossings to depots in Juba and beyond and review delays and stops."
+        },
+        {
+          "title": "Project and construction vehicles",
+          "text": "Detect after-hours movement and control fuel use on remote sites."
+        },
+        {
+          "title": "Security and escort teams",
+          "text": "Coordinate vehicles with live location and SOS alerts."
+        }
       ],
-      "corridor": "Routes from Uganda and Kenya into Juba and onward to regional centres",
-      "extra": "Rugged trackers, backup power options and offline data storage help maintain visibility in difficult conditions."
+      "connectivity": "Mobile networks such as MTN and Zain operate in main towns, and coverage thins quickly outside them. Trackers buffer data offline, but live visibility depends on signal, so plan routes and SIM options with us.",
+      "steps": [
+        {
+          "title": "Share your routes",
+          "text": "Tell us where vehicles operate so we can assess data coverage and choose suitable devices."
+        },
+        {
+          "title": "Request a quote",
+          "text": "We confirm hardware, SIM and installation options. Availability in South Sudan is checked case by case."
+        },
+        {
+          "title": "Monitor from anywhere",
+          "text": "Managers can follow vehicles from any location by signing in to itrackzen.com."
+        }
+      ],
+      "conditions": [
+        "Hardware delivery and installation logistics are confirmed per project.",
+        "Coverage outside main towns can be limited, so positions may upload late.",
+        "We do not claim a local office or installation team in South Sudan."
+      ],
+      "partners": "NGOs, logistics companies, technology resellers and installers working in South Sudan are welcome to contact us about partnerships and corporate programmes.",
+      "faq": [
+        {
+          "q": "Can I follow a truck from the Ugandan border to Juba?",
+          "a": "Yes, provided the tracker has data on both networks. Use a SIM plan suited to cross-border use and tell us your route when you request a quote."
+        },
+        {
+          "q": "Can monitoring help with donor reporting?",
+          "a": "Trip, mileage and fuel reports can be exported to support your own reporting. Report content depends on devices and sensors installed."
+        }
+      ],
+      "related": [
+        "gps-tracking-uganda",
+        "gps-tracking-kenya",
+        "gps-tracking-dr-congo"
+      ],
+      "image": "",
+      "image_alt": "Fleet vehicles on a road in South Sudan"
     },
     {
       "slug": "gps-tracking-dr-congo",
       "name": "DR Congo",
-      "title": "GPS Tracking DR Congo | Vehicle & Fleet Tracking | ITrackZen",
-      "description": "GPS vehicle tracking and fleet management in DR Congo. ITrackZen offers real-time tracking, fuel monitoring, AI dashcams and reports for businesses in DR Congo.",
+      "title": "GPS Tracking DR Congo | Long-Haul Fleets | ITrackZen",
+      "description": "GPS tracking for DR Congo: monitor trucks, buses and project vehicles across vast distances with live location, fuel control and reports from ITrackZen.",
       "keywords": "GPS tracking DR Congo, vehicle tracking DR Congo, fleet management DR Congo, truck tracking DR Congo, ITrackZen DR Congo",
       "h1": "GPS Tracking & Fleet Management in DR Congo",
-      "intro": [
-        "ITrackZen helps businesses in DR Congo monitor vehicles, trucks, motorcycles and assets in real time. Our platform combines live GPS tracking, fuel monitoring, driver safety and AI dashcam video so you can run your fleet with confidence.",
-        "With vast distances and demanding routes, DR Congo fleets benefit from live tracking, fuel control, engine-hours based maintenance and clear reports. ITrackZen supports trucks, buses, light vehicles and equipment."
-      ],
+      "hero_text": "GPS tracking for DR Congo: monitor trucks, buses and project vehicles across vast distances with live location, fuel control and reports from ITrackZen.",
+      "snapshot": "The Democratic Republic of the Congo is vast, and its freight routes from Lubumbashi and Kolwezi to southern Africa and East African ports cover long, demanding distances. Fleets also operate in and around Kinshasa, Goma and Kisangani. Accurate tracking, fuel control and maintenance planning matter when vehicles are far from workshops.",
       "cities": [
         "Kinshasa",
         "Lubumbashi",
@@ -169,16 +392,64 @@
         "Kolwezi",
         "Bukavu"
       ],
-      "sectors": [
-        "Mining and heavy haulage",
-        "Cross-border freight",
-        "NGO and project fleets",
-        "Passenger and staff transport",
-        "Security companies",
-        "Fuel and bulk cargo"
+      "corridors": "Routes from the Katanga mining region through Kasumbalesa and onward, links from Goma towards Uganda and Rwanda, and the Matadi to Kinshasa road.",
+      "use_cases": [
+        {
+          "title": "Mining and heavy haulage",
+          "text": "Track haul trucks and convoys, monitor stops and idle time and schedule maintenance by distance or engine hours."
+        },
+        {
+          "title": "Cross-border freight",
+          "text": "Follow cargo from Lubumbashi towards Zambia and beyond, with border geofences and dwell-time reports."
+        },
+        {
+          "title": "Project and NGO vehicles",
+          "text": "Keep trip and fuel records for vehicles spread across provinces."
+        },
+        {
+          "title": "Urban fleets",
+          "text": "Use fleet dashboards for staff transport, taxis and delivery in Kinshasa and Lubumbashi."
+        }
       ],
-      "corridor": "Long-haul corridors linking the mining regions with regional ports and neighbouring countries",
-      "extra": "Role-based access and multi-branch structures help teams working across sites and provinces."
+      "connectivity": "Networks such as Vodacom, Airtel, Orange and Africell cover cities and main routes, while large rural areas have little or no coverage. Devices store data offline and upload it when they reconnect, and satellite-capable options can be discussed for critical assets.",
+      "steps": [
+        {
+          "title": "Define your coverage needs",
+          "text": "Tell us the provinces and routes you operate on so we can judge connectivity and suggest devices."
+        },
+        {
+          "title": "Request a quote",
+          "text": "We confirm hardware, plan and how supply and installation can be arranged for your location."
+        },
+        {
+          "title": "Operate and review",
+          "text": "Use the platform at itrackzen.com for live tracking, alerts and reports."
+        }
+      ],
+      "conditions": [
+        "Large areas may have no mobile coverage, so live updates can be delayed.",
+        "Supply and installation are confirmed per request. We do not assume local teams.",
+        "Satellite or specialised hardware, where needed, is quoted separately."
+      ],
+      "partners": "We welcome contact from Congolese transport and mining-services companies, technology resellers, installers and corporate fleets interested in cooperation.",
+      "faq": [
+        {
+          "q": "Is tracking possible in areas with poor coverage?",
+          "a": "A tracker can log positions without signal and upload them when it reconnects. Real-time visibility depends on coverage."
+        },
+        {
+          "q": "Can you help plan maintenance for heavy trucks?",
+          "a": "Maintenance reminders can be based on distance, engine hours or dates, where the device reports the needed data."
+        }
+      ],
+      "related": [
+        "gps-tracking-uganda",
+        "gps-tracking-kenya",
+        "gps-tracking-south-sudan"
+      ],
+      "image": "",
+      "image_alt": "Fleet vehicles on a road in DR Congo"
     }
-  ]
+  ],
+  "intro": "Choose your country to see how ITrackZen supports transport and logistics operators there. If your country is not listed, contact us. We expand only where we can genuinely support customers."
 }

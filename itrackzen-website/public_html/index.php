@@ -21,6 +21,9 @@ $routes = [
     '/pricing'                     => ['pricing', 'pricing'],
     '/demo'                        => ['demo', 'demo'],
     '/contact-sales'               => ['contact', 'contact'],
+    '/request-quote'               => ['quote', 'quote'],
+    '/partnerships'                => ['partners', 'partners'],
+    '/countries'                   => ['countries', 'countries'],
     '/faq'                         => ['faq', 'faq'],
     '/privacy-policy'              => ['legal', 'privacy'],
     '/terms-and-conditions'        => ['legal', 'terms'],
@@ -33,7 +36,7 @@ $aliases = [
     '/gps-tracking' => '/gps-tracking-services', '/trackers' => '/supported-gps-trackers', '/supported-trackers' => '/supported-gps-trackers',
     '/dashcam' => '/ai-dashcam-video-telematics', '/ai-dashcam' => '/ai-dashcam-video-telematics', '/video-telematics' => '/ai-dashcam-video-telematics',
     '/plans' => '/pricing', '/privacy' => '/privacy-policy', '/terms' => '/terms-and-conditions', '/terms-of-service' => '/terms-and-conditions',
-    '/request-demo' => '/demo', '/fleet' => '/fleet-management', '/delete' => '/delete-account', '/account-deletion' => '/delete-account',
+    '/request-demo' => '/demo', '/fuel' => '/fuel-monitoring', '/driver-safety' => '/driver-behaviour-safety', '/alerts' => '/alerts-geofencing-reports', '/partners' => '/partnerships', '/quote' => '/request-quote', '/get-started' => '/request-quote', '/support' => '/faq', '/fleet' => '/fleet-management', '/delete' => '/delete-account', '/account-deletion' => '/delete-account',
 ];
 if (isset($aliases[$path])) { header('Location: ' . $aliases[$path], true, 301); exit; }
 if ($_SERVER['REQUEST_URI'] !== '/' && preg_match('#^[^?]*/(\?.*)?$#', $_SERVER['REQUEST_URI']) && $path !== '/') {
@@ -43,6 +46,7 @@ if ($path === '/delete-account/verify') { require __DIR__ . '/pages/delete-verif
 if (!in_array($_SERVER['REQUEST_METHOD'] ?? 'GET', ['GET', 'HEAD'], true)) { http_response_code(405); header('Allow: GET, HEAD'); exit; }
 
 $slug = ltrim($path, '/');
+if (isset(data('features')['pages'][$slug])) { $FEATURE_SLUG = $slug; require __DIR__ . '/pages/feature.php'; exit; }
 
 if (isset($routes[$path])) {
     [$file, $key] = $routes[$path];

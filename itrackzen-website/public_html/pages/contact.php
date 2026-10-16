@@ -4,11 +4,11 @@ set_breadcrumbs([['Contact Sales', '/contact-sales']]);
 $wa = wa_link('Hello ITrackZen, I would like to speak to sales.');
 add_ld(['@type' => 'ContactPage', 'name' => 'Contact ITrackZen Sales', 'url' => abs_url('/contact-sales')]);
 layout_start(['title' => $m['title'], 'description' => $m['description'], 'keywords' => $m['keywords'], 'path' => '/contact-sales']);
-page_hero($m['h1'], 'Tell us about your fleet and we will recommend the right tracking setup. Most enquiries receive a response within one business day.', 'Contact Sales');
+page_hero($m['h1'], 'Tell us about your fleet and we will recommend the right tracking setup. We reply by email or WhatsApp.', 'Contact Sales');
 ?>
 <section class="section">
   <div class="container form-layout">
-    <div class="form-card reveal" id="form"><h2>Send a business inquiry</h2><p class="muted">Your message goes directly to our sales team.</p><?php render_form('sales'); ?></div>
+    <div class="form-card reveal" id="form"><h2>Send a business inquiry</h2><p class="muted">Your message goes directly to our sales team.</p><?php render_form('contact'); ?></div>
     <aside class="side reveal">
       <div class="card contact-card"><h3>Talk to us directly</h3>
         <ul class="contact-list">
@@ -23,8 +23,8 @@ page_hero($m['h1'], 'Tell us about your fleet and we will recommend the right tr
           <a class="btn btn-outline btn-block" href="<?= e(mailto(site('emails.info'), 'ITrackZen enquiry')) ?>"><?= icon('mail') ?>Email Info</a>
         </div>
       </div>
-      <div class="card biz"><h3>Business inquiry?</h3><p>Resellers, installers, distributors and enterprise fleets: tell us about your project and we will arrange a call with the right specialist.</p><a class="more" href="/demo">Or request a live demo <?= icon('arrow') ?></a></div>
-      <div class="card"><h3>Existing customer?</h3><p>Sign in to your fleet account.</p><a class="btn btn-outline btn-block" href="<?= e(site('client_login_url')) ?>" rel="noopener"><?= icon('login') ?>Client Login</a></div>
+      <div class="card biz"><h3>Business inquiry?</h3><p>Resellers, installers, distributors and enterprise fleets: use the partnership form and we will route it to the right person.</p><a class="more" href="/partnerships">Partnership enquiry <?= icon('arrow') ?></a></div>
+      <div class="card"><h3>Existing customer?</h3><p>Sign in to your fleet account.</p><a class="btn btn-outline btn-block" href="<?= e(platform_url('login')) ?>" rel="noopener"><?= icon('login') ?>Client Login</a></div>
     </aside>
   </div>
 </section>

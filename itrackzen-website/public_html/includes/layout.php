@@ -19,7 +19,7 @@ function ld_org(): array
     $org = [
         '@type' => 'Organization', '@id' => $url . '/#organization',
         'name' => $brand, 'legalName' => site('company'), 'alternateName' => ['ITrackZen GPS', 'LibDex GPS Tracking'],
-        'url' => $url . '/', 'logo' => abs_url('/assets/img/logo-512.png'),
+        'url' => $url . '/', 'logo' => abs_url(brand_asset('icon512')),
         'slogan' => site('tagline'),
         'description' => 'ITrackZen is the GPS tracking, fleet management and AI dashcam brand of LibDex Ltd, serving businesses in Africa and worldwide.',
         'parentOrganization' => ['@type' => 'Organization', 'name' => site('company')],
@@ -49,8 +49,7 @@ function ld_local(): array
         'image' => abs_url(site('og_image', '/assets/img/og-image.png')),
         'email' => site('emails.sales'), 'priceRange' => 'Contact for quote',
         'description' => 'GPS tracking, fleet management, fuel monitoring and AI dashcam solutions for businesses in Africa and worldwide.',
-        'areaServed' => ld_area(), 'parentOrganization' => ['@id' => base_url() . '/#organization'],
-        'openingHoursSpecification' => [['@type' => 'OpeningHoursSpecification', 'dayOfWeek' => ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'], 'opens' => '00:00', 'closes' => '23:59']],
+        'areaServed' => ld_area(), 'parentOrganization' => ['@id' => base_url() . '/#organization']
     ];
     if (site('phone')) { $b['telephone'] = site('phone'); }
     if (site('address') || site('locality')) {
@@ -112,7 +111,9 @@ function layout_start(array $m): void
     $canon = abs_url($m['path'] ?? request_path());
     $img = abs_url($m['image'] ?? site('og_image', '/assets/img/og-image.png'));
     $robots = !empty($m['noindex']) ? 'noindex, nofollow' : 'index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1';
-    $graph = [ld_org(), ld_local(), ['@type' => 'WebSite', '@id' => base_url() . '/#website', 'url' => base_url() . '/', 'name' => $brand, 'publisher' => ['@id' => base_url() . '/#organization'], 'inLanguage' => 'en']];
+    $graph = [ld_org()];
+    if (site('address') || site('locality')) { $graph[] = ld_local(); }
+    $graph[] = ['@type' => 'WebSite', '@id' => base_url() . '/#website', 'url' => base_url() . '/', 'name' => $brand, 'publisher' => ['@id' => base_url() . '/#organization'], 'inLanguage' => 'en'];
     if (($m['path'] ?? '') === '/') { $graph[] = ld_software(); }
     if ($bc = ld_breadcrumbs()) { $graph[] = $bc; }
     foreach ($GLOBALS['PAGE']['jsonld'] as $n) { $graph[] = $n; }
@@ -133,8 +134,6 @@ function layout_start(array $m): void
 <meta name="author" content="<?= e(site('company')) ?>">
 <meta name="theme-color" content="#0a1f44">
 <link rel="canonical" href="<?= e($canon) ?>">
-<link rel="alternate" hreflang="en" href="<?= e($canon) ?>">
-<link rel="alternate" hreflang="x-default" href="<?= e($canon) ?>">
 <meta property="og:type" content="<?= e($m['og_type'] ?? 'website') ?>">
 <meta property="og:site_name" content="<?= e($brand) ?>">
 <meta property="og:title" content="<?= e($title) ?>">
@@ -148,9 +147,9 @@ function layout_start(array $m): void
 <meta name="twitter:title" content="<?= e($title) ?>">
 <meta name="twitter:description" content="<?= e($desc) ?>">
 <meta name="twitter:image" content="<?= e($img) ?>">
+<link rel="icon" href="<?= e(brand_asset('favicon32')) ?>" sizes="32x32" type="image/png">
 <link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
-<link rel="icon" href="/assets/img/favicon-32.png" sizes="32x32" type="image/png">
-<link rel="apple-touch-icon" href="/assets/img/apple-touch-icon.png">
+<link rel="apple-touch-icon" href="<?= e(brand_asset('apple')) ?>">
 <link rel="manifest" href="/site.webmanifest">
 <link rel="stylesheet" href="<?= e(asset('assets/css/style.css')) ?>">
 <script>document.documentElement.className='js';</script>
@@ -161,6 +160,7 @@ function layout_start(array $m): void
 </head>
 <body class="<?= e($GLOBALS['PAGE']['body_class']) ?>">
 <a class="skip-link" href="#main">Skip to content</a>
+<div class="topbar"><div class="container"><span>ITrackZen business website &middot; <?= e(site('company')) ?></span><span class="tb-links"><span class="tb-note">Tracking platform:</span> <a href="<?= e(platform_url('login')) ?>" rel="noopener">Client Login</a><a href="<?= e(platform_url('demo')) ?>" target="_blank" rel="noopener">Try the Demo</a><a href="<?= e(platform_url('base')) ?>" rel="noopener">itrackzen.com</a></span></div></div>
 <?php layout_header(); ?>
 <main id="main">
 <?php
@@ -178,7 +178,7 @@ function layout_header(): void
     ?>
 <header class="site-header" id="top">
   <div class="container nav-wrap">
-    <a class="brand" href="/" aria-label="<?= e(site('brand')) ?> home"><img src="/assets/img/logo.svg" width="196" height="44" alt="<?= e(site('brand')) ?> GPS tracking by <?= e(site('company')) ?>"></a>
+    <a class="brand" href="/" aria-label="iTrackzen home"><img src="<?= e(brand_asset('logo')) ?>" height="44" alt="iTrackzen by <?= e(site('company')) ?>"></a>
     <button class="nav-toggle" type="button" aria-controls="primary-nav" aria-expanded="false" aria-label="Open menu"><?= icon('menu') ?><?= icon('close') ?></button>
     <nav id="primary-nav" class="primary-nav" aria-label="Primary">
       <ul class="nav-list">
@@ -196,8 +196,8 @@ function layout_header(): void
 <?php endforeach; ?>
       </ul>
       <div class="nav-cta">
-        <a class="btn btn-ghost btn-sm" href="<?= e(site('client_login_url')) ?>" rel="noopener"><?= icon('login') ?>Client Login</a>
-        <a class="btn btn-primary btn-sm" href="/contact-sales">Contact Sales</a>
+        <a class="btn btn-ghost btn-sm" href="<?= e(platform_url('login')) ?>" rel="noopener"><?= icon('login') ?>Client Login</a>
+        <a class="btn btn-primary btn-sm" href="/request-quote">Request a Quote</a>
       </div>
     </nav>
   </div>
@@ -215,8 +215,8 @@ function layout_end(): void
 <footer class="site-footer">
   <div class="container footer-grid">
     <div class="f-brand">
-      <img src="/assets/img/logo-light.svg" width="196" height="44" alt="<?= e(site('brand')) ?> logo">
-      <p><?= e(site('brand')) ?> is a <strong><?= e(site('tagline')) ?></strong> by <?= e(site('company')) ?>. GPS tracking, fleet management and AI dashcams for Africa and global businesses.</p>
+      <img src="<?= e(brand_asset('logo_light')) ?>" height="44" alt="iTrackzen logo">
+      <p>This is the <?= e(site('brand')) ?> business website by <?= e(site('company')) ?>. Our tracking platform is at <a href="<?= e(platform_url('base')) ?>" rel="noopener"><?= e(preg_replace('#^https?://#', '', platform_url('base'))) ?></a>.</p>
       <ul class="f-contact">
         <li><?= icon('mail') ?><a href="<?= e(mailto($sales)) ?>"><?= e($sales) ?></a></li>
         <li><?= icon('mail') ?><a href="<?= e(mailto($info)) ?>"><?= e($info) ?></a></li>
@@ -227,20 +227,27 @@ function layout_end(): void
     <div><h3>Services</h3><ul>
       <li><a href="/gps-tracking-services">GPS Tracking Services</a></li>
       <li><a href="/fleet-management">Fleet Management</a></li>
-      <li><a href="/ai-dashcam-video-telematics">AI Dashcam &amp; Video Telematics</a></li>
+      <li><a href="/ai-dashcam-video-telematics">AI Dashcam &amp; Video</a></li>
+      <li><a href="/fuel-monitoring">Fuel Monitoring</a></li>
+      <li><a href="/driver-behaviour-safety">Driver Behaviour &amp; Safety</a></li>
+      <li><a href="/alerts-geofencing-reports">Alerts, Geofencing &amp; Reports</a></li>
       <li><a href="/supported-gps-trackers">Supported GPS Trackers</a></li>
-      <li><a href="/solutions">Solutions</a></li>
-      <li><a href="/pricing">Pricing &amp; Plans</a></li>
+      <li><a href="/solutions">Industries &amp; Solutions</a></li>
+      <li><a href="/pricing">Plans &amp; Pricing</a></li>
     </ul></div>
     <div><h3>Company</h3><ul>
       <li><a href="/about-us">About Us</a></li>
-      <li><a href="/demo">Request a Demo</a></li>
-      <li><a href="/contact-sales">Contact Sales</a></li>
-      <li><a href="/faq">FAQ</a></li>
+      <li><a href="/partnerships">Partnerships</a></li>
+      <li><a href="/request-quote">Request a Quote</a></li>
+      <li><a href="/contact-sales">Contact</a></li>
+      <li><a href="/faq">FAQ &amp; Support</a></li>
       <li><a href="/blog">Blog</a></li>
-      <li><a href="<?= e(site('client_login_url')) ?>" rel="noopener">Client Login</a></li>
+      <li><a href="<?= e(platform_url('login')) ?>" rel="noopener">Client Login</a></li>
+      <li><a href="<?= e(platform_url('demo')) ?>" target="_blank" rel="noopener">Try the Demo</a></li>
+<?php if (platform_url('register')): ?>      <li><a href="<?= e(platform_url('register')) ?>" rel="noopener">Register</a></li>
+<?php endif; ?>
     </ul></div>
-    <div><h3>Regions</h3><ul>
+    <div><h3><a href="/countries" style="color:inherit">Countries</a></h3><ul>
 <?php foreach ($countries as $c): ?>
       <li><a href="/<?= e($c['slug']) ?>">GPS Tracking <?= e($c['name']) ?></a></li>
 <?php endforeach; ?>
@@ -323,8 +330,8 @@ function cta_band(string $title = '', string $text = ''): void
   <div class="container cta-inner reveal">
     <div><h2><?= e($title) ?></h2><p><?= e($text) ?></p></div>
     <div class="cta-actions">
-      <a class="btn btn-primary btn-lg" href="/contact-sales">Contact Sales</a>
-      <a class="btn btn-light btn-lg" href="/demo">Request Demo</a>
+      <a class="btn btn-primary btn-lg" href="/request-quote">Request a Quote</a>
+      <a class="btn btn-light btn-lg" href="<?= e(platform_url('demo')) ?>" target="_blank" rel="noopener">Try the Demo</a>
 <?php if ($wa): ?><a class="btn btn-wa btn-lg" href="<?= e($wa) ?>" target="_blank" rel="noopener"><?= icon('whatsapp') ?>WhatsApp</a><?php endif; ?>
       <a class="btn btn-outline-light btn-lg" href="<?= e(mailto(site('emails.sales'), 'ITrackZen enquiry')) ?>"><?= icon('mail') ?>Email Sales</a>
     </div>

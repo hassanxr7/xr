@@ -1,12 +1,11 @@
 {
-  "intro": "Choose the plan that matches your fleet today and upgrade as you grow. Every plan is quoted around your vehicles, devices and countries, so you only pay for what you need.",
-  "note": "Tracker hardware and installation can be quoted separately, or you can bring supported devices you already own. Contact Sales for current pricing.",
+  "intro": "Choose the plan that fits your fleet today. Prices are quoted for your vehicles, devices and countries, so you only pay for what you need. Plans show a price here only when an approved price has been published.",
+  "note": "Tracker hardware and installation are quoted separately, or you can bring supported devices you already own. Contact Sales for current pricing.",
   "plans": [
     {
       "name": "Starter",
       "tagline": "For small fleets and individual owners",
-      "price": "Get a quote",
-      "unit": "per vehicle / month",
+      "price": "",
       "highlight": false,
       "badge": "",
       "cta": "Contact Sales",
@@ -18,13 +17,17 @@
         "Daily, weekly and monthly reports",
         "Web dashboard and mobile access",
         "Email and WhatsApp support"
-      ]
+      ],
+      "currency": "",
+      "billing_period": "per vehicle / month",
+      "price_approved": false,
+      "active": true,
+      "description": "For small fleets and individual owners"
     },
     {
       "name": "Business",
       "tagline": "For growing companies that need control",
-      "price": "Get a quote",
-      "unit": "per vehicle / month",
+      "price": "",
       "highlight": true,
       "badge": "Most popular",
       "cta": "Contact Sales",
@@ -39,13 +42,17 @@
         "Advanced reports with scheduled exports",
         "Multiple users with role permissions",
         "Priority support"
-      ]
+      ],
+      "currency": "",
+      "billing_period": "per vehicle / month",
+      "price_approved": false,
+      "active": true,
+      "description": "For growing companies that need control"
     },
     {
       "name": "Enterprise",
       "tagline": "For large and multi-country operations",
-      "price": "Custom",
-      "unit": "tailored to your operation",
+      "price": "",
       "highlight": false,
       "badge": "",
       "cta": "Talk to Sales",
@@ -59,7 +66,12 @@
         "Guided onboarding and team training",
         "Dedicated account manager",
         "Service-level agreement options"
-      ]
+      ],
+      "currency": "",
+      "billing_period": "custom agreement",
+      "price_approved": false,
+      "active": true,
+      "description": "For large and multi-country operations"
     }
   ],
   "compare": [
@@ -143,5 +155,6 @@
     }
   ],
   "addons_heading": "Need hardware?",
-  "addons_text": "We can supply and install trackers, dashcams and sensors, or connect the devices you already own. Tell us your vehicle types and countries and we will recommend a setup."
+  "addons_text": "We can supply and install trackers, dashcams and sensors, or connect the devices you already own. Tell us your vehicle types and countries and we will recommend a setup.",
+  "compare_note": "Indicative feature comparison. Final inclusions are confirmed in your written quote."
 }

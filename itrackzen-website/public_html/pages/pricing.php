@@ -1,7 +1,7 @@
 <?php
 $m = page_meta('pricing'); $p = data('pricing');
 set_breadcrumbs([['Pricing', '/pricing']]);
-add_ld(ld_service('ITrackZen GPS Tracking Plans', $m['description'], '/pricing', array_map(fn($x) => $x['name'] . ' Plan', $p['plans'])));
+add_ld(ld_service('ITrackZen GPS Tracking Plans', $m['description'], '/pricing', array_map(fn($x) => $x['name'] . ' Plan', array_filter($p['plans'], fn($y) => ($y['active'] ?? true)))));
 add_ld(ld_faq(array_slice(data('faq')['items'], 3, 3)));
 layout_start(['title' => $m['title'], 'description' => $m['description'], 'keywords' => $m['keywords'], 'path' => '/pricing']);
 page_hero($m['h1'], $p['intro'], 'Pricing & Plans');
@@ -9,13 +9,15 @@ page_hero($m['h1'], $p['intro'], 'Pricing & Plans');
 <section class="section">
   <div class="container">
     <div class="plans">
-      <?php foreach ($p['plans'] as $pl): ?>
+      <?php foreach (array_filter($p['plans'], fn($x) => ($x['active'] ?? true)) as $pl): ?>
       <article class="plan reveal<?= !empty($pl['highlight']) ? ' hl' : '' ?>">
         <?php if (!empty($pl['badge'])): ?><span class="badge"><?= e($pl['badge']) ?></span><?php endif; ?>
         <h2><?= e($pl['name']) ?> Plan</h2>
         <p class="tag"><?= e($pl['tagline']) ?></p>
-        <p class="price"><strong><?= e($pl['price']) ?></strong><small><?= e($pl['unit']) ?></small></p>
-        <a class="btn <?= !empty($pl['highlight']) ? 'btn-primary' : 'btn-outline' ?> btn-block" href="<?= e($pl['href']) ?>?service=<?= rawurlencode('GPS vehicle tracking') ?>&amp;topic=<?= rawurlencode($pl['name'] . ' Plan') ?>"><?= e($pl['cta']) ?></a>
+        <?php $priced = !empty($pl['price_approved']) && trim((string)($pl['price'] ?? '')) !== ''; ?>
+        <p class="price"><strong><?= $priced ? e(trim(($pl['currency'] ?? '') . ' ' . $pl['price'])) : 'Contact Sales' ?></strong><small><?= $priced ? e($pl['billing_period'] ?? '') : 'for current pricing' ?></small></p>
+        <?php if (!empty($pl['description'])): ?><p class="plan-desc"><?= e($pl['description']) ?></p><?php endif; ?>
+        <a class="btn <?= !empty($pl['highlight']) ? 'btn-primary' : 'btn-outline' ?> btn-block" href="/request-quote?service=<?= rawurlencode('GPS vehicle tracking') ?>&amp;topic=<?= rawurlencode($pl['name'] . ' Plan') ?>"><?= e($pl['cta']) ?></a>
         <?php check_list($pl['features']); ?>
       </article>
       <?php endforeach; ?>
@@ -25,9 +27,9 @@ page_hero($m['h1'], $p['intro'], 'Pricing & Plans');
 </section>
 <section class="section alt">
   <div class="container narrow">
-    <?php section_head('Compare plans', 'What is included in each plan'); ?>
+    <?php section_head('Compare plans', 'What is included in each plan', $p['compare_note'] ?? ''); ?>
     <div class="table-wrap reveal"><table class="compare">
-      <thead><tr><th scope="col">Feature</th><?php foreach ($p['plans'] as $pl): ?><th scope="col"><?= e($pl['name']) ?></th><?php endforeach; ?></tr></thead>
+      <thead><tr><th scope="col">Feature</th><?php foreach (array_filter($p['plans'], fn($x) => ($x['active'] ?? true)) as $pl): ?><th scope="col"><?= e($pl['name']) ?></th><?php endforeach; ?></tr></thead>
       <tbody>
       <?php foreach ($p['compare'] as $r): ?>
         <tr><th scope="row"><?= e($r['feature']) ?></th>
@@ -41,7 +43,7 @@ page_hero($m['h1'], $p['intro'], 'Pricing & Plans');
 <section class="section">
   <div class="container split">
     <div class="split-copy reveal"><p class="eyebrow">Hardware &amp; installation</p><h2><?= e($p['addons_heading']) ?></h2><p><?= e($p['addons_text']) ?></p>
-      <div class="btn-row"><a class="btn btn-primary" href="/contact-sales?service=Tracker+hardware+%26+installation">Request hardware quote</a><a class="btn btn-outline" href="/supported-gps-trackers">Supported trackers</a></div></div>
+      <div class="btn-row"><a class="btn btn-primary" href="/request-quote?service=Tracker+hardware+%26+installation">Request hardware quote</a><a class="btn btn-outline" href="/supported-gps-trackers">Supported trackers</a></div></div>
     <div class="split-art reveal"><?= art_truck() ?></div>
   </div>
 </section>
