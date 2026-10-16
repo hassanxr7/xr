@@ -64,6 +64,24 @@ if (is_post()) {
     save_setting('sovamoney_secret_key', $smSecretKey);
     save_setting('sovamoney_gateway_id', (string) (int) input('sovamoney_gateway_id'));
 
+    $ndEnabled = empty($_POST['nebdex_enabled']) ? '0' : '1';
+    $ndMerchantId = mb_substr(input('nebdex_merchant_id'), 0, 60);
+    $ndPublicKey = mb_substr(input('nebdex_public_key'), 0, 60);
+    $ndSecretKeyInput = input('nebdex_secret_key');
+    $ndSecretKey = $ndSecretKeyInput !== '' ? mb_substr($ndSecretKeyInput, 0, 190) : setting('nebdex_secret_key');
+    if ($ndEnabled === '1' && ($ndMerchantId === '' || $ndPublicKey === '' || $ndSecretKey === '')) {
+        $ndEnabled = '0';
+        flash('error', t('a_err_nebdex_required'));
+    }
+    save_setting('nebdex_enabled', $ndEnabled);
+    save_setting('nebdex_merchant_id', $ndMerchantId);
+    save_setting('nebdex_public_key', $ndPublicKey);
+    save_setting('nebdex_secret_key', $ndSecretKey);
+    foreach (rows('SELECT id FROM gateways') as $g) {
+        $code = preg_replace('/[^0-9]/', '', input('nebdex_method_' . $g['id']));
+        save_setting('nebdex_method_' . $g['id'], $code);
+    }
+
     if (has_upload('logo')) {
         try {
             save_setting('logo', 'uploads/logos/' . store_image($_FILES['logo'], UPLOAD_PATH . '/logos', 1048576));
@@ -212,6 +230,30 @@ require APP_PATH . '/views/admin_header.php';
           <div class="help"><?= e(t('a_waafipay_api_key_help')) ?> <?= !empty($s['sovamoney_secret_key']) ? e(t('a_waafipay_key_saved')) : e(t('a_waafipay_key_missing')) ?></div>
         </div>
         <p class="help"><?= e(t('a_sovamoney_ipn_help', ['url' => full_url('sovamoney_ipn.php')])) ?></p>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-head"><h3><?= icon('bolt', 18) ?> <?= e(t('a_nebdex')) ?></h3></div>
+      <div class="card-body">
+        <p class="small muted"><?= e(t('a_nebdex_help')) ?></p>
+        <label class="check"><input type="checkbox" name="nebdex_enabled" value="1" <?= ($s['nebdex_enabled'] ?? '') === '1' ? 'checked' : '' ?>> <?= e(t('a_nebdex_enabled')) ?></label>
+        <div class="form-group mt-2"><label><?= e(t('a_nebdex_merchant_id')) ?></label><input class="input mono" name="nebdex_merchant_id" value="<?= $v('nebdex_merchant_id') ?>" autocomplete="off"></div>
+        <div class="form-group"><label><?= e(t('a_nebdex_public_key')) ?></label><input class="input mono" name="nebdex_public_key" value="<?= $v('nebdex_public_key') ?>" autocomplete="off"></div>
+        <div class="form-group">
+          <label><?= e(t('a_nebdex_secret_key')) ?></label>
+          <input class="input mono" type="password" name="nebdex_secret_key" placeholder="<?= !empty($s['nebdex_secret_key']) ? '••••••••••••' : '' ?>" autocomplete="off">
+          <div class="help"><?= e(t('a_waafipay_api_key_help')) ?> <?= !empty($s['nebdex_secret_key']) ? e(t('a_waafipay_key_saved')) : e(t('a_waafipay_key_missing')) ?></div>
+        </div>
+        <h4 class="mt-3"><?= e(t('a_nebdex_methods')) ?></h4>
+        <p class="help"><?= e(t('a_nebdex_methods_help')) ?></p>
+        <?php foreach ($gateways as $g): ?>
+        <div class="form-row">
+          <div class="form-group" style="flex:0 0 160px"><label><?= e($g['name']) ?></label></div>
+          <div class="form-group"><input class="input mono" name="nebdex_method_<?= (int) $g['id'] ?>" value="<?= e($s['nebdex_method_' . $g['id']] ?? '') ?>" placeholder="<?= e(t('a_nebdex_method_ph')) ?>" inputmode="numeric"></div>
+        </div>
+        <?php endforeach; ?>
+        <p class="help"><?= e(t('a_nebdex_ipn_help', ['url' => full_url('nebdex_ipn.php')])) ?></p>
       </div>
     </div>
 

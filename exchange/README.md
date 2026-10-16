@@ -36,7 +36,7 @@ Interface languages: **English (default)** and Somali — visitors can switch wi
 
 **Security**: bcrypt password hashing, CSRF token on every form, PDO prepared statements, login throttling, payment screenshots stored privately (served only to the owner/admin), `.htaccess` rules that block `app/`, `install/schema.sql` and any script inside `uploads/`.
 
-**Real-time payments**: optionally, any payment method can skip manual Transaction ID verification. [WaafiPay](#waafipay-api--real-time-evc-plus-payments) gives EVC Plus customers an instant PIN-prompt confirmation; [SovaMoney](#sovamoney-api--real-time-hosted-checkout) sends customers to a hosted checkout page with automatic webhook confirmation. Methods without either configured keep the manual verification flow described above.
+**Real-time payments**: optionally, any payment method can skip manual Transaction ID verification. [WaafiPay](#waafipay-api--real-time-evc-plus-payments) gives EVC Plus customers an instant PIN-prompt confirmation; [SovaMoney](#sovamoney-api--real-time-hosted-checkout) and [Nebdex](#nebdex-api--evc-plus-zaad-sahal--more) (EVC Plus, ZAAD, Sahal and more) send customers to a hosted checkout page with automatic webhook confirmation. Methods without any of these configured keep the manual verification flow described above.
 
 ---
 
@@ -135,6 +135,27 @@ Notes:
 
 ---
 
+## Nebdex API — EVC Plus, ZAAD, Sahal & more
+
+[Nebdex](https://nebdex.com/api-documentation) is another hosted-checkout aggregator, the same shape as SovaMoney, but its exact list of payment methods (EVC Plus, ZAAD, Sahal, and others) is specific to your merchant account rather than fixed — each one has its own `method_code` from Nebdex.
+
+1. Get your **Merchant ID**, **Public Key** and **Secret Key** from your Nebdex merchant dashboard (`nebdex.com/merchant/login` → Account → Settings → API Key).
+2. Call Nebdex's `payment-methods` API (or check your dashboard) to find the `method_code` for each method you want — e.g. EVC Plus, ZAAD, Sahal.
+3. If you want ZAAD or Sahal as separate payment options on your site and they don't exist yet, add them first under **Admin → Gateways** (give each a name, currency, account label, etc. — same as any other gateway).
+4. **Admin → Settings → Nebdex**:
+   - Tick **Enable real-time Nebdex payments**.
+   - Enter the Merchant ID, Public Key and Secret Key.
+   - Under **Payment methods**, type the matching `method_code` next to each gateway you want Nebdex to handle (e.g. `103` next to EVC Plus). Leave a gateway's box empty to keep it on manual verification.
+   - Save settings, then copy the **Nebdex IPN URL** shown on the page and paste it into your Nebdex merchant dashboard's webhook/callback setting — Nebdex's API has no per-request field for this, it's configured once on their side.
+5. On the order page, a customer paying with a mapped gateway sees a **"Pay with ‹gateway› via Nebdex"** button (asks for their email). It sends them to Nebdex's checkout; once paid, Nebdex confirms it via the signed webhook (`nebdex_ipn.php`) and the order moves to *Processing*.
+
+Notes:
+- Nebdex's own documentation states its callback signature covers only the order ID, not the amount — so `nebdex_ipn.php` never trusts the amount from the webhook payload; it always credits the order's own stored amount, and verifies the HMAC-SHA256 signature (uppercase, order ID + your secret key) before touching anything.
+- Nebdex's published docs don't mention a sandbox endpoint or a payment-status lookup API — test with small real amounts, and keep an eye on orders that don't get confirmed (the admin Orders page always lets you complete one manually from the EVC/ZAAD/Sahal SMS as a fallback).
+- Several gateways can have real-time verification active at once (e.g. WaafiPay on EVC Plus *and* Nebdex mapped to ZAAD) — each gateway only shows the provider(s) actually configured for it.
+
+---
+
 ## Order flow
 
 ```
@@ -202,6 +223,7 @@ exchange/
 ├── receipt.php        Printable receipt
 ├── track.php          Track an order
 ├── sovamoney_ipn.php  SovaMoney payment webhook (signed, no login required)
+├── nebdex_ipn.php     Nebdex payment webhook (signed, no login required)
 ├── login.php · register.php · profile.php · logout.php · terms.php · proof.php
 ├── admin/             Admin panel (dashboard, orders, pairs, gateways, customers, reports, settings, admins)
 ├── app/               Application code (blocked from the web by .htaccess)

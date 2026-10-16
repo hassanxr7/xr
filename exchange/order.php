@@ -14,11 +14,26 @@ $fromGw = $order['from_gateway_id'] ? row('SELECT * FROM gateways WHERE id = ?',
 $self = 'order.php?no=' . urlencode($order['order_no']);
 $waafipayOn = waafipay_active_for($fromGw);
 $sovamoneyOn = sovamoney_active_for($fromGw);
-$realtimePayOn = $waafipayOn || $sovamoneyOn;
+$nebdexMethod = nebdex_active_for($fromGw) ? nebdex_method_for($fromGw) : null;
+$realtimePayOn = $waafipayOn || $sovamoneyOn || $nebdexMethod !== null;
 
 if (is_post()) {
     csrf_check();
     $action = input('action');
+
+    if ($action === 'nebdex_initiate' && $order['status'] === 'awaiting_payment' && $nebdexMethod !== null) {
+        $email = input('customer_email');
+        if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+            flash('error', t('err_email'));
+            redirect($self);
+        }
+        $result = nebdex_initiate_payment($order, $me, $nebdexMethod, $email);
+        if ($result['success'] && $result['redirect_url']) {
+            redirect($result['redirect_url']);
+        }
+        flash('error', t('nebdex_failed', ['msg' => $result['message']]));
+        redirect($self);
+    }
 
     if ($action === 'sovamoney_initiate' && $order['status'] === 'awaiting_payment' && $sovamoneyOn) {
         $email = input('customer_email');
@@ -187,6 +202,18 @@ require APP_PATH . '/views/header.php';
             </div>
             <button class="btn btn-primary btn-lg btn-block" type="submit"><?= icon('bolt', 18) ?> <?= e(t('sovamoney_pay_now')) ?></button>
             <p class="help text-center mt-2"><?= icon('info', 13) ?> <?= e(t('sovamoney_help')) ?></p>
+          </form>
+          <?php endif; ?>
+          <?php if ($nebdexMethod !== null): ?>
+          <form method="post" class="mt-3">
+            <?= csrf_field() ?>
+            <input type="hidden" name="action" value="nebdex_initiate">
+            <div class="form-group">
+              <label for="nebdex_email"><?= e(t('nebdex_email_label')) ?></label>
+              <input class="input" id="nebdex_email" type="email" name="customer_email" value="<?= e($me['email'] ?? '') ?>" placeholder="<?= e(t('sovamoney_email_ph')) ?>" required>
+            </div>
+            <button class="btn btn-primary btn-lg btn-block" type="submit"><?= icon('bolt', 18) ?> <?= e(t('nebdex_pay_now', ['gw' => $order['from_name']])) ?></button>
+            <p class="help text-center mt-2"><?= icon('info', 13) ?> <?= e(t('nebdex_help')) ?></p>
           </form>
           <?php endif; ?>
           <?php if ($realtimePayOn): ?>
