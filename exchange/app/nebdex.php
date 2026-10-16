@@ -132,6 +132,57 @@ function nebdex_initiate_payment(array $order, array $user, string $methodCode, 
 }
 
 /**
+ * Call Nebdex's /api/payment-methods with a Public Key. Nebdex's dashboard
+ * doesn't display the Merchant ID anywhere, but this response includes it
+ * (alongside the available method_code list) — this is the only reliable
+ * way to find it.
+ * Returns ['success' => bool, 'message' => string, 'merchant_id' => ?string, 'methods' => array].
+ */
+function nebdex_fetch_payment_methods(string $publicKey): array
+{
+    if ($publicKey === '') {
+        return ['success' => false, 'message' => 'Enter and save a Public Key first.', 'merchant_id' => null, 'methods' => []];
+    }
+
+    $ch = curl_init('https://nebdex.com/api/payment-methods');
+    curl_setopt_array($ch, [
+        CURLOPT_POST           => true,
+        CURLOPT_POSTFIELDS     => http_build_query(['public_key' => $publicKey]),
+        CURLOPT_RETURNTRANSFER => true,
+        CURLOPT_CONNECTTIMEOUT => 10,
+        CURLOPT_TIMEOUT        => 20,
+        CURLOPT_SSL_VERIFYPEER => true,
+        CURLOPT_SSL_VERIFYHOST => 2,
+    ]);
+    $body = curl_exec($ch);
+    $curlErr = curl_error($ch);
+    curl_close($ch);
+
+    if ($body === false || $body === '') {
+        error_log('[Hufan] Nebdex payment-methods fetch failed: ' . $curlErr);
+        return ['success' => false, 'message' => 'Could not reach Nebdex.', 'merchant_id' => null, 'methods' => []];
+    }
+
+    $data = json_decode($body, true);
+    if (!is_array($data)) {
+        error_log('[Hufan] Nebdex payment-methods returned an unreadable response: ' . substr($body, 0, 500));
+        return ['success' => false, 'message' => 'Nebdex returned an unexpected response.', 'merchant_id' => null, 'methods' => []];
+    }
+
+    if (($data['status'] ?? '') !== 'success') {
+        $message = $data['message'] ?? 'Request failed.';
+        return ['success' => false, 'message' => is_array($message) ? implode(' ', $message) : (string) $message, 'merchant_id' => null, 'methods' => []];
+    }
+
+    return [
+        'success'     => true,
+        'message'     => '',
+        'merchant_id' => isset($data['merchant']['merchant_id']) ? (string) $data['merchant']['merchant_id'] : null,
+        'methods'     => is_array($data['data'] ?? null) ? $data['data'] : [],
+    ];
+}
+
+/**
  * Verify a Nebdex IPN signature: strtoupper(HMAC-SHA256(order_id, secret_key)).
  * Per Nebdex's own integration notes, the signature covers order_id only —
  * never trust amount/currency from the IPN payload; always use the

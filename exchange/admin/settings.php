@@ -25,6 +25,10 @@ if (is_post()) {
         flash('success', t('saved'));
         redirect('admin/settings.php');
     }
+    if ($action === 'nebdex_fetch_methods') {
+        $_SESSION['_nebdex_methods_result'] = nebdex_fetch_payment_methods(setting('nebdex_public_key'));
+        redirect('admin/settings.php');
+    }
 
     foreach ($textKeys as $key => $max) {
         save_setting($key, mb_substr(input($key), 0, $max));
@@ -96,6 +100,8 @@ if (is_post()) {
 $s = settings(true);
 $gateways = rows('SELECT id, name FROM gateways ORDER BY sort_order, id');
 $v = fn ($k) => e($s[$k] ?? '');
+$nebdexMethodsResult = $_SESSION['_nebdex_methods_result'] ?? null;
+unset($_SESSION['_nebdex_methods_result']);
 $pageTitle = t('a_settings');
 require APP_PATH . '/views/admin_header.php';
 ?>
@@ -247,6 +253,29 @@ require APP_PATH . '/views/admin_header.php';
         </div>
         <h4 class="mt-3"><?= e(t('a_nebdex_methods')) ?></h4>
         <p class="help"><?= e(t('a_nebdex_methods_help')) ?></p>
+        <button class="btn btn-outline btn-sm" type="submit" form="nebdex-fetch"><?= icon('search', 15) ?> <?= e(t('a_nebdex_fetch')) ?></button>
+        <p class="help"><?= e(t('a_nebdex_fetch_help')) ?></p>
+        <?php if ($nebdexMethodsResult): ?>
+          <?php if ($nebdexMethodsResult['success']): ?>
+            <div class="alert alert-success"><?= icon('check-circle') ?><span><?= e(t('a_nebdex_merchant_id_found', ['id' => $nebdexMethodsResult['merchant_id'] ?? '—'])) ?></span></div>
+            <?php if ($nebdexMethodsResult['methods']): ?>
+            <div class="table-wrap">
+              <table class="table">
+                <thead><tr><th><?= e(t('a_name')) ?></th><th><?= e(t('a_currency')) ?></th><th>method_code</th><th><?= e(t('min')) ?></th><th><?= e(t('max')) ?></th></tr></thead>
+                <tbody>
+                <?php foreach ($nebdexMethodsResult['methods'] as $m): ?>
+                  <tr><td><?= e((string) ($m['name'] ?? '')) ?></td><td><?= e((string) ($m['currency'] ?? '')) ?></td><td class="mono"><?= e((string) ($m['method_code'] ?? '')) ?></td><td><?= e((string) ($m['min_amount'] ?? '')) ?></td><td><?= e((string) ($m['max_amount'] ?? '')) ?></td></tr>
+                <?php endforeach; ?>
+                </tbody>
+              </table>
+            </div>
+            <?php else: ?>
+              <div class="alert alert-info"><?= icon('info') ?><span><?= e(t('a_nebdex_no_methods')) ?></span></div>
+            <?php endif; ?>
+          <?php else: ?>
+            <div class="alert alert-error"><?= icon('alert') ?><span><?= e($nebdexMethodsResult['message']) ?></span></div>
+          <?php endif; ?>
+        <?php endif; ?>
         <?php foreach ($gateways as $g): ?>
         <div class="form-row">
           <div class="form-group" style="flex:0 0 160px"><label><?= e($g['name']) ?></label></div>
@@ -280,6 +309,7 @@ require APP_PATH . '/views/admin_header.php';
   </div>
 </form>
 <form method="post" id="tg-test" class="hidden"><?= csrf_field() ?><input type="hidden" name="action" value="test_telegram"></form>
+<form method="post" id="nebdex-fetch" class="hidden"><?= csrf_field() ?><input type="hidden" name="action" value="nebdex_fetch_methods"></form>
 <?php if (!empty($s['logo'])): ?>
 <form method="post" class="mt-2"><?= csrf_field() ?><input type="hidden" name="action" value="remove_logo"><button class="btn btn-ghost btn-sm" type="submit"><?= e(t('a_remove_logo')) ?></button></form>
 <?php endif; ?>
