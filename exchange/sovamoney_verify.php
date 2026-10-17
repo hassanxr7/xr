@@ -23,7 +23,7 @@ $token = $_POST['_csrf'] ?? '';
 if (!is_string($token) || !hash_equals(csrf_token(), $token)) {
     $reply(419, ['ok' => false, 'message' => t('csrf_error')]);
 }
-if (!sovamoney_payout_enabled()) {
+if (!sovamoney_lookup_enabled()) {
     $reply(404, ['ok' => false, 'message' => '']);
 }
 

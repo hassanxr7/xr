@@ -66,14 +66,15 @@ if (is_post()) {
     }
 
     $receiverLabel = $pair['to_account_label'];
-    if (!$errors && $pair['to_code'] === 'sovamoney' && sovamoney_payout_enabled()) {
+    if (!$errors && $pair['to_code'] === 'sovamoney' && sovamoney_lookup_enabled()) {
         $check = sovamoney_verify_uid($old['receiver_account']);
         if ($check['ok']) {
             $old['receiver_account'] = mb_substr($check['uid'], 0, 190);
             if ($check['name'] !== '') {
                 $receiverLabel = mb_substr($pair['to_account_label'] . ' — ' . $check['name'], 0, 120);
             }
-        } else {
+        } elseif ($check['not_found'] || sovamoney_payout_enabled()) {
+            // A service error only blocks the order when we must pay out automatically.
             $errors[] = t($check['not_found'] ? 'sova_uid_not_found' : 'sova_uid_unreachable');
         }
     }
@@ -170,7 +171,7 @@ require APP_PATH . '/views/header.php';
 
           <div class="form-group">
             <label for="receiver_account"><?= e($pair['to_account_label']) ?></label>
-            <input class="input mono" id="receiver_account" name="receiver_account" value="<?= e($old['receiver_account']) ?>" placeholder="<?= e($pair['to_account_placeholder']) ?>" required autocomplete="off" spellcheck="false"<?php if ($pair['to_code'] === 'sovamoney' && sovamoney_payout_enabled()): ?> data-sova-verify="<?= e(url('sovamoney_verify.php')) ?>" data-sova-checking="<?= e(t('sova_uid_checking')) ?>"<?php endif; ?>>
+            <input class="input mono" id="receiver_account" name="receiver_account" value="<?= e($old['receiver_account']) ?>" placeholder="<?= e($pair['to_account_placeholder']) ?>" required autocomplete="off" spellcheck="false"<?php if ($pair['to_code'] === 'sovamoney' && sovamoney_lookup_enabled()): ?> data-sova-verify="<?= e(url('sovamoney_verify.php')) ?>" data-sova-checking="<?= e(t('sova_uid_checking')) ?>"<?php endif; ?>>
             <?php if ($pair['to_instructions']): ?><div class="help"><?= icon('info', 13) ?> <?= e($pair['to_instructions']) ?></div><?php endif; ?>
             <div class="help" data-sova-result hidden aria-live="polite"></div>
           </div>

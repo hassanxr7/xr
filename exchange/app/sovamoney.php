@@ -151,6 +151,33 @@ function sovamoney_payout_base_url(): string
     return 'https://sovamoney.com';
 }
 
+/** U-ID lookups (read-only, no money moves) only need the public key. */
+function sovamoney_lookup_enabled(): bool
+{
+    return setting('sovamoney_public_key') !== '';
+}
+
+/**
+ * Wallet holder's display name from a user-verify payload. The payout docs
+ * say full_name, but SovaMoney (ViserPay) installs may return firstname /
+ * lastname or nest the user object, so accept the common shapes.
+ */
+function sovamoney_extract_name(array $u): string
+{
+    foreach (['full_name', 'fullname', 'fullName', 'name'] as $k) {
+        if (is_scalar($u[$k] ?? null) && trim((string) $u[$k]) !== '') {
+            return trim((string) $u[$k]);
+        }
+    }
+    foreach ([['firstname', 'lastname'], ['first_name', 'last_name'], ['firstName', 'lastName']] as [$f, $l]) {
+        $name = trim(trim((string) (is_scalar($u[$f] ?? null) ? $u[$f] : '')) . ' ' . trim((string) (is_scalar($u[$l] ?? null) ? $u[$l] : '')));
+        if ($name !== '') {
+            return $name;
+        }
+    }
+    return is_scalar($u['username'] ?? null) ? trim((string) $u['username']) : '';
+}
+
 /** Whether this gateway row is the SovaMoney "receive" wallet. */
 function is_sovamoney_gateway(?array $gateway): bool
 {
@@ -228,14 +255,28 @@ function sovamoney_verify_uid(string $uid): array
     $debug = ['url' => $res['url'], 'http' => $res['http'], 'body' => $res['body']];
     $d = $res['data'] ?? [];
     if ($res['reached'] && ($d['status'] ?? '') === 'success' && is_array($d['data'] ?? null)) {
-        $name = trim((string) ($d['data']['full_name'] ?? ''));
+        $u = $d['data'];
+        foreach (['user', 'account', 'wallet'] as $k) {
+            if (is_array($u[$k] ?? null)) {
+                $u = $u[$k] + $d['data'];
+                break;
+            }
+        }
+        $name = sovamoney_extract_name($u);
         if ($name === '') {
-            $name = (string) ($d['data']['username'] ?? '');
+            error_log('[Hufan] SovaMoney user-verify returned no name: ' . mb_substr($res['body'], 0, 300));
+        }
+        $realUid = '';
+        foreach (['uid', 'user_id', 'userId'] as $k) {
+            if (is_scalar($u[$k] ?? null) && trim((string) $u[$k]) !== '') {
+                $realUid = trim((string) $u[$k]);
+                break;
+            }
         }
         return [
             'ok'        => true,
             'not_found' => false,
-            'uid'       => (string) ($d['data']['uid'] ?? $uid) ?: $uid,
+            'uid'       => $realUid !== '' ? $realUid : $uid,
             'name'      => $name,
             'message'   => '',
             'debug'     => $debug,
