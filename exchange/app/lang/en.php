@@ -212,6 +212,7 @@ return [
     'nebdex_failed'          => 'Could not start the Nebdex payment — :msg You can try again or pay manually below.',
     'nebdex_waiting'         => 'Connecting to Nebdex…',
     'log_nebdex_paid'        => 'Paid via Nebdex. Ref: :ref',
+    'no_payment_method'      => 'Automatic payment is not set up for this method yet. Please contact support to complete your order.',
     'msg_pending'            => 'We received your payment and are verifying it — please wait a moment.',
     'msg_processing'         => 'Your order is being processed. You will receive the funds shortly.',
     'msg_completed'          => 'This order is complete. The funds have been sent to you. Thank you!',

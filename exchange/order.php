@@ -82,28 +82,7 @@ if (is_post()) {
         redirect($self);
     }
 
-    if ($action === 'paid' && $order['status'] === 'awaiting_payment') {
-        $ref = mb_substr(input('payment_ref'), 0, 120);
-        if (mb_strlen($ref) < 3) {
-            flash('error', t('err_payment_ref'));
-            redirect($self);
-        }
-        $proof = null;
-        if (has_upload('proof')) {
-            try {
-                $proof = store_image($_FILES['proof'], STORAGE_PATH . '/proofs');
-            } catch (RuntimeException $ex) {
-                flash('error', $ex->getMessage());
-                redirect($self);
-            }
-        }
-        set_order_status($order, 'pending', t('log_customer_paid', ['ref' => $ref]), 'customer', (int) $me['id'], [
-            'payment_ref' => $ref,
-            'proof_file'  => $proof,
-        ]);
-        telegram_notify(order_telegram_text(row('SELECT * FROM orders WHERE id = ?', [$order['id']]), '💰 Payment submitted'));
-        flash('success', t('payment_submitted'));
-    } elseif ($action === 'cancel' && $order['status'] === 'awaiting_payment') {
+    if ($action === 'cancel' && $order['status'] === 'awaiting_payment') {
         set_order_status($order, 'cancelled', t('log_customer_cancelled'), 'customer', (int) $me['id']);
         flash('info', t('order_cancelled'));
     }
@@ -231,20 +210,7 @@ require APP_PATH . '/views/header.php';
           </form>
           <?php endif; ?>
           <?php if (!$realtimePayOn): ?>
-          <form method="post" enctype="multipart/form-data" class="mt-3">
-            <?= csrf_field() ?>
-            <input type="hidden" name="action" value="paid">
-            <div class="form-group">
-              <label for="payment_ref"><?= e(t('payment_ref')) ?></label>
-              <input class="input mono" id="payment_ref" name="payment_ref" placeholder="<?= e(t('payment_ref_ph')) ?>" required maxlength="120">
-              <div class="help"><?= e(t(!empty($fromGw['ussd_template']) ? 'payment_ref_help' : 'payment_ref_help_generic', ['gw' => $order['from_name']])) ?></div>
-            </div>
-            <div class="form-group">
-              <label><?= e(t('proof')) ?> <span class="muted">(<?= e(t('optional')) ?>)</span></label>
-              <label class="file-drop"><?= icon('upload', 20) ?> <span id="proof-label"><?= e(t('choose_image')) ?></span><input type="file" name="proof" accept="image/jpeg,image/png,image/webp" data-file-label="#proof-label"></label>
-            </div>
-            <button class="btn btn-primary btn-lg btn-block" type="submit"><?= icon('check-circle', 18) ?> <?= e(t('i_have_paid')) ?></button>
-          </form>
+          <div class="alert alert-info mt-3"><?= icon('info') ?><span><?= e(t('no_payment_method')) ?></span></div>
           <?php endif; ?>
           <form method="post" class="text-center mt-2" data-confirm="<?= e(t('confirm_cancel')) ?>">
             <?= csrf_field() ?>

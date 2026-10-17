@@ -212,6 +212,7 @@ return [
     'nebdex_failed'          => 'Lama bilaabi karin lacag-bixinta Nebdex — :msg Isku day mar kale ama si gacanta ah u bixi hoose.',
     'nebdex_waiting'         => 'Waxaan kula xidhiidhaynaa Nebdex…',
     'log_nebdex_paid'        => 'Lacagta waxaa lagu bixiyay Nebdex. Ref: :ref',
+    'no_payment_method'      => 'Lacag-bixin toos ah weli lama dejin hab-kan. Fadlan nala soo xiriir si aad dalabkaaga u dhammaystirto.',
     'msg_pending'            => 'Lacag-bixintaada waa la helay. Waxaan hubinaynaa — fadlan sug wax yar.',
     'msg_processing'         => 'Dalabkaaga waa la fulinayaa. Lacagta dhowaan ayaad heli doontaa.',
     'msg_completed'          => 'Dalabkan waa la dhammeeyay. Lacagta waa laguu diray. Mahadsanid!',
