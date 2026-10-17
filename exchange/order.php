@@ -230,10 +230,7 @@ require APP_PATH . '/views/header.php';
             <p class="help text-center mt-2"><?= icon('info', 13) ?> <?= e(t('nebdex_help')) ?></p>
           </form>
           <?php endif; ?>
-          <?php if ($realtimePayOn): ?>
-          <p class="text-center mt-2"><button type="button" class="btn btn-ghost btn-sm" data-toggle="#manual-pay"><?= e(t('pay_manually_instead')) ?></button></p>
-          <div id="manual-pay" class="toggle-panel">
-          <?php endif; ?>
+          <?php if (!$realtimePayOn): ?>
           <form method="post" enctype="multipart/form-data" class="mt-3">
             <?= csrf_field() ?>
             <input type="hidden" name="action" value="paid">
@@ -248,7 +245,7 @@ require APP_PATH . '/views/header.php';
             </div>
             <button class="btn btn-primary btn-lg btn-block" type="submit"><?= icon('check-circle', 18) ?> <?= e(t('i_have_paid')) ?></button>
           </form>
-          <?php if ($realtimePayOn): ?></div><?php endif; ?>
+          <?php endif; ?>
           <form method="post" class="text-center mt-2" data-confirm="<?= e(t('confirm_cancel')) ?>">
             <?= csrf_field() ?>
             <input type="hidden" name="action" value="cancel">
