@@ -236,7 +236,7 @@ $v = (string)($_GET['v'] ?? ''); $edit = (string)($_GET['edit'] ?? '');
 $tok = me() ? csrf_token() : '';
 function badge(string $s, string $label = ''): string { return '<span class="badge b-' . h($s) . '">' . h($label ?: $s) . '</span>'; }
 function csrf_field(): string { return '<input type="hidden" name="csrf" value="' . h(csrf_token()) . '">'; }
-?><!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex,nofollow"><title>ITrackZen Admin</title><link rel="icon" href="/assets/img/favicon.svg"><link rel="stylesheet" href="/admin/admin.css?v=2"></head><body>
+?><!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex,nofollow"><title>ITrackZen Admin</title><link rel="icon" href="/assets/img/brand/itrackzen-favicon.svg"><link rel="stylesheet" href="/admin/admin.css?v=2"></head><body>
 <?php if (!me()): ?>
 <main class="login"><form method="post" class="box"><h1>ITrackZen Admin</h1>
 <?php if ($flash): ?><p class="alert <?= $flash[0] ?>"><?= h($flash[1]) ?></p><?php endif; ?>
@@ -286,7 +286,7 @@ function csrf_field(): string { return '<input type="hidden" name="csrf" value="
 <?php elseif ($v === 'brand' && can('brand')): $ba = site('brand_assets', []); ?>
 <h1>Brand assets</h1><p class="muted">Upload your official logo files. They replace the logo in the header, footer, mobile menu, favicon and app icons across the website. Use transparent PNG or WebP at least 600 px wide so the proportions and colours are kept exactly.</p>
 <div class="cards">
-<?php foreach (['logo' => ['Main logo (for light backgrounds)', '/assets/img/logo.svg'], 'logo_light' => ['Logo for dark backgrounds (footer)', '/assets/img/logo-light.svg'], 'icon' => ['Square symbol (favicon & app icons)', '/assets/img/logo-mark.svg']] as $slot => [$lab, $def]): $cur = $ba[$slot] ?? $def; ?>
+<?php foreach (['logo' => ['Main logo (for light backgrounds)', '/assets/img/brand/itrackzen-logo.svg'], 'logo_light' => ['Logo for dark backgrounds (footer)', '/assets/img/brand/itrackzen-logo-white.svg'], 'icon' => ['Square symbol (favicon & app icons)', '/assets/img/brand/itrackzen-app-icon.svg']] as $slot => [$lab, $def]): $cur = $ba[$slot] ?? $def; ?>
 <form method="post" enctype="multipart/form-data" class="card"><?= csrf_field() ?><input type="hidden" name="action" value="brand"><input type="hidden" name="slot" value="<?= h($slot) ?>"><strong><?= h($lab) ?></strong>
 <div class="logo-prev<?= $slot === 'logo_light' ? ' dark' : '' ?>"><img src="<?= h($cur) ?>" alt=""></div><p class="small muted"><?= isset($ba[$slot]) ? 'Custom: ' . h($cur) : 'Using the default traced logo' ?></p><input type="file" name="image" accept="image/png,image/webp,image/jpeg" required> <button class="primary">Upload</button></form>
 <?php endforeach; ?></div>

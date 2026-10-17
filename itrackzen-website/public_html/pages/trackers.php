@@ -6,7 +6,7 @@ foreach ($t['filters'] as $f) { $tagLabels[$f['key']] = $f['label']; }
 set_breadcrumbs([['Supported GPS Trackers', '/supported-gps-trackers']]);
 add_ld(['@type' => 'ItemList', 'name' => 'Supported GPS tracker brands', 'itemListElement' => array_map(fn($b, $i) => ['@type' => 'ListItem', 'position' => $i + 1, 'name' => $b['name']], $brands, array_keys($brands))]);
 layout_start(['title' => $m['title'], 'description' => $m['description'], 'keywords' => $m['keywords'], 'path' => '/supported-gps-trackers']);
-page_hero($m['h1'], 'Use the GPS trackers you prefer. ITrackZen works with leading brands, protocols and device types, from OBD plug-ins and motorcycle trackers to 4G fleet units and AI dashcams.', 'Device compatibility');
+page_hero($m['h1'], 'Use the GPS trackers you prefer. ITrackZen works with leading brands, protocols and device types, from OBD plug-ins and motorcycle trackers to 4G fleet units and AI dashcams.', 'Device compatibility', art_devices());
 ?>
 <section class="section tight">
   <div class="container">

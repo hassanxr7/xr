@@ -46,7 +46,7 @@ function ld_local(): array
     $b = [
         '@type' => ['LocalBusiness', 'ProfessionalService'], '@id' => base_url() . '/#localbusiness',
         'name' => site('brand') . ' by ' . site('company'), 'url' => base_url() . '/',
-        'image' => abs_url(site('og_image', '/assets/img/og-image.png')),
+        'image' => abs_url(brand_asset('og')),
         'email' => site('emails.sales'), 'priceRange' => 'Contact for quote',
         'description' => 'GPS tracking, fleet management, fuel monitoring and AI dashcam solutions for businesses in Africa and worldwide.',
         'areaServed' => ld_area(), 'parentOrganization' => ['@id' => base_url() . '/#organization']
@@ -109,7 +109,7 @@ function layout_start(array $m): void
     $title = $m['title'] ?? $brand;
     $desc = $m['description'] ?? '';
     $canon = abs_url($m['path'] ?? request_path());
-    $img = abs_url($m['image'] ?? site('og_image', '/assets/img/og-image.png'));
+    $img = abs_url($m['image'] ?? brand_asset('og'));
     $robots = !empty($m['noindex']) ? 'noindex, nofollow' : 'index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1';
     $graph = [ld_org()];
     if (site('address') || site('locality')) { $graph[] = ld_local(); }
@@ -125,6 +125,7 @@ function layout_start(array $m): void
 <html lang="en" class="no-js">
 <head>
 <meta charset="utf-8">
+<meta name="generator" content="ITrackZen site <?= SITE_VERSION ?>">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title><?= e($title) ?></title>
 <meta name="description" content="<?= e($desc) ?>">
@@ -148,9 +149,11 @@ function layout_start(array $m): void
 <meta name="twitter:description" content="<?= e($desc) ?>">
 <meta name="twitter:image" content="<?= e($img) ?>">
 <link rel="icon" href="<?= e(brand_asset('favicon32')) ?>" sizes="32x32" type="image/png">
-<link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
+<link rel="icon" href="<?= e(brand_asset('favicon')) ?>" type="image/svg+xml">
 <link rel="apple-touch-icon" href="<?= e(brand_asset('apple')) ?>">
 <link rel="manifest" href="/site.webmanifest">
+<link rel="preload" href="/assets/fonts/inter-regular.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="/assets/fonts/inter-extrabold.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="<?= e(asset('assets/css/style.css')) ?>">
 <script>document.documentElement.className='js';</script>
 <script type="application/ld+json"><?= $ld ?></script>
@@ -292,17 +295,20 @@ function layout_end(): void
 }
 
 /* ---------- UI helpers ---------- */
-function page_hero(string $h1, string $sub, string $eyebrow = ''): void
+function page_hero(string $h1, string $sub, string $eyebrow = '', string $art = ''): void
 {
     ?>
-<section class="page-hero">
-  <div class="container">
+<section class="page-hero<?= $art !== '' ? ' has-art' : '' ?>">
+  <div class="container ph-grid">
+    <div class="ph-copy">
 <?php if ($bc = $GLOBALS['PAGE']['breadcrumbs']): ?>
     <nav class="crumbs" aria-label="Breadcrumb"><a href="/">Home</a><?php foreach ($bc as $b): ?><span aria-hidden="true">/</span><a href="<?= e($b[1]) ?>"><?= e($b[0]) ?></a><?php endforeach; ?></nav>
 <?php endif; ?>
 <?php if ($eyebrow): ?><p class="eyebrow"><?= e($eyebrow) ?></p><?php endif; ?>
     <h1><?= e($h1) ?></h1>
     <p class="lead"><?= e($sub) ?></p>
+    </div>
+<?php if ($art !== ''): ?><div class="ph-art" aria-hidden="false"><?= $art ?></div><?php endif; ?>
   </div>
 </section>
 <?php

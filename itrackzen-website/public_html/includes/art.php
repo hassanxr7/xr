@@ -156,3 +156,117 @@ function art_scene(string $scene): string
 <?php }
     return (string)ob_get_clean();
 }
+
+/* =====================================================================
+ * Vehicle & device illustration set (flat style, brand blues). Original artwork.
+ * ===================================================================== */
+function art_vehicle(string $type = 'truck', string $label = ''): string
+{
+    $l = $label !== '' ? $label : 'Tracked ' . $type;
+    $wheel = fn($x, $y = 112, $r = 15) => '<g><circle cx="' . $x . '" cy="' . $y . '" r="' . $r . '" fill="#0b1b3a"/><circle cx="' . $x . '" cy="' . $y . '" r="' . ($r * .45) . '" fill="#cfe0ff"/></g>';
+    $sig = '<g fill="none" stroke="#12b76a" stroke-width="3" stroke-linecap="round"><path d="M%1$d %2$d a14 14 0 0 1 19 0" opacity=".9"/><path d="M%3$d %4$d a26 26 0 0 1 34 0" opacity=".5"/></g><circle cx="%5$d" cy="%6$d" r="4" fill="#12b76a"/>';
+    ob_start(); ?>
+<svg class="art art-vehicle" viewBox="0 0 260 150" role="img" aria-label="<?= e($l) ?> with GPS tracker" xmlns="http://www.w3.org/2000/svg">
+  <ellipse cx="130" cy="130" rx="112" ry="8" fill="#0a1f44" opacity=".14"/>
+<?php switch ($type):
+case 'bus': ?>
+  <rect x="18" y="38" width="224" height="78" rx="14" fill="#fff" stroke="#c9d8f2" stroke-width="2"/>
+  <rect x="18" y="38" width="224" height="22" rx="14" fill="#0b5cff"/><rect x="18" y="50" width="224" height="10" fill="#0b5cff"/>
+  <g fill="#cfe2ff"><rect x="30" y="66" width="30" height="24" rx="4"/><rect x="66" y="66" width="30" height="24" rx="4"/><rect x="102" y="66" width="30" height="24" rx="4"/><rect x="138" y="66" width="30" height="24" rx="4"/><rect x="174" y="66" width="30" height="24" rx="4"/><rect x="210" y="62" width="24" height="42" rx="4"/></g>
+  <rect x="18" y="98" width="224" height="6" fill="#12b76a"/>
+  <?= $wheel(66) ?><?= $wheel(196) ?>
+  <?= sprintf($sig, 112, 30, 103, 20, 121, 36) ?>
+<?php break; case 'van': ?>
+  <path d="M28 112V58a10 10 0 0 1 10-10h104a12 12 0 0 1 9 4l36 38a14 14 0 0 1 4 10v12z" fill="#fff" stroke="#c9d8f2" stroke-width="2"/>
+  <path d="M150 54l32 34h-32z" fill="#cfe2ff"/><rect x="28" y="48" width="122" height="14" rx="6" fill="#0b5cff"/>
+  <text x="46" y="92" font-size="16" font-weight="800" fill="#0b1b3a" font-family="Inter,Arial,sans-serif">iTrackzen</text>
+  <rect x="204" y="96" width="14" height="8" rx="3" fill="#ffd166"/>
+  <?= $wheel(70) ?><?= $wheel(186) ?>
+  <?= sprintf($sig, 78, 28, 69, 18, 87, 34) ?>
+<?php break; case 'car': ?>
+  <path d="M30 112V92c0-8 5-14 13-16l22-6 22-22a16 16 0 0 1 11-5h50a16 16 0 0 1 12 6l20 22 26 6c8 2 12 8 12 16v19z" fill="#0b5cff"/>
+  <path d="M92 52h48a8 8 0 0 1 6 3l16 18H80l8-17a8 8 0 0 1 4-4z" fill="#dbe8ff"/><path d="M120 52v21" stroke="#0b5cff" stroke-width="3"/>
+  <rect x="204" y="86" width="14" height="8" rx="3" fill="#ffd166"/><rect x="36" y="88" width="10" height="8" rx="3" fill="#ff6b6b"/>
+  <?= $wheel(76) ?><?= $wheel(190) ?>
+  <?= sprintf($sig, 124, 36, 115, 26, 133, 42) ?>
+<?php break; case 'moto': ?>
+  <circle cx="68" cy="108" r="22" fill="none" stroke="#0b1b3a" stroke-width="7"/><circle cx="192" cy="108" r="22" fill="none" stroke="#0b1b3a" stroke-width="7"/>
+  <circle cx="68" cy="108" r="6" fill="#cfe0ff"/><circle cx="192" cy="108" r="6" fill="#cfe0ff"/>
+  <path d="M68 108l30-38h46l22 22 26 16M98 70l-14-12h-14M144 70l8-22h20" fill="none" stroke="#0b5cff" stroke-width="8" stroke-linecap="round" stroke-linejoin="round"/>
+  <rect x="104" y="52" width="46" height="14" rx="6" fill="#0b1b3a"/><rect x="24" y="52" width="48" height="36" rx="6" fill="#12b76a"/><text x="48" y="76" text-anchor="middle" font-size="13" font-weight="800" fill="#fff" font-family="Inter,Arial,sans-serif">GO</text>
+  <?= sprintf($sig, 168, 30, 159, 20, 177, 36) ?>
+<?php break; case 'tanker': ?>
+  <rect x="20" y="52" width="148" height="52" rx="26" fill="#e8eef9" stroke="#c9d8f2" stroke-width="2"/><rect x="20" y="74" width="148" height="8" fill="#0b5cff"/>
+  <rect x="84" y="42" width="22" height="12" rx="3" fill="#0b1b3a"/>
+  <path d="M176 112V70a8 8 0 0 1 8-8h30l22 24a10 10 0 0 1 3 7v19z" fill="#0b5cff"/><path d="M190 70h22l16 18h-38z" fill="#cfe2ff"/>
+  <rect x="20" y="104" width="206" height="10" rx="3" fill="#0b1b3a"/>
+  <?= $wheel(52, 116, 13) ?><?= $wheel(100, 116, 13) ?><?= $wheel(204, 116, 13) ?>
+  <?= sprintf($sig, 190, 36, 181, 26, 199, 42) ?>
+<?php break; case 'trailer': ?>
+  <rect x="24" y="38" width="170" height="68" rx="6" fill="#0b5cff"/><g stroke="#0847c4" stroke-width="3"><path d="M52 38v68M80 38v68M108 38v68M136 38v68M164 38v68"/></g>
+  <rect x="24" y="106" width="206" height="9" rx="3" fill="#0b1b3a"/><path d="M196 106V72a8 8 0 0 1 8-8h14l16 16v26z" fill="#e8eef9" stroke="#c9d8f2" stroke-width="2"/>
+  <?= $wheel(60, 118, 12) ?><?= $wheel(100, 118, 12) ?><?= $wheel(214, 118, 12) ?>
+  <?= sprintf($sig, 98, 22, 89, 12, 107, 28) ?>
+<?php break; default: /* truck */ ?>
+  <rect x="14" y="30" width="146" height="82" rx="8" fill="#fff" stroke="#c9d8f2" stroke-width="2"/><rect x="14" y="30" width="146" height="18" rx="8" fill="#0b5cff"/><rect x="14" y="40" width="146" height="8" fill="#0b5cff"/>
+  <text x="30" y="82" font-size="22" font-weight="800" fill="#0b1b3a" font-family="Inter,Arial,sans-serif" letter-spacing="-1">iTrackzen</text><rect x="30" y="92" width="112" height="5" rx="2.5" fill="#12b76a"/>
+  <path d="M168 112V58a8 8 0 0 1 8-8h38a10 10 0 0 1 8 4l22 28a12 12 0 0 1 3 8v22z" fill="#0b5cff"/><path d="M182 60h30l18 24h-48z" fill="#cfe2ff"/>
+  <rect x="168" y="104" width="76" height="10" rx="3" fill="#0b1b3a"/><rect x="236" y="92" width="12" height="8" rx="3" fill="#ffd166"/>
+  <?= $wheel(52) ?><?= $wheel(112) ?><?= $wheel(204) ?>
+  <?= sprintf($sig, 196, 28, 187, 18, 205, 34) ?>
+<?php endswitch; ?>
+</svg>
+<?php return (string)ob_get_clean();
+}
+
+/** Phone mockup of the tracking app (illustrative sample data). */
+function art_phone(): string
+{
+    ob_start(); ?>
+<svg class="art art-phone" viewBox="0 0 280 560" role="img" aria-label="ITrackZen mobile app showing a live vehicle on a map (illustrative)" xmlns="http://www.w3.org/2000/svg">
+  <defs><clipPath id="ph-clip"><rect x="14" y="14" width="252" height="532" rx="34"/></clipPath>
+    <linearGradient id="ph-bg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#0f2b5b"/><stop offset="1" stop-color="#0a1f44"/></linearGradient>
+    <linearGradient id="ph-ring" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#2088ff"/><stop offset="1" stop-color="#0a5cff"/></linearGradient>
+    <pattern id="ph-grid" width="22" height="22" patternUnits="userSpaceOnUse"><path d="M22 0H0V22" fill="none" stroke="#1b4175" stroke-width=".6"/></pattern></defs>
+  <rect x="2" y="2" width="276" height="556" rx="44" fill="#0b1b3a" stroke="#27487f" stroke-width="3"/>
+  <g clip-path="url(#ph-clip)"><rect x="14" y="14" width="252" height="532" fill="url(#ph-bg)"/><rect x="14" y="14" width="252" height="532" fill="url(#ph-grid)"/>
+    <g fill="none" stroke="#20508f" stroke-linecap="round"><path d="M14 360C80 330 120 380 190 330S250 290 266 270" stroke-width="12" opacity=".55"/><path d="M80 546C90 440 70 300 100 120" stroke-width="9" opacity=".5"/><path d="M14 200C100 210 190 170 266 250" stroke-width="8" opacity=".45"/></g>
+    <path d="M60 470C90 410 120 400 150 360S210 300 238 250" fill="none" stroke="#1e6bff" stroke-width="5" stroke-linecap="round" stroke-dasharray="10 8"><animate attributeName="stroke-dashoffset" from="36" to="0" dur="1.8s" repeatCount="indefinite"/></path>
+    <g><circle r="20" fill="#12b76a" opacity=".25"><animate attributeName="r" values="12;26;12" dur="2s" repeatCount="indefinite"/></circle><circle r="9" fill="#12b76a" stroke="#fff" stroke-width="3"/><animateMotion dur="8s" repeatCount="indefinite" path="M60 470C90 410 120 400 150 360S210 300 238 250"/></g>
+    <circle cx="120" cy="200" r="48" fill="#12b76a" opacity=".12" stroke="#12b76a" stroke-dasharray="6 5"/>
+    <rect x="30" y="34" width="220" height="44" rx="22" fill="#0a1f44" opacity=".92"/>
+    <g transform="translate(44 40) scale(.0405)"><path d="M80 715A160.5 160.5 0 1 1 314 715" fill="none" stroke="url(#ph-ring)" stroke-width="60" stroke-linecap="round" transform="translate(0 -415)"/><circle cx="197" cy="162" r="62" fill="#1473ff"/><path d="M197 277L118 423L197 397L276 423Z" fill="#0a4dff" stroke="#0a4dff" stroke-width="52" stroke-linejoin="round"/></g>
+    <text x="84" y="62" font-size="15" font-weight="800" fill="#fff" font-family="Inter,Arial,sans-serif">iTrackzen</text><circle cx="232" cy="56" r="5" fill="#12b76a"/>
+    <rect x="28" y="400" width="224" height="128" rx="22" fill="#fff"/>
+    <text x="46" y="430" font-size="12" fill="#6b7ea3" font-family="Inter,Arial,sans-serif">Vehicle</text><text x="46" y="452" font-size="17" font-weight="800" fill="#0a1f44" font-family="Inter,Arial,sans-serif">TRK-204</text>
+    <rect x="176" y="416" width="62" height="24" rx="12" fill="#dff8ec"/><text x="207" y="432" text-anchor="middle" font-size="11" font-weight="700" fill="#0b6b3a" font-family="Inter,Arial,sans-serif">Moving</text>
+    <g font-family="Inter,Arial,sans-serif"><text x="46" y="486" font-size="11" fill="#6b7ea3">Speed</text><text x="46" y="504" font-size="15" font-weight="800" fill="#0a1f44">62 km/h</text>
+    <text x="118" y="486" font-size="11" fill="#6b7ea3">Fuel</text><text x="118" y="504" font-size="15" font-weight="800" fill="#0a1f44">70%</text>
+    <text x="180" y="486" font-size="11" fill="#6b7ea3">Ignition</text><text x="180" y="504" font-size="15" font-weight="800" fill="#0a1f44">On</text></g>
+  </g>
+  <rect x="100" y="22" width="80" height="20" rx="10" fill="#0b1b3a"/>
+</svg>
+<?php return (string)ob_get_clean();
+}
+
+/** Fuel gauge illustration (sample reading). */
+function art_gauge(): string
+{
+    ob_start(); ?>
+<svg class="art art-gauge" viewBox="0 0 320 180" role="img" aria-label="Fuel level gauge (illustrative)" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="gg" x1="0" x2="1"><stop offset="0" stop-color="#1e6bff"/><stop offset="1" stop-color="#12b76a"/></linearGradient></defs>
+<path d="M40 150a120 120 0 0 1 240 0" fill="none" stroke="#1c3f78" stroke-width="22" stroke-linecap="round"/><path d="M40 150a120 120 0 0 1 240 0" fill="none" stroke="url(#gg)" stroke-width="22" stroke-linecap="round" stroke-dasharray="264 377"/>
+<text x="160" y="132" text-anchor="middle" font-size="46" font-weight="800" fill="#fff" font-family="Inter,Arial,sans-serif">70%</text><text x="160" y="158" text-anchor="middle" font-size="14" fill="#9db7e3" font-family="Inter,Arial,sans-serif">Fuel level (sample)</text></svg>
+<?php return (string)ob_get_clean();
+}
+
+function art_frame(string $svg): string { return '<div class="ph-frame">' . $svg . '</div>'; }
+
+function art_fleet_row(): string
+{
+    return '<div class="ph-fleet"><div class="pf-a">' . art_vehicle('truck') . '</div><div class="pf-b">' . art_vehicle('van') . '</div><div class="pf-c">' . art_vehicle('car') . '</div></div>';
+}
+
+function art_devices(): string
+{
+    return '<div class="ph-devices">' . art_tracker('obd') . art_tracker('wired') . art_tracker('cam') . art_tracker('4g') . '</div>';
+}

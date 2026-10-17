@@ -3,7 +3,7 @@ $m = page_meta('fleet'); $f = data('fleet');
 set_breadcrumbs([['Fleet Management', '/fleet-management']]);
 add_ld(ld_service('Fleet Management Software', $m['description'], '/fleet-management', array_map(fn($i) => $i['title'], $f['modules'])));
 layout_start(['title' => $m['title'], 'description' => $m['description'], 'keywords' => $m['keywords'], 'path' => '/fleet-management']);
-page_hero($m['h1'], $f['intro'], 'Fleet Management');
+page_hero($m['h1'], $f['intro'], 'Fleet Management', art_frame(art_dashboard()));
 ?>
 <section class="section">
   <div class="container split">

@@ -28,6 +28,17 @@ PHP 8+ with a built-in SQLite database (MySQL optional). No build step, no Compo
 
 Folders `data/` and `assets/uploads/` must be writable by PHP (755, or 775 if saves fail). Back up `data/itrackzen.sqlite` regularly (File Manager download, or hPanel backups).
 
+## If the live site shows the OLD logo or looks broken
+
+This means the browser, Hostinger cache or CDN is serving old files, or the upload only partly replaced the old site. Fix it like this:
+
+1. In hPanel > File Manager > `public_html`, **delete the old site files first** (keep `data/itrackzen.sqlite` and `includes/config.local.php` if they exist), then upload and extract the new zip. Do not choose "skip existing files".
+2. In hPanel purge caches: Websites > Manage > Performance (or Cache Manager) > **Purge all** and, if Hostinger CDN is on, purge the CDN. If there is a LiteSpeed / "optimize CSS or JS" / "remove unused CSS" / "minify" setting, turn it **off** for this site.
+3. Hard refresh the browser (Ctrl+Shift+R) or open the site in a private window.
+4. Check the version: right-click the page > View page source > search for `generator`. It must say `ITrackZen site 2.0.0`. The logo file must open at `/assets/img/brand/itrackzen-logo.svg`.
+
+Logo files have new names (`/assets/img/brand/itrackzen-*.svg|png`) and every asset URL is versioned, so old cached logos cannot be reused once these files are uploaded.
+
 ## Roles in the admin
 - **owner**: everything, including users and the activity log.
 - **editor**: content, SEO, media, brand assets.

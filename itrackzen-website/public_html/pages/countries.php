@@ -3,7 +3,7 @@ $m = page_meta('countries'); $d = data('countries'); $items = $d['items'] ?? [];
 set_breadcrumbs([['Countries', '/countries']]);
 add_ld(['@type' => 'ItemList', 'name' => 'ITrackZen country guides', 'itemListElement' => array_map(fn($c, $i) => ['@type' => 'ListItem', 'position' => $i + 1, 'name' => 'GPS tracking in ' . $c['name'], 'url' => abs_url('/' . $c['slug'])], $items, array_keys($items))]);
 layout_start(['title' => $m['title'], 'description' => $m['description'], 'keywords' => $m['keywords'], 'path' => '/countries']);
-page_hero($m['h1'], $d['intro'], 'Countries');
+page_hero($m['h1'], $d['intro'], 'Countries', art_fleet_row());
 ?>
 <section class="section"><div class="container"><div class="grid grid-3">
 <?php foreach ($items as $c): ?>

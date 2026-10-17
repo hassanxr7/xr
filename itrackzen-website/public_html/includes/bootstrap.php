@@ -6,6 +6,7 @@
 declare(strict_types=1);
 
 define('ROOT', dirname(__DIR__));
+define('SITE_VERSION', '2.0.0');
 define('DATA_DIR', ROOT . '/data');
 
 if (is_file(__DIR__ . '/config.local.php')) {
@@ -123,13 +124,16 @@ function platform_url(string $key = 'base'): string
     return trim((string)($p[$map[$key] ?? 'base_url'] ?? ''));
 }
 
-/** Brand asset path (admin-uploaded logo or built-in default). */
+/** Brand asset URL (admin-uploaded logo or built-in default), versioned so browsers/CDNs never serve a stale logo. */
 function brand_asset(string $slot): string
 {
-    $defaults = ['logo' => '/assets/img/logo.svg', 'logo_light' => '/assets/img/logo-light.svg', 'icon' => '/assets/img/app-icon.svg', 'favicon32' => '/assets/img/favicon-32.png',
-                 'apple' => '/assets/img/apple-touch-icon.png', 'icon192' => '/assets/img/logo-192.png', 'icon512' => '/assets/img/logo-512.png'];
+    $b = '/assets/img/brand/';
+    $defaults = ['logo' => $b . 'itrackzen-logo.svg', 'logo_light' => $b . 'itrackzen-logo-white.svg', 'icon' => $b . 'itrackzen-app-icon.svg', 'favicon32' => $b . 'itrackzen-favicon-32.png',
+                 'apple' => $b . 'itrackzen-apple-touch-icon.png', 'icon192' => $b . 'itrackzen-icon-192.png', 'icon512' => $b . 'itrackzen-icon-512.png', 'favicon' => $b . 'itrackzen-favicon.svg', 'og' => $b . 'itrackzen-og.png'];
     $custom = (string)(site('brand_assets', [])[$slot] ?? '');
-    return $custom !== '' ? $custom : ($defaults[$slot] ?? '');
+    $path = $custom !== '' ? $custom : ($defaults[$slot] ?? '');
+    $file = ROOT . '/' . ltrim($path, '/');
+    return $path . (is_file($file) ? '?v=' . filemtime($file) : '');
 }
 
 /** Responsive, lazy image from a CMS image path. Returns '' when no image is set. */

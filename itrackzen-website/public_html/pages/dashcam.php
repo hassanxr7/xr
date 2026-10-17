@@ -3,7 +3,7 @@ $m = page_meta('dashcam'); $d = data('dashcam');
 set_breadcrumbs([['AI Dashcam & Video Telematics', '/ai-dashcam-video-telematics']]);
 add_ld(ld_service('AI Dashcam & Video Telematics', $m['description'], '/ai-dashcam-video-telematics', array_map(fn($i) => $i['title'], $d['detections'])));
 layout_start(['title' => $m['title'], 'description' => $m['description'], 'keywords' => $m['keywords'], 'path' => '/ai-dashcam-video-telematics']);
-page_hero($m['h1'], $d['intro'], 'AI Dashcam & Video Telematics');
+page_hero($m['h1'], $d['intro'], 'AI Dashcam & Video Telematics', art_frame(art_scene('camera')));
 ?>
 <section class="section">
   <div class="container split">

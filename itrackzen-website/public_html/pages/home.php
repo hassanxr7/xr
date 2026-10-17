@@ -2,13 +2,15 @@
 $m = page_meta('home'); $home = data('home'); $h = $home['hero']; $tour = $home['tour'];
 $faq = array_slice(data('faq')['items'] ?? [], 0, 6);
 $cats = data('services')['categories'] ?? [];
-$sol = array_slice(data('solutions')['items'] ?? [], 0, 6);
+$sol = data('solutions')['items'] ?? [];
 $countries = data('countries')['items'] ?? [];
 $brands = data('trackers')['brands'] ?? [];
 add_ld(ld_faq($faq));
 layout_start(['title' => $m['title'], 'description' => $m['description'], 'keywords' => $m['keywords'], 'path' => '/']);
+$ov = $home['overview'];
+$solArt = ['logistics' => 'truck', 'transport' => 'bus', 'taxi' => 'car', 'delivery' => 'van', 'construction' => 'trailer', 'tankers' => 'tanker', 'buses' => 'bus', 'government' => 'car', 'security' => 'van', 'rental' => 'car', 'personal' => 'moto', 'cross-border' => 'truck'];
 ?>
-<section class="hero">
+<section class="hero hero2">
   <div class="hero-bg" aria-hidden="true"></div>
   <div class="container hero-grid">
     <div class="hero-copy">
@@ -23,12 +25,14 @@ layout_start(['title' => $m['title'], 'description' => $m['description'], 'keywo
       </div>
       <ul class="chips reveal"><?php foreach ($h['chips'] as $c): ?><li><?= icon('check') ?><?= e($c) ?></li><?php endforeach; ?></ul>
     </div>
-    <div class="hero-visual reveal">
-      <?php if (!empty($h['image'])) { echo cms_img($h['image'], $h['image_alt'] ?? 'Fleet vehicles monitored with ITrackZen GPS tracking', 'hero-photo', 960, 640, true); } else { echo art_dashboard(); } ?>
-      <p class="illus">Illustrative interface with sample data</p>
+    <div class="stage reveal">
+      <?php if (!empty($h['image'])): echo cms_img($h['image'], $h['image_alt'] ?? 'Fleet vehicles monitored with ITrackZen GPS tracking', 'hero-photo', 960, 640, true); else: ?>
+      <div class="stage-dash"><?= art_dashboard() ?></div>
+      <div class="stage-phone"><?= art_phone() ?></div>
       <div class="float-card fc-1"><span class="dot dot-green"></span><div><strong>TRK-204 &middot; Moving</strong><small>62 km/h &middot; Nairobi &rarr; Mombasa</small></div></div>
       <div class="float-card fc-2"><span class="fc-ico"><?= icon('camera') ?></span><div><strong>AI dashcam alert</strong><small>Phone use detected</small></div></div>
-      <div class="float-card fc-3 art-card"><?= art_tracker('wired') ?><div><strong>Any tracker</strong><small><?= count_models() ?>+ models listed</small></div></div>
+      <?php endif; ?>
+      <p class="illus">Illustrative interface with sample data</p>
     </div>
   </div>
   <div class="container trust">
@@ -47,12 +51,24 @@ layout_start(['title' => $m['title'], 'description' => $m['description'], 'keywo
   </div>
 </section>
 
+<section class="section fleet-sec">
+  <div class="container">
+    <?php section_head('Every vehicle, one platform', 'Track trucks, buses, vans, cars, motorcycles and assets', 'Whatever you run, ITrackZen gives you location, alerts and reports in one place, wherever your devices support them.'); ?>
+    <div class="fleet-strip">
+      <?php foreach ([['truck', 'Trucks & haulage'], ['bus', 'Buses & coaches'], ['van', 'Vans & delivery'], ['car', 'Cars & rental'], ['moto', 'Motorcycles'], ['tanker', 'Tankers'], ['trailer', 'Trailers & assets']] as [$t, $l]): ?>
+      <a class="fleet-card reveal" href="/solutions"><?= art_vehicle($t, $l) ?><span><?= e($l) ?></span></a>
+      <?php endforeach; ?>
+    </div>
+  </div>
+</section>
+
 <section class="section tight paths-sec">
   <div class="container">
     <div class="banner reveal<?= !empty($home['banner']['image']) ? ' has-img' : '' ?>">
       <?php if (!empty($home['banner']['image'])): ?><?= cms_img($home['banner']['image'], $home['banner']['alt'] ?? '', 'banner-img', 1200, 520) ?><?php endif; ?>
       <div class="banner-copy"><p class="eyebrow light"><?= e($home['banner']['eyebrow']) ?></p><h2><?= e($home['banner']['title']) ?></h2><p><?= e($home['banner']['text']) ?></p>
         <div class="btn-row"><a class="btn btn-primary" href="/request-quote"><?= e($home['banner']['cta1']) ?></a><a class="btn btn-light" href="<?= e(platform_url('demo')) ?>" target="_blank" rel="noopener"><?= e($home['banner']['cta2']) ?></a></div></div>
+      <div class="banner-art" aria-hidden="true"><?= art_phone() ?></div>
     </div>
     <div class="grid grid-3 paths">
       <?php foreach ($home['paths'] as $pth): $href = ['demo' => platform_url('demo'), 'quote' => '/request-quote', 'login' => platform_url('login')][$pth['kind']] ?? '/'; $ext = $pth['kind'] !== 'quote'; ?>
@@ -62,24 +78,18 @@ layout_start(['title' => $m['title'], 'description' => $m['description'], 'keywo
   </div>
 </section>
 
-<section class="section">
+<section class="section alt">
   <div class="container">
     <?php section_head('What we do', $home['overview_heading'], $home['overview_text']); ?>
-    <div class="grid grid-3">
-      <?php foreach ($home['overview'] as $o) { feature_card($o); } ?>
+    <div class="bento">
+      <article class="tile t-a reveal"><div class="tile-media dark"><?= art_scene('map') ?></div><div class="tile-copy"><h3>Real-time GPS tracking</h3><p><?= e($ov[0]['text']) ?></p><a class="more" href="/gps-tracking-services">Explore tracking <?= icon('arrow') ?></a></div></article>
+      <article class="tile t-b reveal"><div class="tile-media dark"><?= art_scene('camera') ?></div><div class="tile-copy"><h3>AI dashcams &amp; video</h3><p><?= e($ov[2]['text']) ?></p><a class="more" href="/ai-dashcam-video-telematics">See video telematics <?= icon('arrow') ?></a></div></article>
+      <article class="tile t-c reveal"><div class="tile-media dark"><?= art_scene('analytics') ?></div><div class="tile-copy"><h3>Fleet management</h3><p><?= e($ov[1]['text']) ?></p><a class="more" href="/fleet-management">Fleet dashboard <?= icon('arrow') ?></a></div></article>
+      <article class="tile t-d reveal"><div class="tile-media dark"><?= art_scene('alerts') ?></div><div class="tile-copy"><h3>Alerts, geofencing &amp; reports</h3><p>Overspeed, ignition, route deviation and geofence alerts, plus trip and summary reports.</p><a class="more" href="/alerts-geofencing-reports">How alerts work <?= icon('arrow') ?></a></div></article>
+      <article class="tile t-e reveal"><div class="tile-media dark gauge"><?= art_gauge() ?></div><div class="tile-copy"><h3>Fuel monitoring</h3><p><?= e($ov[3]['text']) ?></p><a class="more" href="/fuel-monitoring">Fuel monitoring <?= icon('arrow') ?></a></div></article>
     </div>
-  </div>
-</section>
-
-<section class="section section-split alt">
-  <div class="container split">
-    <div class="split-art reveal"><?= art_truck() ?><div class="orbit-card oc-1"><?= icon('fuel') ?><span>Fuel level 72%</span></div><div class="orbit-card oc-2"><?= icon('geofence') ?><span>Inside geofence</span></div></div>
-    <div class="split-copy reveal">
-      <p class="eyebrow">Built for African roads</p>
-      <h2>Truck, car, bus and motorcycle tracking in one platform</h2>
-      <p>Long corridors, remote areas and mixed network coverage need dependable tracking. ITrackZen stores data on the device when signal is lost and fills in your route history when coverage returns, so your records stay complete.</p>
-      <?php check_list(['Truck tracking system with fuel, door and temperature sensors', 'Car and bus tracking with driver ID and speed control', 'Compact motorcycle and asset trackers for bikes, trailers and equipment', 'Cross-border visibility across East and Central Africa']); ?>
-      <div class="btn-row"><a class="btn btn-primary" href="/gps-tracking-services">Explore GPS services</a><a class="btn btn-outline" href="/solutions">View solutions</a></div>
+    <div class="grid grid-3 mt-lg">
+      <?php feature_card(['icon' => 'driver', 'title' => 'Driver behaviour & safety', 'text' => 'Speed, driving events, driver ID and SOS alerts to reduce risk.', 'href' => '/driver-behaviour-safety']); feature_card($ov[4]); feature_card($ov[5]); ?>
     </div>
   </div>
 </section>
@@ -94,7 +104,7 @@ layout_start(['title' => $m['title'], 'description' => $m['description'], 'keywo
         <?php endforeach; ?>
       </div>
       <div class="tour-screen">
-        <div class="tour-bar"><span class="d r"></span><span class="d y"></span><span class="d g"></span><em>ITrackZen &middot; Live demo</em><i class="tour-progress"><b></b></i></div>
+        <div class="tour-bar"><span class="d r"></span><span class="d y"></span><span class="d g"></span><em>ITrackZen &middot; Illustrative demo</em><i class="tour-progress"><b></b></i></div>
         <div class="tour-stage">
           <?php foreach ($tour['tabs'] as $i => $t): ?>
           <div class="scene-wrap<?= $i === 0 ? ' is-active' : '' ?>" role="tabpanel" id="scene-<?= e($t['key']) ?>" aria-labelledby="tab-<?= e($t['key']) ?>" data-key="<?= e($t['key']) ?>">
@@ -106,6 +116,27 @@ layout_start(['title' => $m['title'], 'description' => $m['description'], 'keywo
         </div>
       </div>
     </div>
+  </div>
+</section>
+
+<section class="section alt">
+  <div class="container">
+    <?php section_head('Industries', 'Built for the way your business moves', 'Logistics, transport, taxis, delivery, construction, tankers, buses, government, security and more.'); ?>
+    <div class="rail" tabindex="0" aria-label="Industry solutions">
+      <?php foreach ($sol as $s): ?>
+      <a class="rail-card reveal" href="/solutions#<?= e($s['id']) ?>"><div class="rail-art"><?php $im = cms_img($s['image'] ?? '', $s['image_alt'] ?? '', 'rail-photo', 400, 240); echo $im ?: art_vehicle($solArt[$s['id']] ?? 'truck', $s['title']); ?></div><h3><?= e($s['title']) ?></h3><p><?= e($s['summary']) ?></p><span class="more">View solution <?= icon('arrow') ?></span></a>
+      <?php endforeach; ?>
+    </div>
+    <p class="center mt-lg"><a class="btn btn-outline" href="/solutions">All industry solutions</a></p>
+  </div>
+</section>
+
+<section class="section">
+  <div class="container">
+    <?php section_head('How it works', 'From installation to insight in four steps'); ?>
+    <ol class="steps">
+      <?php foreach ($home['steps'] as $s): ?><li class="reveal"><span class="step-n"><?= e($s['n']) ?></span><h3><?= e($s['title']) ?></h3><p><?= e($s['text']) ?></p></li><?php endforeach; ?>
+    </ol>
   </div>
 </section>
 
@@ -126,7 +157,7 @@ layout_start(['title' => $m['title'], 'description' => $m['description'], 'keywo
 
 <section class="stats-band">
   <div class="container stats">
-    <div class="stat reveal"><b data-count="<?= count_models() ?>"><?= count_models() ?>+</b><span>supported tracker models</span></div>
+    <div class="stat reveal"><b data-count="<?= count_models() ?>"><?= count_models() ?>+</b><span>tracker models listed</span></div>
     <div class="stat reveal"><b data-count="<?= count($brands) ?>"><?= count($brands) ?></b><span>brands and protocol families</span></div>
     <div class="stat reveal"><b data-count="<?= count(all_service_items()) ?>"><?= count(all_service_items()) ?></b><span>tracking and fleet features</span></div>
     <div class="stat reveal"><b data-count="<?= count($countries) ?>"><?= count($countries) ?></b><span>focus country guides</span></div>
@@ -135,26 +166,7 @@ layout_start(['title' => $m['title'], 'description' => $m['description'], 'keywo
 
 <section class="section">
   <div class="container">
-    <?php section_head('Solutions', 'Tracking solutions for every industry', 'Logistics, transport, taxis, delivery, construction, tankers, buses, government, security and more.'); ?>
-    <div class="grid grid-3">
-      <?php foreach ($sol as $s) { feature_card(['icon' => $s['icon'], 'title' => $s['title'], 'text' => $s['summary'], 'href' => '/solutions#' . $s['id']]); } ?>
-    </div>
-    <p class="center mt-lg"><a class="btn btn-outline" href="/solutions">All 12 industry solutions</a></p>
-  </div>
-</section>
-
-<section class="section alt">
-  <div class="container">
-    <?php section_head('How it works', 'From installation to insight in four steps'); ?>
-    <ol class="steps">
-      <?php foreach ($home['steps'] as $s): ?><li class="reveal"><span class="step-n"><?= e($s['n']) ?></span><h3><?= e($s['title']) ?></h3><p><?= e($s['text']) ?></p></li><?php endforeach; ?>
-    </ol>
-  </div>
-</section>
-
-<section class="section">
-  <div class="container">
-    <?php section_head('Coverage', 'GPS tracking across Africa and beyond', 'Our focus markets today. Each guide explains local use cases, connectivity conditions and how to start.'); ?>
+    <?php section_head('Coverage', 'GPS tracking across East and Central Africa', 'Our focus markets today. Each guide explains local use cases, connectivity conditions and how to start.'); ?>
     <ul class="country-grid">
       <?php foreach ($countries as $c): ?><li class="reveal"><a href="/<?= e($c['slug']) ?>"><?= icon('pin') ?><span>GPS Tracking <?= e($c['name']) ?></span><?= icon('arrow') ?></a></li><?php endforeach; ?>
     </ul>
@@ -167,7 +179,7 @@ layout_start(['title' => $m['title'], 'description' => $m['description'], 'keywo
   <div class="container narrow">
     <?php section_head('FAQ', 'Questions fleet owners ask us'); ?>
     <?php faq_list($faq, true); ?>
-    <p class="center mt-lg"><a class="btn btn-outline" href="/faq">Read all FAQs</a></p>
+    <p class="center mt-lg"><a class="btn btn-outline" href="/faq">FAQ &amp; support</a></p>
   </div>
 </section>
 

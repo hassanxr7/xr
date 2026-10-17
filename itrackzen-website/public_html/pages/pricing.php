@@ -4,7 +4,7 @@ set_breadcrumbs([['Pricing', '/pricing']]);
 add_ld(ld_service('ITrackZen GPS Tracking Plans', $m['description'], '/pricing', array_map(fn($x) => $x['name'] . ' Plan', array_filter($p['plans'], fn($y) => ($y['active'] ?? true)))));
 add_ld(ld_faq(array_slice(data('faq')['items'], 3, 3)));
 layout_start(['title' => $m['title'], 'description' => $m['description'], 'keywords' => $m['keywords'], 'path' => '/pricing']);
-page_hero($m['h1'], $p['intro'], 'Pricing & Plans');
+page_hero($m['h1'], $p['intro'], 'Pricing & Plans', art_frame(art_vehicle('bus')));
 ?>
 <section class="section">
   <div class="container">

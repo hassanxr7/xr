@@ -6,7 +6,7 @@ set_breadcrumbs([[$m['h1'], $path]]);
 add_ld(ld_service($m['h1'], $m['description'], $path));
 if (!empty($f['faq'])) { add_ld(ld_faq($f['faq'])); }
 layout_start(['title' => $m['title'], 'description' => $m['description'], 'keywords' => $m['keywords'], 'path' => $path]);
-page_hero($m['h1'], $f['intro'], $f['eyebrow']);
+page_hero($m['h1'], $f['intro'], $f['eyebrow'], art_frame(['fuel-monitoring' => art_gauge(), 'driver-behaviour-safety' => art_scene('camera'), 'alerts-geofencing-reports' => art_scene('alerts')][$slug] ?? art_vehicle('truck')));
 ?>
 <section class="section">
   <div class="container split">

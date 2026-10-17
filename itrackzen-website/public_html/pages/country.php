@@ -4,7 +4,7 @@ set_breadcrumbs([['Countries', '/countries'], ['GPS Tracking ' . $name, $path]])
 add_ld(ld_service('GPS Tracking and Fleet Management in ' . $name, $c['description'], $path));
 add_ld(ld_faq($c['faq']));
 layout_start(['title' => $c['title'], 'description' => $c['description'], 'keywords' => $c['keywords'], 'path' => $path]);
-page_hero($c['h1'], $c['hero_text'], $name);
+page_hero($c['h1'], $c['hero_text'], $name, art_fleet_row());
 $byslug = []; foreach (data('countries')['items'] as $o) { $byslug[$o['slug']] = $o; }
 ?>
 <section class="section">

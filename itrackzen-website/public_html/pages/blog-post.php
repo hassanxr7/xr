@@ -3,7 +3,7 @@ $p = $POST;
 set_breadcrumbs([['Blog', '/blog'], [$p['title'], '/blog/' . $p['slug']]]);
 add_ld(['@type' => 'BlogPosting', 'headline' => $p['title'], 'description' => $p['description'], 'datePublished' => $p['date'], 'dateModified' => $p['date'],
     'author' => ['@type' => 'Organization', 'name' => site('brand')], 'publisher' => ['@id' => base_url() . '/#organization'],
-    'mainEntityOfPage' => abs_url('/blog/' . $p['slug']), 'image' => abs_url($p['image'] ?: site('og_image', '/assets/img/og-image.png'))]);
+    'mainEntityOfPage' => abs_url('/blog/' . $p['slug']), 'image' => abs_url($p['image'] ?: brand_asset('og'))]);
 layout_start(['title' => mb_strlen($p['title']) > 48 ? $p['title'] : $p['title'] . ' | ITrackZen', 'description' => $p['description'], 'path' => '/blog/' . $p['slug'], 'og_type' => 'article', 'image' => $p['image'] ?: null]);
 page_hero($p['title'], $p['description'], $p['tag'] . ' · ' . date('j F Y', strtotime($p['date'])));
 ?>

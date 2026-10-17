@@ -2,7 +2,7 @@
 $m = page_meta('about'); $a = data('about'); $countries = data('countries')['items'] ?? [];
 set_breadcrumbs([['About Us', '/about-us']]);
 layout_start(['title' => $m['title'], 'description' => $m['description'], 'keywords' => $m['keywords'], 'path' => '/about-us']);
-page_hero($m['h1'], $a['intro'], site('tagline'));
+page_hero($m['h1'], $a['intro'], site('tagline'), art_frame(art_vehicle('van')));
 ?>
 <section class="section">
   <div class="container split">

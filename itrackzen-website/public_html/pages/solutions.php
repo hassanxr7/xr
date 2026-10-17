@@ -3,7 +3,7 @@ $m = page_meta('solutions'); $s = data('solutions');
 set_breadcrumbs([['Solutions', '/solutions']]);
 add_ld(ld_service('Industry GPS Tracking Solutions', $m['description'], '/solutions', array_map(fn($i) => $i['title'], $s['items'])));
 layout_start(['title' => $m['title'], 'description' => $m['description'], 'keywords' => $m['keywords'], 'path' => '/solutions']);
-page_hero($m['h1'], $s['intro'], 'Solutions');
+page_hero($m['h1'], $s['intro'], 'Solutions', art_fleet_row());
 ?>
 <nav class="subnav" aria-label="Industries"><div class="container"><?php foreach ($s['items'] as $i): ?><a href="#<?= e($i['id']) ?>"><?= e($i['title']) ?></a><?php endforeach; ?></div></nav>
 <section class="section">
