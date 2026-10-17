@@ -144,7 +144,8 @@ VALUES
   (5, 'paypal', 'PayPal', 'USD', 2, '#1d4ed8', 3000, 'PayPal email', 'name@email.com', '^[^@\s]+@[^@\s]+\.[^@\s]+$', NULL, NULL, NULL, NULL, 1, 5),
   (6, 'zaad', 'ZAAD', 'USD', 2, '#dc2626', 10000, 'ZAAD number', 'e.g. 63xxxxxxx', '^\+?[0-9]{7,15}$', NULL, NULL, NULL, NULL, 1, 6),
   (7, 'edahab', 'eDahab', 'USD', 2, '#f59e0b', 10000, 'eDahab number', 'e.g. 65xxxxxxx', '^\+?[0-9]{7,15}$', NULL, NULL, NULL, NULL, 1, 7),
-  (8, 'sahal', 'Sahal', 'USD', 2, '#7c3aed', 10000, 'Sahal number', 'e.g. 90xxxxxxx', '^\+?[0-9]{7,15}$', NULL, NULL, NULL, NULL, 1, 8);
+  (8, 'sahal', 'Sahal', 'USD', 2, '#7c3aed', 10000, 'Sahal number', 'e.g. 90xxxxxxx', '^\+?[0-9]{7,15}$', NULL, NULL, NULL, NULL, 1, 8),
+  (9, 'sovamoney', 'SovaMoney', 'USD', 2, '#0ea5e9', 5000, 'SovaMoney account (email or phone)', 'e.g. name@email.com or 2526xxxxxxx', NULL, NULL, NULL, NULL, NULL, 1, 9);
 
 INSERT OR IGNORE INTO `pairs`
   (`id`, `from_gateway_id`, `to_gateway_id`, `rate`, `fee_percent`, `fee_fixed`, `min_amount`, `max_amount`, `is_active`, `sort_order`)
@@ -192,7 +193,11 @@ VALUES
   (41, 4, 8, 1, 2.000, 0, 10, 5000, 1, 41),
   (42, 5, 6, 1, 8.000, 0, 10, 2000, 1, 42),
   (43, 5, 7, 1, 8.000, 0, 10, 2000, 1, 43),
-  (44, 5, 8, 1, 8.000, 0, 10, 2000, 1, 44);
+  (44, 5, 8, 1, 8.000, 0, 10, 2000, 1, 44),
+  (45, 1, 9, 1, 2.000, 0,  5, 5000, 1, 45),
+  (46, 6, 9, 1, 2.000, 0,  5, 5000, 1, 46),
+  (47, 7, 9, 1, 2.000, 0,  5, 5000, 1, 47),
+  (48, 8, 9, 1, 2.000, 0,  5, 5000, 1, 48);
 
 INSERT OR IGNORE INTO `settings` (`key`, `value`) VALUES
   ('site_name', 'Hufan Exchange'),
@@ -207,6 +212,7 @@ INSERT OR IGNORE INTO `settings` (`key`, `value`) VALUES
   ('timezone', 'Africa/Mogadishu'),
   ('nebdex_schema_v2', '1'),
   ('local_wallets_v1', '1'),
+  ('sovamoney_receive_v1', '1'),
   ('default_lang', 'en'),
   ('order_prefix', 'HX'),
   ('order_expiry_minutes', '60'),

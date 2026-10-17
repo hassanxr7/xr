@@ -121,3 +121,68 @@ function upgrade_local_wallets(): void
         error_log('[Hufan] Local wallets upgrade failed: ' . $e->getMessage());
     }
 }
+
+/**
+ * Add SovaMoney as a "receive" gateway with pairs from every local wallet.
+ * SovaMoney's API has no send-to-customer endpoint (merchant withdrawals only
+ * go to the merchant's own methods), so payouts are sent by the admin like
+ * MoneyGo/PayPal. Reuses a SovaMoney gateway the admin may have added by hand.
+ */
+function upgrade_sovamoney_receive(): void
+{
+    static $checked = false;
+    if ($checked) {
+        return;
+    }
+    $checked = true;
+    if (setting('sovamoney_receive_v1', '0') === '1') {
+        return;
+    }
+    try {
+        $gw = row("SELECT * FROM gateways WHERE code = 'sovamoney' OR LOWER(name) LIKE 'sova%' ORDER BY id LIMIT 1");
+        if ($gw) {
+            $sovaId = (int) $gw['id'];
+            q('UPDATE gateways SET is_active = 1 WHERE id = ?', [$sovaId]);
+        } else {
+            $maxGwSort = (int) (row('SELECT COALESCE(MAX(sort_order), 0) AS m FROM gateways')['m'] ?? 0);
+            $sovaId = insert('gateways', [
+                'code'                => 'sovamoney',
+                'name'                => 'SovaMoney',
+                'currency'            => 'USD',
+                'decimals'            => 2,
+                'color'               => '#0ea5e9',
+                'reserve'             => 5000,
+                'account_label'       => 'SovaMoney account (email or phone)',
+                'account_placeholder' => 'e.g. name@email.com or 2526xxxxxxx',
+                'is_active'           => 1,
+                'sort_order'          => $maxGwSort + 1,
+            ]);
+        }
+
+        $maxPairSort = (int) (row('SELECT COALESCE(MAX(sort_order), 0) AS m FROM pairs')['m'] ?? 0);
+        foreach (rows("SELECT id FROM gateways WHERE code IN ('evc','zaad','edahab','sahal')") as $w) {
+            $from = (int) $w['id'];
+            $existing = row('SELECT id FROM pairs WHERE from_gateway_id = ? AND to_gateway_id = ?', [$from, $sovaId]);
+            if ($existing) {
+                q('UPDATE pairs SET is_active = 1 WHERE id = ?', [$existing['id']]);
+                continue;
+            }
+            insert('pairs', [
+                'from_gateway_id' => $from,
+                'to_gateway_id'   => $sovaId,
+                'rate'            => 1,
+                'fee_percent'     => 2,
+                'fee_fixed'       => 0,
+                'min_amount'      => 5,
+                'max_amount'      => 5000,
+                'is_active'       => 1,
+                'sort_order'      => ++$maxPairSort,
+            ]);
+        }
+
+        save_setting('sovamoney_receive_v1', '1');
+        settings(true);
+    } catch (Throwable $e) {
+        error_log('[Hufan] SovaMoney receive upgrade failed: ' . $e->getMessage());
+    }
+}
