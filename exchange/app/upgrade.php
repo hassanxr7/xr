@@ -186,3 +186,63 @@ function upgrade_sovamoney_receive(): void
         error_log('[Hufan] SovaMoney receive upgrade failed: ' . $e->getMessage());
     }
 }
+
+/**
+ * Payout log table for automatic SovaMoney payouts (one row per order; the
+ * UNIQUE order_id is what guarantees an order is never paid out twice), and
+ * switch the SovaMoney receive field to the U-ID the payout API expects.
+ */
+function upgrade_sovamoney_payout(): void
+{
+    static $checked = false;
+    if ($checked) {
+        return;
+    }
+    $checked = true;
+    if (setting('sovamoney_payout_v1', '0') === '1') {
+        return;
+    }
+    try {
+        if (db_driver() === 'sqlite') {
+            q('CREATE TABLE IF NOT EXISTS sovamoney_payouts (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                order_id INTEGER NOT NULL UNIQUE REFERENCES orders(id) ON DELETE CASCADE,
+                uid TEXT NOT NULL,
+                amount NUMERIC NOT NULL,
+                reference TEXT NOT NULL,
+                status TEXT NOT NULL,
+                trx TEXT NULL,
+                message TEXT NULL,
+                response TEXT NULL,
+                attempts INTEGER NOT NULL DEFAULT 1,
+                created_at TEXT NOT NULL,
+                updated_at TEXT NOT NULL
+            )');
+        } else {
+            q('CREATE TABLE IF NOT EXISTS `sovamoney_payouts` (
+                `id` INT UNSIGNED NOT NULL AUTO_INCREMENT,
+                `order_id` INT UNSIGNED NOT NULL,
+                `uid` VARCHAR(190) NOT NULL,
+                `amount` DECIMAL(18,2) NOT NULL,
+                `reference` VARCHAR(40) NOT NULL,
+                `status` VARCHAR(20) NOT NULL,
+                `trx` VARCHAR(190) NULL,
+                `message` VARCHAR(500) NULL,
+                `response` TEXT NULL,
+                `attempts` INT NOT NULL DEFAULT 1,
+                `created_at` DATETIME NOT NULL,
+                `updated_at` DATETIME NOT NULL,
+                PRIMARY KEY (`id`),
+                UNIQUE KEY `uq_sovamoney_payouts_order` (`order_id`),
+                CONSTRAINT `fk_sovamoney_payouts_order` FOREIGN KEY (`order_id`) REFERENCES `orders` (`id`) ON DELETE CASCADE
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci');
+        }
+        q("UPDATE gateways SET account_label = 'SovaMoney U-ID', account_placeholder = 'e.g. U827389',
+              instructions = 'Your U-ID is shown in your SovaMoney wallet (e.g. U827389).'
+           WHERE code = 'sovamoney' AND account_label = 'SovaMoney account (email or phone)'");
+        save_setting('sovamoney_payout_v1', '1');
+        settings(true);
+    } catch (Throwable $e) {
+        error_log('[Hufan] SovaMoney payout schema upgrade failed: ' . $e->getMessage());
+    }
+}

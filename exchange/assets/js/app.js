@@ -73,6 +73,49 @@
     el.addEventListener('change', function () { if (el.form) el.form.submit(); });
   });
 
+  // ---- SovaMoney U-ID check (checkout) -----------------------------------
+  $$('[data-sova-verify]').forEach(function (input) {
+    var form = input.form;
+    var out = form && $('[data-sova-result]', form);
+    var tokenEl = form && $('input[name="_csrf"]', form);
+    if (!out || !tokenEl || !window.fetch) return;
+    var last = '';
+    var seq = 0;
+    function show(text, ok) {
+      out.hidden = !text;
+      out.textContent = text || '';
+      out.style.color = ok === true ? 'var(--brand)' : (ok === false ? '#dc2626' : '');
+      out.style.fontWeight = ok === true ? '600' : '';
+    }
+    function check() {
+      var uid = input.value.trim();
+      if (uid === last) return;
+      last = uid;
+      if (uid.length < 3) { show(''); return; }
+      var mine = ++seq;
+      show(input.getAttribute('data-sova-checking'));
+      var body = new URLSearchParams();
+      body.append('_csrf', tokenEl.value);
+      body.append('uid', uid);
+      fetch(input.getAttribute('data-sova-verify'), {
+        method: 'POST',
+        credentials: 'same-origin',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: body.toString()
+      }).then(function (r) { return r.json(); }).then(function (res) {
+        if (mine !== seq) return;
+        show(res.message || '', !!res.ok);
+      }).catch(function () {
+        if (mine !== seq) return;
+        last = '';
+        show('');
+      });
+    }
+    input.addEventListener('change', check);
+    input.addEventListener('blur', check);
+    if (input.value.trim() !== '') check();
+  });
+
   // ---- Print -------------------------------------------------------------
   $$('[data-print]').forEach(function (btn) {
     btn.addEventListener('click', function () { window.print(); });

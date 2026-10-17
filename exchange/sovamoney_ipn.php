@@ -39,6 +39,7 @@ if ($status === 'success' && $order['status'] === 'awaiting_payment') {
         'payment_ref' => mb_substr($ref, 0, 120),
     ]);
     telegram_notify(order_telegram_text(row('SELECT * FROM orders WHERE id = ?', [$order['id']]), '💳 SovaMoney payment confirmed'));
+    sovamoney_payout_order((int) $order['id']);
 } elseif ($status !== 'success') {
     order_log((int) $order['id'], $order['status'], 'SovaMoney reported payment status: ' . $status, 'system');
 }

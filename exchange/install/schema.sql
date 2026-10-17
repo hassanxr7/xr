@@ -153,6 +153,24 @@ CREATE TABLE IF NOT EXISTS `nebdex_methods` (
   CONSTRAINT `fk_nebdex_methods_gateway` FOREIGN KEY (`gateway_id`) REFERENCES `gateways` (`id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
+CREATE TABLE IF NOT EXISTS `sovamoney_payouts` (
+  `id`         INT UNSIGNED NOT NULL AUTO_INCREMENT,
+  `order_id`   INT UNSIGNED NOT NULL,
+  `uid`        VARCHAR(190) NOT NULL,
+  `amount`     DECIMAL(18,2) NOT NULL,
+  `reference`  VARCHAR(40) NOT NULL,
+  `status`     VARCHAR(20) NOT NULL,
+  `trx`        VARCHAR(190) NULL,
+  `message`    VARCHAR(500) NULL,
+  `response`   TEXT NULL,
+  `attempts`   INT NOT NULL DEFAULT 1,
+  `created_at` DATETIME NOT NULL,
+  `updated_at` DATETIME NOT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `uq_sovamoney_payouts_order` (`order_id`),
+  CONSTRAINT `fk_sovamoney_payouts_order` FOREIGN KEY (`order_id`) REFERENCES `orders` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
 -- ---------------------------------------------------------------------------
 -- Seed data. Everything below can be changed later from the admin panel.
 -- ---------------------------------------------------------------------------
@@ -168,7 +186,7 @@ VALUES
   (6, 'zaad', 'ZAAD', 'USD', 2, '#dc2626', 10000, 'ZAAD number', 'e.g. 63xxxxxxx', '^\\+?[0-9]{7,15}$', NULL, NULL, NULL, NULL, 1, 6),
   (7, 'edahab', 'eDahab', 'USD', 2, '#f59e0b', 10000, 'eDahab number', 'e.g. 65xxxxxxx', '^\\+?[0-9]{7,15}$', NULL, NULL, NULL, NULL, 1, 7),
   (8, 'sahal', 'Sahal', 'USD', 2, '#7c3aed', 10000, 'Sahal number', 'e.g. 90xxxxxxx', '^\\+?[0-9]{7,15}$', NULL, NULL, NULL, NULL, 1, 8),
-  (9, 'sovamoney', 'SovaMoney', 'USD', 2, '#0ea5e9', 5000, 'SovaMoney account (email or phone)', 'e.g. name@email.com or 2526xxxxxxx', NULL, NULL, NULL, NULL, NULL, 1, 9);
+  (9, 'sovamoney', 'SovaMoney', 'USD', 2, '#0ea5e9', 5000, 'SovaMoney U-ID', 'e.g. U827389', NULL, NULL, NULL, NULL, 'Your U-ID is shown in your SovaMoney wallet (e.g. U827389).', 1, 9);
 
 INSERT IGNORE INTO `pairs`
   (`id`, `from_gateway_id`, `to_gateway_id`, `rate`, `fee_percent`, `fee_fixed`, `min_amount`, `max_amount`, `is_active`, `sort_order`)
@@ -236,6 +254,7 @@ INSERT IGNORE INTO `settings` (`key`, `value`) VALUES
   ('nebdex_schema_v2', '1'),
   ('local_wallets_v1', '1'),
   ('sovamoney_receive_v1', '1'),
+  ('sovamoney_payout_v1', '1'),
   ('default_lang', 'en'),
   ('order_prefix', 'HX'),
   ('order_expiry_minutes', '60'),

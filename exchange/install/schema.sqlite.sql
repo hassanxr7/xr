@@ -130,6 +130,21 @@ CREATE TABLE IF NOT EXISTS `nebdex_methods` (
 );
 CREATE INDEX IF NOT EXISTS `idx_nebdex_methods_gateway` ON `nebdex_methods` (`gateway_id`, `sort_order`);
 
+CREATE TABLE IF NOT EXISTS `sovamoney_payouts` (
+  `id`         INTEGER PRIMARY KEY AUTOINCREMENT,
+  `order_id`   INTEGER NOT NULL UNIQUE REFERENCES `orders` (`id`) ON DELETE CASCADE,
+  `uid`        TEXT NOT NULL,
+  `amount`     NUMERIC NOT NULL,
+  `reference`  TEXT NOT NULL,
+  `status`     TEXT NOT NULL,
+  `trx`        TEXT NULL,
+  `message`    TEXT NULL,
+  `response`   TEXT NULL,
+  `attempts`   INTEGER NOT NULL DEFAULT 1,
+  `created_at` TEXT NOT NULL,
+  `updated_at` TEXT NOT NULL
+);
+
 -- ---------------------------------------------------------------------------
 -- Seed data. Everything below can be changed later from the admin panel.
 -- ---------------------------------------------------------------------------
@@ -145,7 +160,7 @@ VALUES
   (6, 'zaad', 'ZAAD', 'USD', 2, '#dc2626', 10000, 'ZAAD number', 'e.g. 63xxxxxxx', '^\+?[0-9]{7,15}$', NULL, NULL, NULL, NULL, 1, 6),
   (7, 'edahab', 'eDahab', 'USD', 2, '#f59e0b', 10000, 'eDahab number', 'e.g. 65xxxxxxx', '^\+?[0-9]{7,15}$', NULL, NULL, NULL, NULL, 1, 7),
   (8, 'sahal', 'Sahal', 'USD', 2, '#7c3aed', 10000, 'Sahal number', 'e.g. 90xxxxxxx', '^\+?[0-9]{7,15}$', NULL, NULL, NULL, NULL, 1, 8),
-  (9, 'sovamoney', 'SovaMoney', 'USD', 2, '#0ea5e9', 5000, 'SovaMoney account (email or phone)', 'e.g. name@email.com or 2526xxxxxxx', NULL, NULL, NULL, NULL, NULL, 1, 9);
+  (9, 'sovamoney', 'SovaMoney', 'USD', 2, '#0ea5e9', 5000, 'SovaMoney U-ID', 'e.g. U827389', NULL, NULL, NULL, NULL, 'Your U-ID is shown in your SovaMoney wallet (e.g. U827389).', 1, 9);
 
 INSERT OR IGNORE INTO `pairs`
   (`id`, `from_gateway_id`, `to_gateway_id`, `rate`, `fee_percent`, `fee_fixed`, `min_amount`, `max_amount`, `is_active`, `sort_order`)
@@ -213,6 +228,7 @@ INSERT OR IGNORE INTO `settings` (`key`, `value`) VALUES
   ('nebdex_schema_v2', '1'),
   ('local_wallets_v1', '1'),
   ('sovamoney_receive_v1', '1'),
+  ('sovamoney_payout_v1', '1'),
   ('default_lang', 'en'),
   ('order_prefix', 'HX'),
   ('order_expiry_minutes', '60'),

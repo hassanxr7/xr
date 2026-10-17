@@ -13,6 +13,12 @@ $self = 'admin/order.php?id=' . $order['id'];
 
 if (is_post()) {
     csrf_check();
+    if (input('action') === 'sovamoney_payout') {
+        $r = sovamoney_payout_order((int) $order['id'], 'admin', (int) $adm['id'], true);
+        $kind = ['success' => 'success', 'failed' => 'error', 'unknown' => 'error'][$r['status']] ?? 'info';
+        flash($kind, t('a_sova_payout_result_' . $r['status'], ['msg' => $r['message']]));
+        redirect($self);
+    }
     $newStatus = input('quick') !== '' ? input('quick') : input('status');
     $message = mb_substr(input('message'), 0, 500);
     $extra = [
@@ -40,6 +46,10 @@ $toGw = $order['to_gateway_id'] ? row('SELECT * FROM gateways WHERE id = ?', [$o
 $fd = (int) $order['from_decimals'];
 $td = (int) $order['to_decimals'];
 $isOpen = in_array($order['status'], ['awaiting_payment', 'pending', 'processing'], true);
+$sovaPayout = is_sovamoney_gateway($toGw) ? sovamoney_payout_row((int) $order['id']) : null;
+$sovaCanSend = is_sovamoney_gateway($toGw) && sovamoney_payout_enabled()
+    && in_array($order['status'], ['pending', 'processing'], true)
+    && (!$sovaPayout || in_array($sovaPayout['status'], ['failed', 'unknown'], true));
 
 $pageTitle = t('order') . ' ' . $order['order_no'];
 require APP_PATH . '/views/admin_header.php';
@@ -86,6 +96,35 @@ require APP_PATH . '/views/admin_header.php';
         </dl>
       </div>
     </div>
+
+    <?php if (is_sovamoney_gateway($toGw)): ?>
+    <div class="card">
+      <div class="card-head"><h3><?= icon('bolt', 18) ?> <?= e(t('a_sova_payout_title')) ?></h3></div>
+      <div class="card-body">
+        <?php if ($sovaPayout): ?>
+        <dl class="kv">
+          <div><dt><?= e(t('status')) ?></dt><dd><strong><?= e(t('a_sova_payout_st_' . $sovaPayout['status'])) ?></strong></dd></div>
+          <div><dt>U-ID</dt><dd class="mono"><?= e($sovaPayout['uid']) ?></dd></div>
+          <div><dt><?= e(t('amount')) ?></dt><dd><?= e(money($sovaPayout['amount'], $order['to_currency'], $td)) ?></dd></div>
+          <?php if ($sovaPayout['trx']): ?><div><dt>Trx</dt><dd class="mono"><?= e($sovaPayout['trx']) ?></dd></div><?php endif; ?>
+          <?php if ($sovaPayout['message']): ?><div><dt><?= e(t('note')) ?></dt><dd><?= e($sovaPayout['message']) ?></dd></div><?php endif; ?>
+          <div><dt><?= e(t('a_sova_payout_attempts')) ?></dt><dd><?= (int) $sovaPayout['attempts'] ?> · <?= e(fmt_date($sovaPayout['updated_at'])) ?></dd></div>
+        </dl>
+        <?php elseif (!sovamoney_payout_enabled()): ?>
+        <p class="small muted"><?= e(t('a_sova_payout_off')) ?></p>
+        <?php else: ?>
+        <p class="small muted"><?= e(t('a_sova_payout_waiting')) ?></p>
+        <?php endif; ?>
+        <?php if ($sovaCanSend): ?>
+        <form method="post" class="mt-2"<?php if ($sovaPayout && $sovaPayout['status'] === 'unknown'): ?> data-confirm="<?= e(t('a_sova_payout_unknown_confirm')) ?>"<?php endif; ?>>
+          <?= csrf_field() ?>
+          <input type="hidden" name="action" value="sovamoney_payout">
+          <button class="btn btn-primary btn-block" type="submit"><?= icon('bolt', 16) ?> <?= e(t($sovaPayout ? 'a_sova_payout_retry' : 'a_sova_payout_send', ['amount' => money($order['receive_amount'], $order['to_currency'], $td)])) ?></button>
+        </form>
+        <?php endif; ?>
+      </div>
+    </div>
+    <?php endif; ?>
 
     <?php if ($order['proof_file']): ?>
     <div class="card">

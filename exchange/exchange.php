@@ -65,6 +65,19 @@ if (is_post()) {
         $errors[] = t('err_too_many_open');
     }
 
+    $receiverLabel = $pair['to_account_label'];
+    if (!$errors && $pair['to_code'] === 'sovamoney' && sovamoney_payout_enabled()) {
+        $check = sovamoney_verify_uid($old['receiver_account']);
+        if ($check['ok']) {
+            $old['receiver_account'] = mb_substr($check['uid'], 0, 190);
+            if ($check['name'] !== '') {
+                $receiverLabel = mb_substr($pair['to_account_label'] . ' — ' . $check['name'], 0, 120);
+            }
+        } else {
+            $errors[] = t($check['reached'] ? 'sova_uid_not_found' : 'sova_uid_unreachable');
+        }
+    }
+
     if (!$errors) {
         $orderNo = generate_order_no();
         $id = insert('orders', [
@@ -85,7 +98,7 @@ if (is_post()) {
             'receive_amount'   => $q['receive'],
             'sender_account'   => $old['sender_account'],
             'receiver_account' => $old['receiver_account'],
-            'receiver_label'   => $pair['to_account_label'],
+            'receiver_label'   => $receiverLabel,
             'pay_to'           => $pair['from_pay_to'],
             'customer_note'    => $old['customer_note'] !== '' ? $old['customer_note'] : null,
             'status'           => 'awaiting_payment',
@@ -157,8 +170,9 @@ require APP_PATH . '/views/header.php';
 
           <div class="form-group">
             <label for="receiver_account"><?= e($pair['to_account_label']) ?></label>
-            <input class="input mono" id="receiver_account" name="receiver_account" value="<?= e($old['receiver_account']) ?>" placeholder="<?= e($pair['to_account_placeholder']) ?>" required autocomplete="off" spellcheck="false">
+            <input class="input mono" id="receiver_account" name="receiver_account" value="<?= e($old['receiver_account']) ?>" placeholder="<?= e($pair['to_account_placeholder']) ?>" required autocomplete="off" spellcheck="false"<?php if ($pair['to_code'] === 'sovamoney' && sovamoney_payout_enabled()): ?> data-sova-verify="<?= e(url('sovamoney_verify.php')) ?>" data-sova-checking="<?= e(t('sova_uid_checking')) ?>"<?php endif; ?>>
             <?php if ($pair['to_instructions']): ?><div class="help"><?= icon('info', 13) ?> <?= e($pair['to_instructions']) ?></div><?php endif; ?>
+            <div class="help" data-sova-result hidden aria-live="polite"></div>
           </div>
           <div class="form-group">
             <label for="receiver_confirm"><?= e(t('confirm_field', ['label' => $pair['to_account_label']])) ?></label>

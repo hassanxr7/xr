@@ -74,7 +74,8 @@ if (is_post()) {
                 'payment_ref' => $result['transaction_id'] ?: $order['order_no'],
             ]);
             telegram_notify(order_telegram_text(row('SELECT * FROM orders WHERE id = ?', [$order['id']]), '💳 WaafiPay payment confirmed'));
-            flash('success', t('waafipay_success'));
+            $payout = sovamoney_payout_order((int) $order['id']);
+            flash('success', $payout['status'] === 'success' ? t('sovamoney_payout_done_customer') : t('waafipay_success'));
         } else {
             order_log((int) $order['id'], 'awaiting_payment', t('log_waafipay_failed', ['msg' => $result['message']]), 'customer', (int) $me['id']);
             flash('error', t('waafipay_failed', ['msg' => $result['message']]));

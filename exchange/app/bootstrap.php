@@ -54,6 +54,7 @@ set_exception_handler(function (Throwable $e) {
 
 upgrade_local_wallets();
 upgrade_sovamoney_receive();
+upgrade_sovamoney_payout();
 
 // Security headers
 header_remove('X-Powered-By');

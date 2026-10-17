@@ -89,6 +89,19 @@ if (is_post()) {
     save_setting('sovamoney_secret_key', $smSecretKey);
     save_setting('sovamoney_gateway_id', (string) (int) input('sovamoney_gateway_id'));
 
+    $smPayoutEnabled = empty($_POST['sovamoney_payout_enabled']) ? '0' : '1';
+    if ($smPayoutEnabled === '1' && $smPublicKey === '') {
+        $smPayoutEnabled = '0';
+        flash('error', t('a_err_sova_payout_key'));
+    }
+    $smPayoutBase = rtrim(trim(input('sovamoney_payout_base_url')), '/');
+    if ($smPayoutBase !== '' && !preg_match('~^(https://[a-z0-9.-]+|http://(127\.0\.0\.1|localhost))(:\d{1,5})?$~i', $smPayoutBase)) {
+        $smPayoutBase = setting('sovamoney_payout_base_url');
+        flash('error', t('a_err_sova_payout_url'));
+    }
+    save_setting('sovamoney_payout_enabled', $smPayoutEnabled);
+    save_setting('sovamoney_payout_base_url', $smPayoutBase);
+
     $ndEnabled = empty($_POST['nebdex_enabled']) ? '0' : '1';
     $ndMerchantId = mb_substr(input('nebdex_merchant_id'), 0, 60);
     $ndPublicKey = mb_substr(input('nebdex_public_key'), 0, 60);
@@ -258,6 +271,15 @@ require APP_PATH . '/views/admin_header.php';
           <div class="help"><?= e(t('a_waafipay_api_key_help')) ?> <?= !empty($s['sovamoney_secret_key']) ? e(t('a_waafipay_key_saved')) : e(t('a_waafipay_key_missing')) ?></div>
         </div>
         <p class="help"><?= e(t('a_sovamoney_ipn_help', ['url' => full_url('sovamoney_ipn.php')])) ?></p>
+        <hr class="mt-3 mb-3">
+        <h4><?= e(t('a_sova_payout_title')) ?></h4>
+        <p class="small muted"><?= e(t('a_sova_payout_help')) ?></p>
+        <label class="check"><input type="checkbox" name="sovamoney_payout_enabled" value="1" <?= ($s['sovamoney_payout_enabled'] ?? '') === '1' ? 'checked' : '' ?>> <?= e(t('a_sova_payout_enabled')) ?></label>
+        <div class="form-group mt-2">
+          <label><?= e(t('a_sova_payout_base_url')) ?> <span class="muted">(<?= e(t('optional')) ?>)</span></label>
+          <input class="input mono" name="sovamoney_payout_base_url" value="<?= $v('sovamoney_payout_base_url') ?>" placeholder="https://sovamoney.com" autocomplete="off">
+          <div class="help"><?= e(t('a_sova_payout_base_url_help')) ?></div>
+        </div>
       </div>
     </div>
 

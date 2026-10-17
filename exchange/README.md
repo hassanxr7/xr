@@ -126,7 +126,19 @@ Notes:
    - Choose **Sandbox** while testing, **Live** once ready.
    - Pick the **payment method to check out with SovaMoney** (e.g. PayPal, or any gateway you want to automate).
    - Enter the Public Key and Secret Key, then **Save settings**. The Secret Key field is always shown blank; leave it empty on later saves to keep the key already entered.
-3. On the order page, a customer paying with that gateway now sees a **"Pay with SovaMoney"** button (it asks for their email, used for the SovaMoney receipt). Tapping it sends them to SovaMoney's checkout page; once they pay, SovaMoney confirms it automatically in the background and the order moves straight to *Processing*. The same **"Pay manually instead"** fallback stays available.
+3. On the order page, a customer paying with that gateway now sees a **"Pay with SovaMoney"** button (it asks for their email, used for the SovaMoney receipt). Tapping it sends them to SovaMoney's checkout page; once they pay, SovaMoney confirms it automatically in the background and the order moves straight to *Processing*.
+
+### Automatic payouts to SovaMoney (receive side)
+
+Customers can also **receive** SovaMoney (e.g. send EVC Plus → receive SovaMoney). With the Merchant Payout API (U-ID version) the money goes from your SovaMoney merchant wallet to the customer's wallet automatically:
+
+1. **Admin → Settings → SovaMoney → SovaMoney payout**: tick **Send SovaMoney payouts to customers automatically** (uses the same Public Key). Leave *Payout API base URL* empty unless SovaMoney gives you a different address.
+2. At checkout the customer enters their **SovaMoney U-ID** (e.g. `U827389`, or their username/mobile). The site checks it with SovaMoney and shows the wallet name ("SovaMoney: John Doe (U827389)") before the order can be created.
+3. As soon as the customer's payment is confirmed (Nebdex / WaafiPay / SovaMoney checkout), `receive_amount` is sent to that U-ID with the order number as `reference`, and the order is marked **Completed** with SovaMoney's Trx as the payout reference.
+4. Keep enough balance in your merchant wallet. If a payout fails (e.g. *insufficient balance*), no money moves, the order stays *Processing*, you get a Telegram alert, and **Admin → Orders → (order) → SovaMoney payout** has a **Retry** button.
+5. If SovaMoney's reply is lost (timeout / broken response), the payout is marked **Unknown** and never retried automatically — check your SovaMoney merchant history first; retrying asks for confirmation.
+
+Every order can be paid out at most once (a unique database key per order), so duplicate webhooks or double clicks can't pay a customer twice.
 
 Notes:
 - Confirmation happens through a signed webhook (`sovamoney_ipn.php`) that SovaMoney calls directly — no need to add anything in your SovaMoney dashboard unless it explicitly asks for an IPN URL (shown under Admin → Settings → SovaMoney once configured).
