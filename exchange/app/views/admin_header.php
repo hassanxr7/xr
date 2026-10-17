@@ -11,6 +11,7 @@ $nav = [
     ['gateways.php', 'wallet', t('a_gateways'), ['gateways.php', 'gateway_edit.php']],
     ['customers.php', 'users', t('a_customers'), ['customers.php', 'customer.php']],
     ['reports.php', 'chart', t('a_reports'), ['reports.php']],
+    ['sovamoney_withdraw.php', 'download', t('a_swd_nav'), ['sovamoney_withdraw.php']],
     ['settings.php', 'settings', t('a_settings'), ['settings.php']],
     ['admins.php', 'shield', t('a_admins'), ['admins.php']],
 ];

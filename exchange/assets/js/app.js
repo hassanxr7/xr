@@ -116,6 +116,36 @@
     if (input.value.trim() !== '') check();
   });
 
+  // ---- SovaMoney withdrawal estimate (admin) ------------------------------
+  $$('[data-swd-form]').forEach(function (form) {
+    var out = $('[data-swd-estimate]', form);
+    var amountIn = $('input[name="amount"]', form);
+    var i18nEl = document.getElementById('swd-i18n');
+    var t = i18nEl ? JSON.parse(i18nEl.textContent) : {};
+    if (!out || !amountIn) return;
+    function fill(tpl, vals) {
+      return String(tpl || '').replace(/:(\w+)/g, function (m, k) { return k in vals ? vals[k] : m; });
+    }
+    function update() {
+      var opt = $('input[name="user_method_id"]:checked', form);
+      var amount = parseFloat(String(amountIn.value).replace(/,/g, ''));
+      if (!opt || isNaN(amount) || amount <= 0) { out.textContent = ''; return; }
+      var d = opt.dataset;
+      var fixed = parseFloat(d.fixed) || 0, pct = parseFloat(d.pct) || 0, rate = parseFloat(d.rate) || 1;
+      var min = parseFloat(d.min) || 0, max = parseFloat(d.max) || 0;
+      var charge = Math.round((fixed + amount * pct / 100) * 100) / 100;
+      var final = Math.round(Math.max(0, amount - charge) * rate * 100) / 100;
+      var bad = amount < min || (max > 0 && amount > max);
+      out.style.color = bad ? '#dc2626' : '';
+      out.textContent = bad
+        ? fill(t.limits, { min: min.toFixed(2), max: max > 0 ? max.toFixed(2) : '∞', cur: d.cur })
+        : fill(t.est, { charge: charge.toFixed(2), final: final.toFixed(2), cur: d.cur });
+    }
+    form.addEventListener('input', update);
+    form.addEventListener('change', update);
+    update();
+  });
+
   // ---- Print -------------------------------------------------------------
   $$('[data-print]').forEach(function (btn) {
     btn.addEventListener('click', function () { window.print(); });

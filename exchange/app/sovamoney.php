@@ -235,7 +235,9 @@ function sovamoney_message($message): string
             $parts[] = (string) $v;
         }
     });
-    return implode(' ', $parts);
+    // Some replies list a bare "error"/"success" label before the real text.
+    $useful = array_filter($parts, fn ($p) => !in_array(strtolower(trim($p)), ['error', 'success'], true));
+    return implode(' ', $useful ?: $parts);
 }
 
 /**
@@ -385,4 +387,246 @@ function sovamoney_payout_order(int $orderId, string $actor = 'system', ?int $ac
     telegram_notify(order_telegram_text($fresh, '❓ SovaMoney payout result unknown — check your SovaMoney history: ' . $res['error']));
     error_log('[Hufan] SovaMoney payout unknown for order ' . $order['order_no'] . ': ' . $res['error']);
     return ['status' => 'unknown', 'message' => $res['error']];
+}
+
+// ---------------------------------------------------------------------------
+// Merchant withdrawal (Merchant API §5–7): moves the merchant's SovaMoney
+// balance to one of the merchant's OWN saved withdrawal destinations
+// (user_method_id). It cannot send money to an arbitrary customer account.
+// "Withdraw request sent successfully" only means the request was accepted;
+// the API documents no status mapping, status endpoint or webhook, so a
+// request is never treated as paid here.
+// ---------------------------------------------------------------------------
+
+/** Read a numeric field that may be a string like "10.00000000". */
+function sovamoney_num($v): float
+{
+    return is_numeric($v) ? (float) $v : 0.0;
+}
+
+/**
+ * Fetch the merchant's withdrawal destinations.
+ * Returns ['ok', 'message', 'methods' => [...], 'otp_required', 'otp_methods', 'debug'].
+ */
+function sovamoney_withdraw_methods(): array
+{
+    $res = sovamoney_api_post('/api/merchant/withdraw/getmethod', ['public_key' => setting('sovamoney_public_key')], 25);
+    $debug = ['url' => $res['url'], 'http' => $res['http'], 'body' => $res['body']];
+    $d = $res['data'] ?? [];
+    if (!$res['reached'] || ($d['status'] ?? '') !== 'success' || !is_array($d['data']['userMethods'] ?? null)) {
+        $msg = $res['reached'] ? sovamoney_message($d['message'] ?? 'Unexpected reply') : $res['error'];
+        return ['ok' => false, 'message' => $msg, 'methods' => [], 'otp_required' => false, 'otp_methods' => [], 'debug' => $debug];
+    }
+    $methods = [];
+    foreach ($d['data']['userMethods'] as $um) {
+        if (!is_array($um) || !isset($um['user_method_id'], $um['method_id'])) {
+            continue;
+        }
+        $wm = is_array($um['withdraw_method'] ?? null) ? $um['withdraw_method'] : [];
+        $min = max(sovamoney_num($um['min_limit'] ?? 0), sovamoney_num($wm['min_limit'] ?? 0));
+        $maxes = array_filter([sovamoney_num($um['max_limit'] ?? 0), sovamoney_num($wm['max_limit'] ?? 0)], fn ($v) => $v > 0);
+        $methods[(int) $um['user_method_id']] = [
+            'user_method_id' => (int) $um['user_method_id'],
+            'method_id'      => (int) $um['method_id'],
+            'destination'    => mb_substr(trim((string) ($um['name'] ?? '')), 0, 120),
+            'method_name'    => mb_substr(trim((string) ($wm['name'] ?? ('Method #' . $um['method_id']))), 0, 120),
+            'currency'       => strtoupper(mb_substr((string) ($wm['currency'] ?? 'USD'), 0, 10)),
+            'min'            => $min,
+            'max'            => $maxes ? min($maxes) : 0.0,
+            'fixed_charge'   => sovamoney_num($wm['fixed_charge'] ?? 0),
+            'percent_charge' => sovamoney_num($wm['percent_charge'] ?? 0),
+            'rate'           => sovamoney_num($wm['rate'] ?? 1) ?: 1.0,
+        ];
+    }
+    $otpMethods = $d['data']['otp_methods'] ?? [];
+    if (is_string($otpMethods)) {
+        $otpMethods = preg_split('/[^A-Za-z0-9]+/', $otpMethods, -1, PREG_SPLIT_NO_EMPTY);
+    }
+    $otpMethods = array_values(array_intersect(is_array($otpMethods) ? array_map('strval', $otpMethods) : [], ['email', 'sms', '2FA']));
+    $otpRequired = filter_var($d['data']['otp_required'] ?? false, FILTER_VALIDATE_BOOLEAN);
+    return ['ok' => true, 'message' => '', 'methods' => $methods, 'otp_required' => $otpRequired, 'otp_methods' => $otpMethods, 'debug' => $debug];
+}
+
+/** Estimated charge and payout for a destination: charge = fixed + amount×%; final = (amount − charge) × rate. */
+function sovamoney_withdraw_quote(array $m, float $amount): array
+{
+    $charge = round($m['fixed_charge'] + $amount * $m['percent_charge'] / 100, 2);
+    return ['charge' => $charge, 'final' => round(max(0, $amount - $charge) * $m['rate'], 2)];
+}
+
+/** Fields worth keeping from a SovaMoney "withdraw" object for reconciliation. */
+function sovamoney_withdraw_fields(array $w): array
+{
+    $s = fn ($v, $len) => is_scalar($v) ? mb_substr((string) $v, 0, $len) : null;
+    return [
+        'sm_id'           => $s($w['id'] ?? null, 40),
+        'sm_trx'          => $s($w['trx'] ?? null, 60),
+        'sm_amount'       => $s($w['amount'] ?? null, 40),
+        'sm_currency'     => $s($w['currency'] ?? null, 10),
+        'sm_charge'       => $s($w['charge'] ?? null, 40),
+        'sm_final_amount' => $s($w['final_amount'] ?? ($w['after_charge'] ?? null), 40),
+        'sm_status'       => $s($w['status'] ?? null, 20),
+    ];
+}
+
+/** Withdrawals that must be resolved before a new one may be sent (in flight or outcome unknown). */
+function sovamoney_withdraw_blocking(): ?array
+{
+    upgrade_sovamoney_withdrawals();
+    return row("SELECT * FROM sovamoney_withdrawals WHERE status IN ('sending', 'otp_verifying', 'unknown') ORDER BY id DESC LIMIT 1");
+}
+
+/**
+ * Submit a withdrawal request. $nonce is the one-time key of the confirmation
+ * form: the UNIQUE index makes a resubmitted form return the original row
+ * instead of creating (and sending) a second withdrawal.
+ */
+function sovamoney_withdraw_create(int $adminId, string $nonce, array $method, float $amount, ?string $otpMethod): array
+{
+    upgrade_sovamoney_withdrawals();
+    $existing = row('SELECT * FROM sovamoney_withdrawals WHERE nonce = ?', [$nonce]);
+    if ($existing) {
+        return $existing;
+    }
+    if (sovamoney_withdraw_blocking()) {
+        throw new RuntimeException(t('a_swd_err_blocked'));
+    }
+    $quote = sovamoney_withdraw_quote($method, $amount);
+    $now = now();
+    try {
+        $id = insert('sovamoney_withdrawals', [
+            'nonce'          => $nonce,
+            'admin_id'       => $adminId,
+            'method_id'      => $method['method_id'],
+            'user_method_id' => $method['user_method_id'],
+            'destination'    => $method['destination'],
+            'method_name'    => $method['method_name'],
+            'currency'       => $method['currency'],
+            'amount'         => number_format($amount, 2, '.', ''),
+            'est_charge'     => number_format($quote['charge'], 2, '.', ''),
+            'est_final'      => number_format($quote['final'], 2, '.', ''),
+            'otp_method'     => $otpMethod,
+            'status'         => 'sending',
+            'created_at'     => $now,
+            'updated_at'     => $now,
+        ]);
+    } catch (PDOException $e) {
+        $row = row('SELECT * FROM sovamoney_withdrawals WHERE nonce = ?', [$nonce]);
+        if ($row) {
+            return $row;
+        }
+        throw $e;
+    }
+
+    $params = [
+        'public_key'     => setting('sovamoney_public_key'),
+        'method_id'      => $method['method_id'],
+        'user_method_id' => $method['user_method_id'],
+        'amount'         => number_format($amount, 2, '.', ''),
+    ];
+    if ($otpMethod !== null) {
+        $params['otp_method'] = $otpMethod;
+    }
+    $res = sovamoney_api_post('/api/merchant/withdraw/request', $params, 45);
+    $d = $res['data'] ?? [];
+    $raw = $res['data'] !== null ? json_encode($res['data'], JSON_UNESCAPED_UNICODE) : $res['error'];
+    $set = ['response' => $raw, 'updated_at' => now()];
+
+    if ($res['reached'] && ($d['status'] ?? '') === 'success' && is_array($d['data']['withdraw'] ?? null)) {
+        $set += ['status' => 'submitted', 'message' => sovamoney_message($d['message'] ?? '')] + sovamoney_withdraw_fields($d['data']['withdraw']);
+    } elseif ($res['reached'] && ($d['status'] ?? '') === 'success' && isset($d['data']['action_id'], $d['data']['transaction_no'])) {
+        $set += [
+            'status'         => 'otp_pending',
+            'action_id'      => mb_substr((string) $d['data']['action_id'], 0, 40),
+            'transaction_no' => mb_substr((string) $d['data']['transaction_no'], 0, 120),
+            'otp_expires_at' => is_scalar($d['data']['expired_at'] ?? null) ? mb_substr((string) $d['data']['expired_at'], 0, 40) : null,
+            'message'        => sovamoney_message($d['message'] ?? ''),
+        ];
+    } elseif ($res['reached'] && ($d['status'] ?? '') === 'error') {
+        $set += ['status' => 'failed', 'message' => mb_substr(sovamoney_message($d['message'] ?? 'Request rejected'), 0, 500)];
+    } elseif (!$res['reached'] && !$res['sent']) {
+        $set += ['status' => 'failed', 'message' => mb_substr($res['error'], 0, 500)];
+    } else {
+        // Sent, but no usable answer: SovaMoney may or may not have created it.
+        $set += ['status' => 'unknown', 'message' => mb_substr($res['error'] !== '' ? $res['error'] : 'Unexpected reply from SovaMoney', 0, 500)];
+    }
+    update('sovamoney_withdrawals', $set, 'id = ?', [$id]);
+    return row('SELECT * FROM sovamoney_withdrawals WHERE id = ?', [$id]);
+}
+
+function sovamoney_withdraw_otp_expired(array $w): bool
+{
+    $ts = $w['otp_expires_at'] ? strtotime((string) $w['otp_expires_at']) : false;
+    return $ts !== false && $ts < time();
+}
+
+/** Verify the OTP for a withdrawal waiting on one. Returns the updated row. */
+function sovamoney_withdraw_verify_otp(int $id, string $otp): array
+{
+    upgrade_sovamoney_withdrawals();
+    $w = row('SELECT * FROM sovamoney_withdrawals WHERE id = ?', [$id]);
+    if (!$w || $w['status'] !== 'otp_pending') {
+        throw new RuntimeException(t('a_swd_err_not_waiting'));
+    }
+    if (sovamoney_withdraw_otp_expired($w)) {
+        update('sovamoney_withdrawals', ['status' => 'otp_expired', 'message' => t('a_swd_otp_expired'), 'updated_at' => now()], 'id = ?', [$id]);
+        return row('SELECT * FROM sovamoney_withdrawals WHERE id = ?', [$id]);
+    }
+    // Atomic hand-off so a double-submitted OTP form calls SovaMoney once.
+    if (q("UPDATE sovamoney_withdrawals SET status = 'otp_verifying', updated_at = ? WHERE id = ? AND status = 'otp_pending'", [now(), $id])->rowCount() !== 1) {
+        throw new RuntimeException(t('a_swd_err_not_waiting'));
+    }
+    $res = sovamoney_api_post('/api/merchant/withdraw/otp/verify', [
+        'public_key'     => setting('sovamoney_public_key'),
+        'action_id'      => $w['action_id'],
+        'otp_method'     => $w['otp_method'],
+        'otp'            => $otp,
+        'transaction_no' => $w['transaction_no'],
+    ], 45);
+    $d = $res['data'] ?? [];
+    $raw = $res['data'] !== null ? json_encode($res['data'], JSON_UNESCAPED_UNICODE) : $res['error'];
+    $set = ['response' => $raw, 'updated_at' => now()];
+
+    if ($res['reached'] && ($d['status'] ?? '') === 'success' && is_array($d['data']['withdraw'] ?? null)) {
+        $set += ['status' => 'submitted', 'message' => sovamoney_message($d['message'] ?? '')] + sovamoney_withdraw_fields($d['data']['withdraw']);
+    } elseif ($res['reached'] && ($d['status'] ?? '') === 'error') {
+        $msg = sovamoney_message($d['message'] ?? 'Invalid OTP');
+        $expired = (bool) preg_match('/expire/i', $msg);
+        $set += ['status' => $expired ? 'otp_expired' : 'otp_pending', 'message' => mb_substr($msg, 0, 500)];
+    } elseif (!$res['reached'] && !$res['sent']) {
+        $set += ['status' => 'otp_pending', 'message' => mb_substr($res['error'], 0, 500)];
+    } else {
+        $set += ['status' => 'unknown', 'message' => mb_substr($res['error'] !== '' ? $res['error'] : 'Unexpected reply from SovaMoney', 0, 500)];
+    }
+    update('sovamoney_withdrawals', $set, 'id = ?', [$id]);
+    return row('SELECT * FROM sovamoney_withdrawals WHERE id = ?', [$id]);
+}
+
+/** Whether an admin may resolve this withdrawal by hand (unknown, or stuck in flight > 2 min). */
+function sovamoney_withdraw_reconcilable(array $w): bool
+{
+    if ($w['status'] === 'unknown') {
+        return true;
+    }
+    return in_array($w['status'], ['sending', 'otp_verifying'], true) && strtotime((string) $w['updated_at']) < time() - 120;
+}
+
+/** Record what the admin found in SovaMoney for an unresolved request. */
+function sovamoney_withdraw_reconcile(int $id, bool $foundInSovaMoney, string $adminName): void
+{
+    $w = row('SELECT * FROM sovamoney_withdrawals WHERE id = ?', [$id]);
+    if (!$w || !sovamoney_withdraw_reconcilable($w)) {
+        throw new RuntimeException(t('a_swd_err_not_reconcilable'));
+    }
+    update('sovamoney_withdrawals', [
+        'status'     => $foundInSovaMoney ? 'submitted' : 'failed',
+        'message'    => t($foundInSovaMoney ? 'a_swd_reconciled_found' : 'a_swd_reconciled_missing', ['name' => $adminName]),
+        'updated_at' => now(),
+    ], 'id = ?', [$id]);
+}
+
+/** Abandon a request that is still waiting for its OTP (nothing was confirmed). */
+function sovamoney_withdraw_cancel(int $id): void
+{
+    q("UPDATE sovamoney_withdrawals SET status = 'cancelled', message = ?, updated_at = ? WHERE id = ? AND status = 'otp_pending'", [t('a_swd_cancelled_note'), now(), $id]);
 }

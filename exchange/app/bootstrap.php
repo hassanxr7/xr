@@ -56,6 +56,7 @@ upgrade_local_wallets();
 upgrade_sovamoney_receive();
 upgrade_sovamoney_payout();
 upgrade_sovamoney_send();
+upgrade_sovamoney_withdrawals();
 
 // Security headers
 header_remove('X-Powered-By');

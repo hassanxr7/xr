@@ -145,6 +145,36 @@ CREATE TABLE IF NOT EXISTS `sovamoney_payouts` (
   `updated_at` TEXT NOT NULL
 );
 
+CREATE TABLE IF NOT EXISTS `sovamoney_withdrawals` (
+  `id`              INTEGER PRIMARY KEY AUTOINCREMENT,
+  `nonce`           TEXT NOT NULL UNIQUE,
+  `admin_id`        INTEGER NULL,
+  `method_id`       INTEGER NOT NULL,
+  `user_method_id`  INTEGER NOT NULL,
+  `destination`     TEXT NULL,
+  `method_name`     TEXT NULL,
+  `currency`        TEXT NULL,
+  `amount`          NUMERIC NOT NULL,
+  `est_charge`      NUMERIC NULL,
+  `est_final`       NUMERIC NULL,
+  `otp_method`      TEXT NULL,
+  `status`          TEXT NOT NULL,
+  `action_id`       TEXT NULL,
+  `transaction_no`  TEXT NULL,
+  `otp_expires_at`  TEXT NULL,
+  `sm_id`           TEXT NULL,
+  `sm_trx`          TEXT NULL,
+  `sm_amount`       TEXT NULL,
+  `sm_currency`     TEXT NULL,
+  `sm_charge`       TEXT NULL,
+  `sm_final_amount` TEXT NULL,
+  `sm_status`       TEXT NULL,
+  `message`         TEXT NULL,
+  `response`        TEXT NULL,
+  `created_at`      TEXT NOT NULL,
+  `updated_at`      TEXT NOT NULL
+);
+
 -- ---------------------------------------------------------------------------
 -- Seed data. Everything below can be changed later from the admin panel.
 -- ---------------------------------------------------------------------------
@@ -234,6 +264,7 @@ INSERT OR IGNORE INTO `settings` (`key`, `value`) VALUES
   ('sovamoney_receive_v1', '1'),
   ('sovamoney_payout_v1', '1'),
   ('sovamoney_send_v1', '1'),
+  ('sovamoney_withdraw_v1', '1'),
   ('default_lang', 'en'),
   ('order_prefix', 'HX'),
   ('order_expiry_minutes', '60'),

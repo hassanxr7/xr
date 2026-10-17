@@ -292,3 +292,86 @@ function upgrade_sovamoney_send(): void
         error_log('[Hufan] SovaMoney send upgrade failed: ' . $e->getMessage());
     }
 }
+
+/** Log of merchant withdrawal requests (UNIQUE nonce = one send per confirmation form). */
+function upgrade_sovamoney_withdrawals(): void
+{
+    static $checked = false;
+    if ($checked) {
+        return;
+    }
+    $checked = true;
+    if (setting('sovamoney_withdraw_v1', '0') === '1') {
+        return;
+    }
+    try {
+        if (db_driver() === 'sqlite') {
+            q('CREATE TABLE IF NOT EXISTS sovamoney_withdrawals (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                nonce TEXT NOT NULL UNIQUE,
+                admin_id INTEGER NULL,
+                method_id INTEGER NOT NULL,
+                user_method_id INTEGER NOT NULL,
+                destination TEXT NULL,
+                method_name TEXT NULL,
+                currency TEXT NULL,
+                amount NUMERIC NOT NULL,
+                est_charge NUMERIC NULL,
+                est_final NUMERIC NULL,
+                otp_method TEXT NULL,
+                status TEXT NOT NULL,
+                action_id TEXT NULL,
+                transaction_no TEXT NULL,
+                otp_expires_at TEXT NULL,
+                sm_id TEXT NULL,
+                sm_trx TEXT NULL,
+                sm_amount TEXT NULL,
+                sm_currency TEXT NULL,
+                sm_charge TEXT NULL,
+                sm_final_amount TEXT NULL,
+                sm_status TEXT NULL,
+                message TEXT NULL,
+                response TEXT NULL,
+                created_at TEXT NOT NULL,
+                updated_at TEXT NOT NULL
+            )');
+        } else {
+            q('CREATE TABLE IF NOT EXISTS `sovamoney_withdrawals` (
+                `id` INT UNSIGNED NOT NULL AUTO_INCREMENT,
+                `nonce` VARCHAR(64) NOT NULL,
+                `admin_id` INT UNSIGNED NULL,
+                `method_id` INT NOT NULL,
+                `user_method_id` INT NOT NULL,
+                `destination` VARCHAR(120) NULL,
+                `method_name` VARCHAR(120) NULL,
+                `currency` VARCHAR(10) NULL,
+                `amount` DECIMAL(18,2) NOT NULL,
+                `est_charge` DECIMAL(18,2) NULL,
+                `est_final` DECIMAL(18,2) NULL,
+                `otp_method` VARCHAR(10) NULL,
+                `status` VARCHAR(20) NOT NULL,
+                `action_id` VARCHAR(40) NULL,
+                `transaction_no` VARCHAR(120) NULL,
+                `otp_expires_at` VARCHAR(40) NULL,
+                `sm_id` VARCHAR(40) NULL,
+                `sm_trx` VARCHAR(60) NULL,
+                `sm_amount` VARCHAR(40) NULL,
+                `sm_currency` VARCHAR(10) NULL,
+                `sm_charge` VARCHAR(40) NULL,
+                `sm_final_amount` VARCHAR(40) NULL,
+                `sm_status` VARCHAR(20) NULL,
+                `message` VARCHAR(500) NULL,
+                `response` TEXT NULL,
+                `created_at` DATETIME NOT NULL,
+                `updated_at` DATETIME NOT NULL,
+                PRIMARY KEY (`id`),
+                UNIQUE KEY `uq_sovamoney_withdrawals_nonce` (`nonce`),
+                KEY `idx_sovamoney_withdrawals_status` (`status`)
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci');
+        }
+        save_setting('sovamoney_withdraw_v1', '1');
+        settings(true);
+    } catch (Throwable $e) {
+        error_log('[Hufan] SovaMoney withdrawals schema upgrade failed: ' . $e->getMessage());
+    }
+}

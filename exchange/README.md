@@ -142,6 +142,17 @@ Customers can also **receive** SovaMoney (e.g. send EVC Plus → receive SovaMon
 
 Every order can be paid out at most once (a unique database key per order), so duplicate webhooks or double clicks can't pay a customer twice.
 
+### Merchant withdrawal (Admin → SovaMoney withdraw)
+
+Withdraws your SovaMoney **merchant balance** to one of your **own** saved withdrawal destinations (Merchant API §5–7). It is not a customer payout: the API selects a saved destination by `user_method_id` and has no parameter for an arbitrary phone or bank account.
+
+1. The page loads your destinations live (`/api/merchant/withdraw/getmethod`) with their real `method_id` / `user_method_id`, limits, currency and charges, plus `otp_required` and the allowed OTP methods.
+2. Pick a destination and amount: the fee and expected amount (`fixed + amount × %`, then `× rate`) are shown, the amount is checked against the limits, and you confirm on a review screen before anything is sent.
+3. If SovaMoney requires an OTP (`remark: verify_otp`), the page keeps `action_id`, `transaction_no` and `expired_at` and asks for the code (`/api/merchant/withdraw/otp/verify`). Invalid codes can be retried; expired ones end the request.
+4. The result is shown as **"Request submitted"**, never as paid. The SovaMoney withdrawal ID, trx, amount, currency, charge, final amount and raw status code are stored. SovaMoney has not documented what the status codes mean, nor a status endpoint or webhook, so confirm delivery in the SovaMoney merchant panel.
+
+Safety: calls are made server-side with TLS verification on; each confirmation form has a one-time key (a resubmitted form never sends twice); while a request is in flight or its outcome is unknown (timeout / unreadable reply), new withdrawals are blocked until you check SovaMoney and record whether the request exists.
+
 Notes:
 - Confirmation happens through a signed webhook (`sovamoney_ipn.php`) that SovaMoney calls directly — no need to add anything in your SovaMoney dashboard unless it explicitly asks for an IPN URL (shown under Admin → Settings → SovaMoney once configured).
 - The webhook verifies SovaMoney's HMAC-SHA256 signature before touching any order, so it can't be spoofed by a third party.

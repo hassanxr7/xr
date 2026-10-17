@@ -171,6 +171,39 @@ CREATE TABLE IF NOT EXISTS `sovamoney_payouts` (
   CONSTRAINT `fk_sovamoney_payouts_order` FOREIGN KEY (`order_id`) REFERENCES `orders` (`id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
+CREATE TABLE IF NOT EXISTS `sovamoney_withdrawals` (
+  `id`              INT UNSIGNED NOT NULL AUTO_INCREMENT,
+  `nonce`           VARCHAR(64) NOT NULL,
+  `admin_id`        INT UNSIGNED NULL,
+  `method_id`       INT NOT NULL,
+  `user_method_id`  INT NOT NULL,
+  `destination`     VARCHAR(120) NULL,
+  `method_name`     VARCHAR(120) NULL,
+  `currency`        VARCHAR(10) NULL,
+  `amount`          DECIMAL(18,2) NOT NULL,
+  `est_charge`      DECIMAL(18,2) NULL,
+  `est_final`       DECIMAL(18,2) NULL,
+  `otp_method`      VARCHAR(10) NULL,
+  `status`          VARCHAR(20) NOT NULL,
+  `action_id`       VARCHAR(40) NULL,
+  `transaction_no`  VARCHAR(120) NULL,
+  `otp_expires_at`  VARCHAR(40) NULL,
+  `sm_id`           VARCHAR(40) NULL,
+  `sm_trx`          VARCHAR(60) NULL,
+  `sm_amount`       VARCHAR(40) NULL,
+  `sm_currency`     VARCHAR(10) NULL,
+  `sm_charge`       VARCHAR(40) NULL,
+  `sm_final_amount` VARCHAR(40) NULL,
+  `sm_status`       VARCHAR(20) NULL,
+  `message`         VARCHAR(500) NULL,
+  `response`        TEXT NULL,
+  `created_at`      DATETIME NOT NULL,
+  `updated_at`      DATETIME NOT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `uq_sovamoney_withdrawals_nonce` (`nonce`),
+  KEY `idx_sovamoney_withdrawals_status` (`status`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
 -- ---------------------------------------------------------------------------
 -- Seed data. Everything below can be changed later from the admin panel.
 -- ---------------------------------------------------------------------------
@@ -260,6 +293,7 @@ INSERT IGNORE INTO `settings` (`key`, `value`) VALUES
   ('sovamoney_receive_v1', '1'),
   ('sovamoney_payout_v1', '1'),
   ('sovamoney_send_v1', '1'),
+  ('sovamoney_withdraw_v1', '1'),
   ('default_lang', 'en'),
   ('order_prefix', 'HX'),
   ('order_expiry_minutes', '60'),
