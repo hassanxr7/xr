@@ -123,6 +123,76 @@ function nebdex_delete_method(int $id): void
     q('DELETE FROM nebdex_methods WHERE id = ?', [$id]);
 }
 
+/**
+ * Guess which local gateway a Nebdex method name belongs to, by matching
+ * against gateway codes (e.g. Nebdex's "evc" → our gateway code "evc").
+ * "WaafiPay" is special-cased to EVC Plus, since it's another route to the
+ * same mobile-money network rather than a distinct gateway of its own.
+ * Returns null when there's no confident match — callers should leave
+ * those for the admin to assign manually rather than guess wrong.
+ */
+function nebdex_guess_gateway_id(string $methodName, array $gateways): ?int
+{
+    $norm = strtolower(preg_replace('/[^a-z0-9]/i', '', $methodName) ?? '');
+    if ($norm === '') {
+        return null;
+    }
+    if (str_contains($norm, 'waafipay')) {
+        foreach ($gateways as $g) {
+            if ($g['code'] === 'evc') {
+                return (int) $g['id'];
+            }
+        }
+    }
+    foreach ($gateways as $g) {
+        $code = strtolower((string) $g['code']);
+        if ($code !== '' && ($norm === $code || str_contains($norm, $code) || str_contains($code, $norm))) {
+            return (int) $g['id'];
+        }
+    }
+    return null;
+}
+
+/**
+ * Auto-create nebdex_methods rows from a fetched method list (see
+ * nebdex_fetch_payment_methods()), matching each one to a gateway by name.
+ * Skips methods already imported (same gateway_id + method_code) and
+ * methods with no confident gateway match.
+ * Returns ['imported' => array, 'skipped' => array, 'unmatched' => array]
+ * — each a list of display strings for the admin summary.
+ */
+function nebdex_import_methods(array $methods): array
+{
+    nebdex_ensure_schema();
+    $gateways = rows('SELECT id, code, name FROM gateways');
+    $result = ['imported' => [], 'skipped' => [], 'unmatched' => []];
+
+    foreach ($methods as $m) {
+        $name = (string) ($m['name'] ?? '');
+        $code = isset($m['method_code']) ? (string) $m['method_code'] : '';
+        $currency = (string) ($m['currency'] ?? '');
+        if ($name === '' || $code === '') {
+            continue;
+        }
+        $label = $currency !== '' ? $name . ' (' . $currency . ')' : $name;
+
+        $gatewayId = nebdex_guess_gateway_id($name, $gateways);
+        if ($gatewayId === null) {
+            $result['unmatched'][] = $label;
+            continue;
+        }
+        $exists = val('SELECT 1 FROM nebdex_methods WHERE gateway_id = ? AND method_code = ?', [$gatewayId, $code]);
+        if ($exists) {
+            $result['skipped'][] = $label;
+            continue;
+        }
+        nebdex_add_method($gatewayId, $label, $code);
+        $result['imported'][] = $label;
+    }
+
+    return $result;
+}
+
 /** Whether real-time Nebdex checkout applies to this "pay from" gateway. */
 function nebdex_active_for(?array $fromGateway): bool
 {

@@ -26,7 +26,11 @@ if (is_post()) {
         redirect('admin/settings.php');
     }
     if ($action === 'nebdex_fetch_methods') {
-        $_SESSION['_nebdex_methods_result'] = nebdex_fetch_payment_methods(setting('nebdex_public_key'));
+        $fetchResult = nebdex_fetch_payment_methods(setting('nebdex_public_key'));
+        if ($fetchResult['success'] && $fetchResult['methods']) {
+            $fetchResult['import'] = nebdex_import_methods($fetchResult['methods']);
+        }
+        $_SESSION['_nebdex_methods_result'] = $fetchResult;
         redirect('admin/settings.php');
     }
     if ($action === 'nebdex_add_method') {
@@ -276,6 +280,20 @@ require APP_PATH . '/views/admin_header.php';
         <?php if ($nebdexMethodsResult): ?>
           <?php if ($nebdexMethodsResult['success']): ?>
             <div class="alert alert-success"><?= icon('check-circle') ?><span><?= e(t('a_nebdex_merchant_id_found', ['id' => $nebdexMethodsResult['merchant_id'] ?? '—'])) ?></span></div>
+            <?php if (isset($nebdexMethodsResult['import'])): $imp = $nebdexMethodsResult['import']; ?>
+              <?php if ($imp['imported']): ?>
+                <div class="alert alert-success"><?= icon('check-circle') ?><span><?= e(t('a_nebdex_imported', ['list' => implode(', ', $imp['imported'])])) ?></span></div>
+              <?php endif; ?>
+              <?php if ($imp['skipped']): ?>
+                <div class="alert alert-info"><?= icon('info') ?><span><?= e(t('a_nebdex_already_added', ['list' => implode(', ', $imp['skipped'])])) ?></span></div>
+              <?php endif; ?>
+              <?php if ($imp['unmatched']): ?>
+                <div class="alert alert-warning"><?= icon('info') ?><span><?= e(t('a_nebdex_unmatched', ['list' => implode(', ', $imp['unmatched'])])) ?></span></div>
+              <?php endif; ?>
+              <?php if (!$imp['imported'] && !$imp['skipped'] && !$imp['unmatched']): ?>
+                <div class="alert alert-info"><?= icon('info') ?><span><?= e(t('a_nebdex_no_methods')) ?></span></div>
+              <?php endif; ?>
+            <?php endif; ?>
             <?php if ($nebdexMethodsResult['methods']): ?>
             <div class="table-wrap">
               <table class="table">
