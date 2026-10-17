@@ -36,7 +36,11 @@ function sovamoney_active_for(?array $fromGateway): bool
         return false;
     }
     $c = sovamoney_config();
-    return $c['enabled'] && sovamoney_configured($c) && $c['gateway_id'] === (int) $fromGateway['id'];
+    if (!$c['enabled'] || !sovamoney_configured($c)) {
+        return false;
+    }
+    // Sending from the SovaMoney wallet itself always pays via SovaMoney checkout.
+    return $c['gateway_id'] === (int) $fromGateway['id'] || ($fromGateway['code'] ?? '') === 'sovamoney';
 }
 
 function sovamoney_initiate_endpoint(?string $environment = null): string

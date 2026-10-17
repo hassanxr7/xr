@@ -128,6 +128,8 @@ Notes:
    - Enter the Public Key and Secret Key, then **Save settings**. The Secret Key field is always shown blank; leave it empty on later saves to keep the key already entered.
 3. On the order page, a customer paying with that gateway now sees a **"Pay with SovaMoney"** button (it asks for their email, used for the SovaMoney receipt). Tapping it sends them to SovaMoney's checkout page; once they pay, SovaMoney confirms it automatically in the background and the order moves straight to *Processing*.
 
+Customers can also **send from SovaMoney** (SovaMoney → EVC Plus / ZAAD / eDahab / Sahal): orders sent from the SovaMoney wallet always pay through SovaMoney checkout, whichever gateway is selected above. The EVC/ZAAD/eDahab/Sahal payout for those orders is sent by you, then mark the order *Completed*.
+
 ### Automatic payouts to SovaMoney (receive side)
 
 Customers can also **receive** SovaMoney (e.g. send EVC Plus → receive SovaMoney). With the Merchant Payout API (U-ID version) the money goes from your SovaMoney merchant wallet to the customer's wallet automatically:

@@ -212,7 +212,11 @@ VALUES
   (45, 1, 9, 1, 2.000, 0,  5, 5000, 1, 45),
   (46, 6, 9, 1, 2.000, 0,  5, 5000, 1, 46),
   (47, 7, 9, 1, 2.000, 0,  5, 5000, 1, 47),
-  (48, 8, 9, 1, 2.000, 0,  5, 5000, 1, 48);
+  (48, 8, 9, 1, 2.000, 0,  5, 5000, 1, 48),
+  (49, 9, 1, 1, 2.000, 0,  5, 5000, 1, 49),
+  (50, 9, 6, 1, 2.000, 0,  5, 5000, 1, 50),
+  (51, 9, 7, 1, 2.000, 0,  5, 5000, 1, 51),
+  (52, 9, 8, 1, 2.000, 0,  5, 5000, 1, 52);
 
 INSERT OR IGNORE INTO `settings` (`key`, `value`) VALUES
   ('site_name', 'Hufan Exchange'),
@@ -229,6 +233,7 @@ INSERT OR IGNORE INTO `settings` (`key`, `value`) VALUES
   ('local_wallets_v1', '1'),
   ('sovamoney_receive_v1', '1'),
   ('sovamoney_payout_v1', '1'),
+  ('sovamoney_send_v1', '1'),
   ('default_lang', 'en'),
   ('order_prefix', 'HX'),
   ('order_expiry_minutes', '60'),

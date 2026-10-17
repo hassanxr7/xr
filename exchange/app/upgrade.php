@@ -246,3 +246,49 @@ function upgrade_sovamoney_payout(): void
         error_log('[Hufan] SovaMoney payout schema upgrade failed: ' . $e->getMessage());
     }
 }
+
+/**
+ * Let customers send FROM SovaMoney (paid through SovaMoney hosted checkout)
+ * and receive any local wallet: adds/activates SovaMoney → EVC/ZAAD/eDahab/Sahal.
+ */
+function upgrade_sovamoney_send(): void
+{
+    static $checked = false;
+    if ($checked) {
+        return;
+    }
+    $checked = true;
+    if (setting('sovamoney_send_v1', '0') === '1') {
+        return;
+    }
+    try {
+        $sova = row("SELECT id FROM gateways WHERE code = 'sovamoney'");
+        if ($sova) {
+            $sovaId = (int) $sova['id'];
+            $maxPairSort = (int) (row('SELECT COALESCE(MAX(sort_order), 0) AS m FROM pairs')['m'] ?? 0);
+            foreach (rows("SELECT id FROM gateways WHERE code IN ('evc','zaad','edahab','sahal')") as $w) {
+                $to = (int) $w['id'];
+                $existing = row('SELECT id FROM pairs WHERE from_gateway_id = ? AND to_gateway_id = ?', [$sovaId, $to]);
+                if ($existing) {
+                    q('UPDATE pairs SET is_active = 1 WHERE id = ?', [$existing['id']]);
+                    continue;
+                }
+                insert('pairs', [
+                    'from_gateway_id' => $sovaId,
+                    'to_gateway_id'   => $to,
+                    'rate'            => 1,
+                    'fee_percent'     => 2,
+                    'fee_fixed'       => 0,
+                    'min_amount'      => 5,
+                    'max_amount'      => 5000,
+                    'is_active'       => 1,
+                    'sort_order'      => ++$maxPairSort,
+                ]);
+            }
+        }
+        save_setting('sovamoney_send_v1', '1');
+        settings(true);
+    } catch (Throwable $e) {
+        error_log('[Hufan] SovaMoney send upgrade failed: ' . $e->getMessage());
+    }
+}
