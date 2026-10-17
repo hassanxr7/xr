@@ -16,6 +16,7 @@ require APP_PATH . '/helpers.php';
 require APP_PATH . '/waafipay.php';
 require APP_PATH . '/sovamoney.php';
 require APP_PATH . '/nebdex.php';
+require APP_PATH . '/upgrade.php';
 
 $configFile = APP_PATH . '/config.php';
 if (!is_file($configFile)) {
@@ -51,6 +52,8 @@ set_exception_handler(function (Throwable $e) {
     exit;
 });
 
+upgrade_local_wallets();
+
 // Security headers
 header_remove('X-Powered-By');
 header('X-Frame-Options: SAMEORIGIN');
@@ -65,7 +68,11 @@ try {
 $cspConnect = "'self'" . ($gaId !== '' ? ' https://www.google-analytics.com https://www.googletagmanager.com' : '');
 header("Content-Security-Policy: default-src 'self'; script-src 'self' 'nonce-" . csp_nonce() . "'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; "
     . "font-src 'self' https://fonts.gstatic.com; img-src 'self' data:; connect-src $cspConnect; object-src 'none'; "
-    . "base-uri 'self'; form-action 'self'; frame-ancestors 'self'");
+    . "base-uri 'self'; "
+    // Checkout hosts listed because Chrome enforces form-action on the
+    // redirect that follows the pay POST (302 to the provider's checkout).
+    . "form-action 'self' https://nebdex.com https://*.nebdex.com https://sovamoney.com https://*.sovamoney.com; "
+    . "frame-ancestors 'self'");
 if (is_https()) {
     header('Strict-Transport-Security: max-age=31536000');
 }

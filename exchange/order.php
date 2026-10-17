@@ -176,7 +176,7 @@ require APP_PATH . '/views/header.php';
           <?php if (!empty($fromGw['instructions'])): ?><p class="small muted"><?= icon('info', 13) ?> <?= e($fromGw['instructions']) ?></p><?php endif; ?>
 
           <?php if ($waafipayOn): ?>
-          <form method="post" class="mt-3" onsubmit="var b=this.querySelector('button[type=submit]'); b.disabled=true; b.innerHTML='<?= e(icon('clock', 18)) ?> <?= e(t('waafipay_waiting')) ?>';">
+          <form method="post" class="mt-3" data-paywait="<?= e(t('waafipay_waiting')) ?>">
             <?= csrf_field() ?>
             <input type="hidden" name="action" value="waafipay_purchase">
             <button class="btn btn-primary btn-lg btn-block" type="submit"><?= icon('bolt', 18) ?> <?= e(t('waafipay_pay_now', ['number' => $order['sender_account']])) ?></button>
@@ -184,7 +184,7 @@ require APP_PATH . '/views/header.php';
           </form>
           <?php endif; ?>
           <?php if ($sovamoneyOn): ?>
-          <form method="post" class="mt-3" onsubmit="var b=this.querySelector('button[type=submit]'); b.disabled=true; b.innerHTML='<?= e(icon('clock', 18)) ?> <?= e(t('sovamoney_waiting')) ?>';">
+          <form method="post" class="mt-3" data-paywait="<?= e(t('sovamoney_waiting')) ?>">
             <?= csrf_field() ?>
             <input type="hidden" name="action" value="sovamoney_initiate">
             <div class="form-group">
@@ -196,7 +196,7 @@ require APP_PATH . '/views/header.php';
           </form>
           <?php endif; ?>
           <?php if ($nebdexMethods !== []): ?>
-          <form method="post" class="mt-3" onsubmit="var btns=this.querySelectorAll('button[type=submit]'); var s=(event&&event.submitter)||btns[0]; for (var i=0;i<btns.length;i++){ if (btns[i]!==s) btns[i].disabled=true; } s.style.pointerEvents='none'; s.style.opacity='0.7'; s.innerHTML='<?= e(icon('clock', 18)) ?> <?= e(t('nebdex_waiting')) ?>';">
+          <form method="post" class="mt-3" data-paywait="<?= e(t('nebdex_waiting')) ?>">
             <?= csrf_field() ?>
             <input type="hidden" name="action" value="nebdex_initiate">
             <div class="form-group">

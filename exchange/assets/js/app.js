@@ -40,6 +40,29 @@
     if (msg && !window.confirm(msg)) e.preventDefault();
   });
 
+  // ---- Pay button waiting state -------------------------------------------
+  // CSP (script-src without 'unsafe-inline') blocks inline onsubmit handlers,
+  // so real-time pay forms declare data-paywait and are handled here.
+  var CLOCK_SVG = '<svg class="icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>';
+  document.addEventListener('submit', function (e) {
+    var form = e.target;
+    if (e.defaultPrevented || !form.getAttribute) return;
+    var waitText = form.getAttribute('data-paywait');
+    if (!waitText) return;
+    if (form.hasAttribute('data-paywait-active')) { e.preventDefault(); return; }
+    form.setAttribute('data-paywait-active', '1');
+    var btns = $$('button[type=submit]', form);
+    var clicked = e.submitter || btns[0];
+    btns.forEach(function (b) { if (b !== clicked) b.disabled = true; });
+    if (clicked) {
+      clicked.style.pointerEvents = 'none';
+      clicked.style.opacity = '0.7';
+      clicked.setAttribute('aria-busy', 'true');
+      clicked.innerHTML = CLOCK_SVG + ' ';
+      clicked.appendChild(document.createTextNode(waitText));
+    }
+  });
+
   $$('[data-confirm-click]').forEach(function (btn) {
     btn.addEventListener('click', function (e) {
       if (!window.confirm(btn.getAttribute('data-confirm-click'))) e.preventDefault();
