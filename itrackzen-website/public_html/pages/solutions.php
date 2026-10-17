@@ -3,14 +3,14 @@ $m = page_meta('solutions'); $s = data('solutions');
 set_breadcrumbs([['Solutions', '/solutions']]);
 add_ld(ld_service('Industry GPS Tracking Solutions', $m['description'], '/solutions', array_map(fn($i) => $i['title'], $s['items'])));
 layout_start(['title' => $m['title'], 'description' => $m['description'], 'keywords' => $m['keywords'], 'path' => '/solutions']);
-page_hero($m['h1'], $s['intro'], 'Solutions', art_fleet_row());
+page_hero($m['h1'], $s['intro'], 'Solutions', '', 'nairobi-centre');
 ?>
 <nav class="subnav" aria-label="Industries"><div class="container"><?php foreach ($s['items'] as $i): ?><a href="#<?= e($i['id']) ?>"><?= e($i['title']) ?></a><?php endforeach; ?></div></nav>
 <section class="section">
   <div class="container sol-list">
     <?php foreach ($s['items'] as $n => $i): ?>
     <article class="sol reveal<?= $n % 2 ? ' flip' : '' ?>" id="<?= e($i['id']) ?>">
-      <div class="sol-ico"><?php $im = cms_img($i['image'] ?? '', $i['image_alt'] ?? '', 'sol-photo', 300, 220); echo $im ?: '<span class="ico-wrap xl">' . icon($i['icon']) . '</span>'; ?></div>
+      <div class="sol-ico"><?php $im = item_photo($i, 'sol-photo'); echo $im ?: '<span class="ico-wrap xl">' . icon($i['icon']) . '</span>'; ?></div>
       <div class="sol-body">
         <h2><?= e($i['title']) ?></h2>
         <p class="lead-sm"><?= e($i['summary']) ?></p>

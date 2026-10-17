@@ -3,7 +3,7 @@ $m = page_meta('services'); $cats = data('services')['categories'] ?? [];
 set_breadcrumbs([['GPS Tracking Services', '/gps-tracking-services']]);
 add_ld(ld_service('GPS Tracking Services', $m['description'], '/gps-tracking-services', array_map(fn($i) => $i['title'], all_service_items())));
 layout_start(['title' => $m['title'], 'description' => $m['description'], 'keywords' => $m['keywords'], 'path' => '/gps-tracking-services']);
-page_hero($m['h1'], 'Real-time vehicle tracking, route history, geofencing, smart alerts, fuel monitoring, driver ID, sensors, reports and AI video: every capability your fleet needs, on one platform.', 'GPS Tracking Services', art_frame(art_vehicle('truck')));
+page_hero($m['h1'], 'Real-time vehicle tracking, route history, geofencing, smart alerts, fuel monitoring, driver ID, sensors, reports and AI video: every capability your fleet needs, on one platform.', 'GPS Tracking Services', '', 'motorway-trucks');
 ?>
 <nav class="subnav" aria-label="Service categories"><div class="container"><?php foreach ($cats as $c): ?><a href="#<?= e($c['id']) ?>"><?= e($c['title']) ?></a><?php endforeach; ?></div></nav>
 <?php foreach ($cats as $n => $c): ?>

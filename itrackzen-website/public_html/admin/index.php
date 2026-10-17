@@ -26,6 +26,7 @@ const DATASETS = [
     'about'     => ['About ITrackZen & LibDex', 'Company text, mission, values.'],
     'faq'       => ['FAQ & support', 'Questions and answers (also used for FAQ schema).'],
     'blog'      => ['Blog posts', 'News and SEO articles.'],
+    'photos'    => ['Photos & credits', 'Alt text, titles and licence credits for the photographs. Keep author and licence details accurate.'],
     'deletion'  => ['Account & data deletion page', 'Public deletion page text: steps, what is deleted, retention table, timeframe, notification emails.'],
     'privacy'   => ['Privacy Policy', 'Legal text.'],
     'terms'     => ['Terms & Conditions', 'Legal text.'],

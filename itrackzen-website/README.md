@@ -50,8 +50,12 @@ Logo files have new names (`/assets/img/brand/itrackzen-*.svg|png`) and every as
 ## Account deletion
 See `docs/ACCOUNT-DELETION.md`.
 
-## Images
-The site ships with vector illustrations only. Add photos in Admin > Media (auto-compressed to WebP), then paste the path into an `image` field (home hero / banner, industries, countries, feature pages, blog) and fill in the `image_alt` text. Use only photos you own or that are licensed for commercial use, and keep credits where the licence requires them.
+## Images and credits
+The site uses real photographs (19 images in `assets/img/photos/`, two WebP sizes each, lazy-loaded). They come from the Open Images Dataset and are licensed **CC BY 2.0** by their Flickr authors, so attribution is required. Every photo is credited with author, title, source and licence on `/image-credits` (linked in the footer), and the credits and alt text live in `data/photos.json` (Admin > Content > Photos & credits). Keep that page and file if you keep the photos.
+
+Only the vehicle and device cartoon drawings were removed. The dashboard, phone app and map visuals are interface mockups labelled "illustrative interface with sample data".
+
+To replace a photo with your own: Admin > Media > upload (auto-compressed to WebP), then paste the path into an `image` field (Home, Industries, Countries, Feature pages, About) and add the `image_alt` text. Use only photos you own or are licensed for commercial use.
 
 ## Editing content
 - **Admin panel** (`/admin/`): forms for every section, Raw JSON mode, full version history with restore.

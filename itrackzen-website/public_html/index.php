@@ -24,6 +24,7 @@ $routes = [
     '/request-quote'               => ['quote', 'quote'],
     '/partnerships'                => ['partners', 'partners'],
     '/countries'                   => ['countries', 'countries'],
+    '/image-credits'               => ['credits', 'credits'],
     '/faq'                         => ['faq', 'faq'],
     '/privacy-policy'              => ['legal', 'privacy'],
     '/terms-and-conditions'        => ['legal', 'terms'],

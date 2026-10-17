@@ -136,5 +136,11 @@
     "description": "Find GPS tracking and fleet management guidance for Somalia, Kenya, Uganda, Ethiopia, South Sudan and DR Congo, and ask about other countries.",
     "keywords": "GPS tracking Africa countries, vehicle tracking East Africa, fleet tracking Central Africa",
     "h1": "GPS Tracking by Country"
+  },
+  "credits": {
+    "title": "Image Credits | ITrackZen",
+    "description": "Credits and licences for the photographs used on the ITrackZen website.",
+    "keywords": "",
+    "h1": "Image credits"
   }
 }

@@ -13,7 +13,8 @@
         "Customer-ready trip and delivery reports"
       ],
       "image": "",
-      "image_alt": ""
+      "image_alt": "",
+      "photo": "motorway-trucks"
     },
     {
       "id": "transport",
@@ -27,7 +28,8 @@
         "Overspeed and harsh driving scoring"
       ],
       "image": "",
-      "image_alt": ""
+      "image_alt": "",
+      "photo": "mountain-coach"
     },
     {
       "id": "taxi",
@@ -41,7 +43,8 @@
         "Speed and safe-driving monitoring"
       ],
       "image": "",
-      "image_alt": ""
+      "image_alt": "",
+      "photo": "hk-taxis"
     },
     {
       "id": "delivery",
@@ -55,7 +58,8 @@
         "Geofence alerts at customer locations"
       ],
       "image": "",
-      "image_alt": ""
+      "image_alt": "",
+      "photo": "iveco-delivery-van"
     },
     {
       "id": "construction",
@@ -69,7 +73,8 @@
         "Fuel usage reports per machine"
       ],
       "image": "",
-      "image_alt": ""
+      "image_alt": "",
+      "photo": ""
     },
     {
       "id": "tankers",
@@ -83,7 +88,8 @@
         "Engine cut-off support on compatible installs"
       ],
       "image": "",
-      "image_alt": ""
+      "image_alt": "",
+      "photo": "djibouti-tanker"
     },
     {
       "id": "buses",
@@ -97,7 +103,8 @@
         "SOS alerts for emergencies"
       ],
       "image": "",
-      "image_alt": ""
+      "image_alt": "",
+      "photo": "addis-bus"
     },
     {
       "id": "government",
@@ -111,7 +118,8 @@
         "Clear driver accountability with ID support"
       ],
       "image": "",
-      "image_alt": ""
+      "image_alt": "",
+      "photo": ""
     },
     {
       "id": "security",
@@ -125,7 +133,8 @@
         "Video evidence from AI dashcams"
       ],
       "image": "",
-      "image_alt": ""
+      "image_alt": "",
+      "photo": ""
     },
     {
       "id": "rental",
@@ -139,7 +148,8 @@
         "Ignition and engine cut-off support where fitted"
       ],
       "image": "",
-      "image_alt": ""
+      "image_alt": "",
+      "photo": ""
     },
     {
       "id": "personal",
@@ -153,7 +163,8 @@
         "Simple setup with guided support"
       ],
       "image": "",
-      "image_alt": ""
+      "image_alt": "",
+      "photo": "scooter"
     },
     {
       "id": "cross-border",
@@ -167,7 +178,8 @@
         "Hardware options for remote areas and variable coverage"
       ],
       "image": "",
-      "image_alt": ""
+      "image_alt": "",
+      "photo": "uganda-banana-truck"
     }
   ]
 }

@@ -10,7 +10,8 @@
       "Smart reports"
     ],
     "image": "",
-    "image_alt": ""
+    "image_alt": "",
+    "photo": "kampala-road"
   },
   "trust": [
     {
@@ -148,7 +149,8 @@
     "title": "New to ITrackZen?",
     "text": "This website explains our services and helps you request a quote or partner with us. The tracking software itself runs on our platform, where customers sign in and where you can try the demo.",
     "cta1": "Request a Quote",
-    "cta2": "Try the demo"
+    "cta2": "Try the demo",
+    "photo": "mombasa-tusks"
   },
   "paths": [
     {

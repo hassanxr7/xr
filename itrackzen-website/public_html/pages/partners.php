@@ -2,7 +2,7 @@
 $m = page_meta('partners'); $p = data('partners');
 set_breadcrumbs([['Partnerships', '/partnerships']]);
 layout_start(['title' => $m['title'], 'description' => $m['description'], 'keywords' => $m['keywords'], 'path' => '/partnerships']);
-page_hero($m['h1'], $p['intro'], 'Partnerships', art_frame(art_vehicle('trailer')));
+page_hero($m['h1'], $p['intro'], 'Partnerships', '', 'uganda-minibus-taxis');
 ?>
 <section class="section"><div class="container">
   <?php section_head('Ways to work with us', 'Partnership opportunities'); ?>

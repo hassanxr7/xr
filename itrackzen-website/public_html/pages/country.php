@@ -4,7 +4,7 @@ set_breadcrumbs([['Countries', '/countries'], ['GPS Tracking ' . $name, $path]])
 add_ld(ld_service('GPS Tracking and Fleet Management in ' . $name, $c['description'], $path));
 add_ld(ld_faq($c['faq']));
 layout_start(['title' => $c['title'], 'description' => $c['description'], 'keywords' => $c['keywords'], 'path' => $path]);
-page_hero($c['h1'], $c['hero_text'], $name, art_fleet_row());
+page_hero($c['h1'], $c['hero_text'], $name, '', $c['photo'] ?? '');
 $byslug = []; foreach (data('countries')['items'] as $o) { $byslug[$o['slug']] = $o; }
 ?>
 <section class="section">
@@ -17,7 +17,7 @@ $byslug = []; foreach (data('countries')['items'] as $o) { $byslug[$o['slug']] =
       <ul class="tag-list big"><?php foreach ($c['cities'] as $city): ?><li><?= e($city) ?></li><?php endforeach; ?></ul>
       <div class="btn-row"><a class="btn btn-primary" href="/request-quote?service=GPS+vehicle+tracking&amp;topic=<?= rawurlencode('Tracking in ' . $name) ?>">Request a quote for <?= e($name) ?></a><a class="btn btn-outline" href="<?= e(platform_url('demo')) ?>" target="_blank" rel="noopener">Try the demo</a></div>
     </div>
-    <div class="split-art reveal"><?php $im = cms_img($c['image'] ?? '', $c['image_alt'] ?? '', 'photo', 800, 600); echo $im ?: art_truck(); ?></div>
+    <div class="split-art reveal"><?php $im = item_photo($c, 'photo', '(max-width: 900px) 100vw, 560px'); echo $im ?: '<div class="map-panel"><b>' . e($name) . '</b><span>' . e(implode(' · ', array_slice($c['cities'], 0, 4))) . '</span></div>'; ?></div>
   </div>
 </section>
 <section class="section alt"><div class="container">

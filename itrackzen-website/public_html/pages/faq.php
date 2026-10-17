@@ -3,7 +3,7 @@ $m = page_meta('faq'); $items = data('faq')['items'] ?? [];
 set_breadcrumbs([['FAQ & Support', '/faq']]);
 add_ld(ld_faq($items));
 layout_start(['title' => $m['title'], 'description' => $m['description'], 'keywords' => $m['keywords'], 'path' => '/faq']);
-page_hero($m['h1'], 'Answers about devices, coverage, fuel monitoring, AI dashcams, accounts and pricing, and how to reach our team.', 'FAQ & Support');
+page_hero($m['h1'], 'Answers about devices, coverage, fuel monitoring, AI dashcams, accounts and pricing, and how to reach our team.', 'FAQ & Support', '', 'addis-street');
 $wa = wa_link('Hello ITrackZen, I need support.');
 ?>
 <section class="section tight"><div class="container"><?php section_head('Support', 'How can we help?'); ?>

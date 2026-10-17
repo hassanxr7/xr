@@ -6,7 +6,7 @@ set_breadcrumbs([[$m['h1'], $path]]);
 add_ld(ld_service($m['h1'], $m['description'], $path));
 if (!empty($f['faq'])) { add_ld(ld_faq($f['faq'])); }
 layout_start(['title' => $m['title'], 'description' => $m['description'], 'keywords' => $m['keywords'], 'path' => $path]);
-page_hero($m['h1'], $f['intro'], $f['eyebrow'], art_frame(['fuel-monitoring' => art_gauge(), 'driver-behaviour-safety' => art_scene('camera'), 'alerts-geofencing-reports' => art_scene('alerts')][$slug] ?? art_vehicle('truck')));
+page_hero($m['h1'], $f['intro'], $f['eyebrow'], $slug === 'fuel-monitoring' ? art_frame(art_gauge()) : ($slug === 'alerts-geofencing-reports' ? art_frame(art_scene('alerts')) : ''), $f['photo'] ?? '');
 ?>
 <section class="section">
   <div class="container split">
@@ -15,7 +15,7 @@ page_hero($m['h1'], $f['intro'], $f['eyebrow'], art_frame(['fuel-monitoring' => 
         <h2><?= e($sec['title']) ?></h2><?php check_list($sec['points']); ?>
       <?php endforeach; ?>
     </div>
-    <div class="split-art reveal"><?php $img = cms_img($f['image'] ?? '', $f['image_alt'] ?? '', 'photo', 800, 600); echo $img ?: '<div class="art-tile"><span class="ico-wrap xl">' . icon($f['icon']) . '</span>' . art_tracker($slug === 'fuel-monitoring' ? 'wired' : ($slug === 'driver-behaviour-safety' ? 'cam' : '4g')) . '</div>'; ?></div>
+    <div class="split-art reveal"><?php $img = item_photo($f, 'photo', '(max-width: 900px) 100vw, 560px'); echo $img ?: '<div class="art-tile"><span class="ico-wrap xl">' . icon($f['icon']) . '</span></div>'; ?></div>
   </div>
 </section>
 <section class="section alt"><div class="container narrow">

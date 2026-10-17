@@ -259,6 +259,7 @@ function layout_end(): void
       <li><a href="/privacy-policy">Privacy Policy</a></li>
       <li><a href="/terms-and-conditions">Terms &amp; Conditions</a></li>
       <li><a href="/delete-account">Account &amp; Data Deletion</a></li>
+      <li><a href="/image-credits">Image credits</a></li>
       <li><a href="/sitemap.xml">Sitemap</a></li>
     </ul>
 <?php if (site('app_links.android') || site('app_links.ios')): ?>
@@ -295,10 +296,11 @@ function layout_end(): void
 }
 
 /* ---------- UI helpers ---------- */
-function page_hero(string $h1, string $sub, string $eyebrow = '', string $art = ''): void
+function page_hero(string $h1, string $sub, string $eyebrow = '', string $art = '', string $photo = ''): void
 {
+    $bg = $photo !== '' && photo_meta($photo) ? photo_url($photo, 'lg') : '';
     ?>
-<section class="page-hero<?= $art !== '' ? ' has-art' : '' ?>">
+<section class="page-hero<?= $art !== '' ? ' has-art' : '' ?><?= $bg ? ' has-photo' : '' ?>"<?= $bg ? ' style="--hero-photo:url(' . e($bg) . ')"' : '' ?>>
   <div class="container ph-grid">
     <div class="ph-copy">
 <?php if ($bc = $GLOBALS['PAGE']['breadcrumbs']): ?>

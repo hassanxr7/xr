@@ -4,7 +4,7 @@ set_breadcrumbs([['Contact Sales', '/contact-sales']]);
 $wa = wa_link('Hello ITrackZen, I would like to speak to sales.');
 add_ld(['@type' => 'ContactPage', 'name' => 'Contact ITrackZen Sales', 'url' => abs_url('/contact-sales')]);
 layout_start(['title' => $m['title'], 'description' => $m['description'], 'keywords' => $m['keywords'], 'path' => '/contact-sales']);
-page_hero($m['h1'], 'Tell us about your fleet and we will recommend the right tracking setup. We reply by email or WhatsApp.', 'Contact Sales');
+page_hero($m['h1'], 'Tell us about your fleet and we will recommend the right tracking setup. We reply by email or WhatsApp.', 'Contact Sales', '', 'uganda-minibus-taxis');
 ?>
 <section class="section">
   <div class="container form-layout">

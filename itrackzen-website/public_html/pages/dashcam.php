@@ -3,11 +3,11 @@ $m = page_meta('dashcam'); $d = data('dashcam');
 set_breadcrumbs([['AI Dashcam & Video Telematics', '/ai-dashcam-video-telematics']]);
 add_ld(ld_service('AI Dashcam & Video Telematics', $m['description'], '/ai-dashcam-video-telematics', array_map(fn($i) => $i['title'], $d['detections'])));
 layout_start(['title' => $m['title'], 'description' => $m['description'], 'keywords' => $m['keywords'], 'path' => '/ai-dashcam-video-telematics']);
-page_hero($m['h1'], $d['intro'], 'AI Dashcam & Video Telematics', art_frame(art_scene('camera')));
+page_hero($m['h1'], $d['intro'], 'AI Dashcam & Video Telematics', art_frame(scene_camera_photo('kampala-road')), 'evening-traffic');
 ?>
 <section class="section">
   <div class="container split">
-    <div class="split-art reveal scene-box"><?= art_scene('camera') ?></div>
+    <div class="split-art reveal scene-box"><?= scene_camera_photo('motorway-trucks', 'left:30%;top:48%;width:34%;height:44%') ?></div>
     <div class="split-copy reveal">
       <p class="eyebrow">Front camera + in-cabin camera</p>
       <h2>Video evidence linked to every GPS event</h2>
@@ -31,7 +31,7 @@ page_hero($m['h1'], $d['intro'], 'AI Dashcam & Video Telematics', art_frame(art_
 </section>
 <section class="section alt">
   <div class="container split">
-    <div class="split-art reveal"><?= art_tracker('cam') ?></div>
+    <div class="split-art reveal"><?= photo('city-bus', 'photo', '(max-width: 900px) 100vw, 560px') ?></div>
     <div class="split-copy reveal">
       <p class="eyebrow">Hardware</p>
       <h2>AI dashcams for trucks, buses, taxis and more</h2>

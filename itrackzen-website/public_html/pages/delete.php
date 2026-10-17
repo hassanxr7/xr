@@ -3,7 +3,7 @@ $m = page_meta('delete'); $d = data('deletion');
 set_breadcrumbs([['Account & Data Deletion', '/delete-account']]);
 add_ld(['@type' => 'WebPage', 'name' => $m['title'], 'url' => abs_url('/delete-account'), 'description' => $m['description'], 'isPartOf' => ['@id' => base_url() . '/#website']]);
 layout_start(['title' => $m['title'], 'description' => $m['description'], 'keywords' => $m['keywords'], 'path' => '/delete-account']);
-page_hero('Account & Data Deletion', $d['app_name'] . ' by ' . $d['developer'] . ': request deletion of your tracking account and personal data.', 'Privacy');
+page_hero('Account & Data Deletion', $d['app_name'] . ' by ' . $d['developer'] . ': request deletion of your tracking account and personal data.', 'Privacy', '', 'nairobi-centre');
 $submitted = preg_match('/^DEL-[0-9]{6}-[A-Z0-9]{5}$/', $_GET['submitted'] ?? '') ? $_GET['submitted'] : '';
 ?>
 <section class="section"><div class="container legal-layout del">
@@ -22,6 +22,7 @@ $submitted = preg_match('/^DEL-[0-9]{6}-[A-Z0-9]{5}$/', $_GET['submitted'] ?? ''
     <h2 id="verify">How we verify ownership</h2>
     <ul><?php foreach ($d['verification'] as $v): ?><li><?= e($v) ?></li><?php endforeach; ?></ul>
 
+    <figure class="del-photo reveal"><?= photo('nairobi-centre', 'photo', '(max-width: 900px) 100vw, 700px') ?><figcaption>Every request is reviewed by our team. We verify who you are before we delete anything.</figcaption></figure>
     <h2 id="deleted">What is deleted</h2>
     <ul><?php foreach ($d['deleted'] as $v): ?><li><?= e($v) ?></li><?php endforeach; ?></ul>
     <p><?= e($d['partial']) ?></p>
@@ -38,6 +39,7 @@ $submitted = preg_match('/^DEL-[0-9]{6}-[A-Z0-9]{5}$/', $_GET['submitted'] ?? ''
     <div class="form-card"><?php render_deletion_form(); ?></div>
 
     <h2 id="contact">Contact</h2>
+    <div class="support-panel reveal" style="--panel-photo:url(<?= e(photo_url('addis-street', 'lg')) ?>)"><div><h3>Need help with your request?</h3><p>Email <a href="<?= e(mailto($d['support_email'], 'Account deletion')) ?>"><?= e($d['support_email']) ?></a> and quote your reference number. Never send your password.</p></div></div>
     <p>Questions about deletion or this process? Email <a href="<?= e(mailto($d['support_email'], 'Account deletion')) ?>"><?= e($d['support_email']) ?></a> and quote your reference number if you have one. See also our <a href="/privacy-policy">Privacy Policy</a>.</p>
   </article>
 </div></section>

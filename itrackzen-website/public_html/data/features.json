@@ -41,7 +41,8 @@
           "q": "Can it catch fuel theft?",
           "a": "With a fitted sensor, sudden drops in fuel level can raise an alert with the time and place. It is an aid, not a guarantee, and depends on the installation."
         }
-      ]
+      ],
+      "photo": "djibouti-tanker"
     },
     "driver-behaviour-safety": {
       "pagekey": "driver",
@@ -84,7 +85,8 @@
           "q": "Do I need cameras for driver safety?",
           "a": "No. Speed and driving-event monitoring work with GPS trackers. Cameras add visual evidence and in-cabin alerts."
         }
-      ]
+      ],
+      "photo": "city-bus"
     },
     "alerts-geofencing-reports": {
       "pagekey": "alerts",
@@ -135,7 +137,8 @@
           "q": "Can I schedule reports?",
           "a": "Regular daily, weekly and monthly reporting is supported. Ask us which formats and schedules your plan includes."
         }
-      ]
+      ],
+      "photo": "nairobi-centre"
     }
   }
 }

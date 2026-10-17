@@ -3,7 +3,7 @@ $m = page_meta('blog'); $posts = data('blog')['posts'] ?? [];
 usort($posts, fn($a, $b) => strcmp($b['date'], $a['date']));
 set_breadcrumbs([['Blog', '/blog']]);
 layout_start(['title' => $m['title'], 'description' => $m['description'], 'keywords' => $m['keywords'], 'path' => '/blog']);
-page_hero($m['h1'], 'Practical guides on GPS tracking, fuel monitoring, AI dashcams and fleet management for African businesses.', 'Blog');
+page_hero($m['h1'], 'Practical guides on GPS tracking, fuel monitoring, AI dashcams and fleet management for African businesses.', 'Blog', '', 'kenya-overland-truck');
 ?>
 <section class="section"><div class="container"><div class="grid grid-3">
 <?php foreach ($posts as $p): ?>

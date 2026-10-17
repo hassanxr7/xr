@@ -59,65 +59,12 @@ function art_dashboard(): string
 <?php return (string)ob_get_clean();
 }
 
-function art_truck(): string
-{
-    ob_start(); ?>
-<svg class="art art-truck" viewBox="0 0 520 260" role="img" aria-label="Cargo truck fitted with an ITrackZen GPS tracker and AI dashcam">
-  <defs><linearGradient id="tr1" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#1e6bff"/><stop offset="1" stop-color="#0f47b8"/></linearGradient></defs>
-  <ellipse cx="260" cy="228" rx="230" ry="14" fill="#0a1f44" opacity=".18"/>
-  <rect x="20" y="52" width="290" height="130" rx="10" fill="#f4f8ff" stroke="#c9d8f2" stroke-width="2"/>
-  <rect x="20" y="52" width="290" height="28" rx="10" fill="url(#tr1)"/>
-  <g transform="translate(40 78) scale(.085)"><path d="M80 715A160.5 160.5 0 1 1 314 715" fill="none" stroke="#1473ff" stroke-width="47" stroke-linecap="round" transform="translate(0 -400)"/><circle cx="197" cy="177" r="57" fill="#1473ff"/><path d="M197 292L118 438L197 412L276 438Z" fill="#0a4dff" stroke="#0a4dff" stroke-width="46" stroke-linejoin="round"/></g><text x="102" y="120" font-size="38" font-weight="800" fill="#1d1d24" font-family="Inter,Segoe UI,Arial,sans-serif" letter-spacing="-1">iTrackzen</text>
-  <path d="M40 160h250" stroke="#12b76a" stroke-width="5" stroke-linecap="round"/>
-  <path d="M318 182V84h92l56 56v42z" fill="url(#tr1)"/>
-  <path d="M338 100h62l36 36h-98z" fill="#cfe2ff"/><path d="M338 100h62l36 36h-98z" fill="none" stroke="#fff" stroke-width="2" opacity=".6"/>
-  <rect x="318" y="176" width="150" height="14" rx="4" fill="#0a1f44"/>
-  <rect x="446" y="150" width="20" height="10" rx="3" fill="#ffd966"/>
-  <circle cx="86" cy="196" r="28" fill="#0a1f44"/><circle cx="86" cy="196" r="12" fill="#c9d8f2"/>
-  <circle cx="160" cy="196" r="28" fill="#0a1f44"/><circle cx="160" cy="196" r="12" fill="#c9d8f2"/>
-  <circle cx="404" cy="196" r="28" fill="#0a1f44"/><circle cx="404" cy="196" r="12" fill="#c9d8f2"/>
-  <!-- dashcam on windshield -->
-  <g transform="translate(372 94)"><rect width="22" height="12" rx="4" fill="#0a1f44"/><circle cx="11" cy="6" r="3" fill="#12b76a"><animate attributeName="opacity" values="1;.2;1" dur="1.4s" repeatCount="indefinite"/></circle></g>
-  <!-- GPS signal -->
-  <g fill="none" stroke="#12b76a" stroke-width="3" stroke-linecap="round" opacity=".9"><path d="M372 66a24 24 0 0 1 32 0"><animate attributeName="opacity" values="0;1;0" dur="2s" repeatCount="indefinite"/></path><path d="M360 50a42 42 0 0 1 56 0"><animate attributeName="opacity" values="0;1;0" dur="2s" begin=".35s" repeatCount="indefinite"/></path></g>
-  <circle cx="388" cy="76" r="5" fill="#12b76a"/>
-</svg>
-<?php return (string)ob_get_clean();
-}
-
-function art_tracker(string $variant = 'obd'): string
-{
-    ob_start();
-    if ($variant === 'obd') { ?>
-<svg class="art art-device" viewBox="0 0 160 120" role="img" aria-label="OBD plug-in GPS tracker"><rect x="30" y="28" width="100" height="56" rx="14" fill="#0a1f44"/><rect x="42" y="40" width="40" height="8" rx="4" fill="#1e6bff"/><circle cx="104" cy="44" r="4" fill="#12b76a"><animate attributeName="opacity" values="1;.2;1" dur="1.6s" repeatCount="indefinite"/></circle><circle cx="116" cy="44" r="4" fill="#ffc94d"/><path d="M44 62h72" stroke="#27487f" stroke-width="2"/><rect x="48" y="84" width="64" height="18" rx="3" fill="#27487f"/><path d="M56 90h4M66 90h4M76 90h4M86 90h4M96 90h4" stroke="#9db7e3" stroke-width="3" stroke-linecap="round"/></svg>
-<?php } elseif ($variant === 'wired') { ?>
-<svg class="art art-device" viewBox="0 0 160 120" role="img" aria-label="Hardwired vehicle GPS tracker"><rect x="40" y="36" width="80" height="48" rx="10" fill="#0a1f44"/><text x="80" y="66" text-anchor="middle" font-size="13" font-weight="800" fill="#fff">iTZ</text><circle cx="52" cy="46" r="3.5" fill="#12b76a"/><circle cx="64" cy="46" r="3.5" fill="#1e6bff"/><path d="M40 60H14M40 70H14M120 60h26M120 70h26" stroke="#ff6b6b" stroke-width="3" stroke-linecap="round"/><path d="M14 60v-8M14 70v8M146 60v-8" stroke="#27487f" stroke-width="3" stroke-linecap="round"/></svg>
-<?php } elseif ($variant === 'asset') { ?>
-<svg class="art art-device" viewBox="0 0 160 120" role="img" aria-label="Battery powered asset GPS tracker"><rect x="42" y="22" width="76" height="76" rx="16" fill="#0a1f44"/><rect x="54" y="34" width="52" height="30" rx="8" fill="#14386f"/><path d="M62 54l10-10 8 6 12-10" fill="none" stroke="#12b76a" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/><rect x="58" y="74" width="44" height="10" rx="5" fill="#27487f"/><rect x="58" y="74" width="30" height="10" rx="5" fill="#12b76a"/></svg>
-<?php } elseif ($variant === 'moto') { ?>
-<svg class="art art-device" viewBox="0 0 160 120" role="img" aria-label="Compact motorcycle GPS tracker"><rect x="52" y="34" width="56" height="52" rx="12" fill="#0a1f44"/><circle cx="80" cy="52" r="7" fill="#1e6bff"/><path d="M62 72h36" stroke="#27487f" stroke-width="3" stroke-linecap="round"/><circle cx="96" cy="46" r="3" fill="#12b76a"/><path d="M52 60H28M108 60h24" stroke="#ff6b6b" stroke-width="3" stroke-linecap="round"/></svg>
-<?php } elseif ($variant === 'cam') { ?>
-<svg class="art art-device" viewBox="0 0 160 120" role="img" aria-label="AI dashcam with front and cabin lens"><rect x="30" y="34" width="100" height="44" rx="12" fill="#0a1f44"/><circle cx="62" cy="56" r="14" fill="#14386f" stroke="#1e6bff" stroke-width="3"/><circle cx="62" cy="56" r="5" fill="#9db7e3"/><circle cx="104" cy="56" r="10" fill="#14386f" stroke="#12b76a" stroke-width="3"/><circle cx="104" cy="56" r="3.5" fill="#9db7e3"/><rect x="72" y="78" width="16" height="14" rx="3" fill="#27487f"/><circle cx="118" cy="42" r="2.5" fill="#ff6b6b"><animate attributeName="opacity" values="1;0;1" dur="1.2s" repeatCount="indefinite"/></circle></svg>
-<?php } else { ?>
-<svg class="art art-device" viewBox="0 0 160 120" role="img" aria-label="4G GPS tracker"><rect x="40" y="26" width="80" height="70" rx="14" fill="#0a1f44"/><text x="80" y="58" text-anchor="middle" font-size="22" font-weight="800" fill="#fff">4G</text><g fill="none" stroke="#12b76a" stroke-width="3" stroke-linecap="round"><path d="M64 74a22 22 0 0 1 32 0"/><path d="M72 82a11 11 0 0 1 16 0"/></g><path d="M120 40V14" stroke="#27487f" stroke-width="4" stroke-linecap="round"/><circle cx="120" cy="12" r="4" fill="#1e6bff"/></svg>
-<?php }
-    return (string)ob_get_clean();
-}
-
 /** Scenes for the "video-style" product tour. */
 function art_scene(string $scene): string
 {
     ob_start();
     switch ($scene) {
-    case 'camera': ?>
-<svg class="scene" viewBox="0 0 640 360" role="img" aria-label="AI dashcam road view with vehicle and driver detection"><defs><linearGradient id="sk" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#3d6fb8"/><stop offset="1" stop-color="#cfe2ff"/></linearGradient></defs>
-<rect width="640" height="360" fill="url(#sk)"/><path d="M0 200h640v160H0z" fill="#27324a"/><path d="M250 200 90 360h460L390 200z" fill="#1b2438"/><path d="M320 200v160" stroke="#fff" stroke-width="4" stroke-dasharray="22 18"><animate attributeName="stroke-dashoffset" from="0" to="-80" dur="1.1s" repeatCount="indefinite"/></path>
-<path d="M0 200 120 150l80 50 90-60 80 60 100-70 90 60 80-40v100z" fill="#7da2d6" opacity=".55"/>
-<g transform="translate(290 218)"><rect width="62" height="38" rx="6" fill="#f4f8ff"/><rect x="6" y="6" width="50" height="14" rx="3" fill="#7da2d6"/><circle cx="10" cy="32" r="4" fill="#ff6b6b"/><circle cx="52" cy="32" r="4" fill="#ff6b6b"/></g>
-<rect x="276" y="206" width="90" height="62" rx="4" fill="none" stroke="#12b76a" stroke-width="3"/><rect x="276" y="188" width="86" height="18" fill="#12b76a"/><text x="282" y="201" font-size="11" font-weight="700" fill="#fff">VEHICLE · 18 m</text>
-<g transform="translate(18 18)"><rect width="150" height="22" rx="11" fill="#0a1f44" opacity=".85"/><circle cx="14" cy="11" r="5" fill="#ff4d4d"><animate attributeName="opacity" values="1;.2;1" dur="1.2s" repeatCount="indefinite"/></circle><text x="26" y="15" font-size="11" fill="#fff">REC · FRONT CAM</text></g>
-<g transform="translate(442 18)"><rect width="180" height="150" rx="10" fill="#0a1f44" opacity=".92"/><text x="12" y="20" font-size="10" fill="#8fb0e6">IN-CABIN</text><circle cx="90" cy="64" r="24" fill="#27487f"/><path d="M44 130c4-24 22-34 46-34s42 10 46 34z" fill="#27487f"/><rect x="62" y="40" width="56" height="48" rx="8" fill="none" stroke="#ffc94d" stroke-width="2.5"/><rect x="12" y="104" width="156" height="30" rx="8" fill="#ffc94d"/><text x="22" y="124" font-size="12" font-weight="700" fill="#0a1f44">Phone use detected</text></g></svg>
-<?php break; case 'map': ?>
+    case 'map': ?>
 <svg class="scene" viewBox="0 0 640 360" role="img" aria-label="Live fleet map with moving vehicles and geofence"><defs><pattern id="sg" width="28" height="28" patternUnits="userSpaceOnUse"><path d="M28 0H0V28" fill="none" stroke="#1b4175" stroke-width=".6"/></pattern></defs><rect width="640" height="360" fill="#0c244d"/><rect width="640" height="360" fill="url(#sg)"/>
 <g fill="none" stroke="#21508f" stroke-linecap="round"><path d="M0 280C120 250 200 300 300 240S500 170 640 150" stroke-width="12" opacity=".6"/><path d="M120 360C150 260 160 160 140 0" stroke-width="9" opacity=".55"/><path d="M0 120C140 130 300 90 640 220" stroke-width="8" opacity=".5"/><path d="M420 360C440 260 470 120 520 0" stroke-width="8" opacity=".45"/></g>
 <circle cx="330" cy="150" r="70" fill="#12b76a" opacity=".12" stroke="#12b76a" stroke-width="2" stroke-dasharray="7 6"/>
@@ -160,65 +107,6 @@ function art_scene(string $scene): string
 /* =====================================================================
  * Vehicle & device illustration set (flat style, brand blues). Original artwork.
  * ===================================================================== */
-function art_vehicle(string $type = 'truck', string $label = ''): string
-{
-    $l = $label !== '' ? $label : 'Tracked ' . $type;
-    $wheel = fn($x, $y = 112, $r = 15) => '<g><circle cx="' . $x . '" cy="' . $y . '" r="' . $r . '" fill="#0b1b3a"/><circle cx="' . $x . '" cy="' . $y . '" r="' . ($r * .45) . '" fill="#cfe0ff"/></g>';
-    $sig = '<g fill="none" stroke="#12b76a" stroke-width="3" stroke-linecap="round"><path d="M%1$d %2$d a14 14 0 0 1 19 0" opacity=".9"/><path d="M%3$d %4$d a26 26 0 0 1 34 0" opacity=".5"/></g><circle cx="%5$d" cy="%6$d" r="4" fill="#12b76a"/>';
-    ob_start(); ?>
-<svg class="art art-vehicle" viewBox="0 0 260 150" role="img" aria-label="<?= e($l) ?> with GPS tracker" xmlns="http://www.w3.org/2000/svg">
-  <ellipse cx="130" cy="130" rx="112" ry="8" fill="#0a1f44" opacity=".14"/>
-<?php switch ($type):
-case 'bus': ?>
-  <rect x="18" y="38" width="224" height="78" rx="14" fill="#fff" stroke="#c9d8f2" stroke-width="2"/>
-  <rect x="18" y="38" width="224" height="22" rx="14" fill="#0b5cff"/><rect x="18" y="50" width="224" height="10" fill="#0b5cff"/>
-  <g fill="#cfe2ff"><rect x="30" y="66" width="30" height="24" rx="4"/><rect x="66" y="66" width="30" height="24" rx="4"/><rect x="102" y="66" width="30" height="24" rx="4"/><rect x="138" y="66" width="30" height="24" rx="4"/><rect x="174" y="66" width="30" height="24" rx="4"/><rect x="210" y="62" width="24" height="42" rx="4"/></g>
-  <rect x="18" y="98" width="224" height="6" fill="#12b76a"/>
-  <?= $wheel(66) ?><?= $wheel(196) ?>
-  <?= sprintf($sig, 112, 30, 103, 20, 121, 36) ?>
-<?php break; case 'van': ?>
-  <path d="M28 112V58a10 10 0 0 1 10-10h104a12 12 0 0 1 9 4l36 38a14 14 0 0 1 4 10v12z" fill="#fff" stroke="#c9d8f2" stroke-width="2"/>
-  <path d="M150 54l32 34h-32z" fill="#cfe2ff"/><rect x="28" y="48" width="122" height="14" rx="6" fill="#0b5cff"/>
-  <text x="46" y="92" font-size="16" font-weight="800" fill="#0b1b3a" font-family="Inter,Arial,sans-serif">iTrackzen</text>
-  <rect x="204" y="96" width="14" height="8" rx="3" fill="#ffd166"/>
-  <?= $wheel(70) ?><?= $wheel(186) ?>
-  <?= sprintf($sig, 78, 28, 69, 18, 87, 34) ?>
-<?php break; case 'car': ?>
-  <path d="M30 112V92c0-8 5-14 13-16l22-6 22-22a16 16 0 0 1 11-5h50a16 16 0 0 1 12 6l20 22 26 6c8 2 12 8 12 16v19z" fill="#0b5cff"/>
-  <path d="M92 52h48a8 8 0 0 1 6 3l16 18H80l8-17a8 8 0 0 1 4-4z" fill="#dbe8ff"/><path d="M120 52v21" stroke="#0b5cff" stroke-width="3"/>
-  <rect x="204" y="86" width="14" height="8" rx="3" fill="#ffd166"/><rect x="36" y="88" width="10" height="8" rx="3" fill="#ff6b6b"/>
-  <?= $wheel(76) ?><?= $wheel(190) ?>
-  <?= sprintf($sig, 124, 36, 115, 26, 133, 42) ?>
-<?php break; case 'moto': ?>
-  <circle cx="68" cy="108" r="22" fill="none" stroke="#0b1b3a" stroke-width="7"/><circle cx="192" cy="108" r="22" fill="none" stroke="#0b1b3a" stroke-width="7"/>
-  <circle cx="68" cy="108" r="6" fill="#cfe0ff"/><circle cx="192" cy="108" r="6" fill="#cfe0ff"/>
-  <path d="M68 108l30-38h46l22 22 26 16M98 70l-14-12h-14M144 70l8-22h20" fill="none" stroke="#0b5cff" stroke-width="8" stroke-linecap="round" stroke-linejoin="round"/>
-  <rect x="104" y="52" width="46" height="14" rx="6" fill="#0b1b3a"/><rect x="24" y="52" width="48" height="36" rx="6" fill="#12b76a"/><text x="48" y="76" text-anchor="middle" font-size="13" font-weight="800" fill="#fff" font-family="Inter,Arial,sans-serif">GO</text>
-  <?= sprintf($sig, 168, 30, 159, 20, 177, 36) ?>
-<?php break; case 'tanker': ?>
-  <rect x="20" y="52" width="148" height="52" rx="26" fill="#e8eef9" stroke="#c9d8f2" stroke-width="2"/><rect x="20" y="74" width="148" height="8" fill="#0b5cff"/>
-  <rect x="84" y="42" width="22" height="12" rx="3" fill="#0b1b3a"/>
-  <path d="M176 112V70a8 8 0 0 1 8-8h30l22 24a10 10 0 0 1 3 7v19z" fill="#0b5cff"/><path d="M190 70h22l16 18h-38z" fill="#cfe2ff"/>
-  <rect x="20" y="104" width="206" height="10" rx="3" fill="#0b1b3a"/>
-  <?= $wheel(52, 116, 13) ?><?= $wheel(100, 116, 13) ?><?= $wheel(204, 116, 13) ?>
-  <?= sprintf($sig, 190, 36, 181, 26, 199, 42) ?>
-<?php break; case 'trailer': ?>
-  <rect x="24" y="38" width="170" height="68" rx="6" fill="#0b5cff"/><g stroke="#0847c4" stroke-width="3"><path d="M52 38v68M80 38v68M108 38v68M136 38v68M164 38v68"/></g>
-  <rect x="24" y="106" width="206" height="9" rx="3" fill="#0b1b3a"/><path d="M196 106V72a8 8 0 0 1 8-8h14l16 16v26z" fill="#e8eef9" stroke="#c9d8f2" stroke-width="2"/>
-  <?= $wheel(60, 118, 12) ?><?= $wheel(100, 118, 12) ?><?= $wheel(214, 118, 12) ?>
-  <?= sprintf($sig, 98, 22, 89, 12, 107, 28) ?>
-<?php break; default: /* truck */ ?>
-  <rect x="14" y="30" width="146" height="82" rx="8" fill="#fff" stroke="#c9d8f2" stroke-width="2"/><rect x="14" y="30" width="146" height="18" rx="8" fill="#0b5cff"/><rect x="14" y="40" width="146" height="8" fill="#0b5cff"/>
-  <text x="30" y="82" font-size="22" font-weight="800" fill="#0b1b3a" font-family="Inter,Arial,sans-serif" letter-spacing="-1">iTrackzen</text><rect x="30" y="92" width="112" height="5" rx="2.5" fill="#12b76a"/>
-  <path d="M168 112V58a8 8 0 0 1 8-8h38a10 10 0 0 1 8 4l22 28a12 12 0 0 1 3 8v22z" fill="#0b5cff"/><path d="M182 60h30l18 24h-48z" fill="#cfe2ff"/>
-  <rect x="168" y="104" width="76" height="10" rx="3" fill="#0b1b3a"/><rect x="236" y="92" width="12" height="8" rx="3" fill="#ffd166"/>
-  <?= $wheel(52) ?><?= $wheel(112) ?><?= $wheel(204) ?>
-  <?= sprintf($sig, 196, 28, 187, 18, 205, 34) ?>
-<?php endswitch; ?>
-</svg>
-<?php return (string)ob_get_clean();
-}
-
 /** Phone mockup of the tracking app (illustrative sample data). */
 function art_phone(): string
 {
@@ -259,14 +147,16 @@ function art_gauge(): string
 <?php return (string)ob_get_clean();
 }
 
-function art_frame(string $svg): string { return '<div class="ph-frame">' . $svg . '</div>'; }
 
-function art_fleet_row(): string
+
+/** Real-photo "dashcam view" scene with AI detection overlays (UI over a licensed photo). */
+function scene_camera_photo(string $slug = 'kampala-road', string $box = 'left:41%;top:43%;width:17%;height:19%'): string
 {
-    return '<div class="ph-fleet"><div class="pf-a">' . art_vehicle('truck') . '</div><div class="pf-b">' . art_vehicle('van') . '</div><div class="pf-c">' . art_vehicle('car') . '</div></div>';
+    return '<div class="scene photo-scene" role="img" aria-label="Dashcam view of the road ahead with a detected vehicle and an in-cabin driver alert (illustrative overlay)">'
+        . photo($slug, 'ps-img', '(max-width: 900px) 100vw, 960px')
+        . '<span class="ps-rec"><i></i>REC &middot; FRONT CAM</span>'
+        . '<span class="ps-box" style="' . $box . '"><b>VEHICLE &middot; 18 m</b></span>'
+        . '<div class="ps-cabin"><small>IN-CABIN</small><div class="ps-alert">Phone use detected</div></div></div>';
 }
 
-function art_devices(): string
-{
-    return '<div class="ph-devices">' . art_tracker('obd') . art_tracker('wired') . art_tracker('cam') . art_tracker('4g') . '</div>';
-}
+function art_frame(string $html): string { return '<div class="ph-frame">' . $html . '</div>'; }

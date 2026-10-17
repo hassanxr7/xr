@@ -4,7 +4,7 @@ set_breadcrumbs([['Pricing', '/pricing']]);
 add_ld(ld_service('ITrackZen GPS Tracking Plans', $m['description'], '/pricing', array_map(fn($x) => $x['name'] . ' Plan', array_filter($p['plans'], fn($y) => ($y['active'] ?? true)))));
 add_ld(ld_faq(array_slice(data('faq')['items'], 3, 3)));
 layout_start(['title' => $m['title'], 'description' => $m['description'], 'keywords' => $m['keywords'], 'path' => '/pricing']);
-page_hero($m['h1'], $p['intro'], 'Pricing & Plans', art_frame(art_vehicle('bus')));
+page_hero($m['h1'], $p['intro'], 'Pricing & Plans', '', 'iveco-delivery-van');
 ?>
 <section class="section">
   <div class="container">
@@ -44,7 +44,7 @@ page_hero($m['h1'], $p['intro'], 'Pricing & Plans', art_frame(art_vehicle('bus')
   <div class="container split">
     <div class="split-copy reveal"><p class="eyebrow">Hardware &amp; installation</p><h2><?= e($p['addons_heading']) ?></h2><p><?= e($p['addons_text']) ?></p>
       <div class="btn-row"><a class="btn btn-primary" href="/request-quote?service=Tracker+hardware+%26+installation">Request hardware quote</a><a class="btn btn-outline" href="/supported-gps-trackers">Supported trackers</a></div></div>
-    <div class="split-art reveal"><?= art_truck() ?></div>
+    <div class="split-art reveal"><?= photo('uganda-banana-truck', 'photo', '(max-width: 900px) 100vw, 560px') ?></div>
   </div>
 </section>
 <section class="section alt"><div class="container narrow"><?php section_head('Pricing FAQ', 'Common pricing questions'); faq_list(array_slice(data('faq')['items'], 3, 3), true); ?></div></section>

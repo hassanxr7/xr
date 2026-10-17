@@ -73,7 +73,8 @@
         "gps-tracking-south-sudan"
       ],
       "image": "",
-      "image_alt": "Fleet vehicles on a road in Kenya"
+      "image_alt": "Fleet vehicles on a road in Kenya",
+      "photo": "nairobi-centre"
     },
     {
       "slug": "gps-tracking-uganda",
@@ -148,7 +149,8 @@
         "gps-tracking-dr-congo"
       ],
       "image": "",
-      "image_alt": "Fleet vehicles on a road in Uganda"
+      "image_alt": "Fleet vehicles on a road in Uganda",
+      "photo": "kampala-road"
     },
     {
       "slug": "gps-tracking-ethiopia",
@@ -223,7 +225,8 @@
         "gps-tracking-south-sudan"
       ],
       "image": "",
-      "image_alt": "Fleet vehicles on a road in Ethiopia"
+      "image_alt": "Fleet vehicles on a road in Ethiopia",
+      "photo": "addis-bus"
     },
     {
       "slug": "gps-tracking-somalia",
@@ -298,7 +301,8 @@
         "gps-tracking-south-sudan"
       ],
       "image": "",
-      "image_alt": "Fleet vehicles on a road in Somalia"
+      "image_alt": "Fleet vehicles on a road in Somalia",
+      "photo": ""
     },
     {
       "slug": "gps-tracking-south-sudan",
@@ -373,7 +377,8 @@
         "gps-tracking-dr-congo"
       ],
       "image": "",
-      "image_alt": "Fleet vehicles on a road in South Sudan"
+      "image_alt": "Fleet vehicles on a road in South Sudan",
+      "photo": ""
     },
     {
       "slug": "gps-tracking-dr-congo",
@@ -448,7 +453,8 @@
         "gps-tracking-south-sudan"
       ],
       "image": "",
-      "image_alt": "Fleet vehicles on a road in DR Congo"
+      "image_alt": "Fleet vehicles on a road in DR Congo",
+      "photo": "kinshasa-fuel-station"
     }
   ],
   "intro": "Choose your country to see how ITrackZen supports transport and logistics operators there. If your country is not listed, contact us. We expand only where we can genuinely support customers."

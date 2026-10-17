@@ -2,7 +2,7 @@
 $m = page_meta('demo');
 set_breadcrumbs([['Demo', '/demo']]);
 layout_start(['title' => $m['title'], 'description' => $m['description'], 'keywords' => $m['keywords'], 'path' => '/demo']);
-page_hero($m['h1'], 'The live demo runs on the ITrackZen tracking platform at itrackzen.com. Open it to explore the interface, or ask our team for a guided walkthrough.', 'Demo');
+page_hero($m['h1'], 'The live demo runs on the ITrackZen tracking platform at itrackzen.com. Open it to explore the interface, or ask our team for a guided walkthrough.', 'Demo', '', 'evening-traffic');
 ?>
 <section class="section"><div class="container">
   <div class="demo-hero reveal">

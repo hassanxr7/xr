@@ -136,6 +136,31 @@ function brand_asset(string $slot): string
     return $path . (is_file($file) ? '?v=' . filemtime($file) : '');
 }
 
+/** Real photographs (CC BY 2.0, credited on /image-credits). Slug -> manifest in data/photos.json */
+function photo_meta(string $slug): ?array { return data('photos')['items'][$slug] ?? null; }
+
+function photo_url(string $slug, string $size = 'lg'): string
+{
+    $m = photo_meta($slug); if (!$m) { return ''; }
+    $f = '/assets/img/photos/' . $m['file'] . '-' . ($size === 'sm' ? 'sm' : 'lg') . '.webp';
+    $abs = ROOT . $f;
+    return $f . (is_file($abs) ? '?v=' . filemtime($abs) : '');
+}
+
+function photo(string $slug, string $class = '', string $sizes = '(max-width: 700px) 100vw, 600px', bool $eager = false): string
+{
+    $m = photo_meta($slug); if (!$m) { return ''; }
+    $w = min((int)$m['w'], 1024); $h = (int)round($m['h'] * $w / max(1, $m['w']));
+    return '<img' . ($class ? ' class="' . e($class) . '"' : '') . ' src="' . e(photo_url($slug, 'lg')) . '" srcset="' . e(photo_url($slug, 'sm')) . ' 640w, ' . e(photo_url($slug, 'lg')) . ' ' . $w . 'w" sizes="' . e($sizes) . '" alt="' . e($m['alt']) . '" width="' . $w . '" height="' . $h . '" decoding="async"' . ($eager ? ' fetchpriority="high"' : ' loading="lazy"') . '>';
+}
+
+/** Photo for a CMS item: custom uploaded image first, then a photo slug, else ''. */
+function item_photo(array $it, string $class = '', string $sizes = '(max-width: 700px) 100vw, 400px'): string
+{
+    if (!empty($it['image'])) { return cms_img($it['image'], $it['image_alt'] ?? '', $class, 800, 600); }
+    return !empty($it['photo']) ? photo($it['photo'], $class, $sizes) : '';
+}
+
 /** Responsive, lazy image from a CMS image path. Returns '' when no image is set. */
 function cms_img(?string $path, string $alt, string $class = '', int $w = 800, int $h = 450, bool $eager = false): string
 {
