@@ -464,7 +464,6 @@ return [
     'a_nebdex_public_key'     => 'Public Key',
     'a_nebdex_secret_key'     => 'Secret Key',
     'a_nebdex_methods'        => 'Payment methods',
-    'a_nebdex_methods_note'   => 'Manage which Nebdex methods are mapped to which gateway in the "Nebdex payment methods" section below, after saving your credentials above.',
     'a_nebdex_methods_help'   => 'A gateway (e.g. EVC Plus) can have more than one Nebdex method — e.g. both its "evc" and "WaafiPay" channels — each shows as its own "Pay via Nebdex" button. Add ZAAD or Sahal/eDahab under Admin → Gateways first if you need those too. A gateway with no methods listed stays on manual verification.',
     'a_nebdex_method_ph'      => 'method_code, e.g. 103',
     'a_nebdex_method_label_ph' => 'Label, e.g. evc or WaafiPay',

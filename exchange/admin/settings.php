@@ -312,7 +312,22 @@ require APP_PATH . '/views/admin_header.php';
             <div class="alert alert-error"><?= icon('alert') ?><span><?= e($nebdexMethodsResult['message']) ?></span></div>
           <?php endif; ?>
         <?php endif; ?>
-        <p class="help"><?= e(t('a_nebdex_methods_note')) ?></p>
+        <?php foreach ($gateways as $g): ?>
+        <div class="form-group mt-2">
+          <label><?= e($g['name']) ?></label>
+          <?php foreach (($nebdexMethodsByGateway[$g['id']] ?? []) as $nm): ?>
+            <div class="pay-target">
+              <div><strong><?= e($nm['label']) ?></strong><div class="small muted mono">method_code: <?= e($nm['method_code']) ?></div></div>
+              <button class="btn btn-outline btn-sm" type="submit" form="nebdex-delete-<?= (int) $nm['id'] ?>"><?= icon('x', 14) ?></button>
+            </div>
+          <?php endforeach; ?>
+          <div class="form-row">
+            <div class="form-group"><input class="input" form="nebdex-add-<?= (int) $g['id'] ?>" name="method_label" placeholder="<?= e(t('a_nebdex_method_label_ph')) ?>" maxlength="60"></div>
+            <div class="form-group"><input class="input mono" form="nebdex-add-<?= (int) $g['id'] ?>" name="method_code" placeholder="<?= e(t('a_nebdex_method_ph')) ?>" inputmode="numeric"></div>
+            <div class="form-group" style="flex:0 0 auto"><button class="btn btn-outline btn-sm" type="submit" form="nebdex-add-<?= (int) $g['id'] ?>"><?= icon('plus', 15) ?> <?= e(t('a_nebdex_add_method')) ?></button></div>
+          </div>
+        </div>
+        <?php endforeach; ?>
         <p class="help"><?= e(t('a_nebdex_ipn_help', ['url' => full_url('nebdex_ipn.php')])) ?></p>
       </div>
     </div>
@@ -341,31 +356,12 @@ require APP_PATH . '/views/admin_header.php';
 </form>
 <form method="post" id="tg-test" class="hidden"><?= csrf_field() ?><input type="hidden" name="action" value="test_telegram"></form>
 <form method="post" id="nebdex-fetch" class="hidden"><?= csrf_field() ?><input type="hidden" name="action" value="nebdex_fetch_methods"></form>
-
-<div class="card mt-3">
-  <div class="card-head"><h3><?= icon('bolt', 18) ?> <?= e(t('a_nebdex_methods')) ?></h3></div>
-  <div class="card-body">
-    <p class="help"><?= e(t('a_nebdex_methods_help')) ?></p>
-    <?php foreach ($gateways as $g): ?>
-    <h4 class="mt-3"><?= e($g['name']) ?></h4>
-    <?php foreach (($nebdexMethodsByGateway[$g['id']] ?? []) as $nm): ?>
-      <div class="pay-target">
-        <div><strong><?= e($nm['label']) ?></strong><div class="small muted mono">method_code: <?= e($nm['method_code']) ?></div></div>
-        <form method="post" class="inline" data-confirm="<?= e(t('a_confirm_delete')) ?>">
-          <?= csrf_field() ?><input type="hidden" name="action" value="nebdex_delete_method"><input type="hidden" name="id" value="<?= (int) $nm['id'] ?>">
-          <button class="btn btn-outline btn-sm" type="submit"><?= icon('x', 14) ?></button>
-        </form>
-      </div>
-    <?php endforeach; ?>
-    <form method="post" class="form-row">
-      <?= csrf_field() ?><input type="hidden" name="action" value="nebdex_add_method"><input type="hidden" name="gateway_id" value="<?= (int) $g['id'] ?>">
-      <div class="form-group"><input class="input" name="method_label" placeholder="<?= e(t('a_nebdex_method_label_ph')) ?>" maxlength="60"></div>
-      <div class="form-group"><input class="input mono" name="method_code" placeholder="<?= e(t('a_nebdex_method_ph')) ?>" inputmode="numeric"></div>
-      <div class="form-group" style="flex:0 0 auto"><button class="btn btn-outline btn-sm" type="submit"><?= icon('plus', 15) ?> <?= e(t('a_nebdex_add_method')) ?></button></div>
-    </form>
-    <?php endforeach; ?>
-  </div>
-</div>
+<?php foreach ($gateways as $g): ?>
+  <?php foreach (($nebdexMethodsByGateway[$g['id']] ?? []) as $nm): ?>
+<form method="post" id="nebdex-delete-<?= (int) $nm['id'] ?>" class="hidden" data-confirm="<?= e(t('a_confirm_delete')) ?>"><?= csrf_field() ?><input type="hidden" name="action" value="nebdex_delete_method"><input type="hidden" name="id" value="<?= (int) $nm['id'] ?>"></form>
+  <?php endforeach; ?>
+<form method="post" id="nebdex-add-<?= (int) $g['id'] ?>" class="hidden"><?= csrf_field() ?><input type="hidden" name="action" value="nebdex_add_method"><input type="hidden" name="gateway_id" value="<?= (int) $g['id'] ?>"></form>
+<?php endforeach; ?>
 
 <?php if (!empty($s['logo'])): ?>
 <form method="post" class="mt-2"><?= csrf_field() ?><input type="hidden" name="action" value="remove_logo"><button class="btn btn-ghost btn-sm" type="submit"><?= e(t('a_remove_logo')) ?></button></form>

@@ -464,7 +464,6 @@ return [
     'a_nebdex_public_key'     => 'Public Key',
     'a_nebdex_secret_key'     => 'Secret Key',
     'a_nebdex_methods'        => 'Hababka lacag-bixinta',
-    'a_nebdex_methods_note'   => 'Ka maamul hababka Nebdex ee khidmad kasta qaybta "Nebdex payment methods" ee hoose, kadib marka aad kaydiso aqoonsiyadaada kore.',
     'a_nebdex_methods_help'   => 'Khidmad (tusaale EVC Plus) waxay yeelan kartaa in ka badan hal method oo Nebdex ah — tusaale labadaba "evc" iyo "WaafiPay" — mid kastaa wuxuu noqonayaa badhan "Pay via Nebdex" oo gaar ah. Marka hore ku dar ZAAD ama Sahal/eDahab Admin → Gateways haddii aad u baahan tahay. Khidmad aan lahayn hab lagu lisey waxay sii haysataa hubinta gacanta ah.',
     'a_nebdex_method_ph'      => 'method_code, tusaale 103',
     'a_nebdex_method_label_ph' => 'Label, tusaale evc ama WaafiPay',
