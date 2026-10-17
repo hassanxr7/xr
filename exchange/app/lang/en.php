@@ -507,7 +507,7 @@ return [
     'a_sova_payout_help'              => 'When a customer receives SovaMoney, their payment is confirmed and the money is sent from your SovaMoney merchant wallet to their wallet (U-ID) automatically, and the order is completed. Keep enough balance in your merchant wallet. Uses the public key above.',
     'a_sova_payout_enabled'           => 'Send SovaMoney payouts to customers automatically',
     'a_sova_payout_base_url'          => 'Payout API base URL',
-    'a_sova_payout_base_url_help'     => 'Leave empty to use https://sovamoney.com (Live) or https://sandbox.sovamoney.com (Sandbox). Only change this if SovaMoney gives you a different address.',
+    'a_sova_payout_base_url_help'     => 'Leave empty to use https://sovamoney.com. Payouts always move real money (the payout API has no sandbox). Only change this if SovaMoney gives you a different address.',
     'a_err_sova_payout_key'           => 'Enter the SovaMoney public key before turning on automatic payouts.',
     'a_err_sova_payout_url'           => 'The payout API base URL must start with https:// — the previous value was kept.',
     'a_sova_payout_result_success'    => 'Payout sent. SovaMoney Trx: :msg',
@@ -524,4 +524,9 @@ return [
     'a_sova_payout_unknown_confirm'   => 'The last attempt may already have paid the customer. Only retry if your SovaMoney merchant history shows NO payout for this order. Continue?',
     'a_sova_payout_send'              => 'Send :amount to SovaMoney now',
     'a_sova_payout_retry'             => 'Retry payout (:amount)',
+    'a_sova_test_title'               => 'Test a SovaMoney U-ID',
+    'a_sova_test_btn'                 => 'Test',
+    'a_sova_test_help'                => 'Checks a U-ID with SovaMoney and shows its exact reply. No money moves. Uses the public key saved above.',
+    'a_sova_test_ok'                  => 'Found: :name (:uid) — the connection works.',
+    'a_sova_test_fail'                => 'Not verified: :msg',
 ];

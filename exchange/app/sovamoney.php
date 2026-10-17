@@ -147,7 +147,8 @@ function sovamoney_payout_base_url(): string
     if ($custom !== '') {
         return $custom;
     }
-    return sovamoney_config()['environment'] === 'live' ? 'https://sovamoney.com' : 'https://sandbox.sovamoney.com';
+    // The payout API documents no sandbox, so it always targets production.
+    return 'https://sovamoney.com';
 }
 
 /** Whether this gateway row is the SovaMoney "receive" wallet. */
@@ -164,7 +165,8 @@ function is_sovamoney_gateway(?array $gateway): bool
  */
 function sovamoney_api_post(string $path, array $params, int $timeout = 30): array
 {
-    $ch = curl_init(sovamoney_payout_base_url() . $path);
+    $url = sovamoney_payout_base_url() . $path;
+    $ch = curl_init($url);
     curl_setopt_array($ch, [
         CURLOPT_POST           => true,
         CURLOPT_POSTFIELDS     => http_build_query($params),
@@ -178,18 +180,20 @@ function sovamoney_api_post(string $path, array $params, int $timeout = 30): arr
     $body = curl_exec($ch);
     $errno = curl_errno($ch);
     $err = curl_error($ch);
+    $http = (int) curl_getinfo($ch, CURLINFO_HTTP_CODE);
     curl_close($ch);
+    $base = ['url' => $url, 'http' => $http, 'body' => is_string($body) ? mb_substr($body, 0, 1000) : ''];
 
     if ($body === false || $body === '') {
         // Resolve / connect / TLS-handshake failures mean nothing was sent.
         $notSent = in_array($errno, [CURLE_COULDNT_RESOLVE_HOST, CURLE_COULDNT_CONNECT, CURLE_SSL_CONNECT_ERROR], true);
-        return ['reached' => false, 'sent' => !$notSent, 'data' => null, 'error' => $err !== '' ? $err : 'Empty response'];
+        return $base + ['reached' => false, 'sent' => !$notSent, 'data' => null, 'error' => $err !== '' ? $err : 'Empty response (HTTP ' . $http . ')'];
     }
     $data = json_decode($body, true);
     if (!is_array($data)) {
-        return ['reached' => false, 'sent' => true, 'data' => null, 'error' => 'Unreadable response: ' . mb_substr(trim(strip_tags($body)), 0, 200)];
+        return $base + ['reached' => false, 'sent' => true, 'data' => null, 'error' => 'HTTP ' . $http . ', unreadable response: ' . mb_substr(trim(strip_tags($body)), 0, 200)];
     }
-    return ['reached' => true, 'sent' => true, 'data' => $data, 'error' => ''];
+    return $base + ['reached' => true, 'sent' => true, 'data' => $data, 'error' => ''];
 }
 
 /** Flatten SovaMoney's message field (array, {error:[...]} or string) to text. */
@@ -209,7 +213,10 @@ function sovamoney_message($message): string
 
 /**
  * Check a customer-entered U-ID (or username / mobile) before taking their order.
- * Returns ['ok' => bool, 'reached' => bool, 'uid' => string, 'name' => string, 'message' => string].
+ * not_found is true only when SovaMoney itself says the user doesn't exist;
+ * any other failure (bad key, missing route, outage) is a service problem
+ * and is logged with the raw reply instead of blaming the customer's U-ID.
+ * Returns ['ok', 'not_found', 'uid', 'name', 'message', 'debug' => [url, http, body]].
  */
 function sovamoney_verify_uid(string $uid): array
 {
@@ -218,25 +225,28 @@ function sovamoney_verify_uid(string $uid): array
         'public_key' => setting('sovamoney_public_key'),
         'uid'        => $uid,
     ], 20);
-    if (!$res['reached']) {
-        error_log('[Hufan] SovaMoney user-verify unreachable: ' . $res['error']);
-        return ['ok' => false, 'reached' => false, 'uid' => $uid, 'name' => '', 'message' => $res['error']];
-    }
-    $d = $res['data'];
-    if (($d['status'] ?? '') === 'success' && is_array($d['data'] ?? null)) {
+    $debug = ['url' => $res['url'], 'http' => $res['http'], 'body' => $res['body']];
+    $d = $res['data'] ?? [];
+    if ($res['reached'] && ($d['status'] ?? '') === 'success' && is_array($d['data'] ?? null)) {
         $name = trim((string) ($d['data']['full_name'] ?? ''));
         if ($name === '') {
             $name = (string) ($d['data']['username'] ?? '');
         }
         return [
-            'ok'      => true,
-            'reached' => true,
-            'uid'     => (string) ($d['data']['uid'] ?? $uid) ?: $uid,
-            'name'    => $name,
-            'message' => '',
+            'ok'        => true,
+            'not_found' => false,
+            'uid'       => (string) ($d['data']['uid'] ?? $uid) ?: $uid,
+            'name'      => $name,
+            'message'   => '',
+            'debug'     => $debug,
         ];
     }
-    return ['ok' => false, 'reached' => true, 'uid' => $uid, 'name' => '', 'message' => sovamoney_message($d['message'] ?? 'User not found')];
+    $message = $res['reached'] ? sovamoney_message($d['message'] ?? 'Unexpected reply') : $res['error'];
+    $notFound = $res['reached'] && ($d['status'] ?? '') === 'error' && preg_match('/user not found/i', $message);
+    if (!$notFound) {
+        error_log('[Hufan] SovaMoney user-verify failed: HTTP ' . $res['http'] . ' ' . $res['url'] . ' — ' . $message . ' — ' . mb_substr($res['body'], 0, 300));
+    }
+    return ['ok' => false, 'not_found' => (bool) $notFound, 'uid' => $uid, 'name' => '', 'message' => $message, 'debug' => $debug];
 }
 
 function sovamoney_payout_row(int $orderId): ?array

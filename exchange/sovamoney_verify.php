@@ -51,4 +51,4 @@ if ($check['ok']) {
         'message' => t('sova_uid_found', ['name' => $check['name'], 'uid' => $check['uid']]),
     ]);
 }
-$reply(200, ['ok' => false, 'message' => t($check['reached'] ? 'sova_uid_not_found' : 'sova_uid_unreachable')]);
+$reply(200, ['ok' => false, 'message' => t($check['not_found'] ? 'sova_uid_not_found' : 'sova_uid_unreachable')]);

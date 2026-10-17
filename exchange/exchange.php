@@ -74,7 +74,7 @@ if (is_post()) {
                 $receiverLabel = mb_substr($pair['to_account_label'] . ' — ' . $check['name'], 0, 120);
             }
         } else {
-            $errors[] = t($check['reached'] ? 'sova_uid_not_found' : 'sova_uid_unreachable');
+            $errors[] = t($check['not_found'] ? 'sova_uid_not_found' : 'sova_uid_unreachable');
         }
     }
 

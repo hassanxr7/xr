@@ -134,7 +134,7 @@ Customers can also **send from SovaMoney** (SovaMoney → EVC Plus / ZAAD / eDah
 
 Customers can also **receive** SovaMoney (e.g. send EVC Plus → receive SovaMoney). With the Merchant Payout API (U-ID version) the money goes from your SovaMoney merchant wallet to the customer's wallet automatically:
 
-1. **Admin → Settings → SovaMoney → SovaMoney payout**: tick **Send SovaMoney payouts to customers automatically** (uses the same Public Key). Leave *Payout API base URL* empty unless SovaMoney gives you a different address.
+1. **Admin → Settings → SovaMoney → SovaMoney payout**: tick **Send SovaMoney payouts to customers automatically** (uses the same Public Key). Payouts always go to https://sovamoney.com (real money — the payout API has no sandbox); leave *Payout API base URL* empty unless SovaMoney gives you a different address. Use **Test a SovaMoney U-ID** to check the connection: it shows SovaMoney's exact reply (e.g. "Invalid api key." or HTTP 404 if the payout API isn't enabled on the merchant account).
 2. At checkout the customer enters their **SovaMoney U-ID** (e.g. `U827389`, or their username/mobile). The site checks it with SovaMoney and shows the wallet name ("SovaMoney: John Doe (U827389)") before the order can be created.
 3. As soon as the customer's payment is confirmed (Nebdex / WaafiPay / SovaMoney checkout), `receive_amount` is sent to that U-ID with the order number as `reference`, and the order is marked **Completed** with SovaMoney's Trx as the payout reference.
 4. Keep enough balance in your merchant wallet. If a payout fails (e.g. *insufficient balance*), no money moves, the order stays *Processing*, you get a Telegram alert, and **Admin → Orders → (order) → SovaMoney payout** has a **Retry** button.

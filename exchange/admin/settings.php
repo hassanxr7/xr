@@ -25,6 +25,12 @@ if (is_post()) {
         flash('success', t('saved'));
         redirect('admin/settings.php');
     }
+    if ($action === 'sova_test_uid') {
+        $uid = mb_substr(trim(input('test_uid')), 0, 60);
+        $r = $uid !== '' ? sovamoney_verify_uid($uid) : null;
+        $_SESSION['_sova_test_result'] = $r ? ['uid' => $uid] + $r : null;
+        redirect('admin/settings.php#sova-payout');
+    }
     if ($action === 'nebdex_fetch_methods') {
         $fetchResult = nebdex_fetch_payment_methods(setting('nebdex_public_key'));
         if ($fetchResult['success'] && $fetchResult['methods']) {
@@ -130,6 +136,8 @@ if (is_post()) {
 $s = settings(true);
 $gateways = rows('SELECT id, name FROM gateways ORDER BY sort_order, id');
 $v = fn ($k) => e($s[$k] ?? '');
+$sovaTest = $_SESSION['_sova_test_result'] ?? null;
+unset($_SESSION['_sova_test_result']);
 $nebdexMethodsResult = $_SESSION['_nebdex_methods_result'] ?? null;
 unset($_SESSION['_nebdex_methods_result']);
 nebdex_ensure_schema();
@@ -272,13 +280,29 @@ require APP_PATH . '/views/admin_header.php';
         </div>
         <p class="help"><?= e(t('a_sovamoney_ipn_help', ['url' => full_url('sovamoney_ipn.php')])) ?></p>
         <hr class="mt-3 mb-3">
-        <h4><?= e(t('a_sova_payout_title')) ?></h4>
+        <h4 id="sova-payout"><?= e(t('a_sova_payout_title')) ?></h4>
         <p class="small muted"><?= e(t('a_sova_payout_help')) ?></p>
         <label class="check"><input type="checkbox" name="sovamoney_payout_enabled" value="1" <?= ($s['sovamoney_payout_enabled'] ?? '') === '1' ? 'checked' : '' ?>> <?= e(t('a_sova_payout_enabled')) ?></label>
         <div class="form-group mt-2">
           <label><?= e(t('a_sova_payout_base_url')) ?> <span class="muted">(<?= e(t('optional')) ?>)</span></label>
           <input class="input mono" name="sovamoney_payout_base_url" value="<?= $v('sovamoney_payout_base_url') ?>" placeholder="https://sovamoney.com" autocomplete="off">
           <div class="help"><?= e(t('a_sova_payout_base_url_help')) ?></div>
+        </div>
+        <div class="form-group">
+          <label for="sova-test-uid"><?= e(t('a_sova_test_title')) ?></label>
+          <div class="form-row">
+            <input class="input mono" id="sova-test-uid" name="test_uid" form="sova-test" placeholder="U827389" value="<?= e($sovaTest['uid'] ?? '') ?>" autocomplete="off">
+            <button class="btn btn-outline" type="submit" form="sova-test"><?= icon('search', 16) ?> <?= e(t('a_sova_test_btn')) ?></button>
+          </div>
+          <div class="help"><?= e(t('a_sova_test_help')) ?></div>
+          <?php if ($sovaTest): ?>
+          <div class="alert <?= $sovaTest['ok'] ? 'alert-success' : 'alert-error' ?> mt-2"><span><?= e($sovaTest['ok'] ? t('a_sova_test_ok', ['name' => $sovaTest['name'], 'uid' => $sovaTest['uid']]) : t('a_sova_test_fail', ['msg' => $sovaTest['message']])) ?></span></div>
+          <pre class="small mono" style="white-space:pre-wrap;word-break:break-all;max-height:220px;overflow:auto;background:rgba(127,127,127,.08);padding:10px;border-radius:8px">POST <?= e($sovaTest['debug']['url']) ?>
+
+HTTP <?= (int) $sovaTest['debug']['http'] ?>
+
+<?= e($sovaTest['debug']['body'] !== '' ? $sovaTest['debug']['body'] : '(empty reply)') ?></pre>
+          <?php endif; ?>
         </div>
       </div>
     </div>
@@ -377,6 +401,7 @@ require APP_PATH . '/views/admin_header.php';
   </div>
 </form>
 <form method="post" id="tg-test" class="hidden"><?= csrf_field() ?><input type="hidden" name="action" value="test_telegram"></form>
+<form method="post" id="sova-test" class="hidden"><?= csrf_field() ?><input type="hidden" name="action" value="sova_test_uid"></form>
 <form method="post" id="nebdex-fetch" class="hidden"><?= csrf_field() ?><input type="hidden" name="action" value="nebdex_fetch_methods"></form>
 <?php foreach ($gateways as $g): ?>
   <?php foreach (($nebdexMethodsByGateway[$g['id']] ?? []) as $nm): ?>

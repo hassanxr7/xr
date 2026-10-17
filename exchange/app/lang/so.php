@@ -507,7 +507,7 @@ return [
     'a_sova_payout_help'              => 'Marka macmiil uu helayo SovaMoney, kadib marka lacag-bixintiisa la xaqiijiyo, lacagta waxaa si toos ah looga diraa wallet-kaaga merchant SovaMoney una gudbisaa wallet-kiisa (U-ID), dalabkana waa la dhammaystiraa. Hubi in wallet-ka merchant-ka uu haysto lacag ku filan. Wuxuu isticmaalaa public key-ga kore.',
     'a_sova_payout_enabled'           => 'Si toos ah ugu dir macaamiisha lacagta SovaMoney',
     'a_sova_payout_base_url'          => 'Cinwaanka aasaasiga ah ee Payout API',
-    'a_sova_payout_base_url_help'     => 'Ka tag madhan si loo isticmaalo https://sovamoney.com (Live) ama https://sandbox.sovamoney.com (Sandbox). Beddel kaliya haddii SovaMoney ay ku siiyaan cinwaan kale.',
+    'a_sova_payout_base_url_help'     => 'Ka tag madhan si loo isticmaalo https://sovamoney.com. Diritaanku had iyo jeer waa lacag dhab ah (payout API-gu ma laha sandbox). Beddel kaliya haddii SovaMoney ay ku siiyaan cinwaan kale.',
     'a_err_sova_payout_key'           => 'Geli public key-ga SovaMoney ka hor intaadan shidin diritaanka tooska ah.',
     'a_err_sova_payout_url'           => 'Cinwaanka Payout API waa inuu ku bilaabmaa https:// — qiimihii hore ayaa la hayaa.',
     'a_sova_payout_result_success'    => 'Lacagta waa la diray. SovaMoney Trx: :msg',
@@ -524,4 +524,9 @@ return [
     'a_sova_payout_unknown_confirm'   => 'Isku daygii u dambeeyay waxaa laga yaabaa inuu horeba lacagta u diray macmiilka. Dib isku day KALIYA haddii taariikhda merchant-ka SovaMoney aysan muujinayn diritaan dalabkan ah. Ma sii wadaa?',
     'a_sova_payout_send'              => 'Hadda u dir :amount SovaMoney',
     'a_sova_payout_retry'             => 'Dib isku day diritaanka (:amount)',
+    'a_sova_test_title'               => 'Tijaabi U-ID SovaMoney ah',
+    'a_sova_test_btn'                 => 'Tijaabi',
+    'a_sova_test_help'                => 'Wuxuu U-ID-ga ku hubiyaa SovaMoney oo muujiyaa jawaabta saxda ah. Lacag ma dhaqaaqdo. Wuxuu isticmaalaa public key-ga kore ee la kaydiyay.',
+    'a_sova_test_ok'                  => 'Waa la helay: :name (:uid) — xiriirku wuu shaqeynayaa.',
+    'a_sova_test_fail'                => 'Lama xaqiijin: :msg',
 ];
