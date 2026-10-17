@@ -353,3 +353,12 @@ h1,h2,h3{letter-spacing:-.025em;font-weight:800;color:var(--ink)}h2{font-size:cl
 @media (max-width:1080px){.fleet-strip{grid-template-columns:repeat(4,1fr)}.banner.has-img{grid-template-columns:1fr}.banner-img{order:-1;min-height:200px;max-height:300px}.gallery{grid-template-columns:1fr 1fr}.photo-stack{padding-bottom:50px}}
 @media (max-width:620px){.fleet-strip{grid-template-columns:repeat(2,1fr)}.gallery{grid-template-columns:1fr}.ps-cabin{width:44%}.credits li{align-items:flex-start}.credits img{width:90px;height:62px}.banner-copy{padding:28px 22px}.sol-photo{width:100%;height:170px}}
 .ph-frame .photo-scene{height:auto;aspect-ratio:16/10;border-radius:14px}
+
+/* real platform screenshots */
+.browser-frame{background:#0b1b3a;border-radius:14px;overflow:hidden;box-shadow:0 40px 70px -28px rgba(0,0,0,.65);border:1px solid rgba(255,255,255,.14)}.bf-bar{display:flex;align-items:center;gap:6px;padding:9px 12px;background:#0f2b5b;color:#9db7e3;font-size:.72rem}.bf-bar i{width:9px;height:9px;border-radius:50%;background:#ff6b6b}.bf-bar i:nth-child(2){background:#ffc94d}.bf-bar i:nth-child(3){background:#3ddc97}.bf-bar span{margin-left:10px;background:#173a70;border-radius:999px;padding:2px 14px}
+.shot-img{display:block;width:100%;height:auto}.phone-frame{background:#0b1b3a;border-radius:30px;padding:8px;border:2px solid #27487f;box-shadow:0 30px 50px -20px rgba(0,0,0,.6);max-width:230px}.phone-frame .shot-img{border-radius:22px}
+.stage-real{position:relative;padding:20px 0 40px 0}.stage-real-phone{position:absolute;left:-14px;bottom:0;width:28%;transform:rotate(-4deg)}
+.shot-scene{width:100%;height:100%;background:#0c244d}.shot-fill{width:100%;height:100%;object-fit:cover;object-position:top;display:block}
+.shots{display:grid;grid-template-columns:repeat(3,1fr);gap:22px}.shot{margin:0;display:flex;flex-direction:column;gap:12px;align-items:center}.shot figcaption{display:flex;flex-direction:column;text-align:center;font-size:.92rem}.shot figcaption strong{color:var(--ink)}
+.del-callout{margin:0 0 22px}
+@media (max-width:900px){.shots{grid-template-columns:1fr 1fr}.stage-real-phone{width:34%;left:-6px}}@media (max-width:620px){.shots{grid-template-columns:1fr}}

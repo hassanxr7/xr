@@ -26,6 +26,7 @@ const DATASETS = [
     'about'     => ['About ITrackZen & LibDex', 'Company text, mission, values.'],
     'faq'       => ['FAQ & support', 'Questions and answers (also used for FAQ schema).'],
     'blog'      => ['Blog posts', 'News and SEO articles.'],
+    'screens'   => ['Platform screenshots', 'Real screenshots of the ITrackZen platform (itrackzen.com/demo). Upload in Media, paste each path into an image field. Also set Home > hero screen_desktop / screen_mobile and tour tab screenshots.'],
     'photos'    => ['Photos & credits', 'Alt text, titles and licence credits for the photographs. Keep author and licence details accurate.'],
     'deletion'  => ['Account & data deletion page', 'Public deletion page text: steps, what is deleted, retention table, timeframe, notification emails.'],
     'privacy'   => ['Privacy Policy', 'Legal text.'],

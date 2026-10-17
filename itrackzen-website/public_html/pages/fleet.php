@@ -17,6 +17,7 @@ page_hero($m['h1'], $f['intro'], 'Fleet Management', art_frame(art_dashboard()),
     </div>
   </div>
 </section>
+<?php screens_gallery(); ?>
 <section class="section alt">
   <div class="container">
     <?php section_head('Benefits', 'What better fleet control delivers'); ?>

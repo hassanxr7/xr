@@ -2,13 +2,13 @@
   "intro": "This Privacy Policy explains how LibDex Ltd, trading as ITrackZen (\"ITrackZen\", \"we\", \"us\"), collects, uses, shares and protects personal information when you visit our business website, use the ITrackZen tracking platform (itrackzen.com) and our mobile apps for Android and iOS, or contact us. By using our services you acknowledge this policy.",
   "sections": [
     {
-      "h": "1. Who we are",
+      "h": "Who we are",
       "p": [
         "LibDex Ltd operates the ITrackZen GPS tracking and fleet management services: the business website (itrackzen.net), the tracking platform at itrackzen.com and the ITrackZen mobile apps. For privacy questions contact info@libdexltd.com."
       ]
     },
     {
-      "h": "2. Information we collect",
+      "h": "Information we collect",
       "p": [
         "We collect only the information needed to provide and improve our services. Depending on how you use ITrackZen, this may include:"
       ],
@@ -23,14 +23,14 @@
       ]
     },
     {
-      "h": "3. Location data and mobile app permissions",
+      "h": "Location data and mobile app permissions",
       "p": [
         "The core purpose of ITrackZen is to display the location of vehicles and assets that carry tracking devices. Location data from those devices is collected by the device, not by your phone.",
         "Our mobile applications request device permissions only when they are needed for a feature you choose to use, for example notifications for alerts, or approximate location to show your own position on a map. You can change these permissions at any time in your phone settings. We do not use your phone's location in the background for advertising."
       ]
     },
     {
-      "h": "4. How we use information",
+      "h": "How we use information",
       "p": [
         "We use personal information to:"
       ],
@@ -44,20 +44,20 @@
       ]
     },
     {
-      "h": "5. Legal bases",
+      "h": "Legal bases",
       "p": [
         "Where data protection law requires a legal basis, we rely on performance of our contract with you or your organisation, our legitimate interests in operating and securing the service, compliance with legal obligations, and your consent where we ask for it, for example for non-essential cookies."
       ]
     },
     {
-      "h": "6. Customer-controlled data and drivers",
+      "h": "Customer-controlled data and drivers",
       "p": [
         "Fleet and tracking data in a customer account is controlled by the customer (the company or individual that owns the account). In most cases LibDex Ltd acts as a service provider processing that data on the customer's behalf and under its instructions.",
         "Customers are responsible for informing their drivers and employees about vehicle tracking and any camera or driver-monitoring features, and for having a lawful basis to use them. Drivers who have questions about tracking should contact their employer first."
       ]
     },
     {
-      "h": "7. Sharing of information",
+      "h": "Sharing of information",
       "p": [
         "We do not sell personal information. We share it only as follows:"
       ],
@@ -69,56 +69,63 @@
       ]
     },
     {
-      "h": "8. Cookies and analytics",
+      "h": "Cookies and analytics",
       "p": [
         "Our website uses essential cookies for security and basic functionality. With your consent, we may also use analytics and advertising measurement tools such as Google Analytics and Meta (Facebook) Pixel to understand how the website is used and to measure marketing. You can accept or decline non-essential cookies in the cookie notice and change your browser settings at any time."
       ]
     },
     {
-      "h": "9. Data retention",
+      "h": "Data retention",
       "p": [
         "We keep personal information only as long as necessary for the purposes described in this policy. Tracking history and video are retained according to the plan and settings of the customer account. When an account is closed or a valid deletion request is approved, we delete or anonymise personal information within a reasonable period, except where we must keep it to meet legal, accounting or security obligations."
       ]
     },
     {
-      "h": "10. Security",
+      "h": "Security",
       "p": [
         "We use HTTPS encryption in transit, access controls, role-based permissions and regular backups to protect information. No system is completely secure, so we also encourage customers to use strong, unique passwords and to remove access for former staff promptly."
       ]
     },
     {
-      "h": "11. International transfers",
+      "h": "International transfers",
       "p": [
         "Our customers operate in many countries and our service providers may process data in other countries. Where required, we use appropriate safeguards so that personal information receives a comparable level of protection."
       ]
     },
     {
-      "h": "12. Your rights",
+      "h": "Your rights",
       "p": [
         "Depending on where you live, you may have the right to access, correct, delete or export your personal information, to object to or restrict certain processing, and to withdraw consent. To exercise these rights, contact us at info@libdexltd.com. If your data is held in a customer account, we may direct you to that customer.",
-        "You can also submit an account and data deletion request without signing in on our Account & Data Deletion page (/delete-account). We verify your email and identity before acting on a request, and tell you what we delete and what we must keep. You may also lodge a complaint with your local data protection authority."
+        "You can also request account and data deletion without signing in. The full process is described in the section \"Account and data deletion\" below and on our Account & Data Deletion page. You may also lodge a complaint with your local data protection authority."
       ]
     },
     {
-      "h": "13. Children",
+      "h": "Account and data deletion",
+      "special": "deletion",
+      "p": [
+        "You can ask us to delete your ITrackZen account and the personal data linked to it at any time. You do not need to sign in to make the request. This applies to the ITrackZen web platform (itrackzen.com) and the ITrackZen mobile apps for Android and iOS."
+      ]
+    },
+    {
+      "h": "Children",
       "p": [
         "ITrackZen services are intended for businesses and adults. We do not knowingly collect personal information from children under 16. If you believe a child has provided us with information, contact us and we will delete it."
       ]
     },
     {
-      "h": "14. Third-party links",
+      "h": "Third-party links",
       "p": [
         "Our website and apps may link to third-party sites and services, such as WhatsApp or map providers. Their privacy practices are governed by their own policies."
       ]
     },
     {
-      "h": "15. Changes to this policy",
+      "h": "Changes to this policy",
       "p": [
         "We may update this Privacy Policy from time to time. The latest version will always be available on this page with the updated date. Significant changes will be communicated through the website or by email where appropriate."
       ]
     },
     {
-      "h": "16. Contact us",
+      "h": "Contact us",
       "p": [
         "LibDex Ltd (ITrackZen) · Email: info@libdexltd.com · Sales: sales@itrackzen.net"
       ]

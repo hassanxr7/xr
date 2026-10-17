@@ -57,6 +57,9 @@ Only the vehicle and device cartoon drawings were removed. The dashboard, phone 
 
 To replace a photo with your own: Admin > Media > upload (auto-compressed to WebP), then paste the path into an `image` field (Home, Industries, Countries, Feature pages, About) and add the `image_alt` text. Use only photos you own or are licensed for commercial use.
 
+## Real platform screenshots (recommended)
+The best "real-time GPS tracking" imagery is your own platform. Take screenshots of `itrackzen.com/demo` (live map, vehicle details, route history, alerts, reports, and the mobile app). Then: Admin > Media > upload each screenshot, and paste the paths into: Admin > Content > **Home page** (`hero.screen_desktop`, `hero.screen_mobile`, and `screenshot` on each tour tab) and **Platform screenshots** (gallery shown on Home, Demo and Fleet pages). Once a screenshot is set, it replaces the illustrative mockup automatically and the "illustrative" labels change.
+
 ## Editing content
 - **Admin panel** (`/admin/`): forms for every section, Raw JSON mode, full version history with restore.
 - **Tracker list:** Admin > Supported trackers > each brand has a `models` box, one per line. Add tags in brackets: `FMB920 [moto,asset]`. Tags: `4g 3g obd moto asset fuel cam truck personal ble`.

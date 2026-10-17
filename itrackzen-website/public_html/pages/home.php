@@ -25,13 +25,15 @@ $ov = $home['overview'];
       <ul class="chips reveal"><?php foreach ($h['chips'] as $c): ?><li><?= icon('check') ?><?= e($c) ?></li><?php endforeach; ?></ul>
     </div>
     <div class="stage reveal">
-      <?php if (!empty($h['image'])): echo cms_img($h['image'], $h['image_alt'] ?? 'Fleet vehicles monitored with ITrackZen GPS tracking', 'hero-photo', 960, 640, true); else: ?>
+      <?php $realShots = !empty($h['screen_desktop']) || !empty($h['screen_mobile']); if ($realShots): ?>
+      <div class="stage-real"><?= shot_frame($h['screen_desktop'] ?? '', $h['screen_desktop_alt'] ?? '', 'browser') ?><?php if (!empty($h['screen_mobile'])): ?><div class="stage-real-phone"><?= shot_frame($h['screen_mobile'], $h['screen_mobile_alt'] ?? '', 'phone') ?></div><?php endif; ?></div>
+      <?php elseif (!empty($h['image'])): echo cms_img($h['image'], $h['image_alt'] ?? 'Fleet vehicles monitored with ITrackZen GPS tracking', 'hero-photo', 960, 640, true); else: ?>
       <div class="stage-dash"><?= art_dashboard() ?></div>
       <div class="stage-phone"><?= art_phone() ?></div>
       <div class="float-card fc-1"><span class="dot dot-green"></span><div><strong>TRK-204 &middot; Moving</strong><small>62 km/h &middot; Nairobi &rarr; Mombasa</small></div></div>
       <div class="float-card fc-2"><span class="fc-ico"><?= icon('camera') ?></span><div><strong>AI dashcam alert</strong><small>Phone use detected</small></div></div>
       <?php endif; ?>
-      <p class="illus">Illustrative interface with sample data</p>
+      <?php if (!$realShots): ?><p class="illus">Illustrative interface with sample data</p><?php else: ?><p class="illus">Screens from the ITrackZen platform</p><?php endif; ?>
     </div>
   </div>
   <div class="container trust">
@@ -102,11 +104,11 @@ $ov = $home['overview'];
         <?php endforeach; ?>
       </div>
       <div class="tour-screen">
-        <div class="tour-bar"><span class="d r"></span><span class="d y"></span><span class="d g"></span><em>ITrackZen &middot; Illustrative demo</em><i class="tour-progress"><b></b></i></div>
+        <div class="tour-bar"><span class="d r"></span><span class="d y"></span><span class="d g"></span><em>ITrackZen &middot; <?= array_filter(array_column($tour['tabs'], 'screenshot')) ? 'Platform screens' : 'Illustrative demo' ?></em><i class="tour-progress"><b></b></i></div>
         <div class="tour-stage">
           <?php foreach ($tour['tabs'] as $i => $t): ?>
           <div class="scene-wrap<?= $i === 0 ? ' is-active' : '' ?>" role="tabpanel" id="scene-<?= e($t['key']) ?>" aria-labelledby="tab-<?= e($t['key']) ?>" data-key="<?= e($t['key']) ?>">
-            <?= $t['scene'] === 'camera' ? scene_camera_photo('kampala-road') : art_scene($t['scene']) ?>
+            <?php if (!empty($t['screenshot'])): echo '<div class="scene shot-scene">' . cms_img($t['screenshot'], $t['screenshot_alt'] ?: $t['title'], 'shot-fill', 1600, 900) . '</div>'; else: echo $t['scene'] === 'camera' ? scene_camera_photo('kampala-road') : art_scene($t['scene']); endif; ?>
             <div class="scene-caption"><h3><?= e($t['title']) ?></h3><p><?= e($t['text']) ?></p></div>
           </div>
           <?php endforeach; ?>
@@ -117,6 +119,7 @@ $ov = $home['overview'];
   </div>
 </section>
 
+<?php screens_gallery(); ?>
 <section class="section alt">
   <div class="container">
     <?php section_head('Industries', 'Built for the way your business moves', 'Logistics, transport, taxis, delivery, construction, tankers, buses, government, security and more.'); ?>

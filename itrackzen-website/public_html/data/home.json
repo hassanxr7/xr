@@ -11,7 +11,11 @@
     ],
     "image": "",
     "image_alt": "",
-    "photo": "kampala-road"
+    "photo": "kampala-road",
+    "screen_desktop": "",
+    "screen_desktop_alt": "ITrackZen live fleet map showing vehicles in real time",
+    "screen_mobile": "",
+    "screen_mobile_alt": "ITrackZen mobile app showing a vehicle on the map"
   },
   "trust": [
     {
@@ -84,35 +88,45 @@
         "label": "Vehicle Camera",
         "title": "Video that explains the event",
         "text": "Front and in-cabin cameras record what happened and AI flags risky driving as it occurs.",
-        "scene": "camera"
+        "scene": "camera",
+        "screenshot": "",
+        "screenshot_alt": ""
       },
       {
         "key": "map",
         "label": "Live Fleet Map",
         "title": "Every vehicle, in real time",
         "text": "Moving, idle and parked vehicles update live with geofences drawn right on the map.",
-        "scene": "map"
+        "scene": "map",
+        "screenshot": "",
+        "screenshot_alt": ""
       },
       {
         "key": "route",
         "label": "Route History",
         "title": "Replay any trip",
         "text": "Review the exact path, stops, speed and timing of past trips to verify deliveries and find detours.",
-        "scene": "route"
+        "scene": "route",
+        "screenshot": "",
+        "screenshot_alt": ""
       },
       {
         "key": "alerts",
         "label": "Smart Alerts",
         "title": "Know first, act fast",
         "text": "Overspeed, ignition, geofence, route deviation, SOS and fuel alerts reach you instantly.",
-        "scene": "alerts"
+        "scene": "alerts",
+        "screenshot": "",
+        "screenshot_alt": ""
       },
       {
         "key": "analytics",
         "label": "Analytics",
         "title": "Decisions backed by data",
         "text": "Distance, fuel, driver scores and utilisation turn raw tracking into clear business reports.",
-        "scene": "analytics"
+        "scene": "analytics",
+        "screenshot": "",
+        "screenshot_alt": ""
       }
     ]
   },

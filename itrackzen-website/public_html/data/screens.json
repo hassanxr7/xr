@@ -1,0 +1,42 @@
+{
+  "heading": "Inside the ITrackZen platform",
+  "intro": "Real screens from the ITrackZen tracking platform at itrackzen.com. Open the live demo to explore them yourself.",
+  "items": [
+    {
+      "image": "",
+      "alt": "",
+      "title": "Live map",
+      "text": "All vehicles on one real-time map."
+    },
+    {
+      "image": "",
+      "alt": "",
+      "title": "Vehicle details",
+      "text": "Speed, status, ignition and sensor readings."
+    },
+    {
+      "image": "",
+      "alt": "",
+      "title": "Route history",
+      "text": "Replay trips with stops and speed."
+    },
+    {
+      "image": "",
+      "alt": "",
+      "title": "Alerts and events",
+      "text": "Overspeed, geofence, ignition and more."
+    },
+    {
+      "image": "",
+      "alt": "",
+      "title": "Reports",
+      "text": "Trip, fuel and driver reports."
+    },
+    {
+      "image": "",
+      "alt": "",
+      "title": "Mobile app",
+      "text": "Track your fleet from your phone."
+    }
+  ]
+}

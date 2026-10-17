@@ -373,3 +373,27 @@ function faq_list(array $items, bool $open_first = false): void
         echo '<details class="faq-item reveal"' . ($open_first && $n === 0 ? ' open' : '') . '><summary>' . e($f['q']) . icon('chevron', 'ico caret') . '</summary><div class="faq-a"><p>' . e($f['a']) . '</p></div></details>';
     }
 }
+
+
+/** Real platform screenshots (uploaded in Admin > Media). Browser frame for desktop, phone frame for mobile. */
+function shot_frame(string $path, string $alt, string $kind = 'browser'): string
+{
+    $img = cms_img($path, $alt, 'shot-img', 1600, 900);
+    if ($img === '') { return ''; }
+    if ($kind === 'phone') { return '<div class="phone-frame">' . $img . '</div>'; }
+    return '<div class="browser-frame"><div class="bf-bar"><i></i><i></i><i></i><span>' . e(preg_replace('#^https?://#', '', platform_url('base'))) . '</span></div>' . $img . '</div>';
+}
+
+function screens_gallery(bool $wrap = true): void
+{
+    $d = data('screens'); $items = array_values(array_filter($d['items'] ?? [], fn($i) => !empty($i['image'])));
+    if (!$items) { return; }
+    if ($wrap) { echo '<section class="section"><div class="container">'; }
+    section_head('Real platform screens', $d['heading'] ?? 'Inside the ITrackZen platform', $d['intro'] ?? '');
+    echo '<div class="shots">';
+    foreach ($items as $i) {
+        echo '<figure class="shot reveal">' . shot_frame($i['image'], $i['alt'] ?: ($i['title'] ?? 'ITrackZen platform screen'), stripos($i['title'] ?? '', 'mobile') !== false ? 'phone' : 'browser') . '<figcaption><strong>' . e($i['title'] ?? '') . '</strong><span>' . e($i['text'] ?? '') . '</span></figcaption></figure>';
+    }
+    echo '</div><p class="center mt"><a class="btn btn-primary" href="' . e(platform_url('demo')) . '" target="_blank" rel="noopener">Open the live demo ' . icon('arrow') . '</a></p>';
+    if ($wrap) { echo '</div></section>'; }
+}
