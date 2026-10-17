@@ -120,6 +120,16 @@ CREATE TABLE IF NOT EXISTS `login_attempts` (
 );
 CREATE INDEX IF NOT EXISTS `idx_attempt` ON `login_attempts` (`scope`, `ident`, `created_at`);
 
+CREATE TABLE IF NOT EXISTS `nebdex_methods` (
+  `id`          INTEGER PRIMARY KEY AUTOINCREMENT,
+  `gateway_id`  INTEGER NOT NULL REFERENCES `gateways` (`id`) ON DELETE CASCADE,
+  `label`       TEXT NOT NULL,
+  `method_code` TEXT NOT NULL,
+  `sort_order`  INTEGER NOT NULL DEFAULT 0,
+  `created_at`  TEXT NOT NULL
+);
+CREATE INDEX IF NOT EXISTS `idx_nebdex_methods_gateway` ON `nebdex_methods` (`gateway_id`, `sort_order`);
+
 -- ---------------------------------------------------------------------------
 -- Seed data. Everything below can be changed later from the admin panel.
 -- ---------------------------------------------------------------------------

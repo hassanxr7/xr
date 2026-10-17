@@ -141,6 +141,18 @@ CREATE TABLE IF NOT EXISTS `login_attempts` (
   KEY `idx_attempt` (`scope`, `ident`, `created_at`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
+CREATE TABLE IF NOT EXISTS `nebdex_methods` (
+  `id`          INT UNSIGNED NOT NULL AUTO_INCREMENT,
+  `gateway_id`  INT UNSIGNED NOT NULL,
+  `label`       VARCHAR(60)  NOT NULL,
+  `method_code` VARCHAR(20)  NOT NULL,
+  `sort_order`  INT NOT NULL DEFAULT 0,
+  `created_at`  DATETIME NOT NULL,
+  PRIMARY KEY (`id`),
+  KEY `idx_nebdex_methods_gateway` (`gateway_id`, `sort_order`),
+  CONSTRAINT `fk_nebdex_methods_gateway` FOREIGN KEY (`gateway_id`) REFERENCES `gateways` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
 -- ---------------------------------------------------------------------------
 -- Seed data. Everything below can be changed later from the admin panel.
 -- ---------------------------------------------------------------------------

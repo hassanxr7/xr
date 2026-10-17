@@ -51,6 +51,7 @@ p { margin: 0 0 1em; }
 .inline { display: inline; margin: 0; }
 .mt-0 { margin-top: 0 !important; }
 .mb-0 { margin-bottom: 0 !important; }
+.mb-2 { margin-bottom: 16px; }
 .mt-2 { margin-top: 16px; }
 .mt-3 { margin-top: 24px; }
 .hidden, [hidden] { display: none !important; }

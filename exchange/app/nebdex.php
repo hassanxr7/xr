@@ -9,12 +9,14 @@
  * must be entered once in the Nebdex merchant dashboard — the API itself
  * has no ipn_url parameter to set it per request).
  *
- * Nebdex doesn't have fixed codes for EVC Plus / ZAAD / Sahal: each
- * merchant account gets its own `method_code` list from
- * POST /api/payment-methods. So instead of one fixed gateway (like
- * WaafiPay/SovaMoney), Nebdex maps per *local* payment gateway: enter the
- * matching method_code for each gateway (EVC Plus, and any ZAAD/Sahal
- * gateways added under Admin → Gateways) in Admin → Settings → Nebdex.
+ * Nebdex doesn't have fixed codes for EVC Plus / ZAAD / Sahal, and a single
+ * local gateway can map to more than one Nebdex channel (e.g. EVC Plus can
+ * be paid through Nebdex's own "evc" method or through its "WaafiPay"
+ * method — both ultimately reach EVC Plus, but via different Nebdex
+ * routes). So Nebdex methods are a small one-to-many table keyed by
+ * gateway_id: each row is one (label, method_code) pair, and the order
+ * page shows one "Pay via Nebdex — <label>" button per row. Manage them
+ * under Admin → Settings → Nebdex.
  */
 defined('APP') || exit;
 
@@ -34,21 +36,98 @@ function nebdex_configured(array $c = null): bool
     return $c['merchant_id'] !== '' && $c['public_key'] !== '' && $c['secret_key'] !== '';
 }
 
-/** The Nebdex method_code configured for this gateway, or null if none is set. */
-function nebdex_method_for(?array $gateway): ?string
+/**
+ * Create the nebdex_methods table if it doesn't exist yet, and migrate any
+ * single method_code previously saved as a `nebdex_method_<gateway_id>`
+ * setting (the old one-method-per-gateway design) into it. Safe to call on
+ * every request — the version check makes it a no-op after the first run.
+ */
+function nebdex_ensure_schema(): void
+{
+    static $checked = false;
+    if ($checked) {
+        return;
+    }
+    $checked = true;
+    if (setting('nebdex_schema_v2', '0') === '1') {
+        return;
+    }
+    try {
+        if (db_driver() === 'sqlite') {
+            q('CREATE TABLE IF NOT EXISTS nebdex_methods (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                gateway_id INTEGER NOT NULL REFERENCES gateways(id) ON DELETE CASCADE,
+                label TEXT NOT NULL,
+                method_code TEXT NOT NULL,
+                sort_order INTEGER NOT NULL DEFAULT 0,
+                created_at TEXT NOT NULL
+            )');
+            q('CREATE INDEX IF NOT EXISTS idx_nebdex_methods_gateway ON nebdex_methods (gateway_id, sort_order)');
+        } else {
+            q('CREATE TABLE IF NOT EXISTS `nebdex_methods` (
+                `id` INT UNSIGNED NOT NULL AUTO_INCREMENT,
+                `gateway_id` INT UNSIGNED NOT NULL,
+                `label` VARCHAR(60) NOT NULL,
+                `method_code` VARCHAR(20) NOT NULL,
+                `sort_order` INT NOT NULL DEFAULT 0,
+                `created_at` DATETIME NOT NULL,
+                PRIMARY KEY (`id`),
+                KEY `idx_nebdex_methods_gateway` (`gateway_id`, `sort_order`),
+                CONSTRAINT `fk_nebdex_methods_gateway` FOREIGN KEY (`gateway_id`) REFERENCES `gateways` (`id`) ON DELETE CASCADE
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci');
+        }
+        foreach (rows('SELECT id FROM gateways') as $g) {
+            $old = setting('nebdex_method_' . $g['id']);
+            if ($old !== '') {
+                insert('nebdex_methods', [
+                    'gateway_id'  => (int) $g['id'],
+                    'label'       => 'Default',
+                    'method_code' => $old,
+                    'sort_order'  => 0,
+                    'created_at'  => now(),
+                ]);
+            }
+        }
+        save_setting('nebdex_schema_v2', '1');
+    } catch (Throwable $e) {
+        error_log('[Hufan] Nebdex schema migration failed: ' . $e->getMessage());
+    }
+}
+
+/** All Nebdex methods (label + method_code) configured for this gateway. */
+function nebdex_methods_for(?array $gateway): array
 {
     if (!$gateway) {
-        return null;
+        return [];
     }
-    $code = setting('nebdex_method_' . (int) $gateway['id']);
-    return $code !== '' ? $code : null;
+    nebdex_ensure_schema();
+    return rows('SELECT * FROM nebdex_methods WHERE gateway_id = ? ORDER BY sort_order, id', [(int) $gateway['id']]);
+}
+
+function nebdex_add_method(int $gatewayId, string $label, string $methodCode): void
+{
+    nebdex_ensure_schema();
+    $nextOrder = (int) val('SELECT COALESCE(MAX(sort_order), -1) + 1 FROM nebdex_methods WHERE gateway_id = ?', [$gatewayId]);
+    insert('nebdex_methods', [
+        'gateway_id'  => $gatewayId,
+        'label'       => mb_substr($label, 0, 60),
+        'method_code' => mb_substr($methodCode, 0, 20),
+        'sort_order'  => $nextOrder,
+        'created_at'  => now(),
+    ]);
+}
+
+function nebdex_delete_method(int $id): void
+{
+    nebdex_ensure_schema();
+    q('DELETE FROM nebdex_methods WHERE id = ?', [$id]);
 }
 
 /** Whether real-time Nebdex checkout applies to this "pay from" gateway. */
 function nebdex_active_for(?array $fromGateway): bool
 {
     $c = nebdex_config();
-    return $c['enabled'] && nebdex_configured($c) && nebdex_method_for($fromGateway) !== null;
+    return $c['enabled'] && nebdex_configured($c) && nebdex_methods_for($fromGateway) !== [];
 }
 
 /** Split a single display name into (first, last) for APIs that require both. */

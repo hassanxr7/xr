@@ -14,20 +14,32 @@ $fromGw = $order['from_gateway_id'] ? row('SELECT * FROM gateways WHERE id = ?',
 $self = 'order.php?no=' . urlencode($order['order_no']);
 $waafipayOn = waafipay_active_for($fromGw);
 $sovamoneyOn = sovamoney_active_for($fromGw);
-$nebdexMethod = nebdex_active_for($fromGw) ? nebdex_method_for($fromGw) : null;
-$realtimePayOn = $waafipayOn || $sovamoneyOn || $nebdexMethod !== null;
+$nebdexMethods = nebdex_active_for($fromGw) ? nebdex_methods_for($fromGw) : [];
+$realtimePayOn = $waafipayOn || $sovamoneyOn || $nebdexMethods !== [];
 
 if (is_post()) {
     csrf_check();
     $action = input('action');
 
-    if ($action === 'nebdex_initiate' && $order['status'] === 'awaiting_payment' && $nebdexMethod !== null) {
+    if ($action === 'nebdex_initiate' && $order['status'] === 'awaiting_payment' && $nebdexMethods !== []) {
+        $methodId = (int) input('method_id');
+        $chosen = null;
+        foreach ($nebdexMethods as $m) {
+            if ((int) $m['id'] === $methodId) {
+                $chosen = $m;
+                break;
+            }
+        }
+        if (!$chosen) {
+            flash('error', t('nebdex_failed', ['msg' => 'Invalid payment method.']));
+            redirect($self);
+        }
         $email = input('customer_email');
         if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
             flash('error', t('err_email'));
             redirect($self);
         }
-        $result = nebdex_initiate_payment($order, $me, $nebdexMethod, $email);
+        $result = nebdex_initiate_payment($order, $me, $chosen['method_code'], $email);
         if ($result['success'] && $result['redirect_url']) {
             redirect($result['redirect_url']);
         }
@@ -204,7 +216,7 @@ require APP_PATH . '/views/header.php';
             <p class="help text-center mt-2"><?= icon('info', 13) ?> <?= e(t('sovamoney_help')) ?></p>
           </form>
           <?php endif; ?>
-          <?php if ($nebdexMethod !== null): ?>
+          <?php if ($nebdexMethods !== []): ?>
           <form method="post" class="mt-3">
             <?= csrf_field() ?>
             <input type="hidden" name="action" value="nebdex_initiate">
@@ -212,7 +224,9 @@ require APP_PATH . '/views/header.php';
               <label for="nebdex_email"><?= e(t('nebdex_email_label')) ?></label>
               <input class="input" id="nebdex_email" type="email" name="customer_email" value="<?= e($me['email'] ?? '') ?>" placeholder="<?= e(t('sovamoney_email_ph')) ?>" required>
             </div>
-            <button class="btn btn-primary btn-lg btn-block" type="submit"><?= icon('bolt', 18) ?> <?= e(t('nebdex_pay_now', ['gw' => $order['from_name']])) ?></button>
+            <?php foreach ($nebdexMethods as $m): ?>
+            <button class="btn btn-primary btn-lg btn-block mb-2" type="submit" name="method_id" value="<?= (int) $m['id'] ?>"><?= icon('bolt', 18) ?> <?= e(t('nebdex_pay_now', ['gw' => $order['from_name'], 'label' => $m['label']])) ?></button>
+            <?php endforeach; ?>
             <p class="help text-center mt-2"><?= icon('info', 13) ?> <?= e(t('nebdex_help')) ?></p>
           </form>
           <?php endif; ?>
