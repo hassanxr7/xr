@@ -27,7 +27,10 @@ function db_is_mysql(): bool { return db()->getAttribute(PDO::ATTR_DRIVER_NAME) 
 function db_migrate(PDO $pdo): void
 {
     $mysql = $pdo->getAttribute(PDO::ATTR_DRIVER_NAME) === 'mysql';
-    try { $v = $pdo->query("SELECT v FROM meta WHERE k='schema'")->fetchColumn(); if ((int)$v >= 1) { return; } } catch (Throwable $e) { /* first run */ }
+    $v = 0;
+    try { $v = (int)$pdo->query("SELECT v FROM meta WHERE k='schema'")->fetchColumn(); } catch (Throwable $e) { /* first run */ }
+    if ($v >= 2) { return; }
+    if ($v === 1) { db_migrate_2($pdo, $mysql); return; }
     $id = $mysql ? 'INT AUTO_INCREMENT PRIMARY KEY' : 'INTEGER PRIMARY KEY AUTOINCREMENT';
     $long = $mysql ? 'LONGTEXT' : 'TEXT';
     $s = $mysql ? 'VARCHAR(191)' : 'TEXT';
@@ -45,8 +48,20 @@ function db_migrate(PDO $pdo): void
         "CREATE TABLE IF NOT EXISTS deletion_events (id $id, request_id INT NOT NULL, at VARCHAR(32), actor VARCHAR(64), action VARCHAR(48), note TEXT)$tail",
     ];
     foreach ($t as $sql) { try { $pdo->exec($sql); } catch (Throwable $e) { if (!str_contains($sql, 'CREATE INDEX')) { throw $e; } } }
+    db_migrate_2($pdo, $mysql);
+}
+
+/** Schema 2: staff who sign in through the management system, and the outbox of events for it. */
+function db_migrate_2(PDO $pdo, bool $mysql): void
+{
+    $id = $mysql ? 'INT AUTO_INCREMENT PRIMARY KEY' : 'INTEGER PRIMARY KEY AUTOINCREMENT';
+    $tail = $mysql ? ' ENGINE=InnoDB DEFAULT CHARSET=utf8mb4' : '';
+    foreach (["ALTER TABLE admins ADD COLUMN source VARCHAR(12) NOT NULL DEFAULT 'local'", 'ALTER TABLE admins ADD COLUMN odoo_uid INT NULL', 'ALTER TABLE admins ADD COLUMN display_name VARCHAR(120) NULL'] as $sql) {
+        try { $pdo->exec($sql); } catch (Throwable $e) { /* column already there */ }
+    }
+    $pdo->exec("CREATE TABLE IF NOT EXISTS odoo_outbox (id $id, event_id VARCHAR(120) NOT NULL UNIQUE, body TEXT NOT NULL, attempts INT NOT NULL DEFAULT 0, next_try VARCHAR(32), last_error TEXT, created_at VARCHAR(32), sent_at VARCHAR(32))$tail");
     $pdo->prepare("DELETE FROM meta WHERE k='schema'")->execute();
-    $pdo->prepare("INSERT INTO meta (k, v) VALUES ('schema', '1')")->execute();
+    $pdo->prepare("INSERT INTO meta (k, v) VALUES ('schema', '2')")->execute();
 }
 
 function now_utc(): string { return gmdate('Y-m-d H:i:s'); }

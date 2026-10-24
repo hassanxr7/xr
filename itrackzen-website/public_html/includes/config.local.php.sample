@@ -22,3 +22,14 @@ define('ADMIN_SETUP_KEY', 'CHANGE_THIS_TO_A_LONG_RANDOM_PHRASE');
 
 /* Set true only while debugging on a private staging copy */
 define('APP_DEBUG', false);
+
+/* ---- ITRACKZEN MANAGEMENT SYSTEM (Odoo) - optional ----
+ * When set, staff sign in to /admin/ with their own ITrackZen Management account (single sign-on),
+ * see only what their role allows, and website enquiries / deletion requests are delivered to the management system.
+ *   ODOO_URL         address of the management system, no trailing slash
+ *   ODOO_SSO_SECRET  copy it from Management > Configuration > Website > Connection and Sign-in (owner only)
+ *   ADMIN_LOCAL_LOGIN  'owner' = only local owner accounts may use the emergency password sign-in, 'off' = nobody, 'all' = everyone
+ */
+// define('ODOO_URL', 'https://manage.itrackzen.net');
+// define('ODOO_SSO_SECRET', 'CHANGE_ME_copy_from_management_system');
+// define('ADMIN_LOCAL_LOGIN', 'owner');

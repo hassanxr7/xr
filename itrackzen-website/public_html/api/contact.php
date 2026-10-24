@@ -8,6 +8,7 @@ declare(strict_types=1);
 require __DIR__ . '/../includes/bootstrap.php';
 require __DIR__ . '/../includes/forms.php';
 require __DIR__ . '/../includes/mailer.php';
+require_once __DIR__ . '/../includes/odoo.php';
 
 $wantsJson = (stripos($_SERVER['HTTP_ACCEPT'] ?? '', 'application/json') !== false) || (($_SERVER['HTTP_X_REQUESTED_WITH'] ?? '') === 'fetch');
 
@@ -76,6 +77,8 @@ $rows += ['Message' => $d['message'], 'Page' => $page, 'Submitted (UTC)' => now_
 $recipients = array_values(array_filter((array)site('form_recipients', []), fn($m) => filter_var($m, FILTER_VALIDATE_EMAIL))) ?: ['info@libdexltd.com', 'sales@itrackzen.net'];
 [$sent, $err] = send_mail($recipients, '[ITrackZen] ' . $label . ' ' . $ref . ' - ' . $d['full_name'] . ($d['company'] !== '' ? ' (' . $d['company'] . ')' : ''), $text, $html, $d['email'], $d['full_name']);
 db_update('enquiries', $id, ['mail_sent' => $sent ? 1 : 0, 'mail_error' => $err]);
+odoo_push('enquiry.created', ['ref' => $ref, 'type' => $type, 'full_name' => $d['full_name'], 'company' => $d['company'], 'country' => $d['country'], 'phone' => $d['phone'],
+    'email' => $d['email'], 'vehicles' => $d['vehicles'], 'service' => $d['service'], 'message' => $d['message'], 'extra' => $extra, 'page' => $page], $ref);
 
 if (!$sent) {
     error_log('[ITrackZen] enquiry mail failed: ' . $err);

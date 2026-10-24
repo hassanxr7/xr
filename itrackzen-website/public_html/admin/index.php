@@ -8,6 +8,7 @@ require __DIR__ . '/../includes/bootstrap.php';
 require __DIR__ . '/../includes/mailer.php';
 require __DIR__ . '/../includes/deletion.php';
 secure_session();
+require_once __DIR__ . '/../includes/odoo.php';
 header('X-Robots-Tag: noindex, nofollow'); header('Cache-Control: no-store'); header('X-Frame-Options: DENY');
 
 const DATASETS = [
@@ -38,9 +39,15 @@ const ENQ_TYPE = ['contact' => 'Contact', 'quote' => 'Quote', 'demo' => 'Demo', 
 
 function h($s): string { return e((string)$s); }
 function me(): ?array { return $_SESSION['admin_user'] ?? null; }
-function can(string $area): bool { $r = me()['role'] ?? ''; $p = PERMS[$r] ?? []; return in_array('*', $p, true) || in_array($area, $p, true); }
+function can(string $area): bool
+{
+    $u = me(); if (!$u) { return false; }
+    if (!empty($u['sso'])) { return in_array($area, (array)($u['areas'] ?? []), true); }   // rights come from the person's role in the management system
+    $p = PERMS[$u['role'] ?? ''] ?? []; return in_array('*', $p, true) || in_array($area, $p, true);
+}
 function need(string $area): void { if (!can($area)) { http_response_code(403); exit('You do not have permission for this section.'); } }
 function actor(): string { return me()['username'] ?? 'unknown'; }
+function display_name(): string { return me()['name'] ?? actor(); }
 function flash(string $type, string $m): void { $_SESSION['flash'] = [$type, $m]; }
 function go(string $q = ''): never { header('Location: /admin/' . ($q ? '?' . $q : '')); exit; }
 function throttle_file(): string { return DATA_DIR . '/ratelimit/admin-' . hash('sha256', client_ip()) . '.json'; }
@@ -108,6 +115,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $un = strtolower(trim((string)($_POST['username'] ?? '')));
         $u = $un !== '' ? db_one('SELECT * FROM admins WHERE username=? AND active=1', [$un]) : null;
         if (throttled()) { flash('err', 'Too many failed attempts. Try again in 15 minutes.'); }
+        elseif ($u && odoo_enabled() && (($u['source'] ?? 'local') !== 'local' || (ADMIN_LOCAL_LOGIN === 'off') || (ADMIN_LOCAL_LOGIN === 'owner' && $u['role'] !== 'owner'))) {
+            admin_log($un, 'login_blocked', 'Use the ITrackZen Management sign-in'); flash('err', 'Please sign in with your ITrackZen Management account.');
+        }
         elseif ($u && password_verify((string)($_POST['password'] ?? ''), $u['pass_hash'])) {
             session_regenerate_id(true); $_SESSION['admin_user'] = ['id' => (int)$u['id'], 'username' => $u['username'], 'role' => $u['role']]; $_SESSION['last'] = time(); $_SESSION['csrf'] = bin2hex(random_bytes(24));
             db_update('admins', (int)$u['id'], ['last_login' => now_utc()]); admin_log($u['username'], 'login'); go();
@@ -122,7 +132,9 @@ if (me()) { $_SESSION['last'] = time(); }
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && me()) {
     if (!csrf_ok($_POST['csrf'] ?? '')) { http_response_code(403); exit('Invalid security token. Reload the page.'); }
     switch ($action) {
-    case 'logout': admin_log(actor(), 'logout'); $_SESSION = []; session_destroy(); header('Location: /admin/'); exit;
+    case 'logout':
+        admin_log(actor(), 'logout'); $viaOdoo = !empty(me()['sso']); $_SESSION = []; session_destroy();
+        header('Location: ' . ($viaOdoo && odoo_enabled() ? odoo_url('/itz/sso/logout') . '?redirect=' . rawurlencode(abs_url('/admin/')) : '/admin/')); exit;
 
     case 'save': // content editor (JSON response)
         need('content'); header('Content-Type: application/json');
@@ -214,7 +226,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && me()) {
     case 'user_toggle':
         need('users'); $id = (int)$_POST['id']; if ($id !== (int)me()['id']) { db_run('UPDATE admins SET active = 1 - active WHERE id=?', [$id]); admin_log(actor(), 'user_toggle', "#$id"); } go('v=users');
     case 'user_password':
-        need('users'); $id = (int)$_POST['id']; if (strlen((string)$_POST['password']) >= 10) { db_run('UPDATE admins SET pass_hash=? WHERE id=?', [password_hash((string)$_POST['password'], PASSWORD_DEFAULT), $id]); admin_log(actor(), 'user_password_reset', "#$id"); flash('ok', 'Password updated.'); } else { flash('err', 'Password must be at least 10 characters.'); } go('v=users');
+        need('users'); $id = (int)$_POST['id']; if (db_val('SELECT source FROM admins WHERE id=?', [$id]) === 'odoo') { flash('err', 'This person signs in through ITrackZen Management.'); go('v=users'); } if (strlen((string)$_POST['password']) >= 10) { db_run('UPDATE admins SET pass_hash=? WHERE id=?', [password_hash((string)$_POST['password'], PASSWORD_DEFAULT), $id]); admin_log(actor(), 'user_password_reset', "#$id"); flash('ok', 'Password updated.'); } else { flash('err', 'Password must be at least 10 characters.'); } go('v=users');
     case 'password':
         $u = db_one('SELECT * FROM admins WHERE id=?', [(int)me()['id']]);
         if (!password_verify((string)($_POST['current'] ?? ''), $u['pass_hash'])) { flash('err', 'Current password is wrong.'); }
@@ -239,29 +251,45 @@ $tok = me() ? csrf_token() : '';
 function badge(string $s, string $label = ''): string { return '<span class="badge b-' . h($s) . '">' . h($label ?: $s) . '</span>'; }
 function csrf_field(): string { return '<input type="hidden" name="csrf" value="' . h(csrf_token()) . '">'; }
 ?><!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex,nofollow"><title>ITrackZen Admin</title><link rel="icon" href="/assets/img/brand/itrackzen-favicon.svg"><link rel="stylesheet" href="/admin/admin.css?v=2"></head><body>
-<?php if (!me()): ?>
-<main class="login"><form method="post" class="box"><h1>ITrackZen Admin</h1>
+<?php if (!me()): $ssoOn = odoo_enabled(); ?>
+<main class="login"><div class="box"><img class="login-logo" src="/assets/img/brand/itrackzen-logo.svg" alt="ITrackZen" width="150"><h1><?= $ssoOn ? 'Staff workspace' : 'ITrackZen Admin' ?></h1>
 <?php if ($flash): ?><p class="alert <?= $flash[0] ?>"><?= h($flash[1]) ?></p><?php endif; ?>
-<?php if ($adminCount === 0): ?><p>First-time setup. Enter the <code>ADMIN_SETUP_KEY</code> from <code>includes/config.local.php</code> and create the owner account.</p>
-<input type="hidden" name="action" value="setup"><label>Setup key<input type="password" name="setup_key" required autocomplete="off"></label><label>Username<input name="username" required autocomplete="username" pattern="[a-z0-9._-]{3,32}"></label><label>Password (min 10 characters)<input type="password" name="password" required minlength="10" autocomplete="new-password"></label><button>Create owner account</button>
-<?php else: ?><input type="hidden" name="action" value="login"><label>Username<input name="username" required autofocus autocomplete="username"></label><label>Password<input type="password" name="password" required autocomplete="current-password"></label><button>Sign in</button><?php endif; ?>
-<p class="small"><a href="/">&larr; Back to website</a></p></form></main>
+<?php if ($ssoOn && $adminCount > 0): ?>
+<p class="muted">Sign in once with your own ITrackZen Management account. You will see only the work and records that belong to your role.</p>
+<a class="btn-sso" href="/admin/sso.php?start=1">Sign in with ITrackZen Management</a>
+<?php if (ADMIN_LOCAL_LOGIN !== 'off'): ?><details class="local-login"><summary>Owner emergency sign-in</summary>
+<form method="post"><input type="hidden" name="action" value="login"><label>Username<input name="username" required autocomplete="username"></label><label>Password<input type="password" name="password" required autocomplete="current-password"></label><button>Sign in</button></form></details><?php endif; ?>
+<?php elseif ($adminCount === 0): ?><form method="post"><p>First-time setup. Enter the <code>ADMIN_SETUP_KEY</code> from <code>includes/config.local.php</code> and create the owner account.</p>
+<input type="hidden" name="action" value="setup"><label>Setup key<input type="password" name="setup_key" required autocomplete="off"></label><label>Username<input name="username" required autocomplete="username" pattern="[a-z0-9._-]{3,32}"></label><label>Password (min 10 characters)<input type="password" name="password" required minlength="10" autocomplete="new-password"></label><button>Create owner account</button></form>
+<?php else: ?><form method="post"><input type="hidden" name="action" value="login"><label>Username<input name="username" required autofocus autocomplete="username"></label><label>Password<input type="password" name="password" required autocomplete="current-password"></label><button>Sign in</button></form><?php endif; ?>
+<p class="small"><a href="/">&larr; Back to website</a></p></div></main>
 <?php else:
     $newEnq = (int)db_val("SELECT COUNT(*) FROM enquiries WHERE status='new'");
     $openDel = (int)db_val("SELECT COUNT(*) FROM deletion_requests WHERE status IN ('awaiting_review','in_review','approved')");
     // lazily expire unconfirmed deletion requests
     db_run("UPDATE deletion_requests SET status='expired', updated_at=? WHERE status='pending_email' AND created_at < ?", [now_utc(), gmdate('Y-m-d H:i:s', time() - 7 * 86400)]);
 ?>
-<header class="top"><strong>ITrackZen Admin</strong><nav>
-<a href="/admin/">Dashboard</a>
+<?php
+    $sso = !empty(me()['sso']);
+    $menus = $sso ? (array)(me()['menus'] ?? []) : [];
+    if ($sso) { odoo_outbox_flush(5); }
+?>
+<header class="top"><a class="brand" href="/admin/"><img src="/assets/img/brand/itrackzen-logo-white.svg" alt="ITrackZen" height="26"><span>Workspace</span></a><nav>
+<a href="/admin/">Home</a>
+<?php if ($sso && $menus): ?><details class="navdrop"><summary>Operations</summary><div class="navpanel">
+<?php foreach ($menus as $m): ?><a href="<?= h(odoo_url((string)$m['path'])) ?>"><?= h((string)$m['label']) ?></a><?php endforeach; ?>
+</div></details><?php endif; ?>
+<?php $webTools = can('enquiries') || can('deletions') || can('content') || can('media') || can('brand') || can('users'); ?>
+<?php if ($webTools): ?><details class="navdrop"><summary>Website<?= ($newEnq + $openDel) ? ' <i class="pill">' . ($newEnq + $openDel) . '</i>' : '' ?></summary><div class="navpanel">
 <?php if (can('enquiries')): ?><a href="/admin/?v=enquiries">Enquiries<?= $newEnq ? ' <i class="pill">' . $newEnq . '</i>' : '' ?></a><?php endif; ?>
 <?php if (can('deletions')): ?><a href="/admin/?v=deletions">Deletion requests<?= $openDel ? ' <i class="pill">' . $openDel . '</i>' : '' ?></a><?php endif; ?>
 <?php if (can('content')): ?><a href="/admin/?v=content">Content</a><?php endif; ?>
 <?php if (can('media')): ?><a href="/admin/?v=media">Media</a><?php endif; ?>
 <?php if (can('brand')): ?><a href="/admin/?v=brand">Brand</a><?php endif; ?>
-<?php if (can('users')): ?><a href="/admin/?v=users">Users</a><a href="/admin/?v=log">Activity</a><?php endif; ?>
-<a href="/admin/?v=account"><?= h(actor()) ?></a><a href="/" target="_blank" rel="noopener">View site</a>
-<form method="post" class="inline"><?= csrf_field() ?><input type="hidden" name="action" value="logout"><button class="link">Log out</button></form></nav></header>
+<?php if (can('users')): ?><a href="/admin/?v=users">Local users</a><a href="/admin/?v=log">Activity</a><?php endif; ?>
+</div></details><?php endif; ?>
+<a href="/admin/?v=account"><?= h(display_name()) ?></a><a href="/" target="_blank" rel="noopener">View site</a>
+<form method="post" class="inline"><?= csrf_field() ?><input type="hidden" name="action" value="logout"><button class="link">Sign out</button></form></nav></header>
 <main class="wrap">
 <?php if ($flash): ?><p class="alert <?= $flash[0] ?>"><?= h($flash[1]) ?></p><?php endif; ?>
 
@@ -350,10 +378,10 @@ function csrf_field(): string { return '<input type="hidden" name="csrf" value="
 <?php } ?>
 
 <?php elseif ($v === 'users' && can('users')): $us = db_all('SELECT * FROM admins ORDER BY id'); ?>
-<h1>Dashboard users</h1><p class="muted">Owner: everything. Editor: content, SEO, media, brand. Support: enquiries and deletion requests.</p>
-<div class="table"><table><thead><tr><th>User</th><th>Role</th><th>Last login</th><th>Status</th><th></th></tr></thead><tbody><?php foreach ($us as $u): ?><tr><td><?= h($u['username']) ?></td><td><?= h($u['role']) ?></td><td><?= h($u['last_login']) ?></td><td><?= $u['active'] ? 'Active' : 'Disabled' ?></td><td>
+<h1>Website accounts</h1><p class="muted"><?= odoo_enabled() ? 'Staff sign in through ITrackZen Management, where their role and permissions are managed. Accounts below marked "management" were created automatically on first sign-in and cannot have a password here. Local accounts are for emergencies only.' : 'Owner: everything. Editor: content, SEO, media, brand. Support: enquiries and deletion requests.' ?></p>
+<div class="table"><table><thead><tr><th>User</th><th>Source</th><th>Role</th><th>Last login</th><th>Status</th><th></th></tr></thead><tbody><?php foreach ($us as $u): ?><tr><td><?= h($u['display_name'] ?: $u['username']) ?><br><small class="muted"><?= h($u['username']) ?></small></td><td><?= ($u['source'] ?? 'local') === 'odoo' ? 'management' : 'local' ?></td><td><?= h($u['role']) ?></td><td><?= h($u['last_login']) ?></td><td><?= $u['active'] ? 'Active' : 'Disabled' ?></td><td>
 <?php if ((int)$u['id'] !== (int)me()['id']): ?><form method="post" class="inline"><?= csrf_field() ?><input type="hidden" name="action" value="user_toggle"><input type="hidden" name="id" value="<?= (int)$u['id'] ?>"><button class="link"><?= $u['active'] ? 'Disable' : 'Enable' ?></button></form> &middot; <?php endif; ?>
-<form method="post" class="inline"><?= csrf_field() ?><input type="hidden" name="action" value="user_password"><input type="hidden" name="id" value="<?= (int)$u['id'] ?>"><input type="password" name="password" placeholder="new password" minlength="10" style="width:150px"> <button class="link">Set password</button></form></td></tr><?php endforeach; ?></tbody></table></div>
+<?php if (($u['source'] ?? 'local') !== 'odoo'): ?><form method="post" class="inline"><?= csrf_field() ?><input type="hidden" name="action" value="user_password"><input type="hidden" name="id" value="<?= (int)$u['id'] ?>"><input type="password" name="password" placeholder="new password" minlength="10" style="width:150px"> <button class="link">Set password</button></form><?php endif; ?></td></tr><?php endforeach; ?></tbody></table></div>
 <form method="post" class="card narrow"><?= csrf_field() ?><input type="hidden" name="action" value="user_add"><h3>Add user</h3><label>Username<input name="username" required pattern="[a-z0-9._-]{3,32}"></label><label>Role<select name="role"><option value="support">Support</option><option value="editor">Editor</option><option value="owner">Owner</option></select></label><label>Password (min 10)<input type="password" name="password" required minlength="10"></label><button class="primary">Create user</button></form>
 
 <?php elseif ($v === 'log' && can('users')): $lg = db_all('SELECT * FROM admin_log ORDER BY id DESC LIMIT 300'); ?>
@@ -361,11 +389,34 @@ function csrf_field(): string { return '<input type="hidden" name="csrf" value="
 
 <?php elseif ($v === 'account'): ?>
 <h1>Account</h1><p class="muted">Signed in as <strong><?= h(actor()) ?></strong> (<?= h(me()['role']) ?>).</p>
-<form method="post" class="card narrow"><?= csrf_field() ?><input type="hidden" name="action" value="password"><label>Current password<input type="password" name="current" required autocomplete="current-password"></label><label>New password (min 10 characters)<input type="password" name="new" required minlength="10" autocomplete="new-password"></label><button class="primary">Change password</button></form>
+<?php if (!empty(me()['sso'])): ?><p class="alert info">Your password and two-step verification are managed in ITrackZen Management (<a href="<?= h(odoo_url('/odoo/my-preferences')) ?>">open my preferences</a>).</p><?php else: ?><form method="post" class="card narrow"><?= csrf_field() ?><input type="hidden" name="action" value="password"><label>Current password<input type="password" name="current" required autocomplete="current-password"></label><label>New password (min 10 characters)<input type="password" name="new" required minlength="10" autocomplete="new-password"></label><button class="primary">Change password</button></form><?php endif; ?>
 <h2>Delivery settings</h2><p class="muted">Email: <strong><?= SMTP_HOST !== '' ? 'SMTP via ' . h(SMTP_HOST) : 'PHP mail() fallback (configure SMTP in includes/config.local.php for reliable delivery)' ?></strong>. Enquiry recipients: <strong><?= h(implode(', ', (array)site('form_recipients', []))) ?></strong>. Deletion notifications: <strong><?= h(implode(', ', del_recipients())) ?></strong>. Database: <strong><?= db_is_mysql() ? 'MySQL' : 'SQLite' ?></strong>. Platform deletion webhook: <strong><?= DELETION_WEBHOOK_URL !== '' ? 'configured' : 'not configured (manual deletion)' ?></strong>.</p>
 
-<?php else: $recent = db_all('SELECT * FROM enquiries ORDER BY id DESC LIMIT 5'); $recentDel = db_all("SELECT * FROM deletion_requests ORDER BY id DESC LIMIT 5"); ?>
+<?php else: $recent = db_all('SELECT * FROM enquiries ORDER BY id DESC LIMIT 5'); $recentDel = db_all("SELECT * FROM deletion_requests ORDER BY id DESC LIMIT 5");
+    $summary = $sso ? odoo_summary((int)me()['odoo_uid']) : null; ?>
+<?php if ($sso): ?>
+<section class="hero">
+  <div><h1>Hello, <?= h(explode(' ', trim(display_name()))[0]) ?></h1>
+  <p><?php foreach ((array)(me()['roles'] ?? []) as $r): ?><span class="chip"><?= h(str_replace('_', ' ', $r)) ?></span><?php endforeach; ?></p></div>
+  <div class="hero-actions"><a class="btn-light" href="<?= h(odoo_url('/odoo')) ?>">Open management system</a></div>
+</section>
+<?php if ($summary): $bySection = []; foreach ((array)$summary['tiles'] as $t) { $bySection[$t['section']][] = $t; } ?>
+<?php foreach ($bySection as $title => $tiles): ?>
+<h2 class="sec"><?= h($title) ?></h2>
+<div class="tiles">
+<?php foreach ($tiles as $t): $val = !empty($t['money']) ? ($summary['currency']['symbol'] ?? '') . ' ' . number_format((float)$t['value'], 0) : (string)$t['value']; $href = !empty($t['path']) ? odoo_url((string)$t['path']) : odoo_url('/odoo'); ?>
+<a class="tile <?= in_array($t['tone'], ['danger', 'warning'], true) ? 'warn' : '' ?>" href="<?= h($href) ?>"><b><?= h($val) ?></b><span><?= h((string)$t['label']) ?></span></a>
+<?php endforeach; ?>
+</div>
+<?php endforeach; ?>
+<?php else: ?><p class="alert info">The management system did not answer, so operations figures are not shown right now. Use <strong>Operations</strong> in the menu to open it directly.</p><?php endif; ?>
+<h2 class="sec">Website</h2>
+<?php elseif (odoo_enabled()): ?>
+<p class="alert info">You are signed in with a local website account. <a href="/admin/sso.php?start=1">Sign in with ITrackZen Management</a> to see operations: quotations, stock, installations, payments, subscriptions and tasks.</p>
 <h1>Dashboard</h1>
+<?php else: ?>
+<h1>Dashboard</h1>
+<?php endif; ?>
 <div class="tiles">
 <?php if (can('enquiries')): ?><a class="tile" href="/admin/?v=enquiries&status=new"><b><?= $newEnq ?></b><span>New enquiries</span></a><?php endif; ?>
 <?php if (can('deletions')): ?><a class="tile <?= $openDel ? 'warn' : '' ?>" href="/admin/?v=deletions"><b><?= $openDel ?></b><span>Deletion requests to handle</span></a><a class="tile" href="/admin/?v=deletions&status=pending_email"><b><?= (int)db_val("SELECT COUNT(*) FROM deletion_requests WHERE status='pending_email'") ?></b><span>Awaiting email confirmation</span></a><?php endif; ?>

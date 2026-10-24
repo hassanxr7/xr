@@ -9,6 +9,7 @@
  * completed      -> data deleted on the platform; reference + retained-data summary recorded
  * rejected / cancelled / expired
  */
+require_once __DIR__ . '/odoo.php';
 
 const DEL_STATUS = [
     'pending_email' => 'Waiting for email confirmation', 'awaiting_review' => 'Awaiting review', 'in_review' => 'Identity check in progress',
@@ -74,6 +75,7 @@ function del_confirm_email(string $ref, string $token): array
     if (!$r['token_hash'] || !hash_equals($r['token_hash'], hash('sha256', $token))) { return [false, 'This confirmation link is not valid.', null]; }
     if ($r['token_expires'] < now_utc()) { return [false, 'This confirmation link has expired. Please submit a new request.', null]; }
     db_update('deletion_requests', (int)$r['id'], ['status' => 'awaiting_review', 'email_verified_at' => now_utc(), 'token_hash' => null, 'updated_at' => now_utc()]);
+    if (function_exists('odoo_push')) { odoo_push('deletion.created', ['ref' => $r['ref'], 'status' => 'awaiting_review', 'scope' => $r['scope']], $r['ref']); }
     del_event((int)$r['id'], 'requester', 'email_confirmed', 'Requester confirmed ownership of ' . $r['email']);
     $r = db_one('SELECT * FROM deletion_requests WHERE id=?', [$r['id']]);
     // notify support
@@ -95,6 +97,11 @@ function del_set(int $id, string $actor, string $status, array $extra, string $a
 {
     db_update('deletion_requests', $id, ['status' => $status, 'updated_at' => now_utc()] + $extra);
     del_event($id, $actor, $action, $note);
+    // Let staff see the request (and its outcome) in the management system
+    if (function_exists('odoo_push')) {
+        $ref = (string)db_val('SELECT ref FROM deletion_requests WHERE id=?', [$id]);
+        odoo_push('deletion.updated', ['ref' => $ref, 'status' => $status], $ref . ':' . $status);
+    }
 }
 
 function del_webhook(array $r, string $actor): string

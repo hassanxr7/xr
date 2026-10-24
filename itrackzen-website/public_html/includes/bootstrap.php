@@ -18,6 +18,8 @@ $__defaults = [
     'MAIL_FROM' => '', 'ADMIN_SETUP_KEY' => '', 'APP_DEBUG' => false,
     'DB_DSN' => '', 'DB_USER' => '', 'DB_PASS' => '',
     'DELETION_WEBHOOK_URL' => '', 'DELETION_WEBHOOK_SECRET' => '',
+    // Management system (Odoo) - single sign-on and event delivery. Leave ODOO_URL empty to run the website on its own.
+    'ODOO_URL' => '', 'ODOO_SSO_SECRET' => '', 'ODOO_PUSH' => true, 'ODOO_TIMEOUT' => 5, 'ADMIN_LOCAL_LOGIN' => 'owner',
 ];
 foreach ($__defaults as $k => $v) { if (!defined($k)) { define($k, $v); } }
 unset($__defaults);
@@ -193,7 +195,7 @@ function secure_session(): void
     if (session_status() === PHP_SESSION_ACTIVE) { return; }
     $https = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off')
         || (($_SERVER['HTTP_X_FORWARDED_PROTO'] ?? '') === 'https');
-    session_set_cookie_params(['lifetime' => 0, 'path' => '/', 'secure' => $https, 'httponly' => true, 'samesite' => 'Strict']);
+    session_set_cookie_params(['lifetime' => 0, 'path' => '/', 'secure' => $https, 'httponly' => true, 'samesite' => 'Lax']);
     session_name('itz_sid');
     session_start();
 }
