@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="itz_vehicle_form_sub" model="ir.ui.view">
+        <field name="name">itz.vehicle.form.subscription</field>
+        <field name="model">itz.vehicle</field>
+        <field name="inherit_id" ref="itz_fleet.itz_vehicle_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//div[@name='button_box']" position="inside">
+                <button name="action_view_subscriptions" type="object" class="oe_stat_button" icon="fa-refresh">
+                    <field name="subscription_count" widget="statinfo" string="Subscriptions"/>
+                </button>
+            </xpath>
+            <xpath expr="//field[@name='last_installation_id']" position="after">
+                <field name="active_subscription_id"/>
+                <field name="subscription_status" widget="badge"/>
+            </xpath>
+        </field>
+    </record>
+    <record id="view_order_form_itz_sub" model="ir.ui.view">
+        <field name="name">sale.order.form.itz.subscription</field>
+        <field name="model">sale.order</field>
+        <field name="inherit_id" ref="sale.view_order_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//div[@name='button_box']" position="inside">
+                <button name="action_view_itz_subscriptions" type="object" class="oe_stat_button" icon="fa-refresh" invisible="not itz_subscription_count">
+                    <field name="itz_subscription_count" widget="statinfo" string="Subscriptions"/>
+                </button>
+            </xpath>
+            <xpath expr="//button[@name='action_itz_create_installation']" position="after">
+                <button name="action_itz_create_subscriptions" type="object" string="Create subscriptions"
+                        invisible="state != 'sale'" class="btn-secondary"
+                        groups="itz_base.group_itz_sales,itz_base.group_itz_ops_manager"/>
+            </xpath>
+        </field>
+    </record>
+</odoo>

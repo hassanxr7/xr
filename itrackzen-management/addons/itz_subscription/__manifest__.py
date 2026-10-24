@@ -1,0 +1,22 @@
+{
+    'name': 'ITrackZen Subscriptions',
+    'version': '18.0.1.0.0',
+    'summary': 'Per-vehicle tracking plans: billing cycles, renewals, reminders, expiry, payment status',
+    'author': 'LibDex Ltd (ITrackZen)',
+    'website': 'https://itrackzen.net',
+    'category': 'ITrackZen',
+    'license': 'LGPL-3',
+    'depends': ['itz_sales'],
+    'data': [
+        'security/itz_subscription_security.xml',
+        'security/ir.model.access.csv',
+        'data/mail_templates.xml',
+        'data/cron.xml',
+        'views/product_views.xml',
+        'views/subscription_views.xml',
+        'views/vehicle_views.xml',
+        'views/menus.xml',
+    ],
+    'installable': True,
+    'application': False,
+}

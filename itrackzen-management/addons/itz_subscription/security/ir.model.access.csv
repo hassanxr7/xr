@@ -1,0 +1,11 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_itz_subscription_see_all,itz.subscription see all,model_itz_subscription,itz_base.group_itz_see_all,1,0,0,0
+access_itz_subscription_sales,itz.subscription sales,model_itz_subscription,itz_base.group_itz_sales,1,1,1,0
+access_itz_subscription_support,itz.subscription support,model_itz_subscription,itz_base.group_itz_support,1,1,0,0
+access_itz_subscription_accountant,itz.subscription accountant,model_itz_subscription,itz_base.group_itz_accountant,1,1,1,0
+access_itz_subscription_ops,itz.subscription ops,model_itz_subscription,itz_base.group_itz_ops_manager,1,1,1,0
+access_itz_subscription_delete,itz.subscription delete,model_itz_subscription,itz_base.group_itz_delete,1,1,1,1
+access_itz_subscription_period_see_all,itz.subscription.period see all,model_itz_subscription_period,itz_base.group_itz_see_all,1,0,0,0
+access_itz_subscription_period_accountant,itz.subscription.period accountant,model_itz_subscription_period,itz_base.group_itz_accountant,1,1,1,0
+access_itz_subscription_period_ops,itz.subscription.period ops,model_itz_subscription_period,itz_base.group_itz_ops_manager,1,1,1,0
+access_itz_subscription_period_sales,itz.subscription.period sales,model_itz_subscription_period,itz_base.group_itz_sales,1,1,1,0

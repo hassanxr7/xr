@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo noupdate="1">
+    <record id="seq_itz_subscription" model="ir.sequence">
+        <field name="name">ITrackZen subscription</field>
+        <field name="code">itz.subscription</field>
+        <field name="prefix">SUB/</field>
+        <field name="padding">5</field>
+    </record>
+
+    <record id="mail_template_renewal_reminder" model="mail.template">
+        <field name="name">ITrackZen: renewal reminder</field>
+        <field name="model_id" ref="model_itz_subscription"/>
+        <field name="subject">Your tracking plan for {{ object.vehicle_id.plate }} renews on {{ object.next_renewal_date }}</field>
+        <field name="email_to">{{ object.partner_id.email }}</field>
+        <field name="body_html" type="html">
+<div style="font-family: Arial, sans-serif; font-size: 14px; color: #0a1f44;">
+    <p>Dear <t t-out="object.partner_id.name"/>,</p>
+    <p>The <strong><t t-out="object.plan_id.display_name"/></strong> tracking plan for vehicle <strong><t t-out="object.vehicle_id.plate"/></strong> is due for renewal on
+       <strong><t t-out="object.next_renewal_date"/></strong>. To keep live tracking, reports and alerts running without interruption, please make your payment before that date.</p>
+    <p t-if="object.company_id.itz_payment_instructions"><t t-out="object.company_id.itz_payment_instructions"/></p>
+    <p>If you have already paid, thank you, and please ignore this message.</p>
+    <p>ITrackZen &#183; LibDex Logistics Solution</p>
+</div>
+        </field>
+        <field name="auto_delete" eval="True"/>
+    </record>
+
+    <record id="mail_template_expired" model="mail.template">
+        <field name="name">ITrackZen: subscription expired</field>
+        <field name="model_id" ref="model_itz_subscription"/>
+        <field name="subject">Your tracking plan for {{ object.vehicle_id.plate }} has expired</field>
+        <field name="email_to">{{ object.partner_id.email }}</field>
+        <field name="body_html" type="html">
+<div style="font-family: Arial, sans-serif; font-size: 14px; color: #0a1f44;">
+    <p>Dear <t t-out="object.partner_id.name"/>,</p>
+    <p>The tracking plan for vehicle <strong><t t-out="object.vehicle_id.plate"/></strong> expired on <t t-out="object.next_renewal_date"/> and was not renewed within the grace period.
+       Please contact us to renew and restore service.</p>
+    <p t-if="object.company_id.itz_payment_instructions"><t t-out="object.company_id.itz_payment_instructions"/></p>
+    <p>ITrackZen &#183; LibDex Logistics Solution</p>
+</div>
+        </field>
+        <field name="auto_delete" eval="True"/>
+    </record>
+</odoo>

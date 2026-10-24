@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="product_template_form_itz_sub" model="ir.ui.view">
+        <field name="name">product.template.form.itz.subscription</field>
+        <field name="model">product.template</field>
+        <field name="inherit_id" ref="itz_inventory.product_template_form_itz"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='itz_model']" position="after">
+                <field name="itz_plan_cycle" invisible="itz_category != 'plan'" required="itz_category == 'plan'"/>
+            </xpath>
+        </field>
+    </record>
+</odoo>

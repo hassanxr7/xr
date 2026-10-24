@@ -1,0 +1,171 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="itz_subscription_list" model="ir.ui.view">
+        <field name="name">itz.subscription.list</field>
+        <field name="model">itz.subscription</field>
+        <field name="arch" type="xml">
+            <list decoration-danger="renewal_state == 'late' or state == 'expired'" decoration-warning="renewal_state == 'due'" decoration-muted="state in ('cancelled', 'draft')">
+                <field name="name"/>
+                <field name="vehicle_id"/>
+                <field name="partner_id"/>
+                <field name="plan_id"/>
+                <field name="cycle" optional="show"/>
+                <field name="price" optional="show"/>
+                <field name="next_renewal_date"/>
+                <field name="days_to_renewal" optional="hide"/>
+                <field name="state" widget="badge" decoration-success="state == 'active'" decoration-danger="state == 'expired'" decoration-warning="state == 'suspended'"/>
+                <field name="payment_status" widget="badge" decoration-success="payment_status == 'paid'" decoration-warning="payment_status in ('partial', 'unpaid')" decoration-danger="payment_status == 'overdue'"/>
+                <field name="amount_due" optional="show" sum="Due"/>
+                <field name="renewal_state" column_invisible="1"/>
+            </list>
+        </field>
+    </record>
+    <record id="itz_subscription_form" model="ir.ui.view">
+        <field name="name">itz.subscription.form</field>
+        <field name="model">itz.subscription</field>
+        <field name="arch" type="xml">
+            <form>
+                <header>
+                    <button name="action_activate" type="object" string="Activate now" class="btn-primary" invisible="state != 'draft'"
+                            groups="itz_base.group_itz_ops_manager,itz_base.group_itz_sales"/>
+                    <button name="action_create_renewal_invoice" type="object" string="Create renewal invoice"
+                            invisible="state not in ('active', 'expired')" groups="itz_base.group_itz_financial"/>
+                    <button name="action_register_payment" type="object" string="Register payment" class="btn-primary"
+                            invisible="state not in ('active', 'expired', 'suspended') or payment_status in ('paid', 'unbilled')" groups="itz_base.group_itz_financial"/>
+                    <button name="action_suspend" type="object" string="Suspend" invisible="state != 'active'"
+                            groups="itz_base.group_itz_ops_manager,itz_base.group_itz_support"/>
+                    <button name="action_resume" type="object" string="Resume" invisible="state not in ('suspended', 'expired')"
+                            groups="itz_base.group_itz_ops_manager,itz_base.group_itz_support"/>
+                    <button name="action_cancel" type="object" string="Cancel" invisible="state in ('cancelled',)" confirm="Cancel this subscription?"
+                            groups="itz_base.group_itz_ops_manager"/>
+                    <button name="action_draft" type="object" string="Back to draft" invisible="state != 'cancelled'" groups="itz_base.group_itz_ops_manager"/>
+                    <field name="state" widget="statusbar" statusbar_visible="draft,active,expired"/>
+                </header>
+                <sheet>
+                    <div class="oe_button_box" name="button_box">
+                        <button name="action_view_invoices" type="object" class="oe_stat_button" icon="fa-file-text-o" groups="itz_base.group_itz_financial">
+                            <span class="o_stat_text">Invoices</span>
+                        </button>
+                        <button name="action_view_payments" type="object" class="oe_stat_button" icon="fa-credit-card" groups="itz_base.group_itz_financial">
+                            <span class="o_stat_text">Payments</span>
+                        </button>
+                    </div>
+                    <div class="oe_title"><h1><field name="name"/></h1></div>
+                    <group>
+                        <group string="Subscription">
+                            <field name="partner_id" readonly="state != 'draft'" options="{'no_create': True}"/>
+                            <field name="vehicle_id" readonly="state != 'draft'" options="{'no_create': True}"/>
+                            <field name="plan_id" readonly="state != 'draft'" options="{'no_create': True}"/>
+                            <field name="cycle"/>
+                            <field name="price"/>
+                            <field name="currency_id" invisible="1"/>
+                            <field name="initial_cycles" readonly="state != 'draft'"/>
+                        </group>
+                        <group string="Dates and status">
+                            <field name="activation_date"/>
+                            <field name="next_renewal_date"/>
+                            <field name="expiry_date"/>
+                            <field name="days_to_renewal"/>
+                            <field name="renewal_state" widget="badge" decoration-success="renewal_state == 'ok'" decoration-warning="renewal_state == 'due'" decoration-danger="renewal_state == 'late'"/>
+                            <field name="payment_status" widget="badge" decoration-success="payment_status == 'paid'" decoration-warning="payment_status in ('partial', 'unpaid')" decoration-danger="payment_status == 'overdue'"/>
+                            <field name="amount_due" groups="itz_base.group_itz_financial"/>
+                            <field name="sale_order_id" groups="itz_base.group_itz_see_all" invisible="not sale_order_id"/>
+                            <field name="sale_line_id" invisible="1"/>
+                            <field name="company_id" groups="base.group_multi_company"/>
+                        </group>
+                    </group>
+                    <notebook>
+                        <page string="Billing periods" name="periods">
+                            <field name="period_ids" readonly="1">
+                                <list>
+                                    <field name="kind"/>
+                                    <field name="period_start"/>
+                                    <field name="period_end"/>
+                                    <field name="amount" groups="itz_base.group_itz_financial"/>
+                                    <field name="invoice_id" groups="itz_base.group_itz_financial"/>
+                                    <field name="state" widget="badge" decoration-success="state == 'paid'" decoration-warning="state in ('partial', 'unpaid')" decoration-danger="state == 'overdue'"/>
+                                    <field name="amount_due" groups="itz_base.group_itz_financial"/>
+                                    <field name="paid_date"/>
+                                </list>
+                            </field>
+                        </page>
+                        <page string="Notes" name="notes"><field name="note"/></page>
+                    </notebook>
+                </sheet>
+                <chatter/>
+            </form>
+        </field>
+    </record>
+    <record id="itz_subscription_search" model="ir.ui.view">
+        <field name="name">itz.subscription.search</field>
+        <field name="model">itz.subscription</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="name" string="Search anything: reference, plate, customer, IMEI"
+                       filter_domain="['|', '|', '|', '|', ('name', 'ilike', self), ('vehicle_id.plate', 'ilike', self), ('partner_id.name', 'ilike', self), ('partner_id.phone', 'ilike', self), ('vehicle_id.device_ids.itz_imei', 'ilike', self)]"/>
+                <field name="partner_id"/>
+                <field name="vehicle_id"/>
+                <field name="plan_id"/>
+                <filter name="f_active" string="Active" domain="[('state', '=', 'active')]"/>
+                <filter name="f_waiting" string="Waiting for installation" domain="[('state', '=', 'draft')]"/>
+                <filter name="f_expired" string="Expired" domain="[('state', '=', 'expired')]"/>
+                <filter name="f_suspended" string="Suspended" domain="[('state', '=', 'suspended')]"/>
+                <separator/>
+                <filter name="f_due" string="Renewal due soon" domain="[('renewal_state', '=', 'due')]"/>
+                <filter name="f_late" string="Past renewal date" domain="[('renewal_state', '=', 'late')]"/>
+                <separator/>
+                <filter name="f_unpaid" string="Unpaid or partly paid" domain="[('payment_status', 'in', ('unpaid', 'partial', 'overdue'))]"/>
+                <filter name="f_overdue" string="Overdue" domain="[('payment_status', '=', 'overdue')]"/>
+                <group expand="0" string="Group By">
+                    <filter name="g_state" string="Status" context="{'group_by': 'state'}"/>
+                    <filter name="g_pay" string="Payment status" context="{'group_by': 'payment_status'}"/>
+                    <filter name="g_plan" string="Plan" context="{'group_by': 'plan_id'}"/>
+                    <filter name="g_cust" string="Customer" context="{'group_by': 'partner_id'}"/>
+                    <filter name="g_month" string="Renewal month" context="{'group_by': 'next_renewal_date:month'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+    <record id="itz_subscription_pivot" model="ir.ui.view">
+        <field name="name">itz.subscription.pivot</field>
+        <field name="model">itz.subscription</field>
+        <field name="arch" type="xml">
+            <pivot><field name="plan_id" type="row"/><field name="state" type="col"/></pivot>
+        </field>
+    </record>
+    <record id="itz_subscription_graph" model="ir.ui.view">
+        <field name="name">itz.subscription.graph</field>
+        <field name="model">itz.subscription</field>
+        <field name="arch" type="xml">
+            <graph type="bar"><field name="next_renewal_date" interval="month"/><field name="state"/></graph>
+        </field>
+    </record>
+    <record id="itz_subscription_calendar" model="ir.ui.view">
+        <field name="name">itz.subscription.calendar</field>
+        <field name="model">itz.subscription</field>
+        <field name="arch" type="xml">
+            <calendar date_start="next_renewal_date" mode="month" color="state" quick_create="0">
+                <field name="vehicle_id"/><field name="partner_id"/>
+            </calendar>
+        </field>
+    </record>
+
+    <record id="action_itz_subscriptions" model="ir.actions.act_window">
+        <field name="name">Subscriptions</field>
+        <field name="res_model">itz.subscription</field>
+        <field name="view_mode">list,form,calendar,pivot,graph</field>
+        <field name="context">{'search_default_f_active': 1}</field>
+    </record>
+    <record id="action_itz_renewals_due" model="ir.actions.act_window">
+        <field name="name">Renewals Due</field>
+        <field name="res_model">itz.subscription</field>
+        <field name="view_mode">list,form,calendar</field>
+        <field name="domain">[('state', 'in', ('active', 'suspended', 'expired')), ('renewal_state', 'in', ('due', 'late'))]</field>
+    </record>
+    <record id="action_itz_subscriptions_expired" model="ir.actions.act_window">
+        <field name="name">Expired Subscriptions</field>
+        <field name="res_model">itz.subscription</field>
+        <field name="view_mode">list,form</field>
+        <field name="domain">[('state', '=', 'expired')]</field>
+    </record>
+</odoo>

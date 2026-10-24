@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <menuitem id="menu_itz_subscriptions_root" name="Subscriptions" parent="itz_base.menu_itz_root" sequence="40"
+              groups="itz_base.group_itz_sales,itz_base.group_itz_support,itz_base.group_itz_accountant,itz_base.group_itz_ops_manager,itz_base.group_itz_readonly"/>
+    <menuitem id="menu_itz_subscriptions" name="All Subscriptions" parent="menu_itz_subscriptions_root" sequence="10" action="action_itz_subscriptions"/>
+    <menuitem id="menu_itz_renewals_due" name="Renewals Due" parent="menu_itz_subscriptions_root" sequence="20" action="action_itz_renewals_due"/>
+    <menuitem id="menu_itz_subscriptions_expired" name="Expired" parent="menu_itz_subscriptions_root" sequence="30" action="action_itz_subscriptions_expired"/>
+</odoo>
