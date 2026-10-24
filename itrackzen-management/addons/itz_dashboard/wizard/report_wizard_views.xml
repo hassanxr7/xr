@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="itz_report_wizard_form" model="ir.ui.view">
+        <field name="name">itz.report.wizard.form</field>
+        <field name="model">itz.report.wizard</field>
+        <field name="arch" type="xml">
+            <form>
+                <header>
+                    <button name="action_print" type="object" string="Print PDF" class="btn-primary"/>
+                    <button name="action_export_xlsx" type="object" string="Export Excel"/>
+                </header>
+                <sheet>
+                    <group>
+                        <group>
+                            <field name="report_type" widget="selection"/>
+                            <field name="needs_dates" invisible="1"/>
+                            <field name="preset" invisible="not needs_dates"/>
+                            <field name="date_from" invisible="not needs_dates"/>
+                            <field name="date_to" invisible="not needs_dates"/>
+                        </group>
+                        <group>
+                            <field name="partner_id" options="{'no_create': True}" invisible="report_type not in ('sales', 'payments', 'outstanding', 'overdue', 'subscriptions', 'renewals')"/>
+                            <field name="technician_id" options="{'no_create': True}" invisible="report_type not in ('installations_tech', 'maintenance_tech')"/>
+                        </group>
+                    </group>
+                    <field name="preview_html" nolabel="1" class="o_itz_report_preview"/>
+                </sheet>
+            </form>
+        </field>
+    </record>
+    <record id="action_itz_reports" model="ir.actions.act_window">
+        <field name="name">Reports</field>
+        <field name="res_model">itz.report.wizard</field>
+        <field name="view_mode">form</field>
+        <field name="target">current</field>
+    </record>
+</odoo>

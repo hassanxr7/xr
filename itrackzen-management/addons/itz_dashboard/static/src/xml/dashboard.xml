@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+    <t t-name="itz_dashboard.Main">
+        <div class="o_itz_dashboard o_action">
+            <div t-if="state.loading" class="o_itz_loading"><i class="fa fa-spinner fa-spin"/> Loading...</div>
+            <t t-else="">
+                <div class="o_itz_hero">
+                    <div>
+                        <h1 t-out="greeting"/>
+                        <p class="o_itz_roles">
+                            <span t-foreach="state.data.roles" t-as="role" t-key="role" class="o_itz_chip" t-out="role"/>
+                        </p>
+                    </div>
+                    <div class="o_itz_hero_actions">
+                        <a t-if="state.data.links.website_admin" class="btn btn-light" t-att-href="state.data.links.website_admin">
+                            <i class="fa fa-globe"/> Website admin
+                        </a>
+                        <button class="btn btn-light" t-on-click="openReports"><i class="fa fa-bar-chart"/> Reports</button>
+                    </div>
+                </div>
+
+                <div class="o_itz_search">
+                    <i class="fa fa-search"/>
+                    <input type="search" placeholder="Find a customer, plate, phone, IMEI, serial or SIM..." t-att-value="state.query"
+                           t-on-input="onSearchInput" autocomplete="off"/>
+                    <button t-if="state.query" class="btn btn-link" t-on-click="clearSearch"><i class="fa fa-times"/></button>
+                </div>
+                <div t-if="state.results" class="o_itz_results">
+                    <div t-if="!state.results.length and !state.searching" class="o_itz_empty">Nothing found for "<t t-out="state.query"/>".</div>
+                    <div t-foreach="state.results" t-as="group" t-key="group.model" class="o_itz_result_group">
+                        <h4 t-out="group.title"/>
+                        <a t-foreach="group.rows" t-as="row" t-key="row.id" href="#" class="o_itz_result" t-on-click.prevent="() => this.openRecord(row.model, row.id)">
+                            <strong t-out="row.label"/>
+                            <span t-out="row.sub"/>
+                        </a>
+                    </div>
+                </div>
+
+                <div t-foreach="state.data.sections" t-as="section" t-key="section.key" class="o_itz_section">
+                    <h3><i t-att-class="'fa ' + section.icon"/> <t t-out="section.title"/></h3>
+                    <div class="o_itz_tiles">
+                        <a t-foreach="section.tiles" t-as="tile" t-key="tile.key" href="#" t-attf-class="o_itz_tile o_itz_tone_{{tile.tone}}"
+                           t-on-click.prevent="() => this.openTile(tile)">
+                            <i t-att-class="'fa ' + tile.icon"/>
+                            <span class="o_itz_value" t-out="formatValue(tile)"/>
+                            <span class="o_itz_label" t-out="tile.label"/>
+                        </a>
+                    </div>
+                </div>
+
+                <div class="o_itz_lists">
+                    <div t-foreach="state.data.lists" t-as="list" t-key="list.key" class="o_itz_list">
+                        <h3 t-out="list.title"/>
+                        <a t-foreach="list.rows" t-as="row" t-key="row.id" href="#" t-attf-class="o_itz_row {{row.late ? 'o_itz_late' : ''}}"
+                           t-on-click.prevent="() => this.openRecord(list.model, row.id)">
+                            <span class="o_itz_row_title" t-out="row.title"/>
+                            <span class="o_itz_row_sub" t-out="row.sub"/>
+                        </a>
+                    </div>
+                </div>
+            </t>
+        </div>
+    </t>
+</templates>

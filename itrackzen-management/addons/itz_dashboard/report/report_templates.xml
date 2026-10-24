@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <template id="report_table">
+        <div class="o_itz_report_table table-responsive">
+            <div class="text-muted small mb-2" t-if="data['subtitle']"><t t-out="data['subtitle']"/></div>
+            <t t-if="data.get('summary')">
+                <div class="d-flex flex-wrap gap-2 mb-3">
+                    <span t-foreach="data['summary']" t-as="s" class="badge text-bg-primary fs-6"><t t-out="s['label']"/>: <t t-out="s['value']"/></span>
+                </div>
+            </t>
+            <table class="table table-sm table-striped">
+                <thead style="background:#0a1f44;color:#fff;">
+                    <tr><th t-foreach="data['columns']" t-as="col" t-att-class="'text-end' if col['type'] in ('money', 'int', 'float') else ''"><t t-out="col['label']"/></th></tr>
+                </thead>
+                <tbody>
+                    <tr t-foreach="data['rows'][:limit] if limit else data['rows']" t-as="row">
+                        <t t-foreach="range(len(row))" t-as="i">
+                            <td t-att-class="'text-end' if data['columns'][i]['type'] in ('money', 'int', 'float') else ''">
+                                <t t-set="v" t-value="row[i]"/>
+                                <t t-if="data['columns'][i]['type'] == 'money' and v not in ('', False, None)"><t t-out="'{:,.2f}'.format(v)"/></t>
+                                <t t-elif="data['columns'][i]['type'] == 'float' and v not in ('', False, None)"><t t-out="'{:,.2f}'.format(v)"/></t>
+                                <t t-elif="data['columns'][i]['type'] == 'datetime' and v"><t t-out="str(v)[:16]"/></t>
+                                <t t-elif="v not in (False, None)"><t t-out="v"/></t>
+                            </td>
+                        </t>
+                    </tr>
+                    <tr t-if="data['totals']" style="font-weight:bold;border-top:2px solid #0a1f44;">
+                        <t t-foreach="range(len(data['totals']))" t-as="i">
+                            <td t-att-class="'text-end' if data['columns'][i]['type'] in ('money', 'int', 'float') else ''">
+                                <t t-set="v" t-value="data['totals'][i]"/>
+                                <t t-if="data['columns'][i]['type'] in ('money', 'float') and v not in ('', False, None) and not isinstance(v, str)"><t t-out="'{:,.2f}'.format(v)"/></t>
+                                <t t-elif="v not in ('', False, None)"><t t-out="v"/></t>
+                            </td>
+                        </t>
+                    </tr>
+                </tbody>
+            </table>
+            <p class="text-muted small" t-if="limit and len(data['rows']) > limit">Showing the first <t t-out="limit"/> of <t t-out="len(data['rows'])"/> rows. Print or export to see all of them.</p>
+            <p class="text-muted small" t-if="not data['rows']">No records for this selection.</p>
+        </div>
+    </template>
+
+    <record id="action_report_itz" model="ir.actions.report">
+        <field name="name">ITrackZen Report</field>
+        <field name="model">itz.report.wizard</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">itz_dashboard.report_itz_document</field>
+        <field name="report_file">itz_dashboard.report_itz_document</field>
+        <field name="paperformat_id" ref="base.paperformat_euro"/>
+    </record>
+    <template id="report_itz_document">
+        <t t-call="web.html_container">
+            <t t-foreach="docs" t-as="o">
+                <t t-set="data" t-value="o.get_report()"/>
+                <t t-call="web.external_layout">
+                    <div class="page">
+                        <h2 style="color:#0a1f44;"><t t-out="data['title']"/></h2>
+                        <div class="text-muted mb-3"><t t-out="data['subtitle']"/> &#183; Generated <t t-out="data['generated']"/> by <t t-out="data['generated_by']"/></div>
+                        <t t-call="itz_dashboard.report_table"><t t-set="limit" t-value="0"/></t>
+                    </div>
+                </t>
+            </t>
+        </t>
+    </template>
+</odoo>

@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="action_itz_website_admin" model="ir.actions.act_url">
+        <field name="name">Website Admin</field>
+        <field name="url">/itz/website/admin</field>
+        <field name="target">self</field>
+    </record>
+    <menuitem id="menu_itz_dashboard" name="Dashboard" parent="itz_base.menu_itz_root" sequence="1" action="action_itz_dashboard"/>
+    <menuitem id="menu_itz_reports" name="Reports" parent="itz_base.menu_itz_root" sequence="70" action="action_itz_reports"
+              groups="itz_base.group_itz_see_all"/>
+    <menuitem id="menu_itz_website_admin" name="Website Admin" parent="itz_base.menu_itz_root" sequence="95"
+              action="action_itz_website_admin" groups="itz_base.group_itz_ops_manager,itz_base.group_itz_support,itz_base.group_itz_sales"/>
+</odoo>
