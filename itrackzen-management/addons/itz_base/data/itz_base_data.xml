@@ -7,4 +7,11 @@
         <field name="prefix">LOG</field>
         <field name="padding">7</field>
     </record>
+    <!-- The first administrator becomes the Owner / Super Admin of the ITrackZen workspace -->
+    <record id="base.user_admin" model="res.users">
+        <field name="groups_id" eval="[Command.link(ref('itz_base.group_itz_owner'))]"/>
+    </record>
+    <record id="base.user_root" model="res.users">
+        <field name="groups_id" eval="[Command.link(ref('itz_base.group_itz_owner'))]"/>
+    </record>
 </odoo>

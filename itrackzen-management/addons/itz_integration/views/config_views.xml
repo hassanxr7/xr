@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="itz_platform_config_form" model="ir.ui.view">
+        <field name="name">itz.platform.config.form</field>
+        <field name="model">itz.platform.config</field>
+        <field name="arch" type="xml">
+            <form create="0" delete="0">
+                <header>
+                    <button name="action_test_connection" type="object" string="Test connection" class="btn-primary"/>
+                    <button name="action_view_jobs" type="object" string="Sync queue"/>
+                    <button name="action_regenerate_secret" type="object" string="New signing secret" groups="itz_base.group_itz_owner"
+                            confirm="The platform must be given the new secret. Continue?"/>
+                </header>
+                <sheet>
+                    <field name="company_id" invisible="1"/>
+                    <div class="alert alert-info" role="alert" invisible="mode != 'disabled'">
+                        The connection is switched off. The management system works on its own; nothing is sent to the tracking platform.
+                    </div>
+                    <div class="alert alert-warning" role="alert" invisible="mode != 'dry_run'">
+                        Dry run: changes are queued and logged in the Sync Queue, but nothing is sent. Use this to check what would be sent.
+                    </div>
+                    <div class="alert alert-warning" role="alert" invisible="mode != 'mock'">
+                        Staging simulator: the platform is pretended. Platform IDs shown in the system are simulated.
+                    </div>
+                    <div class="alert alert-danger" role="alert" invisible="mode != 'live'">
+                        LIVE: changes are sent to the real tracking platform.
+                    </div>
+                    <group>
+                        <group string="Mode">
+                            <field name="mode" widget="radio"/>
+                        </group>
+                        <group string="What to send">
+                            <field name="sync_customers"/>
+                            <field name="sync_vehicles"/>
+                            <field name="sync_devices"/>
+                            <field name="sync_service"/>
+                        </group>
+                    </group>
+                    <group>
+                        <group string="Links between the two systems">
+                            <field name="base_url"/>
+                            <field name="customer_url_tpl"/>
+                            <field name="vehicle_url_tpl"/>
+                            <field name="device_url_tpl"/>
+                            <field name="live_map_url_tpl"/>
+                        </group>
+                        <group string="Integration layer (API)">
+                            <field name="api_base_url"/>
+                            <field name="auth_type"/>
+                            <field name="auth_header" invisible="auth_type != 'header'"/>
+                            <field name="api_key" password="True" invisible="auth_type == 'none'" groups="itz_base.group_itz_owner"/>
+                            <field name="signing_secret" password="True" groups="itz_base.group_itz_owner"/>
+                            <field name="timeout"/>
+                            <field name="max_attempts"/>
+                        </group>
+                    </group>
+                    <group string="Endpoints">
+                        <group>
+                            <field name="ep_customer"/>
+                            <field name="ep_vehicle"/>
+                        </group>
+                        <group>
+                            <field name="ep_device"/>
+                            <field name="ep_service"/>
+                        </group>
+                    </group>
+                    <group string="Status">
+                        <group>
+                            <field name="last_ok"/>
+                            <field name="job_count_pending"/>
+                            <field name="job_count_failed"/>
+                        </group>
+                        <group><field name="last_error"/></group>
+                    </group>
+                    <div class="text-muted">
+                        Inbound webhook address: <code>/itz/platform/webhook</code> (POST, header <code>X-ITZ-Signature</code> = HMAC-SHA256 of the body with the signing secret).
+                        Links from the platform into this system: <code>/itz/go/vehicle?plate=…</code>, <code>/itz/go/vehicle?imei=…</code>, <code>/itz/go/customer?platform_id=…</code>.
+                    </div>
+                </sheet>
+                <chatter/>
+            </form>
+        </field>
+    </record>
+    <record id="action_itz_platform_config" model="ir.actions.server">
+        <field name="name">Tracking Platform</field>
+        <field name="model_id" ref="model_itz_platform_config"/>
+        <field name="state">code</field>
+        <field name="code">
+cfg = env['itz.platform.config'].get_config()
+action = {'type': 'ir.actions.act_window', 'name': 'Tracking Platform', 'res_model': 'itz.platform.config',
+          'res_id': cfg.id, 'view_mode': 'form', 'views': [(False, 'form')], 'target': 'current'}
+        </field>
+    </record>
+</odoo>

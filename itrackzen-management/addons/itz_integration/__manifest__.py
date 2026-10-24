@@ -1,0 +1,21 @@
+{
+    'name': 'ITrackZen Platform Integration',
+    'version': '18.0.1.0.0',
+    'summary': 'Connect the management system to the ITrackZen tracking platform: ID mapping, sync queue, deep links',
+    'author': 'LibDex Ltd (ITrackZen)',
+    'website': 'https://itrackzen.net',
+    'category': 'ITrackZen',
+    'license': 'LGPL-3',
+    'depends': ['itz_tasks'],
+    'data': [
+        'security/itz_integration_security.xml',
+        'security/ir.model.access.csv',
+        'data/cron.xml',
+        'views/config_views.xml',
+        'views/sync_views.xml',
+        'views/link_views.xml',
+        'views/menus.xml',
+    ],
+    'installable': True,
+    'application': False,
+}

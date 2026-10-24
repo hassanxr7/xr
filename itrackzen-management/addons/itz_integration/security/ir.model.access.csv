@@ -1,0 +1,7 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_itz_platform_config_owner,itz.platform.config owner,model_itz_platform_config,itz_base.group_itz_owner,1,1,1,0
+access_itz_platform_config_ops,itz.platform.config ops,model_itz_platform_config,itz_base.group_itz_ops_manager,1,0,0,0
+access_itz_sync_job_ops,itz.sync.job ops,model_itz_sync_job,itz_base.group_itz_ops_manager,1,1,0,0
+access_itz_sync_job_owner,itz.sync.job owner,model_itz_sync_job,itz_base.group_itz_owner,1,1,0,0
+access_itz_platform_event_ops,itz.platform.event ops,model_itz_platform_event,itz_base.group_itz_ops_manager,1,1,0,0
+access_itz_platform_event_owner,itz.platform.event owner,model_itz_platform_event,itz_base.group_itz_owner,1,1,0,0

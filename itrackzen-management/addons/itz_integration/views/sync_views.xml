@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="itz_sync_job_list" model="ir.ui.view">
+        <field name="name">itz.sync.job.list</field>
+        <field name="model">itz.sync.job</field>
+        <field name="arch" type="xml">
+            <list create="0" decoration-danger="state == 'failed'" decoration-muted="state in ('skipped', 'dry_run')" decoration-success="state == 'done'">
+                <field name="create_date"/>
+                <field name="operation"/>
+                <field name="record_name"/>
+                <field name="state" widget="badge"/>
+                <field name="attempts"/>
+                <field name="next_try" optional="show"/>
+                <field name="last_error" optional="show"/>
+            </list>
+        </field>
+    </record>
+    <record id="itz_sync_job_form" model="ir.ui.view">
+        <field name="name">itz.sync.job.form</field>
+        <field name="model">itz.sync.job</field>
+        <field name="arch" type="xml">
+            <form create="0">
+                <header>
+                    <button name="action_process_now" type="object" string="Send now" class="btn-primary" invisible="state != 'pending'"/>
+                    <button name="action_retry" type="object" string="Queue again" invisible="state == 'pending'"/>
+                    <field name="state" widget="statusbar" statusbar_visible="pending,done"/>
+                </header>
+                <sheet>
+                    <group>
+                        <group><field name="operation"/><field name="record_name"/><field name="res_model"/><field name="res_id"/></group>
+                        <group><field name="attempts"/><field name="next_try"/><field name="sent_at"/><field name="idempotency_key"/></group>
+                    </group>
+                    <group string="Payload"><field name="payload" nolabel="1" widget="text"/></group>
+                    <group string="Response / error"><field name="response"/><field name="last_error"/></group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+    <record id="itz_sync_job_search" model="ir.ui.view">
+        <field name="name">itz.sync.job.search</field>
+        <field name="model">itz.sync.job</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="record_name"/>
+                <filter name="f_pending" string="Waiting" domain="[('state', '=', 'pending')]"/>
+                <filter name="f_failed" string="Failed" domain="[('state', '=', 'failed')]"/>
+                <filter name="f_done" string="Sent" domain="[('state', 'in', ('done', 'simulated'))]"/>
+                <filter name="f_dry" string="Dry run" domain="[('state', '=', 'dry_run')]"/>
+                <group expand="0" string="Group By">
+                    <filter name="g_state" string="Status" context="{'group_by': 'state'}"/>
+                    <filter name="g_op" string="Type" context="{'group_by': 'operation'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+    <record id="action_itz_sync_jobs" model="ir.actions.act_window">
+        <field name="name">Sync Queue</field>
+        <field name="res_model">itz.sync.job</field>
+        <field name="view_mode">list,form</field>
+    </record>
+
+    <record id="itz_platform_event_list" model="ir.ui.view">
+        <field name="name">itz.platform.event.list</field>
+        <field name="model">itz.platform.event</field>
+        <field name="arch" type="xml">
+            <list create="0" decoration-warning="state == 'unmatched'">
+                <field name="create_date"/><field name="event_type"/><field name="event_id"/><field name="state" widget="badge"/><field name="note"/>
+            </list>
+        </field>
+    </record>
+    <record id="itz_platform_event_form" model="ir.ui.view">
+        <field name="name">itz.platform.event.form</field>
+        <field name="model">itz.platform.event</field>
+        <field name="arch" type="xml">
+            <form create="0">
+                <header><button name="action_mark_ignored" type="object" string="Ignore" invisible="state != 'unmatched'"/><field name="state" widget="statusbar"/></header>
+                <sheet><group><field name="event_type"/><field name="event_id"/><field name="note"/><field name="res_model"/><field name="res_id"/></group>
+                <field name="payload"/></sheet>
+            </form>
+        </field>
+    </record>
+    <record id="action_itz_platform_events" model="ir.actions.act_window">
+        <field name="name">Platform Events</field>
+        <field name="res_model">itz.platform.event</field>
+        <field name="view_mode">list,form</field>
+    </record>
+</odoo>

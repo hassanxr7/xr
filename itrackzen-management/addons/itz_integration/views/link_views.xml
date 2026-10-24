@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="res_partner_form_itz_platform" model="ir.ui.view">
+        <field name="name">res.partner.form.itz.platform</field>
+        <field name="model">res.partner</field>
+        <field name="inherit_id" ref="base.view_partner_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//div[@name='button_box']" position="inside">
+                <button name="action_open_in_platform" type="object" class="oe_stat_button" icon="fa-external-link"
+                        invisible="parent_id or not itz_platform_customer_id">
+                    <span class="o_stat_text">Tracking platform</span>
+                </button>
+            </xpath>
+            <xpath expr="//page[@name='itz_vehicles']" position="after">
+                <page string="Tracking platform" name="itz_platform" invisible="parent_id" groups="itz_base.group_itz_see_all">
+                    <group>
+                        <field name="itz_platform_customer_id" readonly="itz_platform_customer_id" groups="itz_base.group_itz_ops_manager"/>
+                        <field name="itz_platform_state"/>
+                        <field name="itz_platform_synced_at"/>
+                    </group>
+                    <button name="action_open_in_platform" type="object" string="Open in tracking platform" class="btn-secondary" invisible="not itz_platform_customer_id"/>
+                </page>
+            </xpath>
+        </field>
+    </record>
+    <record id="itz_vehicle_form_platform" model="ir.ui.view">
+        <field name="name">itz.vehicle.form.platform</field>
+        <field name="model">itz.vehicle</field>
+        <field name="inherit_id" ref="itz_fleet.itz_vehicle_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//header" position="inside">
+                <button name="action_open_live_map" type="object" string="Live map" class="btn-secondary" icon="fa-map-marker" invisible="not itz_platform_vehicle_id"/>
+                <button name="action_open_in_platform" type="object" string="Open in tracking platform" class="btn-secondary" invisible="not itz_platform_vehicle_id"/>
+            </xpath>
+            <xpath expr="//field[@name='warranty_end']" position="after">
+                <field name="itz_platform_vehicle_id" readonly="itz_platform_vehicle_id" groups="itz_base.group_itz_ops_manager"/>
+                <field name="itz_platform_state"/>
+                <field name="itz_platform_synced_at"/>
+            </xpath>
+        </field>
+    </record>
+    <record id="stock_lot_form_itz_platform" model="ir.ui.view">
+        <field name="name">stock.lot.form.itz.platform</field>
+        <field name="model">stock.lot</field>
+        <field name="inherit_id" ref="itz_inventory.stock_lot_form_itz"/>
+        <field name="arch" type="xml">
+            <xpath expr="//page[@name='itz_device']" position="inside">
+                <group string="Tracking platform" invisible="itz_category not in ('tracker', 'dashcam')">
+                    <field name="itz_platform_device_id" readonly="itz_platform_device_id" groups="itz_base.group_itz_ops_manager"/>
+                    <field name="itz_platform_synced_at"/>
+                </group>
+            </xpath>
+        </field>
+    </record>
+</odoo>

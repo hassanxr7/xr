@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <menuitem id="menu_itz_platform" name="Tracking Platform" parent="itz_base.menu_itz_config" sequence="10" groups="itz_base.group_itz_ops_manager"/>
+    <menuitem id="menu_itz_platform_config" name="Connection" parent="menu_itz_platform" sequence="10" action="action_itz_platform_config"/>
+    <menuitem id="menu_itz_sync_jobs" name="Sync Queue" parent="menu_itz_platform" sequence="20" action="action_itz_sync_jobs"/>
+    <menuitem id="menu_itz_platform_events" name="Platform Events" parent="menu_itz_platform" sequence="30" action="action_itz_platform_events"/>
+</odoo>
