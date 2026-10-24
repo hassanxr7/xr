@@ -9,6 +9,8 @@
 
 function odoo_enabled(): bool { return ODOO_URL !== '' && ODOO_SSO_SECRET !== ''; }
 function odoo_url(string $path = ''): string { return rtrim(ODOO_URL, '/') . $path; }
+/** Public address of this admin area (must match "Allowed sign-in return addresses" in the management system). */
+function admin_base_url(): string { return ODOO_ADMIN_URL !== '' ? rtrim(ODOO_ADMIN_URL, '/') . '/' : abs_url('/admin/'); }
 function odoo_b64d(string $s): string { return (string)base64_decode(strtr($s, '-_', '+/') . str_repeat('=', (4 - strlen($s) % 4) % 4)); }
 
 /** Verify the login token created by the management system. Returns the claims or null. */

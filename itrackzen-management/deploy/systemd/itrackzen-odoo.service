@@ -1,0 +1,21 @@
+[Unit]
+Description=ITrackZen Management System (Odoo)
+After=network.target postgresql.service
+Requires=postgresql.service
+
+[Service]
+Type=simple
+User=itrackzen
+Group=itrackzen
+ExecStart=/opt/itrackzen/venv/bin/python /opt/itrackzen/odoo/odoo-bin -c /etc/itrackzen/odoo.conf
+Restart=on-failure
+RestartSec=5
+# hardening
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=full
+ProtectHome=true
+ReadWritePaths=/var/lib/itrackzen /var/log/itrackzen
+
+[Install]
+WantedBy=multi-user.target

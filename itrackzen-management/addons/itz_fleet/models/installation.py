@@ -137,7 +137,25 @@ class ItzInstallation(models.Model):
         return super().unlink()
 
     # ------------------------------------------------------------------ actions
+    def _check_unique_equipment(self):
+        """A device or SIM can only be on one open job, and only once on a job."""
+        for rec in self:
+            used = []
+            for line in rec.line_ids.filtered(lambda l: l.action == 'install'):
+                used += [lot for lot in (line.lot_id, line.sim_lot_id) if lot]
+            seen = set()
+            for lot in used:
+                if lot.id in seen:
+                    raise UserError(_('%(lot)s is listed twice on %(job)s.', lot=lot.display_name, job=rec.name))
+                seen.add(lot.id)
+            others = self.sudo().search([('id', '!=', rec.id), ('state', 'in', ('scheduled', 'in_progress'))]).line_ids.filtered(lambda l: l.action == 'install')
+            clash = {lot.id for lot in (others.lot_id | others.sim_lot_id)} & seen
+            if clash:
+                lot = self.env['stock.lot'].sudo().browse(sorted(clash)[0])
+                raise UserError(_('%(lot)s is already planned on another open installation job.', lot=lot.display_name))
+
     def action_schedule(self):
+        self._check_unique_equipment()
         for rec in self:
             if not rec.technician_id:
                 raise UserError(_('Choose the technician before scheduling %s.', rec.name))
@@ -230,6 +248,7 @@ class ItzInstallation(models.Model):
             raise UserError(_('No technician assigned.'))
         if not self.line_ids:
             raise UserError(_('Add the installed or removed equipment.'))
+        self._check_unique_equipment()
         for line in self.line_ids:
             line._check_line()
         if company.itz_require_customer_confirmation and not (self.customer_confirmed_by or self.customer_signature):

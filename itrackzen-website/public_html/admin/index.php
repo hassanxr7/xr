@@ -134,7 +134,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && me()) {
     switch ($action) {
     case 'logout':
         admin_log(actor(), 'logout'); $viaOdoo = !empty(me()['sso']); $_SESSION = []; session_destroy();
-        header('Location: ' . ($viaOdoo && odoo_enabled() ? odoo_url('/itz/sso/logout') . '?redirect=' . rawurlencode(abs_url('/admin/')) : '/admin/')); exit;
+        header('Location: ' . ($viaOdoo && odoo_enabled() ? odoo_url('/itz/sso/logout') . '?redirect=' . rawurlencode(admin_base_url()) : '/admin/')); exit;
 
     case 'save': // content editor (JSON response)
         need('content'); header('Content-Type: application/json');
@@ -244,6 +244,14 @@ if (me() && ($_GET['v'] ?? '') === 'enquiries' && isset($_GET['export']) && can(
     exit;
 }
 
+/* ---------- areas that need a permission answer 403 instead of silently showing the dashboard ---------- */
+if (me()) {
+    $areaOf = ['enquiries' => 'enquiries', 'enquiry' => 'enquiries', 'deletions' => 'deletions', 'deletion' => 'deletions', 'content' => 'content',
+               'media' => 'media', 'brand' => 'brand', 'users' => 'users', 'log' => 'users'];
+    $wanted = isset($_GET['edit']) && $_GET['edit'] !== '' ? 'content' : ($areaOf[(string)($_GET['v'] ?? '')] ?? '');
+    if ($wanted !== '' && !can($wanted)) { http_response_code(403); exit('You do not have permission for this section. Ask the owner to change your role in ITrackZen Management.'); }
+}
+
 /* =================== VIEWS =================== */
 $flash = $_SESSION['flash'] ?? null; unset($_SESSION['flash']);
 $v = (string)($_GET['v'] ?? ''); $edit = (string)($_GET['edit'] ?? '');
@@ -254,10 +262,12 @@ function csrf_field(): string { return '<input type="hidden" name="csrf" value="
 <?php if (!me()): $ssoOn = odoo_enabled(); ?>
 <main class="login"><div class="box"><img class="login-logo" src="/assets/img/brand/itrackzen-logo.svg" alt="ITrackZen" width="150"><h1><?= $ssoOn ? 'Staff workspace' : 'ITrackZen Admin' ?></h1>
 <?php if ($flash): ?><p class="alert <?= $flash[0] ?>"><?= h($flash[1]) ?></p><?php endif; ?>
-<?php if ($ssoOn && $adminCount > 0): ?>
+<?php if ($ssoOn): ?>
 <p class="muted">Sign in once with your own ITrackZen Management account. You will see only the work and records that belong to your role.</p>
 <a class="btn-sso" href="/admin/sso.php?start=1">Sign in with ITrackZen Management</a>
-<?php if (ADMIN_LOCAL_LOGIN !== 'off'): ?><details class="local-login"><summary>Owner emergency sign-in</summary>
+<?php if ($adminCount === 0): ?><details class="local-login"><summary>First-time local owner setup (optional)</summary>
+<form method="post"><input type="hidden" name="action" value="setup"><label>Setup key<input type="password" name="setup_key" required autocomplete="off"></label><label>Username<input name="username" required autocomplete="username" pattern="[a-z0-9._-]{3,32}"></label><label>Password (min 10 characters)<input type="password" name="password" required minlength="10" autocomplete="new-password"></label><button>Create owner account</button></form></details>
+<?php elseif (ADMIN_LOCAL_LOGIN !== 'off'): ?><details class="local-login"><summary>Owner emergency sign-in</summary>
 <form method="post"><input type="hidden" name="action" value="login"><label>Username<input name="username" required autocomplete="username"></label><label>Password<input type="password" name="password" required autocomplete="current-password"></label><button>Sign in</button></form></details><?php endif; ?>
 <?php elseif ($adminCount === 0): ?><form method="post"><p>First-time setup. Enter the <code>ADMIN_SETUP_KEY</code> from <code>includes/config.local.php</code> and create the owner account.</p>
 <input type="hidden" name="action" value="setup"><label>Setup key<input type="password" name="setup_key" required autocomplete="off"></label><label>Username<input name="username" required autocomplete="username" pattern="[a-z0-9._-]{3,32}"></label><label>Password (min 10 characters)<input type="password" name="password" required minlength="10" autocomplete="new-password"></label><button>Create owner account</button></form>

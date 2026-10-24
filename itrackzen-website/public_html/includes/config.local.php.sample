@@ -32,4 +32,5 @@ define('APP_DEBUG', false);
  */
 // define('ODOO_URL', 'https://manage.itrackzen.net');
 // define('ODOO_SSO_SECRET', 'CHANGE_ME_copy_from_management_system');
+// define('ODOO_ADMIN_URL', 'https://itrackzen.net/admin/');   // only if the public address differs from the website address
 // define('ADMIN_LOCAL_LOGIN', 'owner');

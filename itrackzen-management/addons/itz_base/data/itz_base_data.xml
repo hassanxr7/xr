@@ -7,6 +7,8 @@
         <field name="prefix">LOG</field>
         <field name="padding">7</field>
     </record>
+    <!-- Staff accounts are created by the owner only: no public sign-up page -->
+    <function model="ir.config_parameter" name="set_param" eval="('auth_signup.invitation_scope', 'b2b')"/>
     <!-- The first administrator becomes the Owner / Super Admin of the ITrackZen workspace -->
     <record id="base.user_admin" model="res.users">
         <field name="groups_id" eval="[Command.link(ref('itz_base.group_itz_owner'))]"/>

@@ -19,7 +19,7 @@ $__defaults = [
     'DB_DSN' => '', 'DB_USER' => '', 'DB_PASS' => '',
     'DELETION_WEBHOOK_URL' => '', 'DELETION_WEBHOOK_SECRET' => '',
     // Management system (Odoo) - single sign-on and event delivery. Leave ODOO_URL empty to run the website on its own.
-    'ODOO_URL' => '', 'ODOO_SSO_SECRET' => '', 'ODOO_PUSH' => true, 'ODOO_TIMEOUT' => 5, 'ADMIN_LOCAL_LOGIN' => 'owner',
+    'ODOO_URL' => '', 'ODOO_SSO_SECRET' => '', 'ODOO_ADMIN_URL' => '', 'ODOO_PUSH' => true, 'ODOO_TIMEOUT' => 5, 'ADMIN_LOCAL_LOGIN' => 'owner',
 ];
 foreach ($__defaults as $k => $v) { if (!defined($k)) { define($k, $v); } }
 unset($__defaults);

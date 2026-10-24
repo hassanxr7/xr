@@ -24,7 +24,7 @@ if (!odoo_enabled()) { sso_fail('Single sign-on is not configured on this websit
 if (isset($_GET['start'])) {
     $_SESSION['sso_state'] = bin2hex(random_bytes(16));
     $_SESSION['sso_started'] = time();
-    $redirect = abs_url('/admin/sso.php');
+    $redirect = admin_base_url() . 'sso.php';
     header('Location: ' . odoo_url('/itz/sso/authorize') . '?redirect_uri=' . rawurlencode($redirect) . '&state=' . $_SESSION['sso_state'], true, 303);
     exit;
 }

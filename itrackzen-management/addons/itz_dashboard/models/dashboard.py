@@ -177,6 +177,8 @@ class ItzDashboard(models.AbstractModel):
         }
 
     def _role_names(self):
+        if self.env.user.has_group('itz_base.group_itz_owner'):
+            return [self.env.ref('itz_base.group_itz_owner').name]
         cat = self.env.ref('itz_base.module_category_itz')
         return self.env.user.groups_id.filtered(lambda g: g.category_id == cat).mapped('name')
 

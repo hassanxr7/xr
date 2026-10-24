@@ -1,0 +1,7 @@
+[Unit]
+Description=ITrackZen nightly backup (database + files)
+After=postgresql.service
+
+[Service]
+Type=oneshot
+ExecStart=/usr/local/sbin/itz-backup

@@ -41,7 +41,7 @@ class StockLot(models.Model):
     # Pairing: a device has one SIM, and a SIM sits in one device
     itz_sim_lot_id = fields.Many2one('stock.lot', string='SIM in device', copy=False, domain="[('itz_category', '=', 'sim')]",
                                      index=True, ondelete='set null', tracking=True)
-    itz_device_lot_id = fields.Many2one('stock.lot', string='Used in device', compute='_compute_itz_device_lot_id')
+    itz_device_lot_id = fields.Many2one('stock.lot', string='Used in device', compute='_compute_itz_device_lot_id', search='_search_itz_device_lot_id')
     itz_warranty_months = fields.Integer(string='Warranty (months)')
     itz_warranty_start = fields.Date(string='Warranty start', copy=False)
     itz_warranty_end = fields.Date(string='Warranty end', compute='_compute_itz_warranty_end', store=True)
@@ -65,6 +65,13 @@ class StockLot(models.Model):
         for lot in self:
             device = self.search([('itz_sim_lot_id', '=', lot.id)], limit=1) if lot.id else self.browse()
             lot.itz_device_lot_id = device
+
+    def _search_itz_device_lot_id(self, operator, value):
+        used = self.sudo().with_context(active_test=False).search([('itz_sim_lot_id', '!=', False)])
+        if value is False or value is None:
+            return [('id', 'in' if operator in ('!=', 'not in') else 'not in', used.mapped('itz_sim_lot_id').ids)]
+        devices = self.browse(value if isinstance(value, list) else [value])
+        return [('id', 'in', devices.mapped('itz_sim_lot_id').ids)]
 
     @api.depends('itz_warranty_start', 'itz_warranty_months')
     def _compute_itz_warranty_end(self):
