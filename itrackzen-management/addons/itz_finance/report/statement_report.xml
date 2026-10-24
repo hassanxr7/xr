@@ -28,10 +28,10 @@
                             </div>
                         </div>
                         <table class="table table-sm o_main_table">
-                            <thead style="background:#0a1f44;color:#fff;">
-                                <tr>
-                                    <th>Date</th><th>Reference</th><th>Description</th><th>Due</th>
-                                    <th class="text-end">Charges</th><th class="text-end">Payments</th><th class="text-end">Balance</th>
+                            <thead style="background:#0a1f44;">
+                                <tr style="color:#ffffff;">
+                                    <th style="color:#fff;">Date</th><th style="color:#fff;">Reference</th><th style="color:#fff;">Description</th><th style="color:#fff;">Due</th>
+                                    <th class="text-end" style="color:#fff;">Charges</th><th class="text-end" style="color:#fff;">Payments</th><th class="text-end" style="color:#fff;">Balance</th>
                                 </tr>
                             </thead>
                             <tbody>

@@ -8,6 +8,12 @@ class SaleOrderLine(models.Model):
                                      help='The vehicle this line is for (device, installation or tracking plan).')
     itz_charge_type = fields.Selection(related='product_id.itz_charge_type', store=True, string='Charge type')
 
+    def _prepare_invoice_line(self, **optional_values):
+        vals = super()._prepare_invoice_line(**optional_values)
+        if self.itz_vehicle_id and vals.get('name'):
+            vals['name'] = '%s\nVehicle: %s' % (vals['name'], self.itz_vehicle_id.plate)
+        return vals
+
     def _action_launch_stock_rule(self, previous_product_uom_qty=False):
         # Equipment installed by a technician leaves stock when the installation job is completed, not on confirmation.
         lines = self.filtered(lambda l: l.product_id.itz_fulfilment != 'installation')

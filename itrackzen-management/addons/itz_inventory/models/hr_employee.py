@@ -5,10 +5,10 @@ from odoo.exceptions import ValidationError
 class HrEmployee(models.Model):
     _inherit = 'hr.employee'
 
-    itz_is_technician = fields.Boolean(string='Installation technician', tracking=True)
-    itz_responsibilities = fields.Text(string='Responsibilities')
-    itz_stock_location_id = fields.Many2one('stock.location', string='Technician stock location', copy=False, readonly=True)
-    itz_issued_count = fields.Integer(string='Devices in hand', compute='_compute_itz_issued_count')
+    itz_is_technician = fields.Boolean(string='Installation technician', groups='hr.group_hr_user')
+    itz_responsibilities = fields.Text(string='Responsibilities', groups='hr.group_hr_user')
+    itz_stock_location_id = fields.Many2one('stock.location', string='Technician stock location', copy=False, readonly=True, groups='hr.group_hr_user')
+    itz_issued_count = fields.Integer(string='Devices in hand', compute='_compute_itz_issued_count', groups='hr.group_hr_user')
 
     def _compute_itz_issued_count(self):
         for emp in self:

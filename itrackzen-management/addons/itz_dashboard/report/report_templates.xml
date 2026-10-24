@@ -10,17 +10,16 @@
             </t>
             <table class="table table-sm table-striped">
                 <thead style="background:#0a1f44;color:#fff;">
-                    <tr><th t-foreach="data['columns']" t-as="col" t-att-class="'text-end' if col['type'] in ('money', 'int', 'float') else ''"><t t-out="col['label']"/></th></tr>
+                    <tr><th t-foreach="data['columns']" t-as="col" style="color:#ffffff;" t-att-class="'text-end' if col['type'] in ('money', 'int', 'float') else ''"><t t-out="col['label']"/></th></tr>
                 </thead>
                 <tbody>
                     <tr t-foreach="data['rows'][:limit] if limit else data['rows']" t-as="row">
                         <t t-foreach="range(len(row))" t-as="i">
                             <td t-att-class="'text-end' if data['columns'][i]['type'] in ('money', 'int', 'float') else ''">
                                 <t t-set="v" t-value="row[i]"/>
-                                <t t-if="data['columns'][i]['type'] == 'money' and v not in ('', False, None)"><t t-out="'{:,.2f}'.format(v)"/></t>
-                                <t t-elif="data['columns'][i]['type'] == 'float' and v not in ('', False, None)"><t t-out="'{:,.2f}'.format(v)"/></t>
+                                <t t-if="data['columns'][i]['type'] in ('money', 'float') and v is not None and v is not False and v != ''"><t t-out="'{:,.2f}'.format(v)"/></t>
                                 <t t-elif="data['columns'][i]['type'] == 'datetime' and v"><t t-out="str(v)[:16]"/></t>
-                                <t t-elif="v not in (False, None)"><t t-out="v"/></t>
+                                <t t-elif="v is not None and v is not False"><t t-out="v"/></t>
                             </td>
                         </t>
                     </tr>
@@ -28,8 +27,8 @@
                         <t t-foreach="range(len(data['totals']))" t-as="i">
                             <td t-att-class="'text-end' if data['columns'][i]['type'] in ('money', 'int', 'float') else ''">
                                 <t t-set="v" t-value="data['totals'][i]"/>
-                                <t t-if="data['columns'][i]['type'] in ('money', 'float') and v not in ('', False, None) and not isinstance(v, str)"><t t-out="'{:,.2f}'.format(v)"/></t>
-                                <t t-elif="v not in ('', False, None)"><t t-out="v"/></t>
+                                <t t-if="data['columns'][i]['type'] in ('money', 'float') and v is not None and v is not False and v != '' and not isinstance(v, str)"><t t-out="'{:,.2f}'.format(v)"/></t>
+                                <t t-elif="v is not None and v is not False and v != ''"><t t-out="v"/></t>
                             </td>
                         </t>
                     </tr>

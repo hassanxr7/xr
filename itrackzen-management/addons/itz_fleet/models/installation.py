@@ -35,7 +35,7 @@ class ItzInstallation(models.Model):
                                  domain="[('partner_id', '=', partner_id)]")
     plate = fields.Char(related='vehicle_id.plate', store=True, string='Plate')
     technician_id = fields.Many2one('res.users', string='Technician', tracking=True, index=True,
-                                    domain="[('employee_ids.itz_is_technician', '=', True)]")
+                                    domain="[('itz_is_technician', '=', True)]")
     date_planned = fields.Datetime(string='Planned date', tracking=True)
     date_start = fields.Datetime(string='Started on', copy=False, readonly=True)
     date_done = fields.Datetime(string='Completed on', copy=False, readonly=True, tracking=True)
@@ -59,6 +59,7 @@ class ItzInstallation(models.Model):
     company_id = fields.Many2one('res.company', default=lambda self: self.env.company, required=True)
     color = fields.Integer()
     is_late = fields.Boolean(compute='_compute_is_late', search='_search_is_late')
+    is_tech_only = fields.Boolean(compute='_compute_is_tech_only', help='The signed-in person is a technician without any office role: header fields are read-only for them.')
 
     # ----------------------------------------------------------------- computes
     @api.depends('photo_ids')
@@ -81,6 +82,11 @@ class ItzInstallation(models.Model):
         for rec in self:
             lines = rec.line_ids.filtered(lambda l: l.action == 'install')
             rec.equipment_ready = bool(lines) and all(l.state_ok for l in lines)
+
+    def _compute_is_tech_only(self):
+        tech_only = self.env.user.has_group('itz_base.group_itz_technician') and not self.env.user.has_group('itz_base.group_itz_see_all')
+        for rec in self:
+            rec.is_tech_only = tech_only
 
     def _compute_is_late(self):
         now = fields.Datetime.now()

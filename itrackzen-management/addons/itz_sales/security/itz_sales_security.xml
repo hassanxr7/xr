@@ -38,6 +38,30 @@
         <field name="groups" eval="[Command.link(ref('itz_base.group_itz_financial')), Command.link(ref('account.group_account_readonly')), Command.link(ref('account.group_account_invoice'))]"/>
     </record>
 
+    <!-- Purchasing staff (storekeeper) can read the order and delivery status but never change a sales order or see invoices and payments -->
+    <record id="rule_account_move_purchase_blocked" model="ir.rule">
+        <field name="name">Storekeeper: no customer invoices</field>
+        <field name="model_id" ref="account.model_account_move"/>
+        <field name="domain_force">[(0, '=', 1)]</field>
+        <field name="groups" eval="[Command.link(ref('purchase.group_purchase_user'))]"/>
+    </record>
+    <record id="rule_account_move_line_purchase_blocked" model="ir.rule">
+        <field name="name">Storekeeper: no journal items</field>
+        <field name="model_id" ref="account.model_account_move_line"/>
+        <field name="domain_force">[(0, '=', 1)]</field>
+        <field name="groups" eval="[Command.link(ref('purchase.group_purchase_user'))]"/>
+    </record>
+    <record id="rule_sale_order_storekeeper_readonly" model="ir.rule">
+        <field name="name">Storekeeper: sales orders are read-only</field>
+        <field name="model_id" ref="sale.model_sale_order"/>
+        <field name="domain_force">[(0, '=', 1)]</field>
+        <field name="groups" eval="[Command.link(ref('stock.group_stock_user'))]"/>
+        <field name="perm_read" eval="False"/>
+        <field name="perm_write" eval="True"/>
+        <field name="perm_create" eval="True"/>
+        <field name="perm_unlink" eval="True"/>
+    </record>
+
     <!-- Enquiries: sales and support see their own, managers see everything -->
     <record id="rule_itz_enquiry_own" model="ir.rule">
         <field name="name">Enquiries: own or unassigned</field>

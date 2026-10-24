@@ -4,10 +4,10 @@ from odoo import api, fields, models, _
 class ItzVehicle(models.Model):
     _inherit = 'itz.vehicle'
 
-    subscription_ids = fields.One2many('itz.subscription', 'vehicle_id', string='Subscriptions')
-    subscription_count = fields.Integer(compute='_compute_subscription_count')
-    active_subscription_id = fields.Many2one('itz.subscription', compute='_compute_subscription_count', string='Current plan')
-    subscription_status = fields.Selection(related='active_subscription_id.payment_status', string='Plan payment status')
+    subscription_ids = fields.One2many('itz.subscription', 'vehicle_id', string='Subscriptions', groups='itz_base.group_itz_see_all')
+    subscription_count = fields.Integer(compute='_compute_subscription_count', groups='itz_base.group_itz_see_all')
+    active_subscription_id = fields.Many2one('itz.subscription', compute='_compute_subscription_count', string='Current plan', groups='itz_base.group_itz_see_all')
+    subscription_status = fields.Selection(related='active_subscription_id.payment_status', string='Plan payment status', groups='itz_base.group_itz_see_all')
 
     @api.depends('subscription_ids.state')
     def _compute_subscription_count(self):

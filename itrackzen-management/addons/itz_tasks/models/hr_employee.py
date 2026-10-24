@@ -4,10 +4,10 @@ from odoo import api, fields, models, _
 class HrEmployee(models.Model):
     _inherit = 'hr.employee'
 
-    itz_task_ids = fields.One2many('itz.task', 'employee_id', string='Tasks')
-    itz_open_task_count = fields.Integer(compute='_compute_itz_task_counts', string='Open tasks')
-    itz_done_task_count = fields.Integer(compute='_compute_itz_task_counts', string='Completed tasks')
-    itz_overdue_task_count = fields.Integer(compute='_compute_itz_task_counts', string='Overdue tasks')
+    itz_task_ids = fields.One2many('itz.task', 'employee_id', string='Tasks', groups='hr.group_hr_user')
+    itz_open_task_count = fields.Integer(compute='_compute_itz_task_counts', string='Open tasks', groups='hr.group_hr_user')
+    itz_done_task_count = fields.Integer(compute='_compute_itz_task_counts', string='Completed tasks', groups='hr.group_hr_user')
+    itz_overdue_task_count = fields.Integer(compute='_compute_itz_task_counts', string='Overdue tasks', groups='hr.group_hr_user')
 
     @api.depends('itz_task_ids.state', 'itz_task_ids.date_deadline')
     def _compute_itz_task_counts(self):

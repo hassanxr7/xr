@@ -13,3 +13,8 @@ access_sale_order_readonly,sale.order readonly,sale.model_sale_order,itz_base.gr
 access_sale_order_line_readonly,sale.order.line readonly,sale.model_sale_order_line,itz_base.group_itz_readonly,1,0,0,0
 access_sale_order_storekeeper,sale.order storekeeper,sale.model_sale_order,itz_base.group_itz_storekeeper,1,0,0,0
 access_sale_order_line_storekeeper,sale.order.line storekeeper,sale.model_sale_order_line,itz_base.group_itz_storekeeper,1,0,0,0
+access_sale_order_option_see_all,sale.order.option see all,sale_management.model_sale_order_option,itz_base.group_itz_see_all,1,0,0,0
+access_sale_order_template_see_all,sale.order.template see all,sale_management.model_sale_order_template,itz_base.group_itz_see_all,1,0,0,0
+access_sale_order_template_line_see_all,sale.order.template.line see all,sale_management.model_sale_order_template_line,itz_base.group_itz_see_all,1,0,0,0
+access_sale_order_template_option_see_all,sale.order.template.option see all,sale_management.model_sale_order_template_option,itz_base.group_itz_see_all,1,0,0,0
+access_sale_advance_payment_inv_financial,sale.advance.payment.inv financial,sale.model_sale_advance_payment_inv,itz_base.group_itz_financial,1,1,1,1

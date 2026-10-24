@@ -10,6 +10,12 @@ class StockPicking(models.Model):
         string='ITrackZen transfer', copy=False, index=True)
     itz_technician_user_id = fields.Many2one('res.users', string='Technician', copy=False, index=True)
 
+    def button_validate(self):
+        # Stock only moves when the storekeeper or an operations manager validates a transfer (system jobs such as installation completion run as sudo).
+        if not self.env.su and not (self.env.user.has_group('itz_base.group_itz_storekeeper') or self.env.user.has_group('itz_base.group_itz_ops_manager')):
+            raise UserError(_('Only the storekeeper or an operations manager can validate stock transfers.'))
+        return super().button_validate()
+
     def _action_done(self):
         res = super()._action_done()
         for picking in self:

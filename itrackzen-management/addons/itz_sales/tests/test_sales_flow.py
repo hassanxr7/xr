@@ -84,6 +84,7 @@ class TestSalesFlow(ItzSalesCommon):
         invoice = order.with_user(self.users['accountant'])._create_invoices()
         self.assertEqual(len(invoice), 1)
         self.assertEqual(sum(invoice.invoice_line_ids.mapped('quantity')), 3.0)
+        self.assertTrue(all('Vehicle: KDA 123A' in l.name for l in invoice.invoice_line_ids))
         invoice.with_user(self.users['accountant']).action_post()
         total = invoice.amount_total
         self.assertEqual(invoice.itz_payment_status, 'unpaid')

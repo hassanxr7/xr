@@ -6,13 +6,13 @@
         <field name="inherit_id" ref="itz_fleet.itz_vehicle_form"/>
         <field name="arch" type="xml">
             <xpath expr="//div[@name='button_box']" position="inside">
-                <button name="action_view_subscriptions" type="object" class="oe_stat_button" icon="fa-refresh">
+                <button name="action_view_subscriptions" type="object" class="oe_stat_button" icon="fa-refresh" groups="itz_base.group_itz_see_all">
                     <field name="subscription_count" widget="statinfo" string="Subscriptions"/>
                 </button>
             </xpath>
             <xpath expr="//field[@name='last_installation_id']" position="after">
-                <field name="active_subscription_id"/>
-                <field name="subscription_status" widget="badge"/>
+                <field name="active_subscription_id" groups="itz_base.group_itz_see_all"/>
+                <field name="subscription_status" widget="badge" groups="itz_base.group_itz_see_all"/>
             </xpath>
         </field>
     </record>

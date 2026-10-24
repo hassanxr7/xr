@@ -32,7 +32,7 @@ class ItzReportWizard(models.TransientModel):
     date_from = fields.Date()
     date_to = fields.Date()
     needs_dates = fields.Boolean(compute='_compute_needs_dates')
-    technician_id = fields.Many2one('res.users', string='Technician', domain="[('employee_ids.itz_is_technician', '=', True)]")
+    technician_id = fields.Many2one('res.users', string='Technician', domain="[('itz_is_technician', '=', True)]")
     partner_id = fields.Many2one('res.partner', string='Customer', domain="[('parent_id', '=', False)]")
     preview_html = fields.Html(compute='_compute_preview_html', sanitize=False)
 

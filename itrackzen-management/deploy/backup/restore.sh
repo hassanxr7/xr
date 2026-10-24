@@ -37,11 +37,17 @@ pg_restore --no-owner --no-acl --exit-on-error -d "$TARGET" "$dump"
 data_dir="$(dirname "$FILESTORE_DIR")"
 log "restoring file store into $data_dir/$TARGET"
 mkdir -p "${data_dir:?}"
-[[ -d "${data_dir:?}/${TARGET:?}" ]] && rm -rf -- "${data_dir:?}/${TARGET:?}"
-tar -C "$data_dir" -xzf "$fs"
-src_name="$(tar -tzf "$fs" | sed -n '1p' | cut -d/ -f1)"
-[[ -z "$src_name" || "$src_name" == "$TARGET" ]] || mv "${data_dir:?}/$src_name" "${data_dir:?}/$TARGET"
-[[ -d "$data_dir/$TARGET" ]] || mkdir -p "$data_dir/$TARGET"
+# Extract in a scratch folder first: the archive contains the ORIGINAL database name as its folder, and extracting it
+# straight into the data folder would overwrite the live file store when restoring a copy next to the live system.
+scratch="$tmp/fs"; mkdir -p "$scratch"
+tar -C "$scratch" -xzf "$fs"
+src_name="$(ls -1 "$scratch" | sed -n '1p')"
+if [[ -n "$src_name" ]]; then
+  [[ -d "${data_dir:?}/${TARGET:?}" ]] && rm -rf -- "${data_dir:?}/${TARGET:?}"
+  mv "$scratch/$src_name" "${data_dir:?}/${TARGET:?}"
+else
+  mkdir -p "${data_dir:?}/${TARGET:?}"      # the backup had no attachments yet
+fi
 chown -R "$(stat -c %u:%g "$data_dir")" "${data_dir:?}/${TARGET:?}" 2>/dev/null || true
 
 if [[ $NEUTRALIZE -eq 1 ]]; then

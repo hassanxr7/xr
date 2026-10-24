@@ -2,15 +2,15 @@
 <odoo>
     <menuitem id="menu_itz_inventory" name="Inventory" parent="itz_base.menu_itz_root" sequence="30"
               groups="itz_base.group_itz_storekeeper,itz_base.group_itz_ops_manager,itz_base.group_itz_sales,itz_base.group_itz_readonly,itz_base.group_itz_support,itz_base.group_itz_accountant"/>
-    <menuitem id="menu_itz_products" name="Products and Stock" parent="menu_itz_inventory" sequence="10" action="action_itz_products"/>
-    <menuitem id="menu_itz_devices" name="Devices (IMEI / Serial)" parent="menu_itz_inventory" sequence="20" action="action_itz_devices"/>
-    <menuitem id="menu_itz_sims" name="SIM Cards" parent="menu_itz_inventory" sequence="30" action="action_itz_sims"/>
+    <menuitem id="menu_itz_products" name="Products and Stock" parent="menu_itz_inventory" sequence="10" action="action_itz_products" groups="itz_base.group_itz_storekeeper,itz_base.group_itz_ops_manager,itz_base.group_itz_sales,itz_base.group_itz_readonly,itz_base.group_itz_support,itz_base.group_itz_accountant"/>
+    <menuitem id="menu_itz_devices" name="Devices (IMEI / Serial)" parent="menu_itz_inventory" sequence="20" action="action_itz_devices" groups="itz_base.group_itz_storekeeper,itz_base.group_itz_ops_manager,itz_base.group_itz_sales,itz_base.group_itz_readonly,itz_base.group_itz_support,itz_base.group_itz_accountant"/>
+    <menuitem id="menu_itz_sims" name="SIM Cards" parent="menu_itz_inventory" sequence="30" action="action_itz_sims" groups="itz_base.group_itz_storekeeper,itz_base.group_itz_ops_manager,itz_base.group_itz_sales,itz_base.group_itz_readonly,itz_base.group_itz_support,itz_base.group_itz_accountant"/>
     <menuitem id="menu_itz_issue" name="Issue / Return to Technician" parent="menu_itz_inventory" sequence="40"
               action="action_itz_issue_technician" groups="itz_base.group_itz_storekeeper,itz_base.group_itz_ops_manager"/>
     <menuitem id="menu_itz_tech_transfers" name="Technician Transfers" parent="menu_itz_inventory" sequence="45"
               action="action_itz_technician_transfers" groups="itz_base.group_itz_storekeeper,itz_base.group_itz_ops_manager,itz_base.group_itz_readonly"/>
-    <menuitem id="menu_itz_low_stock" name="Low-stock Alerts" parent="menu_itz_inventory" sequence="50" action="action_itz_low_stock"/>
-    <menuitem id="menu_itz_device_history" name="Device History" parent="menu_itz_inventory" sequence="60" action="action_itz_device_events"/>
+    <menuitem id="menu_itz_low_stock" name="Low-stock Alerts" parent="menu_itz_inventory" sequence="50" action="action_itz_low_stock" groups="itz_base.group_itz_storekeeper,itz_base.group_itz_ops_manager,itz_base.group_itz_sales,itz_base.group_itz_readonly,itz_base.group_itz_support,itz_base.group_itz_accountant"/>
+    <menuitem id="menu_itz_device_history" name="Device History" parent="menu_itz_inventory" sequence="60" action="action_itz_device_events" groups="itz_base.group_itz_storekeeper,itz_base.group_itz_ops_manager,itz_base.group_itz_sales,itz_base.group_itz_readonly,itz_base.group_itz_support,itz_base.group_itz_accountant"/>
 
     <!-- Purchasing and warehouse operations reuse the standard Odoo screens -->
     <menuitem id="menu_itz_purchase" name="Purchases" parent="menu_itz_inventory" sequence="70"

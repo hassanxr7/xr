@@ -1,0 +1,34 @@
+# UNTESTED (no container runtime was available while this was prepared). Run from the itrackzen-management folder:
+#   cp deploy/docker/.env.example .env   # then edit the passwords
+#   docker compose -f deploy/docker/docker-compose.yml --env-file .env up -d --build
+#   first start only, creates the database and installs the modules:
+#   docker compose -f deploy/docker/docker-compose.yml --env-file .env run --rm odoo python /opt/itrackzen/odoo/odoo-bin -c /etc/odoo.conf -i itz_website_bridge --stop-after-init
+services:
+  db:
+    image: postgres:16
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: itrackzen
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_DB: postgres
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+  odoo:
+    build:
+      context: ../..
+      dockerfile: deploy/docker/Dockerfile
+    restart: unless-stopped
+    depends_on: [db]
+    environment:
+      HOST: db
+      USER: itrackzen
+      PASSWORD: ${DB_PASSWORD}
+    command: ["python", "/opt/itrackzen/odoo/odoo-bin", "-c", "/etc/odoo.conf", "--db_host=db", "--db_user=itrackzen", "--db_password=${DB_PASSWORD}"]
+    volumes:
+      - odoo-data:/var/lib/odoo
+    ports:
+      - "127.0.0.1:8069:8069"
+      - "127.0.0.1:8072:8072"
+volumes:
+  pgdata:
+  odoo-data:

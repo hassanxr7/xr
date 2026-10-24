@@ -21,8 +21,16 @@ echo "==> system packages"
 apt-get update -qq
 apt-get install -y -qq postgresql postgresql-contrib libpq-dev python3-venv python3-dev gcc g++ make git curl \
   libxml2-dev libxslt1-dev libldap2-dev libsasl2-dev libjpeg-dev zlib1g-dev libffi-dev libssl-dev \
-  wkhtmltopdf fonts-liberation fonts-dejavu-core xfonts-75dpi xfonts-base node-less npm nginx certbot python3-certbot-nginx \
+  fonts-liberation fonts-dejavu-core xfonts-75dpi xfonts-base node-less npm nginx certbot python3-certbot-nginx \
   gnupg rsync ufw logrotate
+
+echo "==> PDF engine (wkhtmltopdf with the patched Qt build; the Ubuntu package cannot print page headers and footers)"
+if ! wkhtmltopdf --version 2>/dev/null | grep -q "patched qt"; then
+  WK_DEB=/tmp/wkhtmltox.deb
+  curl -fsSL -o "$WK_DEB" "https://github.com/wkhtmltopdf/packaging/releases/download/0.12.6.1-3/wkhtmltox_0.12.6.1-3.jammy_amd64.deb"
+  apt-get install -y -qq "$WK_DEB"
+fi
+wkhtmltopdf --version
 
 echo "==> service user and folders"
 id itrackzen &>/dev/null || useradd --system --home "$ODOO_HOME" --shell /usr/sbin/nologin itrackzen

@@ -44,6 +44,19 @@ Logo files have new names (`/assets/img/brand/itrackzen-*.svg|png`) and every as
 - **editor**: content, SEO, media, brand assets.
 - **support**: enquiries and deletion requests only.
 
+## Staff workspace: single sign-on with the management system (optional)
+
+The admin area at `/admin/` can be the front door of the **ITrackZen Management System** (Odoo, see `../itrackzen-management/`).
+When `ODOO_URL` and `ODOO_SSO_SECRET` are set in `includes/config.local.php` (copy from `config.local.php.sample`):
+
+* staff press **Sign in with ITrackZen Management** and use their own account there; the website trusts only a signed, single-use token that lasts 90 seconds;
+* the admin home shows **role-based figures** and an **Operations** menu with only the pages that person may open in the management system; the **Website** menu shows only the sections their role allows (enquiries, deletion requests, content, media, brand). Other sections answer 403;
+* enquiries from the contact forms and account-deletion requests are delivered to the management system (queued and retried if it is down; run `tools/flush-outbox.php` from cron every 5 minutes);
+* the old local owner password stays as an emergency sign-in (`ADMIN_LOCAL_LOGIN`: `owner` default, `off`, `all`).
+
+Without those two settings nothing changes: the admin area works exactly as before. Setup steps: `../itrackzen-management/docs/INSTALL.md`, section 5.
+New files: `admin/sso.php`, `includes/odoo.php`, `tools/flush-outbox.php`. New database tables are created automatically on first visit.
+
 ## Platform links
 `Client Login` and `Try the Demo` point to the tracking platform URLs set in Site settings > `platform`. The `register_url` is empty until the platform's customer registration page is confirmed; the Register button stays hidden until you set it. Website forms never create tracking accounts and say so.
 

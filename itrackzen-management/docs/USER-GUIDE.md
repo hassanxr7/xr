@@ -1,0 +1,49 @@
+# User guide (short)
+
+**Getting in.** Open `itrackzen.net/admin/`, press *Sign in with ITrackZen Management*, enter your own email and password (and your code if two-step verification is on).
+You land on your home page. **Operations** opens the management system; **Website** (only if your role has it) has enquiries, deletion requests and content.
+In the management system the top menu shows only what your role needs. **Website Admin** in the menu brings you back.
+
+**The search box** on the Dashboard finds a customer, plate, phone number, IMEI, serial or SIM number in one go.
+
+## The daily workflow (who does what)
+
+1. **Storekeeper: receive hardware.** Inventory > Receipts and Transfers > New receipt from the supplier. For every tracker or dashcam type or scan its IMEI; for SIMs the ICCID.
+   Duplicates are refused. Open the SIM later to add phone number, network and APN. Devices appear as *Available*.
+2. **Sales Officer: quote.** Sales > Quotations > New. Customer, then lines: tracker, installation, tracking plan. Pick the **vehicle** on each line (add the vehicle from the customer if it is new).
+   Add discount or taxes. Press *Send by Email* or *Preview* for the PDF.
+3. **Approval.** If the quotation needs approval, press *Request approval*. An Operations Manager presses *Approve* (or *Reject* with a reason). Changing prices after approval clears the approval.
+4. **Confirm.** *Confirm* creates the **installation jobs** (one per vehicle) and prepares the **subscriptions**.
+5. **Operations Manager: schedule.** Installations > the job: choose the technician and date, add the IMEI and SIM per line, press *Schedule*. The technician gets a task.
+6. **Storekeeper: issue equipment.** On the job press *Issue equipment to technician* (or Inventory > Issue / Return to Technician). The devices show *Issued to technician*.
+7. **Technician: install.** Installations > My Jobs on a phone or tablet: *Start job*, add photos, the customer's name or signature under *Customer confirmation*, notes, then *Complete installation*.
+   Stock moves to the customer, the device is linked to the vehicle, warranty and history are written, the subscription starts.
+8. **Accountant / Cashier: invoice and payment.** Sales > the order > *Create Invoice* > confirm. Then *Register Payment* (full or part) with method and reference. Finance > Customer Statement prints or emails a statement.
+9. **Renewals.** Subscriptions > Renewals Due. The system creates the renewal invoice before the date, emails the reminder, and marks the subscription *Expired* after the grace period. A payment re-activates it.
+   Support can *Suspend* and *Resume*.
+10. **Tasks.** Anyone can create tasks (installation, maintenance, support, sales follow-up, payment collection) with owner, deadline, priority, notes and attachments. Overdue invoices create **collection tasks** automatically.
+
+## By role
+
+| Role | Your home | Typical clicks |
+|---|---|---|
+| **Owner / Super Admin** | All figures, Reports, Configuration | Users and roles, settings, activity log (Configuration > Activity Log), website connection, tracking platform mode |
+| **Operations Manager** | Team, approvals, jobs | Approve quotations, schedule jobs, stock adjustments, employees, reports, all tasks |
+| **Sales Officer** | Enquiries, my quotations | New quotation, request approval, follow-up tasks |
+| **Accountant / Cashier** | Invoices, payments, overdue | Create invoice, register payment, statements, overdue list, collections |
+| **Storekeeper** | Stock, low stock | Receive, issue to technicians, return, mark damaged or warranty claim, SIM details |
+| **Installation Technician** | My jobs, my equipment, my tasks | Start and complete jobs, photos, confirmation. You cannot see other jobs, customers or money |
+| **Customer Support** | Customers, vehicles, subscriptions | Find by phone or plate, open the tracking platform page, suspend/resume, tasks |
+| **Read-only** | Everything visible, nothing editable | Reports and lists |
+
+## Reports
+
+Management > Reports: choose the report, the period (or *This month*, *Last month*...), optional customer or technician, then **Print PDF** or **Export Excel**.
+Available: stock availability, stock movements, installed devices, sales, payments received, outstanding invoices, overdue invoices, active subscriptions, upcoming renewals,
+installations by technician, maintenance/removals/replacements by technician, employee tasks and completion. Reports with money are for Financial roles only.
+
+## Good habits
+
+* Scan or type the IMEI **exactly**; never reuse a device record for another physical unit.
+* When a device is removed, use a **removal or replacement job**, not an edit on the vehicle, so the history stays complete.
+* Do not share logins. Everything important is recorded under the signed-in person's name.

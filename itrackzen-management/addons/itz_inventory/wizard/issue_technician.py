@@ -9,7 +9,7 @@ class ItzIssueTechnician(models.TransientModel):
 
     mode = fields.Selection([('issue', 'Issue to technician'), ('return', 'Return from technician')], default='issue', required=True)
     technician_id = fields.Many2one('res.users', string='Technician', required=True,
-                                    domain="[('employee_ids.itz_is_technician', '=', True)]")
+                                    domain="[('itz_is_technician', '=', True)]")
     warehouse_id = fields.Many2one('stock.warehouse', default=lambda self: self.env['stock.warehouse'].search([('company_id', '=', self.env.company.id)], limit=1), required=True)
     line_ids = fields.One2many('itz.issue.technician.line', 'wizard_id', string='Equipment')
     lot_ids = fields.Many2many('stock.lot', string='Devices / SIMs to add', help='Pick several devices at once.')

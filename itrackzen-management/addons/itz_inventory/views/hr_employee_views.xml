@@ -7,12 +7,12 @@
         <field name="arch" type="xml">
             <xpath expr="//div[@name='button_box']" position="inside">
                 <button name="action_view_issued_devices" type="object" class="oe_stat_button" icon="fa-microchip"
-                        invisible="not itz_is_technician" groups="itz_base.group_itz_storekeeper">
+                        invisible="not itz_is_technician" groups="itz_base.group_itz_storekeeper,hr.group_hr_user">
                     <field name="itz_issued_count" widget="statinfo" string="Equipment in hand"/>
                 </button>
             </xpath>
             <xpath expr="//notebook" position="inside">
-                <page string="ITrackZen" name="itz_employee">
+                <page string="ITrackZen" name="itz_employee" groups="hr.group_hr_user">
                     <group>
                         <group string="Role in the business">
                             <field name="itz_is_technician"/>

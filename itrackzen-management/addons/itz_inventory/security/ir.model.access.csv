@@ -14,3 +14,10 @@ access_stock_warehouse_see_all,stock.warehouse see all,stock.model_stock_warehou
 access_stock_picking_type_see_all,stock.picking.type see all,stock.model_stock_picking_type,itz_base.group_itz_see_all,1,0,0,0
 access_purchase_order_readonly,purchase.order readonly,purchase.model_purchase_order,itz_base.group_itz_readonly,1,0,0,0
 access_purchase_order_line_readonly,purchase.order.line readonly,purchase.model_purchase_order_line,itz_base.group_itz_readonly,1,0,0,0
+access_product_template_storekeeper,product.template storekeeper,product.model_product_template,itz_base.group_itz_storekeeper,1,1,1,0
+access_product_product_storekeeper,product.product storekeeper,product.model_product_product,itz_base.group_itz_storekeeper,1,1,1,0
+access_product_category_storekeeper,product.category storekeeper,product.model_product_category,itz_base.group_itz_storekeeper,1,1,1,0
+access_product_supplierinfo_storekeeper,product.supplierinfo storekeeper,product.model_product_supplierinfo,itz_base.group_itz_storekeeper,1,1,1,1
+access_stock_picking_see_all,stock.picking see all,stock.model_stock_picking,itz_base.group_itz_see_all,1,0,0,0
+access_stock_move_see_all,stock.move see all,stock.model_stock_move,itz_base.group_itz_see_all,1,0,0,0
+access_stock_move_line_see_all,stock.move.line see all,stock.model_stock_move_line,itz_base.group_itz_see_all,1,0,0,0

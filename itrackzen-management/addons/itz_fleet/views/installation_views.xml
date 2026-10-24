@@ -48,11 +48,11 @@
                     <div class="oe_title"><h1><field name="name"/></h1></div>
                     <group>
                         <group string="Job">
-                            <field name="job_type" readonly="state not in ('draft', 'scheduled')"/>
-                            <field name="partner_id" readonly="state not in ('draft', 'scheduled')" options="{'no_create': True}"/>
-                            <field name="vehicle_id" readonly="state not in ('draft', 'scheduled')" options="{'no_quick_create': True}" context="{'default_partner_id': partner_id}"/>
-                            <field name="technician_id" readonly="state not in ('draft', 'scheduled')" options="{'no_create': True}"/>
-                            <field name="date_planned" readonly="state not in ('draft', 'scheduled')"/>
+                            <field name="job_type" readonly="state not in ('draft', 'scheduled') or is_tech_only"/>
+                            <field name="partner_id" readonly="state not in ('draft', 'scheduled') or is_tech_only" options="{'no_create': True}"/>
+                            <field name="vehicle_id" readonly="state not in ('draft', 'scheduled') or is_tech_only" options="{'no_quick_create': True}" context="{'default_partner_id': partner_id}"/>
+                            <field name="technician_id" readonly="state not in ('draft', 'scheduled') or is_tech_only" options="{'no_create': True}"/>
+                            <field name="date_planned" readonly="state not in ('draft', 'scheduled') or is_tech_only"/>
                             <field name="equipment_ready" widget="boolean" invisible="state not in ('scheduled', 'in_progress')"/>
                         </group>
                         <group string="Place">
@@ -64,6 +64,7 @@
                             <field name="date_start" invisible="not date_start"/>
                             <field name="date_done" invisible="not date_done"/>
                             <field name="is_late" invisible="1"/>
+                            <field name="is_tech_only" invisible="1"/>
                             <field name="company_id" groups="base.group_multi_company"/>
                         </group>
                     </group>
