@@ -1,0 +1,22 @@
+{
+    'name': 'ITrackZen Customers, Vehicles and Installations',
+    'version': '18.0.1.0.0',
+    'summary': 'Customer profiles, vehicles, installation jobs, device and SIM history, warranty',
+    'author': 'LibDex Ltd (ITrackZen)',
+    'website': 'https://itrackzen.net',
+    'category': 'ITrackZen',
+    'license': 'LGPL-3',
+    'depends': ['itz_inventory', 'contacts', 'web'],
+    'data': [
+        'security/itz_fleet_security.xml',
+        'security/ir.model.access.csv',
+        'data/itz_fleet_data.xml',
+        'views/vehicle_views.xml',
+        'views/installation_views.xml',
+        'views/partner_views.xml',
+        'views/stock_lot_views.xml',
+        'views/menus.xml',
+    ],
+    'installable': True,
+    'application': False,
+}

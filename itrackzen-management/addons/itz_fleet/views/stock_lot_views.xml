@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="stock_lot_form_itz_fleet" model="ir.ui.view">
+        <field name="name">stock.lot.form.itz.fleet</field>
+        <field name="model">stock.lot</field>
+        <field name="inherit_id" ref="itz_inventory.stock_lot_form_itz"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='itz_location_id']" position="after">
+                <field name="itz_vehicle_id" invisible="not itz_vehicle_id"/>
+                <field name="itz_customer_id" invisible="not itz_vehicle_id" groups="itz_base.group_itz_see_all"/>
+            </xpath>
+        </field>
+    </record>
+    <record id="stock_lot_list_itz_fleet" model="ir.ui.view">
+        <field name="name">stock.lot.list.itz.fleet</field>
+        <field name="model">stock.lot</field>
+        <field name="inherit_id" ref="itz_inventory.stock_lot_list_itz"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='itz_technician_user_id']" position="after">
+                <field name="itz_vehicle_plate" optional="show" string="Vehicle"/>
+                <field name="itz_customer_id" optional="hide" groups="itz_base.group_itz_see_all"/>
+            </xpath>
+        </field>
+    </record>
+    <record id="stock_lot_search_itz_fleet" model="ir.ui.view">
+        <field name="name">stock.lot.search.itz.fleet</field>
+        <field name="model">stock.lot</field>
+        <field name="inherit_id" ref="itz_inventory.stock_lot_search_itz"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='itz_supplier_id']" position="after">
+                <field name="itz_vehicle_plate" string="Vehicle plate"/>
+                <field name="itz_customer_id" string="Customer"/>
+            </xpath>
+        </field>
+    </record>
+</odoo>

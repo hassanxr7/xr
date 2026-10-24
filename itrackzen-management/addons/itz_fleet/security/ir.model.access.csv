@@ -1,0 +1,22 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_itz_vehicle_see_all,itz.vehicle see all,model_itz_vehicle,itz_base.group_itz_see_all,1,0,0,0
+access_itz_vehicle_technician,itz.vehicle technician,model_itz_vehicle,itz_base.group_itz_technician,1,0,0,0
+access_itz_vehicle_sales,itz.vehicle sales,model_itz_vehicle,itz_base.group_itz_sales,1,1,1,0
+access_itz_vehicle_support,itz.vehicle support,model_itz_vehicle,itz_base.group_itz_support,1,1,1,0
+access_itz_vehicle_ops,itz.vehicle ops,model_itz_vehicle,itz_base.group_itz_ops_manager,1,1,1,0
+access_itz_vehicle_delete,itz.vehicle delete,model_itz_vehicle,itz_base.group_itz_delete,1,1,1,1
+access_itz_installation_see_all,itz.installation see all,model_itz_installation,itz_base.group_itz_see_all,1,0,0,0
+access_itz_installation_technician,itz.installation technician,model_itz_installation,itz_base.group_itz_technician,1,1,0,0
+access_itz_installation_sales,itz.installation sales,model_itz_installation,itz_base.group_itz_sales,1,1,1,0
+access_itz_installation_support,itz.installation support,model_itz_installation,itz_base.group_itz_support,1,1,1,0
+access_itz_installation_ops,itz.installation ops,model_itz_installation,itz_base.group_itz_ops_manager,1,1,1,0
+access_itz_installation_delete,itz.installation delete,model_itz_installation,itz_base.group_itz_delete,1,1,1,1
+access_itz_installation_line_see_all,itz.installation.line see all,model_itz_installation_line,itz_base.group_itz_see_all,1,0,0,0
+access_itz_installation_line_technician,itz.installation.line technician,model_itz_installation_line,itz_base.group_itz_technician,1,1,1,1
+access_itz_installation_line_sales,itz.installation.line sales,model_itz_installation_line,itz_base.group_itz_sales,1,1,1,1
+access_itz_installation_line_support,itz.installation.line support,model_itz_installation_line,itz_base.group_itz_support,1,1,1,1
+access_itz_installation_line_ops,itz.installation.line ops,model_itz_installation_line,itz_base.group_itz_ops_manager,1,1,1,1
+access_itz_installation_photo_see_all,itz.installation.photo see all,model_itz_installation_photo,itz_base.group_itz_see_all,1,0,0,0
+access_itz_installation_photo_technician,itz.installation.photo technician,model_itz_installation_photo,itz_base.group_itz_technician,1,1,1,1
+access_itz_installation_photo_support,itz.installation.photo support,model_itz_installation_photo,itz_base.group_itz_support,1,1,1,1
+access_itz_installation_photo_ops,itz.installation.photo ops,model_itz_installation_photo,itz_base.group_itz_ops_manager,1,1,1,1

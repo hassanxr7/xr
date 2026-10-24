@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <menuitem id="menu_itz_customers_root" name="Customers" parent="itz_base.menu_itz_root" sequence="10"
+              groups="itz_base.group_itz_sales,itz_base.group_itz_support,itz_base.group_itz_ops_manager,itz_base.group_itz_accountant,itz_base.group_itz_readonly,itz_base.group_itz_storekeeper"/>
+    <menuitem id="menu_itz_customers" name="Customers" parent="menu_itz_customers_root" sequence="10" action="contacts.action_contacts"/>
+    <menuitem id="menu_itz_vehicles" name="Vehicles" parent="menu_itz_customers_root" sequence="20" action="action_itz_vehicles"/>
+
+    <menuitem id="menu_itz_installations_root" name="Installations" parent="itz_base.menu_itz_root" sequence="20"/>
+    <menuitem id="menu_itz_installations" name="All Installations" parent="menu_itz_installations_root" sequence="10" action="action_itz_installations"
+              groups="itz_base.group_itz_see_all"/>
+    <menuitem id="menu_itz_my_jobs" name="My Jobs" parent="menu_itz_installations_root" sequence="5" action="action_itz_my_jobs"
+              groups="itz_base.group_itz_technician"/>
+    <menuitem id="menu_itz_install_photos" name="Photos" parent="menu_itz_installations_root" sequence="30" action="action_itz_installation_photos"
+              groups="itz_base.group_itz_see_all"/>
+</odoo>

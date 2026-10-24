@@ -1,0 +1,16 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_itz_device_event_see_all,itz.device.event see all,model_itz_device_event,itz_base.group_itz_see_all,1,0,0,0
+access_itz_device_event_technician,itz.device.event technician,model_itz_device_event,itz_base.group_itz_technician,1,0,0,0
+access_itz_device_event_storekeeper,itz.device.event storekeeper,model_itz_device_event,itz_base.group_itz_storekeeper,1,0,1,0
+access_itz_issue_technician_storekeeper,itz.issue.technician storekeeper,model_itz_issue_technician,itz_base.group_itz_storekeeper,1,1,1,1
+access_itz_issue_technician_line_storekeeper,itz.issue.technician.line storekeeper,model_itz_issue_technician_line,itz_base.group_itz_storekeeper,1,1,1,1
+access_stock_lot_technician,stock.lot technician read,stock.model_stock_lot,itz_base.group_itz_technician,1,0,0,0
+access_stock_lot_see_all,stock.lot see all read,stock.model_stock_lot,itz_base.group_itz_see_all,1,0,0,0
+access_stock_location_technician,stock.location technician read,stock.model_stock_location,itz_base.group_itz_technician,1,0,0,0
+access_stock_picking_readonly,stock.picking readonly,stock.model_stock_picking,itz_base.group_itz_readonly,1,0,0,0
+access_stock_move_readonly,stock.move readonly,stock.model_stock_move,itz_base.group_itz_readonly,1,0,0,0
+access_stock_move_line_readonly,stock.move.line readonly,stock.model_stock_move_line,itz_base.group_itz_readonly,1,0,0,0
+access_stock_warehouse_see_all,stock.warehouse see all,stock.model_stock_warehouse,itz_base.group_itz_see_all,1,0,0,0
+access_stock_picking_type_see_all,stock.picking.type see all,stock.model_stock_picking_type,itz_base.group_itz_see_all,1,0,0,0
+access_purchase_order_readonly,purchase.order readonly,purchase.model_purchase_order,itz_base.group_itz_readonly,1,0,0,0
+access_purchase_order_line_readonly,purchase.order.line readonly,purchase.model_purchase_order_line,itz_base.group_itz_readonly,1,0,0,0

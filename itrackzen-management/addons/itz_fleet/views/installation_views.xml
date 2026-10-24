@@ -1,0 +1,233 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="itz_installation_list" model="ir.ui.view">
+        <field name="name">itz.installation.list</field>
+        <field name="model">itz.installation</field>
+        <field name="arch" type="xml">
+            <list decoration-danger="is_late" decoration-muted="state in ('done', 'cancelled')">
+                <field name="name"/>
+                <field name="date_planned"/>
+                <field name="plate"/>
+                <field name="partner_id"/>
+                <field name="job_type" optional="show"/>
+                <field name="technician_id"/>
+                <field name="date_done" optional="hide"/>
+                <field name="state" widget="badge" decoration-success="state == 'done'" decoration-info="state in ('scheduled', 'in_progress')" decoration-muted="state in ('draft', 'cancelled')"/>
+                <field name="is_late" column_invisible="1"/>
+            </list>
+        </field>
+    </record>
+    <record id="itz_installation_form" model="ir.ui.view">
+        <field name="name">itz.installation.form</field>
+        <field name="model">itz.installation</field>
+        <field name="arch" type="xml">
+            <form>
+                <header>
+                    <button name="action_schedule" type="object" string="Schedule" class="btn-primary" invisible="state != 'draft'"
+                            groups="itz_base.group_itz_sales,itz_base.group_itz_support,itz_base.group_itz_ops_manager"/>
+                    <button name="action_issue_equipment" type="object" string="Issue equipment to technician"
+                            invisible="state not in ('scheduled', 'in_progress') or equipment_ready" groups="itz_base.group_itz_storekeeper"/>
+                    <button name="action_start" type="object" string="Start job" class="btn-primary" invisible="state != 'scheduled'"/>
+                    <button name="action_done" type="object" string="Complete installation" class="btn-primary"
+                            invisible="state not in ('scheduled', 'in_progress')" confirm="Complete this job? Stock will be updated and the devices linked to the vehicle."/>
+                    <button name="action_cancel" type="object" string="Cancel" invisible="state in ('done', 'cancelled')"
+                            groups="itz_base.group_itz_ops_manager,itz_base.group_itz_sales,itz_base.group_itz_support"/>
+                    <button name="action_draft" type="object" string="Back to draft" invisible="state != 'cancelled'"
+                            groups="itz_base.group_itz_ops_manager"/>
+                    <field name="state" widget="statusbar" statusbar_visible="draft,scheduled,in_progress,done"/>
+                </header>
+                <sheet>
+                    <div class="oe_button_box" name="button_box">
+                        <button name="action_view_photos" type="object" class="oe_stat_button" icon="fa-camera">
+                            <field name="photo_count" widget="statinfo" string="Photos"/>
+                        </button>
+                        <button name="action_view_pickings" type="object" class="oe_stat_button" icon="fa-truck" invisible="not picking_ids">
+                            <span class="o_stat_text">Stock transfers</span>
+                        </button>
+                    </div>
+                    <div class="oe_title"><h1><field name="name"/></h1></div>
+                    <group>
+                        <group string="Job">
+                            <field name="job_type" readonly="state not in ('draft', 'scheduled')"/>
+                            <field name="partner_id" readonly="state not in ('draft', 'scheduled')" options="{'no_create': True}"/>
+                            <field name="vehicle_id" readonly="state not in ('draft', 'scheduled')" options="{'no_quick_create': True}" context="{'default_partner_id': partner_id}"/>
+                            <field name="technician_id" readonly="state not in ('draft', 'scheduled')" options="{'no_create': True}"/>
+                            <field name="date_planned" readonly="state not in ('draft', 'scheduled')"/>
+                            <field name="equipment_ready" widget="boolean" invisible="state not in ('scheduled', 'in_progress')"/>
+                        </group>
+                        <group string="Place">
+                            <field name="location_address"/>
+                            <field name="location_note"/>
+                            <field name="odometer"/>
+                            <field name="latitude" optional="hide"/>
+                            <field name="longitude" optional="hide"/>
+                            <field name="date_start" invisible="not date_start"/>
+                            <field name="date_done" invisible="not date_done"/>
+                            <field name="is_late" invisible="1"/>
+                            <field name="company_id" groups="base.group_multi_company"/>
+                        </group>
+                    </group>
+                    <notebook>
+                        <page string="Equipment" name="equipment">
+                            <field name="line_ids" readonly="state in ('done', 'cancelled')">
+                                <list editable="bottom">
+                                    <field name="sequence" widget="handle"/>
+                                    <field name="action"/>
+                                    <field name="lot_id" options="{'no_create': True}" placeholder="Scan IMEI / serial"/>
+                                    <field name="product_id" options="{'no_create': True}"/>
+                                    <field name="tracking" column_invisible="1"/>
+                                    <field name="sim_lot_id" options="{'no_create': True}" placeholder="SIM" column_invisible="False"/>
+                                    <field name="remove_sim" optional="hide"/>
+                                    <field name="quantity"/>
+                                    <field name="state_ok" widget="boolean" string="With technician"/>
+                                </list>
+                            </field>
+                        </page>
+                        <page string="Photos" name="photos">
+                            <field name="photo_ids" mode="kanban" readonly="state in ('cancelled',)">
+                                <kanban>
+                                    <field name="name"/><field name="image"/><field name="stage"/>
+                                    <templates>
+                                        <t t-name="card">
+                                            <field name="image" widget="image" class="mb-2" options="{'preview_image': 'image'}"/>
+                                            <div class="fw-bold"><field name="name"/></div>
+                                            <div class="text-muted"><field name="stage"/></div>
+                                        </t>
+                                    </templates>
+                                </kanban>
+                                <form>
+                                    <group><field name="name"/><field name="stage"/><field name="image" widget="image"/></group>
+                                </form>
+                            </field>
+                        </page>
+                        <page string="Customer confirmation" name="confirmation">
+                            <group>
+                                <group>
+                                    <field name="customer_confirmed_by"/>
+                                    <field name="customer_phone_confirm"/>
+                                    <field name="confirmation_date"/>
+                                </group>
+                                <group>
+                                    <field name="customer_signature" widget="signature" options="{'full_name': 'customer_confirmed_by'}"/>
+                                </group>
+                            </group>
+                        </page>
+                        <page string="Warranty" name="warranty">
+                            <group>
+                                <field name="warranty_months"/>
+                                <field name="warranty_end"/>
+                            </group>
+                        </page>
+                        <page string="Notes" name="notes"><field name="notes" placeholder="What was done, wiring points, anything the next technician should know"/></page>
+                    </notebook>
+                </sheet>
+                <chatter/>
+            </form>
+        </field>
+    </record>
+    <record id="itz_installation_search" model="ir.ui.view">
+        <field name="name">itz.installation.search</field>
+        <field name="model">itz.installation</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="name" string="Search anything: reference, plate, customer, phone, IMEI, serial"
+                       filter_domain="['|', '|', '|', '|', '|', '|', ('name', 'ilike', self), ('plate', 'ilike', self), ('partner_id.name', 'ilike', self), ('partner_id.phone', 'ilike', self), ('partner_id.mobile', 'ilike', self), ('line_ids.lot_id.name', 'ilike', self), ('line_ids.lot_id.itz_imei', 'ilike', self)]"/>
+                <field name="partner_id"/>
+                <field name="technician_id"/>
+                <filter name="f_mine" string="My jobs" domain="[('technician_id', '=', uid)]"/>
+                <filter name="f_today" string="Today" domain="[('date_planned', '&gt;=', context_today().strftime('%Y-%m-%d 00:00:00')), ('date_planned', '&lt;=', context_today().strftime('%Y-%m-%d 23:59:59'))]"/>
+                <filter name="f_late" string="Overdue" domain="[('is_late', '=', True)]"/>
+                <separator/>
+                <filter name="f_draft" string="Draft" domain="[('state', '=', 'draft')]"/>
+                <filter name="f_sched" string="Scheduled" domain="[('state', '=', 'scheduled')]"/>
+                <filter name="f_prog" string="In progress" domain="[('state', '=', 'in_progress')]"/>
+                <filter name="f_done" string="Completed" domain="[('state', '=', 'done')]"/>
+                <group expand="0" string="Group By">
+                    <filter name="g_state" string="Status" context="{'group_by': 'state'}"/>
+                    <filter name="g_tech" string="Technician" context="{'group_by': 'technician_id'}"/>
+                    <filter name="g_type" string="Job type" context="{'group_by': 'job_type'}"/>
+                    <filter name="g_cust" string="Customer" context="{'group_by': 'partner_id'}"/>
+                    <filter name="g_month" string="Month" context="{'group_by': 'date_planned:month'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+    <record id="itz_installation_kanban" model="ir.ui.view">
+        <field name="name">itz.installation.kanban</field>
+        <field name="model">itz.installation</field>
+        <field name="arch" type="xml">
+            <kanban default_group_by="state" group_create="0" records_draggable="0">
+                <field name="state"/><field name="is_late"/>
+                <templates>
+                    <t t-name="card">
+                        <div class="d-flex justify-content-between"><strong><field name="plate"/></strong><field name="name" class="text-muted"/></div>
+                        <div><field name="partner_id"/></div>
+                        <div class="text-muted"><field name="date_planned"/></div>
+                        <div class="mt-1"><field name="technician_id" widget="many2one_avatar_user"/></div>
+                    </t>
+                </templates>
+            </kanban>
+        </field>
+    </record>
+    <record id="itz_installation_calendar" model="ir.ui.view">
+        <field name="name">itz.installation.calendar</field>
+        <field name="model">itz.installation</field>
+        <field name="arch" type="xml">
+            <calendar string="Installations" date_start="date_planned" mode="week" color="technician_id" quick_create="0">
+                <field name="plate"/><field name="partner_id"/><field name="technician_id" filters="1"/>
+            </calendar>
+        </field>
+    </record>
+    <record id="itz_installation_pivot" model="ir.ui.view">
+        <field name="name">itz.installation.pivot</field>
+        <field name="model">itz.installation</field>
+        <field name="arch" type="xml">
+            <pivot><field name="technician_id" type="row"/><field name="state" type="col"/></pivot>
+        </field>
+    </record>
+    <record id="itz_installation_graph" model="ir.ui.view">
+        <field name="name">itz.installation.graph</field>
+        <field name="model">itz.installation</field>
+        <field name="arch" type="xml">
+            <graph type="bar"><field name="technician_id"/><field name="state"/></graph>
+        </field>
+    </record>
+
+    <record id="action_itz_installations" model="ir.actions.act_window">
+        <field name="name">Installations</field>
+        <field name="res_model">itz.installation</field>
+        <field name="view_mode">kanban,list,calendar,form,pivot,graph</field>
+    </record>
+    <record id="action_itz_my_jobs" model="ir.actions.act_window">
+        <field name="name">My Jobs</field>
+        <field name="res_model">itz.installation</field>
+        <field name="view_mode">list,kanban,calendar,form</field>
+        <field name="domain">[('technician_id', '=', uid), ('state', 'in', ('scheduled', 'in_progress'))]</field>
+    </record>
+    <record id="action_itz_installation_photos" model="ir.actions.act_window">
+        <field name="name">Installation photos</field>
+        <field name="res_model">itz.installation.photo</field>
+        <field name="view_mode">kanban,list,form</field>
+    </record>
+    <record id="itz_installation_photo_form" model="ir.ui.view">
+        <field name="name">itz.installation.photo.form</field>
+        <field name="model">itz.installation.photo</field>
+        <field name="arch" type="xml">
+            <form><sheet><group><field name="installation_id"/><field name="name"/><field name="stage"/><field name="image" widget="image"/></group></sheet></form>
+        </field>
+    </record>
+    <record id="itz_installation_photo_list" model="ir.ui.view">
+        <field name="name">itz.installation.photo.list</field>
+        <field name="model">itz.installation.photo</field>
+        <field name="arch" type="xml"><list><field name="installation_id"/><field name="name"/><field name="stage"/></list></field>
+    </record>
+    <record id="itz_installation_photo_kanban" model="ir.ui.view">
+        <field name="name">itz.installation.photo.kanban</field>
+        <field name="model">itz.installation.photo</field>
+        <field name="arch" type="xml">
+            <kanban><field name="name"/><field name="image"/><templates><t t-name="card">
+                <field name="image" widget="image" options="{'preview_image': 'image'}"/><div class="fw-bold"><field name="name"/></div><div class="text-muted"><field name="installation_id"/></div>
+            </t></templates></kanban>
+        </field>
+    </record>
+</odoo>

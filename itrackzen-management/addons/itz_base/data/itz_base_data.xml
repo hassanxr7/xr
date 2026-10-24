@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo noupdate="1">
+    <!-- Every internal user gets lots/serial numbers and multi-location features enabled by dependent modules -->
+    <record id="seq_itz_audit" model="ir.sequence">
+        <field name="name">ITZ Audit</field>
+        <field name="code">itz.audit.log</field>
+        <field name="prefix">LOG</field>
+        <field name="padding">7</field>
+    </record>
+</odoo>

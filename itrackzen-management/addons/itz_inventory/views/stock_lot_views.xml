@@ -1,0 +1,142 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="stock_lot_list_itz" model="ir.ui.view">
+        <field name="name">stock.lot.list.itz</field>
+        <field name="model">stock.lot</field>
+        <field name="arch" type="xml">
+            <list decoration-success="itz_state == 'available'" decoration-info="itz_state in ('issued', 'reserved')"
+                  decoration-danger="itz_state in ('damaged', 'warranty')" decoration-muted="itz_state == 'installed'" multi_edit="0">
+                <field name="name" string="IMEI / Serial"/>
+                <field name="itz_imei" optional="show"/>
+                <field name="product_id"/>
+                <field name="itz_category" optional="hide"/>
+                <field name="itz_state" widget="badge" decoration-success="itz_state == 'available'" decoration-info="itz_state in ('issued', 'reserved')" decoration-danger="itz_state in ('damaged', 'warranty')"/>
+                <field name="itz_technician_user_id" optional="show"/>
+                <field name="itz_location_id" optional="show"/>
+                <field name="itz_sim_lot_id" optional="show" string="SIM"/>
+                <field name="itz_msisdn" optional="hide"/>
+                <field name="itz_supplier_id" optional="hide"/>
+                <field name="itz_warranty_end" optional="show"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="stock_lot_form_itz" model="ir.ui.view">
+        <field name="name">stock.lot.form.itz</field>
+        <field name="model">stock.lot</field>
+        <field name="inherit_id" ref="stock.view_production_lot_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//div[hasclass('oe_button_box')]" position="inside">
+                <button name="action_view_events" type="object" class="oe_stat_button" icon="fa-history">
+                    <field name="itz_event_count" widget="statinfo" string="History"/>
+                </button>
+            </xpath>
+            <xpath expr="//sheet" position="before">
+                <header>
+                    <field name="itz_state" widget="statusbar" statusbar_visible="available,issued,installed,returned,damaged,warranty"/>
+                    <button name="action_issue_to_technician" type="object" string="Issue to technician" class="btn-primary"
+                            invisible="itz_state not in ('available', 'reserved') or not itz_category" groups="itz_base.group_itz_storekeeper"/>
+                    <button name="action_mark_available" type="object" string="Put back in stock"
+                            invisible="itz_state not in ('returned', 'damaged', 'warranty')" groups="itz_base.group_itz_storekeeper"/>
+                    <button name="action_mark_warranty" type="object" string="Warranty claim"
+                            invisible="itz_state not in ('returned', 'damaged', 'installed')" groups="itz_base.group_itz_storekeeper"/>
+                    <button name="action_mark_damaged" type="object" string="Mark damaged"
+                            invisible="itz_state in ('damaged', 'installed')" groups="itz_base.group_itz_storekeeper"/>
+                </header>
+            </xpath>
+            <xpath expr="//field[@name='ref']" position="after">
+                <field name="itz_category" invisible="1"/>
+                <field name="itz_imei" invisible="itz_category not in ('tracker', 'dashcam')" required="itz_category in ('tracker', 'dashcam')"/>
+                <field name="itz_imei_valid" invisible="itz_category not in ('tracker', 'dashcam') or not itz_imei"/>
+                <field name="itz_technician_user_id" invisible="not itz_technician_user_id"/>
+                <field name="itz_supplier_id"/>
+                <field name="itz_location_id"/>
+            </xpath>
+            <xpath expr="//notebook" position="inside">
+                <page string="Device / SIM" name="itz_device" invisible="not itz_category">
+                    <group>
+                        <group string="SIM card" invisible="itz_category != 'sim'">
+                            <field name="itz_msisdn"/>
+                            <field name="itz_carrier"/>
+                            <field name="itz_apn"/>
+                            <field name="itz_sim_pin" groups="itz_base.group_itz_storekeeper,itz_base.group_itz_ops_manager" password="True"/>
+                            <field name="itz_device_lot_id"/>
+                        </group>
+                        <group string="SIM in this device" invisible="itz_category not in ('tracker', 'dashcam')">
+                            <field name="itz_sim_lot_id"/>
+                        </group>
+                        <group string="Warranty" invisible="itz_category == 'sim'">
+                            <field name="itz_warranty_months"/>
+                            <field name="itz_warranty_start"/>
+                            <field name="itz_warranty_end"/>
+                            <field name="itz_warranty_active"/>
+                        </group>
+                    </group>
+                </page>
+                <page string="History" name="itz_history" invisible="not itz_category">
+                    <field name="itz_event_ids" readonly="1">
+                        <list>
+                            <field name="date"/><field name="event_type"/><field name="old_state"/><field name="new_state"/>
+                            <field name="technician_id"/><field name="user_id"/><field name="note"/>
+                        </list>
+                    </field>
+                </page>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="stock_lot_search_itz" model="ir.ui.view">
+        <field name="name">stock.lot.search.itz</field>
+        <field name="model">stock.lot</field>
+        <field name="inherit_id" ref="stock.search_product_lot_filter"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='name']" position="replace">
+                <field name="name" string="IMEI / Serial / Number" filter_domain="['|', '|', '|', ('name', 'ilike', self), ('itz_imei', 'ilike', self), ('itz_msisdn', 'ilike', self), ('ref', 'ilike', self)]"/>
+                <field name="itz_technician_user_id"/>
+                <field name="itz_supplier_id"/>
+                <filter name="itz_f_avail" string="Available" domain="[('itz_state', '=', 'available')]"/>
+                <filter name="itz_f_reserved" string="Reserved" domain="[('itz_state', '=', 'reserved')]"/>
+                <filter name="itz_f_issued" string="Issued to technician" domain="[('itz_state', '=', 'issued')]"/>
+                <filter name="itz_f_installed" string="Installed" domain="[('itz_state', '=', 'installed')]"/>
+                <filter name="itz_f_returned" string="Returned" domain="[('itz_state', '=', 'returned')]"/>
+                <filter name="itz_f_damaged" string="Damaged" domain="[('itz_state', '=', 'damaged')]"/>
+                <filter name="itz_f_warranty_claim" string="Warranty claim" domain="[('itz_state', '=', 'warranty')]"/>
+                <separator/>
+                <filter name="itz_f_in_warranty" string="Within warranty period" domain="[('itz_warranty_active', '=', True)]"/>
+                <separator/>
+                <filter name="itz_f_dev" string="Trackers and dashcams" domain="[('itz_category', 'in', ('tracker', 'dashcam'))]"/>
+                <filter name="itz_f_sim" string="SIM cards" domain="[('itz_category', '=', 'sim')]"/>
+                <filter name="itz_f_other" string="Sensors, relays, RFID" domain="[('itz_category', 'in', ('fuel_sensor', 'relay', 'rfid'))]"/>
+            </xpath>
+            <xpath expr="//group" position="inside">
+                <filter name="itz_g_state" string="Status" context="{'group_by': 'itz_state'}"/>
+                <filter name="itz_g_cat" string="Category" context="{'group_by': 'itz_category'}"/>
+                <filter name="itz_g_tech" string="Technician" context="{'group_by': 'itz_technician_user_id'}"/>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="action_itz_devices" model="ir.actions.act_window">
+        <field name="name">Devices (IMEI / Serial)</field>
+        <field name="res_model">stock.lot</field>
+        <field name="view_mode">list,form,pivot</field>
+        <field name="domain">[('itz_category', 'in', ('tracker', 'dashcam', 'fuel_sensor', 'relay', 'rfid'))]</field>
+        <field name="context">{'search_default_itz_g_state': 1}</field>
+        <field name="view_ids" eval="[(5, 0, 0), (0, 0, {'view_mode': 'list', 'view_id': ref('stock_lot_list_itz')}), (0, 0, {'view_mode': 'form'}), (0, 0, {'view_mode': 'pivot'})]"/>
+    </record>
+    <record id="action_itz_sims" model="ir.actions.act_window">
+        <field name="name">SIM Cards</field>
+        <field name="res_model">stock.lot</field>
+        <field name="view_mode">list,form</field>
+        <field name="domain">[('itz_category', '=', 'sim')]</field>
+        <field name="context">{'search_default_itz_g_state': 1}</field>
+        <field name="view_ids" eval="[(5, 0, 0), (0, 0, {'view_mode': 'list', 'view_id': ref('stock_lot_list_itz')}), (0, 0, {'view_mode': 'form'})]"/>
+    </record>
+    <record id="action_itz_my_equipment" model="ir.actions.act_window">
+        <field name="name">My Equipment</field>
+        <field name="res_model">stock.lot</field>
+        <field name="view_mode">list,form</field>
+        <field name="domain">[('itz_technician_user_id', '=', uid)]</field>
+        <field name="view_ids" eval="[(5, 0, 0), (0, 0, {'view_mode': 'list', 'view_id': ref('stock_lot_list_itz')}), (0, 0, {'view_mode': 'form'})]"/>
+    </record>
+</odoo>

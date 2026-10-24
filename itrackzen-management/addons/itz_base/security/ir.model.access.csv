@@ -1,0 +1,3 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_itz_audit_log_owner,itz.audit.log owner,model_itz_audit_log,group_itz_owner,1,0,0,0
+access_itz_audit_log_ops,itz.audit.log ops,model_itz_audit_log,group_itz_ops_manager,1,0,0,0

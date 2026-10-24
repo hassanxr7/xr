@@ -1,0 +1,146 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="itz_vehicle_list" model="ir.ui.view">
+        <field name="name">itz.vehicle.list</field>
+        <field name="model">itz.vehicle</field>
+        <field name="arch" type="xml">
+            <list>
+                <field name="plate"/>
+                <field name="partner_id"/>
+                <field name="make" optional="show"/>
+                <field name="model" optional="show"/>
+                <field name="vehicle_type" optional="hide"/>
+                <field name="device_imei" optional="show"/>
+                <field name="sim_number" optional="show"/>
+                <field name="warranty_end" optional="hide"/>
+                <field name="state" widget="badge" decoration-success="state == 'equipped'" decoration-warning="state == 'unequipped'"/>
+            </list>
+        </field>
+    </record>
+    <record id="itz_vehicle_form" model="ir.ui.view">
+        <field name="name">itz.vehicle.form</field>
+        <field name="model">itz.vehicle</field>
+        <field name="arch" type="xml">
+            <form>
+                <header>
+                    <button name="action_new_installation" type="object" string="New installation / service" class="btn-primary"
+                            groups="itz_base.group_itz_sales,itz_base.group_itz_support,itz_base.group_itz_ops_manager"/>
+                    <field name="state" widget="statusbar"/>
+                </header>
+                <sheet>
+                    <div class="oe_button_box" name="button_box">
+                        <button name="action_view_installations" type="object" class="oe_stat_button" icon="fa-wrench">
+                            <field name="installation_count" widget="statinfo" string="Installations"/>
+                        </button>
+                        <button name="action_view_devices" type="object" class="oe_stat_button" icon="fa-microchip">
+                            <span class="o_stat_text">Devices and SIMs</span>
+                        </button>
+                    </div>
+                    <widget name="web_ribbon" title="Archived" bg_color="text-bg-danger" invisible="active"/>
+                    <field name="active" invisible="1"/>
+                    <div class="oe_title">
+                        <label for="plate"/>
+                        <h1><field name="plate" placeholder="e.g. KDA 123A"/></h1>
+                    </div>
+                    <group>
+                        <group string="Owner">
+                            <field name="partner_id" options="{'no_quick_create': True}"/>
+                            <field name="driver_id"/>
+                            <field name="company_id" groups="base.group_multi_company"/>
+                        </group>
+                        <group string="Vehicle">
+                            <field name="vehicle_type"/>
+                            <field name="make"/>
+                            <field name="model"/>
+                            <field name="year"/>
+                            <field name="color"/>
+                            <field name="vin"/>
+                        </group>
+                    </group>
+                    <group string="Tracking equipment">
+                        <group>
+                            <field name="device_id"/>
+                            <field name="device_imei"/>
+                            <field name="sim_lot_id"/>
+                            <field name="sim_number"/>
+                        </group>
+                        <group>
+                            <field name="warranty_end"/>
+                            <field name="last_installation_id"/>
+                        </group>
+                    </group>
+                    <notebook>
+                        <page string="Installed devices" name="devices">
+                            <field name="device_ids" readonly="1">
+                                <list>
+                                    <field name="name"/><field name="product_id"/><field name="itz_imei"/>
+                                    <field name="itz_state" widget="badge"/><field name="itz_warranty_end"/>
+                                </list>
+                            </field>
+                        </page>
+                        <page string="Service history" name="history">
+                            <field name="installation_ids" readonly="1">
+                                <list>
+                                    <field name="name"/><field name="job_type"/><field name="date_done"/><field name="technician_id"/><field name="state" widget="badge"/>
+                                </list>
+                            </field>
+                        </page>
+                        <page string="Device history" name="events">
+                            <field name="event_ids" readonly="1">
+                                <list><field name="date"/><field name="lot_id"/><field name="event_type"/><field name="technician_id"/><field name="note"/></list>
+                            </field>
+                        </page>
+                        <page string="Notes" name="notes"><field name="notes"/></page>
+                    </notebook>
+                </sheet>
+                <chatter/>
+            </form>
+        </field>
+    </record>
+    <record id="itz_vehicle_search" model="ir.ui.view">
+        <field name="name">itz.vehicle.search</field>
+        <field name="model">itz.vehicle</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="plate" string="Search anything: plate, customer, phone, IMEI, serial, SIM"
+                       filter_domain="['|', '|', '|', '|', '|', '|', '|', ('plate', 'ilike', self), ('plate_norm', 'ilike', self), ('partner_id.name', 'ilike', self), ('partner_id.phone', 'ilike', self), ('partner_id.mobile', 'ilike', self), ('device_ids.itz_imei', 'ilike', self), ('device_ids.name', 'ilike', self), ('device_ids.itz_sim_lot_id.itz_msisdn', 'ilike', self)]"/>
+                <field name="partner_id"/>
+                <field name="device_ids" string="IMEI / Serial" filter_domain="['|', ('device_ids.itz_imei', 'ilike', self), ('device_ids.name', 'ilike', self)]"/>
+                <field name="make"/>
+                <field name="model"/>
+                <filter name="f_equipped" string="With tracker" domain="[('state', '=', 'equipped')]"/>
+                <filter name="f_unequipped" string="Without tracker" domain="[('state', '=', 'unequipped')]"/>
+                <separator/>
+                <filter name="f_arch" string="Archived" domain="[('active', '=', False)]"/>
+                <group expand="0" string="Group By">
+                    <filter name="g_partner" string="Customer" context="{'group_by': 'partner_id'}"/>
+                    <filter name="g_type" string="Type" context="{'group_by': 'vehicle_type'}"/>
+                    <filter name="g_state" string="Status" context="{'group_by': 'state'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+    <record id="itz_vehicle_kanban" model="ir.ui.view">
+        <field name="name">itz.vehicle.kanban</field>
+        <field name="model">itz.vehicle</field>
+        <field name="arch" type="xml">
+            <kanban>
+                <field name="plate"/><field name="partner_id"/><field name="state"/><field name="device_imei"/>
+                <templates>
+                    <t t-name="card">
+                        <div class="fw-bold fs-5"><field name="plate"/></div>
+                        <div><field name="partner_id"/></div>
+                        <div class="text-muted"><field name="make"/> <field name="model"/></div>
+                        <div class="mt-2"><span t-if="record.device_imei.raw_value" class="badge text-bg-success">IMEI <field name="device_imei"/></span>
+                            <span t-else="" class="badge text-bg-warning">No tracker</span></div>
+                    </t>
+                </templates>
+            </kanban>
+        </field>
+    </record>
+    <record id="action_itz_vehicles" model="ir.actions.act_window">
+        <field name="name">Vehicles</field>
+        <field name="res_model">itz.vehicle</field>
+        <field name="view_mode">list,kanban,form</field>
+    </record>
+</odoo>

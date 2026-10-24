@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <menuitem id="menu_itz_root" name="Management" sequence="1"
+              web_icon="itz_base,static/description/icon.png"
+              groups="group_itz_owner,group_itz_ops_manager,group_itz_sales,group_itz_accountant,group_itz_storekeeper,group_itz_technician,group_itz_support,group_itz_readonly"/>
+    <menuitem id="menu_itz_config" name="Configuration" parent="menu_itz_root" sequence="90"
+              groups="group_itz_owner,group_itz_ops_manager"/>
+    <menuitem id="menu_itz_audit_log" name="Activity Log" parent="menu_itz_config" sequence="90"
+              action="action_itz_audit_log" groups="group_itz_owner,group_itz_ops_manager"/>
+</odoo>

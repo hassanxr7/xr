@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Customers: sales/support/ops can manage; stock/accounting users also need to read -->
+    <record id="rule_itz_vehicle_technician" model="ir.rule">
+        <field name="name">Technician: vehicles of own installations</field>
+        <field name="model_id" ref="model_itz_vehicle"/>
+        <field name="domain_force">[('installation_ids.technician_id', '=', user.id)]</field>
+        <field name="groups" eval="[Command.link(ref('itz_base.group_itz_technician'))]"/>
+    </record>
+    <record id="rule_itz_vehicle_all" model="ir.rule">
+        <field name="name">ITrackZen staff: all vehicles</field>
+        <field name="model_id" ref="model_itz_vehicle"/>
+        <field name="domain_force">[(1, '=', 1)]</field>
+        <field name="groups" eval="[Command.link(ref('itz_base.group_itz_see_all'))]"/>
+    </record>
+    <record id="rule_itz_installation_technician" model="ir.rule">
+        <field name="name">Technician: own installations</field>
+        <field name="model_id" ref="model_itz_installation"/>
+        <field name="domain_force">[('technician_id', '=', user.id)]</field>
+        <field name="groups" eval="[Command.link(ref('itz_base.group_itz_technician'))]"/>
+    </record>
+    <record id="rule_itz_installation_all" model="ir.rule">
+        <field name="name">ITrackZen staff: all installations</field>
+        <field name="model_id" ref="model_itz_installation"/>
+        <field name="domain_force">[(1, '=', 1)]</field>
+        <field name="groups" eval="[Command.link(ref('itz_base.group_itz_see_all'))]"/>
+    </record>
+    <record id="rule_itz_installation_line_technician" model="ir.rule">
+        <field name="name">Technician: lines of own installations</field>
+        <field name="model_id" ref="model_itz_installation_line"/>
+        <field name="domain_force">[('installation_id.technician_id', '=', user.id)]</field>
+        <field name="groups" eval="[Command.link(ref('itz_base.group_itz_technician'))]"/>
+    </record>
+    <record id="rule_itz_installation_line_all" model="ir.rule">
+        <field name="name">ITrackZen staff: all installation lines</field>
+        <field name="model_id" ref="model_itz_installation_line"/>
+        <field name="domain_force">[(1, '=', 1)]</field>
+        <field name="groups" eval="[Command.link(ref('itz_base.group_itz_see_all'))]"/>
+    </record>
+    <record id="rule_itz_installation_photo_technician" model="ir.rule">
+        <field name="name">Technician: photos of own installations</field>
+        <field name="model_id" ref="model_itz_installation_photo"/>
+        <field name="domain_force">[('installation_id.technician_id', '=', user.id)]</field>
+        <field name="groups" eval="[Command.link(ref('itz_base.group_itz_technician'))]"/>
+    </record>
+    <record id="rule_itz_installation_photo_all" model="ir.rule">
+        <field name="name">ITrackZen staff: all installation photos</field>
+        <field name="model_id" ref="model_itz_installation_photo"/>
+        <field name="domain_force">[(1, '=', 1)]</field>
+        <field name="groups" eval="[Command.link(ref('itz_base.group_itz_see_all'))]"/>
+    </record>
+
+    <record id="rule_stock_lot_technician_vehicle" model="ir.rule">
+        <field name="name">Technician: devices installed on vehicles of own jobs</field>
+        <field name="model_id" ref="stock.model_stock_lot"/>
+        <field name="domain_force">[('itz_vehicle_id.installation_ids.technician_id', '=', user.id)]</field>
+        <field name="groups" eval="[Command.link(ref('itz_base.group_itz_technician'))]"/>
+        <field name="perm_read" eval="True"/><field name="perm_write" eval="False"/>
+        <field name="perm_create" eval="False"/><field name="perm_unlink" eval="False"/>
+    </record>
+
+    <!-- Customers (res.partner): technicians see colleagues/company and the customers of their own jobs -->
+    <record id="rule_partner_technician" model="ir.rule">
+        <field name="name">Technician: own customers, colleagues and company</field>
+        <field name="model_id" ref="base.model_res_partner"/>
+        <field name="domain_force">['|', '|', '|', ('user_ids', '!=', False), ('id', '=', user.company_id.partner_id.id), ('itz_installation_ids.technician_id', '=', user.id), ('parent_id.itz_installation_ids.technician_id', '=', user.id)]</field>
+        <field name="groups" eval="[Command.link(ref('itz_base.group_itz_technician'))]"/>
+    </record>
+    <record id="rule_partner_all" model="ir.rule">
+        <field name="name">ITrackZen staff: all contacts</field>
+        <field name="model_id" ref="base.model_res_partner"/>
+        <field name="domain_force">[(1, '=', 1)]</field>
+        <field name="groups" eval="[Command.link(ref('itz_base.group_itz_see_all'))]"/>
+    </record>
+
+    <!-- Contact management for support, sales, ops via the contacts group; technician gets no create/edit -->
+</odoo>

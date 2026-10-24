@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Map ITrackZen roles to the standard Odoo groups they need -->
+    <record id="itz_base.group_itz_storekeeper" model="res.groups">
+        <field name="implied_ids" eval="[
+            Command.link(ref('stock.group_stock_user')),
+            Command.link(ref('stock.group_production_lot')),
+            Command.link(ref('stock.group_stock_multi_locations')),
+            Command.link(ref('purchase.group_purchase_user'))]"/>
+    </record>
+    <record id="itz_base.group_itz_ops_manager" model="res.groups">
+        <field name="implied_ids" eval="[
+            Command.link(ref('stock.group_stock_manager')),
+            Command.link(ref('purchase.group_purchase_manager'))]"/>
+    </record>
+
+    <!-- ===== Record rules: technicians only see equipment issued to them ===== -->
+    <record id="rule_stock_lot_technician" model="ir.rule">
+        <field name="name">Technician: own issued devices only</field>
+        <field name="model_id" ref="stock.model_stock_lot"/>
+        <field name="domain_force">[('itz_technician_user_id', '=', user.id)]</field>
+        <field name="groups" eval="[Command.link(ref('itz_base.group_itz_technician'))]"/>
+        <field name="perm_read" eval="True"/><field name="perm_write" eval="False"/>
+        <field name="perm_create" eval="False"/><field name="perm_unlink" eval="False"/>
+    </record>
+    <record id="rule_stock_lot_all" model="ir.rule">
+        <field name="name">ITrackZen staff: all devices</field>
+        <field name="model_id" ref="stock.model_stock_lot"/>
+        <field name="domain_force">[(1, '=', 1)]</field>
+        <field name="groups" eval="[Command.link(ref('itz_base.group_itz_see_all'))]"/>
+    </record>
+    <record id="rule_stock_quant_technician" model="ir.rule">
+        <field name="name">Technician: own stock location only</field>
+        <field name="model_id" ref="stock.model_stock_quant"/>
+        <field name="domain_force">[('location_id.itz_technician_user_id', '=', user.id)]</field>
+        <field name="groups" eval="[Command.link(ref('itz_base.group_itz_technician'))]"/>
+        <field name="perm_read" eval="True"/><field name="perm_write" eval="False"/>
+        <field name="perm_create" eval="False"/><field name="perm_unlink" eval="False"/>
+    </record>
+    <record id="rule_stock_quant_all" model="ir.rule">
+        <field name="name">ITrackZen staff: all stock</field>
+        <field name="model_id" ref="stock.model_stock_quant"/>
+        <field name="domain_force">[(1, '=', 1)]</field>
+        <field name="groups" eval="[Command.link(ref('itz_base.group_itz_see_all'))]"/>
+    </record>
+    <record id="rule_device_event_technician" model="ir.rule">
+        <field name="name">Technician: history of own devices</field>
+        <field name="model_id" ref="model_itz_device_event"/>
+        <field name="domain_force">[('lot_id.itz_technician_user_id', '=', user.id)]</field>
+        <field name="groups" eval="[Command.link(ref('itz_base.group_itz_technician'))]"/>
+    </record>
+    <record id="rule_device_event_all" model="ir.rule">
+        <field name="name">ITrackZen staff: all device history</field>
+        <field name="model_id" ref="model_itz_device_event"/>
+        <field name="domain_force">[(1, '=', 1)]</field>
+        <field name="groups" eval="[Command.link(ref('itz_base.group_itz_see_all'))]"/>
+    </record>
+</odoo>

@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="stock_location_form_itz" model="ir.ui.view">
+        <field name="name">stock.location.form.itz</field>
+        <field name="model">stock.location</field>
+        <field name="inherit_id" ref="stock.view_location_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='usage']" position="after">
+                <field name="itz_technician_user_id" readonly="1" invisible="not itz_technician_user_id"/>
+            </xpath>
+        </field>
+    </record>
+    <record id="stock_picking_form_itz" model="ir.ui.view">
+        <field name="name">stock.picking.form.itz</field>
+        <field name="model">stock.picking</field>
+        <field name="inherit_id" ref="stock.view_picking_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='origin']" position="after">
+                <field name="itz_kind" invisible="not itz_kind" readonly="1"/>
+                <field name="itz_technician_user_id" invisible="not itz_technician_user_id" readonly="1"/>
+            </xpath>
+        </field>
+    </record>
+</odoo>

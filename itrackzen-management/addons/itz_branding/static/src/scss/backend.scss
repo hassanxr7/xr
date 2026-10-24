@@ -1,0 +1,13 @@
+.o_web_client {
+    --itz-navy: #07142e;
+    --itz-navy-2: #0a1f44;
+    --itz-blue: #1e6bff;
+}
+.o_main_navbar {
+    border-bottom: 2px solid #1e6bff;
+    .o_menu_brand { font-weight: 700; letter-spacing: .2px; }
+    .o_navbar_apps_menu .dropdown-toggle { color: #fff; }
+}
+.o_home_menu_background, .o_home_menu { background-image: linear-gradient(160deg, #07142e 0%, #0f2b5b 100%) !important; }
+.o_home_menu .o_app .o_caption { color: #e6eeff; }
+.o_itz_workspace_link { color: #cfe0ff !important; font-weight: 600; }

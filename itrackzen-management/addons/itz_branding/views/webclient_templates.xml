@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Browser tab title and icon -->
+    <template id="layout_itz" inherit_id="web.layout" name="ITrackZen layout">
+        <xpath expr="//title" position="replace">
+            <title t-esc="title or 'ITrackZen Management'"/>
+        </xpath>
+        <xpath expr="//link[@rel='shortcut icon']" position="replace">
+            <link type="image/x-icon" rel="shortcut icon" t-att-href="x_icon or '/itz_branding/static/img/favicon.ico'"/>
+        </xpath>
+    </template>
+
+    <!-- Login page: ITrackZen heading, no "Powered by Odoo" / database manager links -->
+    <template id="login_layout_itz" inherit_id="web.login_layout" name="ITrackZen login layout">
+        <xpath expr="//div[hasclass('text-center','pb-3','border-bottom','mb-4')]" position="replace">
+            <div class="text-center pb-3 border-bottom mb-4">
+                <img src="/itz_branding/static/img/itrackzen-logo.svg" alt="ITrackZen" style="max-height:64px; max-width:100%; width:auto"/>
+                <p class="o_itz_login_title mt-3">Management System</p>
+                <p class="o_itz_login_sub">Sign in with your staff account</p>
+            </div>
+        </xpath>
+        <xpath expr="//div[hasclass('text-center','small','mt-4','pt-3','border-top')]" position="replace">
+            <div class="text-center small mt-4 pt-3 border-top" t-if="not disable_footer">
+                <a href="/itz/website" class="text-muted">&#8592; ITrackZen website</a>
+            </div>
+        </xpath>
+    </template>
+
+    <!-- Replace "Powered by Odoo" promotion message -->
+    <template id="brand_promotion_message_itz" inherit_id="web.brand_promotion_message" name="ITrackZen promotion">
+        <xpath expr="//t[@t-set='final_message']" position="replace">
+            <t t-set="final_message">ITrackZen by LibDex</t>
+        </xpath>
+        <xpath expr="//t[@t-out]" position="replace">
+            <t t-out="final_message"/>
+        </xpath>
+    </template>
+</odoo>

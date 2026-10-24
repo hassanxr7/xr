@@ -1,0 +1,20 @@
+{
+    'name': 'ITrackZen Base',
+    'version': '18.0.1.0.0',
+    'summary': 'Roles, permissions, audit log and the Management menu for ITrackZen by LibDex',
+    'author': 'LibDex Ltd (ITrackZen)',
+    'website': 'https://itrackzen.net',
+    'category': 'ITrackZen',
+    'license': 'LGPL-3',
+    'depends': ['base', 'mail', 'hr', 'contacts', 'auth_totp'],
+    'data': [
+        'security/itz_security.xml',
+        'security/ir.model.access.csv',
+        'data/itz_base_data.xml',
+        'views/itz_audit_views.xml',
+        'views/res_company_views.xml',
+        'views/menus.xml',
+    ],
+    'installable': True,
+    'application': False,
+}

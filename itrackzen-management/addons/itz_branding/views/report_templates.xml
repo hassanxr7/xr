@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Branded document footer line shown on all PDFs using the standard layout -->
+    <template id="external_layout_standard_itz" inherit_id="web.external_layout_standard" name="ITrackZen PDF footer">
+        <xpath expr="//div[hasclass('text-muted')]" position="before">
+            <div class="text-center small" style="color:#1e6bff;font-weight:600;">ITrackZen &#183; LibDex Logistics Solution</div>
+        </xpath>
+    </template>
+</odoo>

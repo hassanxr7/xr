@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="product_template_form_itz" model="ir.ui.view">
+        <field name="name">product.template.form.itz</field>
+        <field name="model">product.template</field>
+        <field name="inherit_id" ref="product.product_template_form_view"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='name']" position="after">
+                <div class="o_row" invisible="not itz_category">
+                    <field name="itz_category" class="oe_inline" placeholder="ITrackZen category"/>
+                </div>
+            </xpath>
+            <xpath expr="//notebook" position="inside">
+                <page string="ITrackZen" name="itz">
+                    <group>
+                        <group string="Classification">
+                            <field name="itz_category"/>
+                            <field name="itz_brand"/>
+                            <field name="itz_model"/>
+                            <field name="itz_fulfilment" invisible="itz_category in ('service', 'plan', False)"/>
+                        </group>
+                        <group string="Stock rules" invisible="itz_category in ('service', 'plan', False)">
+                            <field name="itz_warranty_months"/>
+                            <field name="itz_min_stock"/>
+                            <field name="itz_available_qty"/>
+                            <field name="itz_low_stock" invisible="1"/>
+                        </group>
+                    </group>
+                </page>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="product_template_search_itz" model="ir.ui.view">
+        <field name="name">product.template.search.itz</field>
+        <field name="model">product.template</field>
+        <field name="inherit_id" ref="product.product_template_search_view"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='name']" position="after">
+                <field name="itz_brand"/>
+                <field name="itz_model"/>
+                <filter name="itz_f_low" string="Low stock" domain="[('itz_low_stock', '=', True)]"/>
+                <separator/>
+                <filter name="itz_f_tracker" string="GPS trackers" domain="[('itz_category', '=', 'tracker')]"/>
+                <filter name="itz_f_dashcam" string="Dashcams" domain="[('itz_category', '=', 'dashcam')]"/>
+                <filter name="itz_f_sensor" string="Sensors / relays / RFID" domain="[('itz_category', 'in', ('fuel_sensor', 'relay', 'rfid'))]"/>
+                <filter name="itz_f_sim" string="SIM cards" domain="[('itz_category', '=', 'sim')]"/>
+                <filter name="itz_f_acc" string="Cables / accessories" domain="[('itz_category', 'in', ('cable', 'accessory'))]"/>
+                <filter name="itz_f_plan" string="Plans" domain="[('itz_category', '=', 'plan')]"/>
+                <filter name="itz_f_service" string="Services" domain="[('itz_category', '=', 'service')]"/>
+                <group expand="0" string="Group By">
+                    <filter name="itz_g_cat" string="ITrackZen category" context="{'group_by': 'itz_category'}"/>
+                    <filter name="itz_g_brand" string="Brand" context="{'group_by': 'itz_brand'}"/>
+                </group>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="product_template_list_itz" model="ir.ui.view">
+        <field name="name">product.template.list.itz</field>
+        <field name="model">product.template</field>
+        <field name="arch" type="xml">
+            <list decoration-danger="itz_low_stock">
+                <field name="name"/>
+                <field name="itz_category"/>
+                <field name="itz_brand" optional="show"/>
+                <field name="itz_model" optional="show"/>
+                <field name="default_code" optional="hide"/>
+                <field name="qty_available" string="On hand"/>
+                <field name="itz_available_qty" string="Available"/>
+                <field name="itz_min_stock" optional="show"/>
+                <field name="list_price" string="Selling price"/>
+                <field name="standard_price" string="Purchase cost" optional="show"/>
+                <field name="itz_low_stock" column_invisible="1"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="action_itz_products" model="ir.actions.act_window">
+        <field name="name">Products and Stock</field>
+        <field name="res_model">product.template</field>
+        <field name="view_mode">list,kanban,form</field>
+        <field name="domain">[('itz_category', '!=', False)]</field>
+        <field name="context">{'search_default_itz_g_cat': 1}</field>
+        <field name="view_ids" eval="[(5, 0, 0), (0, 0, {'view_mode': 'list', 'view_id': ref('product_template_list_itz')}), (0, 0, {'view_mode': 'kanban'}), (0, 0, {'view_mode': 'form'})]"/>
+    </record>
+    <record id="action_itz_low_stock" model="ir.actions.act_window">
+        <field name="name">Low-stock Alerts</field>
+        <field name="res_model">product.template</field>
+        <field name="view_mode">list,form</field>
+        <field name="domain">[('itz_low_stock', '=', True)]</field>
+        <field name="view_ids" eval="[(5, 0, 0), (0, 0, {'view_mode': 'list', 'view_id': ref('product_template_list_itz')}), (0, 0, {'view_mode': 'form'})]"/>
+    </record>
+</odoo>

@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="res_partner_form_itz" model="ir.ui.view">
+        <field name="name">res.partner.form.itz</field>
+        <field name="model">res.partner</field>
+        <field name="inherit_id" ref="base.view_partner_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//div[@name='button_box']" position="inside">
+                <button name="action_view_itz_vehicles" type="object" class="oe_stat_button" icon="fa-car"
+                        invisible="parent_id">
+                    <field name="itz_vehicle_count" widget="statinfo" string="Vehicles"/>
+                </button>
+                <button name="action_view_itz_installations" type="object" class="oe_stat_button" icon="fa-wrench"
+                        invisible="parent_id">
+                    <field name="itz_installation_count" widget="statinfo" string="Installations"/>
+                </button>
+            </xpath>
+            <xpath expr="//notebook" position="inside">
+                <page string="Vehicles" name="itz_vehicles" invisible="parent_id">
+                    <field name="itz_vehicle_ids" context="{'default_partner_id': id}">
+                        <list>
+                            <field name="plate"/><field name="make"/><field name="model"/><field name="device_imei"/><field name="sim_number"/><field name="state" widget="badge"/>
+                        </list>
+                    </field>
+                </page>
+                <page string="Service history" name="itz_service" invisible="parent_id">
+                    <field name="itz_installation_ids" readonly="1">
+                        <list>
+                            <field name="name"/><field name="plate"/><field name="job_type"/><field name="date_done"/><field name="technician_id"/><field name="state" widget="badge"/>
+                        </list>
+                    </field>
+                </page>
+            </xpath>
+        </field>
+    </record>
+    <record id="res_partner_search_itz" model="ir.ui.view">
+        <field name="name">res.partner.search.itz</field>
+        <field name="model">res.partner</field>
+        <field name="inherit_id" ref="base.view_res_partner_filter"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='name']" position="after">
+                <field name="itz_search_plates" string="Plate / IMEI" filter_domain="[('itz_search_plates', 'ilike', self)]"/>
+            </xpath>
+        </field>
+    </record>
+</odoo>

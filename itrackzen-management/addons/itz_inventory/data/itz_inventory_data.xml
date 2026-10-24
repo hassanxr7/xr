@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo noupdate="1">
+    <record id="product_category_itz_root" model="product.category">
+        <field name="name">ITrackZen</field>
+        <field name="parent_id" ref="product.product_category_all"/>
+    </record>
+    <record id="product_category_itz_tracker" model="product.category"><field name="name">GPS Trackers</field><field name="parent_id" ref="product_category_itz_root"/></record>
+    <record id="product_category_itz_dashcam" model="product.category"><field name="name">Dashcams</field><field name="parent_id" ref="product_category_itz_root"/></record>
+    <record id="product_category_itz_sensor" model="product.category"><field name="name">Sensors, Relays and RFID</field><field name="parent_id" ref="product_category_itz_root"/></record>
+    <record id="product_category_itz_sim" model="product.category"><field name="name">SIM Cards</field><field name="parent_id" ref="product_category_itz_root"/></record>
+    <record id="product_category_itz_accessory" model="product.category"><field name="name">Cables and Accessories</field><field name="parent_id" ref="product_category_itz_root"/></record>
+    <record id="product_category_itz_service" model="product.category"><field name="name">Services and Plans</field><field name="parent_id" ref="product_category_itz_root"/></record>
+
+    <record id="cron_itz_low_stock" model="ir.cron">
+        <field name="name">ITrackZen: low-stock alerts</field>
+        <field name="model_id" ref="product.model_product_template"/>
+        <field name="state">code</field>
+        <field name="code">model._itz_cron_low_stock()</field>
+        <field name="interval_number">1</field>
+        <field name="interval_type">days</field>
+        <field name="active" eval="True"/>
+    </record>
+</odoo>

@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_company_form_itz" model="ir.ui.view">
+        <field name="name">res.company.form.itz</field>
+        <field name="model">res.company</field>
+        <field name="inherit_id" ref="base.view_company_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//sheet/notebook" position="inside">
+                <page string="ITrackZen Management" name="itz_settings" groups="itz_base.group_itz_owner">
+                    <group>
+                        <group string="Quotation approval">
+                            <field name="itz_approval_required"/>
+                            <field name="itz_approval_threshold" invisible="not itz_approval_required"/>
+                        </group>
+                        <group string="Installations">
+                            <field name="itz_require_customer_confirmation"/>
+                            <field name="itz_require_photos"/>
+                        </group>
+                        <group string="Subscriptions and reminders">
+                            <field name="itz_reminder_days"/>
+                            <field name="itz_grace_days"/>
+                            <field name="itz_invoice_lead_days"/>
+                        </group>
+                        <group string="Stock alerts">
+                            <field name="itz_low_stock_notify_email"/>
+                        </group>
+                    </group>
+                </page>
+            </xpath>
+        </field>
+    </record>
+</odoo>
