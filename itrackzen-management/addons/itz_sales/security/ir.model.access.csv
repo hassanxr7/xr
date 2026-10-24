@@ -1,0 +1,15 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_itz_enquiry_sales,itz.enquiry sales,model_itz_enquiry,itz_base.group_itz_sales,1,1,1,0
+access_itz_enquiry_support,itz.enquiry support,model_itz_enquiry,itz_base.group_itz_support,1,1,1,0
+access_itz_enquiry_ops,itz.enquiry ops,model_itz_enquiry,itz_base.group_itz_ops_manager,1,1,1,0
+access_itz_enquiry_delete,itz.enquiry delete,model_itz_enquiry,itz_base.group_itz_delete,1,1,1,1
+access_itz_enquiry_readonly,itz.enquiry readonly,model_itz_enquiry,itz_base.group_itz_readonly,1,0,0,0
+access_itz_reject_wizard,itz.reject.wizard,model_itz_reject_wizard,itz_base.group_itz_approver,1,1,1,1
+access_sale_order_accountant,sale.order accountant,sale.model_sale_order,itz_base.group_itz_accountant,1,0,0,0
+access_sale_order_line_accountant,sale.order.line accountant,sale.model_sale_order_line,itz_base.group_itz_accountant,1,0,0,0
+access_sale_order_support,sale.order support,sale.model_sale_order,itz_base.group_itz_support,1,0,0,0
+access_sale_order_line_support,sale.order.line support,sale.model_sale_order_line,itz_base.group_itz_support,1,0,0,0
+access_sale_order_readonly,sale.order readonly,sale.model_sale_order,itz_base.group_itz_readonly,1,0,0,0
+access_sale_order_line_readonly,sale.order.line readonly,sale.model_sale_order_line,itz_base.group_itz_readonly,1,0,0,0
+access_sale_order_storekeeper,sale.order storekeeper,sale.model_sale_order,itz_base.group_itz_storekeeper,1,0,0,0
+access_sale_order_line_storekeeper,sale.order.line storekeeper,sale.model_sale_order_line,itz_base.group_itz_storekeeper,1,0,0,0

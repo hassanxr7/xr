@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <menuitem id="menu_itz_finance" name="Finance" parent="itz_base.menu_itz_root" sequence="50" groups="itz_base.group_itz_financial"/>
+    <menuitem id="menu_itz_invoices" name="Invoices" parent="menu_itz_finance" sequence="10" action="account.action_move_out_invoice_type"/>
+    <menuitem id="menu_itz_payments" name="Payments" parent="menu_itz_finance" sequence="20" action="action_itz_customer_payments"/>
+    <menuitem id="menu_itz_overdue" name="Overdue Invoices" parent="menu_itz_finance" sequence="30" action="action_itz_overdue_invoices"/>
+    <menuitem id="menu_itz_balances" name="Customer Balances" parent="menu_itz_finance" sequence="40" action="action_itz_customer_balances"/>
+    <menuitem id="menu_itz_statement" name="Customer Statement" parent="menu_itz_finance" sequence="50" action="action_itz_statement_wizard"/>
+    <menuitem id="menu_itz_credit_notes" name="Credit Notes" parent="menu_itz_finance" sequence="60" action="account.action_move_out_refund_type"
+              groups="itz_base.group_itz_approver"/>
+</odoo>

@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <menuitem id="menu_itz_sales" name="Sales" parent="itz_base.menu_itz_root" sequence="5"
+              groups="itz_base.group_itz_sales,itz_base.group_itz_ops_manager,itz_base.group_itz_accountant,itz_base.group_itz_readonly,itz_base.group_itz_support,itz_base.group_itz_storekeeper"/>
+    <menuitem id="menu_itz_enquiries" name="Website Enquiries" parent="menu_itz_sales" sequence="5" action="action_itz_enquiries"
+              groups="itz_base.group_itz_sales,itz_base.group_itz_support,itz_base.group_itz_ops_manager,itz_base.group_itz_readonly"/>
+    <menuitem id="menu_itz_quotations" name="Quotations" parent="menu_itz_sales" sequence="10" action="action_itz_quotations"/>
+    <menuitem id="menu_itz_approvals" name="Waiting for Approval" parent="menu_itz_sales" sequence="15" action="action_itz_approvals"
+              groups="itz_base.group_itz_approver"/>
+    <menuitem id="menu_itz_orders" name="Sales Orders" parent="menu_itz_sales" sequence="20" action="action_itz_orders"/>
+    <menuitem id="menu_itz_quote_templates" name="Quotation Templates" parent="menu_itz_sales" sequence="30"
+              action="sale_management.sale_order_template_action" groups="itz_base.group_itz_ops_manager"/>
+</odoo>

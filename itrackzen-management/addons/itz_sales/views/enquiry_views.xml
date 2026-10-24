@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="itz_enquiry_list" model="ir.ui.view">
+        <field name="name">itz.enquiry.list</field>
+        <field name="model">itz.enquiry</field>
+        <field name="arch" type="xml">
+            <list decoration-bf="state == 'new'" decoration-muted="state in ('lost', 'spam')">
+                <field name="name"/><field name="create_date"/><field name="enquiry_type"/><field name="contact_name"/><field name="company_name"/>
+                <field name="country"/><field name="vehicles"/><field name="user_id" widget="many2one_avatar_user"/>
+                <field name="state" widget="badge"/>
+            </list>
+        </field>
+    </record>
+    <record id="itz_enquiry_form" model="ir.ui.view">
+        <field name="name">itz.enquiry.form</field>
+        <field name="model">itz.enquiry</field>
+        <field name="arch" type="xml">
+            <form>
+                <header>
+                    <button name="action_create_quotation" type="object" string="Create quotation" class="btn-primary" invisible="state in ('won', 'lost', 'spam')"/>
+                    <button name="action_create_customer" type="object" string="Create customer" invisible="partner_id"/>
+                    <button name="action_set_contacted" type="object" string="Mark contacted" invisible="state != 'new'"/>
+                    <button name="action_set_lost" type="object" string="Lost" invisible="state in ('won', 'lost', 'spam')"/>
+                    <button name="action_set_spam" type="object" string="Spam" invisible="state != 'new'"/>
+                    <field name="state" widget="statusbar" statusbar_visible="new,contacted,quoted,won"/>
+                </header>
+                <sheet>
+                    <div class="oe_title"><h1><field name="name"/></h1></div>
+                    <group>
+                        <group>
+                            <field name="enquiry_type"/><field name="contact_name"/><field name="company_name"/>
+                            <field name="email" widget="email"/><field name="phone" widget="phone"/><field name="country"/>
+                        </group>
+                        <group>
+                            <field name="vehicles"/><field name="service"/><field name="website_ref"/>
+                            <field name="user_id"/><field name="partner_id"/><field name="sale_order_id"/>
+                            <field name="company_id" groups="base.group_multi_company"/>
+                        </group>
+                    </group>
+                    <field name="message" placeholder="Message from the customer"/>
+                </sheet>
+                <chatter/>
+            </form>
+        </field>
+    </record>
+    <record id="itz_enquiry_search" model="ir.ui.view">
+        <field name="name">itz.enquiry.search</field>
+        <field name="model">itz.enquiry</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="name" filter_domain="['|', '|', '|', '|', ('name', 'ilike', self), ('contact_name', 'ilike', self), ('company_name', 'ilike', self), ('email', 'ilike', self), ('phone', 'ilike', self)]"/>
+                <filter name="f_new" string="New" domain="[('state', '=', 'new')]"/>
+                <filter name="f_mine" string="Mine" domain="[('user_id', '=', uid)]"/>
+                <filter name="f_open" string="Open" domain="[('state', 'in', ('new', 'contacted', 'quoted'))]"/>
+                <group expand="0" string="Group By">
+                    <filter name="g_state" string="Status" context="{'group_by': 'state'}"/>
+                    <filter name="g_type" string="Type" context="{'group_by': 'enquiry_type'}"/>
+                    <filter name="g_country" string="Country" context="{'group_by': 'country'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+    <record id="action_itz_enquiries" model="ir.actions.act_window">
+        <field name="name">Website Enquiries</field>
+        <field name="res_model">itz.enquiry</field>
+        <field name="view_mode">list,form</field>
+        <field name="context">{'search_default_f_open': 1}</field>
+    </record>
+</odoo>

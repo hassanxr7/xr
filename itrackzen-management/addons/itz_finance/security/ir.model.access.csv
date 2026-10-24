@@ -1,0 +1,2 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_itz_statement_wizard,itz.statement.wizard,model_itz_statement_wizard,itz_base.group_itz_financial,1,1,1,1

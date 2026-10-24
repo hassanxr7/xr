@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <template id="report_payment_receipt_document_itz" inherit_id="account.report_payment_receipt_document" name="ITrackZen receipt additions">
+        <xpath expr="//div[hasclass('page')]" position="inside">
+            <t t-set="itz_open" t-value="sum((o.reconciled_invoice_ids or o.reconciled_bill_ids).mapped('amount_residual'))"/>
+            <div class="row mt-3" t-if="o.partner_type == 'customer'">
+                <div class="col-6">
+                    <div t-if="o.itz_reference">Reference: <strong t-field="o.itz_reference"/></div>
+                    <div>Received by: <strong t-field="o.itz_recorded_by_id.name"/></div>
+                </div>
+                <div class="col-6 text-end">
+                    <div>Remaining on these invoices:
+                        <strong><span t-out="itz_open" t-options="{'widget': 'monetary', 'display_currency': o.currency_id}"/></strong>
+                    </div>
+                </div>
+            </div>
+            <p class="mt-4 text-muted small">Thank you for choosing ITrackZen. This receipt is valid without a signature.</p>
+        </xpath>
+    </template>
+</odoo>

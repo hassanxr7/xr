@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo noupdate="1">
+    <record id="mail_template_statement" model="mail.template">
+        <field name="name">ITrackZen: customer statement</field>
+        <field name="model_id" ref="base.model_res_partner"/>
+        <field name="subject">Your account statement from {{ object.company_id.name or user.company_id.name }}</field>
+        <field name="email_from">{{ (user.email_formatted or object.company_id.email_formatted) }}</field>
+        <field name="email_to">{{ object.email }}</field>
+        <field name="body_html" type="html">
+<div style="font-family: Arial, sans-serif; font-size: 14px; color: #0a1f44;">
+    <p>Dear <t t-out="object.name or 'customer'"/>,</p>
+    <p>Please find attached your account statement. If you have already made a payment, thank you, and please ignore any items that were paid after the statement date.</p>
+    <p t-if="user.company_id.itz_payment_instructions"><t t-out="user.company_id.itz_payment_instructions"/></p>
+    <p>Kind regards,<br/><t t-out="user.name"/><br/><strong>ITrackZen</strong> &#183; LibDex Logistics Solution</p>
+</div>
+        </field>
+        <field name="auto_delete" eval="True"/>
+    </record>
+</odoo>

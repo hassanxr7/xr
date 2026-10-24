@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="itz_installation_form_sales" model="ir.ui.view">
+        <field name="name">itz.installation.form.sales</field>
+        <field name="model">itz.installation</field>
+        <field name="inherit_id" ref="itz_fleet.itz_installation_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='location_address']" position="before">
+                <field name="sale_order_id" groups="itz_base.group_itz_see_all" readonly="state not in ('draft', 'scheduled')"/>
+            </xpath>
+            <xpath expr="//field[@name='line_ids']/list/field[@name='product_id']" position="after">
+                <field name="sale_line_id" optional="hide" groups="itz_base.group_itz_see_all"/>
+            </xpath>
+        </field>
+    </record>
+    <record id="itz_installation_search_sales" model="ir.ui.view">
+        <field name="name">itz.installation.search.sales</field>
+        <field name="model">itz.installation</field>
+        <field name="inherit_id" ref="itz_fleet.itz_installation_search"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='technician_id']" position="after">
+                <field name="sale_order_id" groups="itz_base.group_itz_see_all"/>
+            </xpath>
+        </field>
+    </record>
+</odoo>

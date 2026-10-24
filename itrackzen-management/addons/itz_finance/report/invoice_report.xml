@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <template id="report_invoice_document_itz" inherit_id="account.report_invoice_document" name="ITrackZen invoice additions">
+        <xpath expr="//div[@id='payment_term']" position="before">
+            <t t-set="itz_paid" t-value="o.amount_total - o.amount_residual"/>
+            <div class="clearfix mt-2" t-if="o.move_type == 'out_invoice' and o.state == 'posted'">
+                <div class="row">
+                    <div class="col-6 offset-6">
+                        <table class="table table-sm table-borderless" style="font-size:0.95em;">
+                            <tr t-if="itz_paid">
+                                <td>Paid so far</td>
+                                <td class="text-end"><span t-out="itz_paid" t-options="{'widget': 'monetary', 'display_currency': o.currency_id}"/></td>
+                            </tr>
+                            <tr style="font-weight:bold;">
+                                <td>Balance due</td>
+                                <td class="text-end"><span t-out="o.amount_residual" t-options="{'widget': 'monetary', 'display_currency': o.currency_id}"/></td>
+                            </tr>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            <div t-if="o.company_id.itz_payment_instructions" class="mt-3" name="itz_payment_instructions">
+                <strong>How to pay</strong>
+                <div t-field="o.company_id.itz_payment_instructions"/>
+            </div>
+            <p t-if="o.company_id.itz_terms_note" class="text-muted small mt-2" t-out="o.company_id.itz_terms_note"/>
+        </xpath>
+    </template>
+</odoo>

@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="res_partner_form_itz_finance" model="ir.ui.view">
+        <field name="name">res.partner.form.itz.finance</field>
+        <field name="model">res.partner</field>
+        <field name="inherit_id" ref="base.view_partner_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//div[@name='button_box']" position="inside">
+                <button name="action_view_itz_unpaid_invoices" type="object" class="oe_stat_button" icon="fa-money"
+                        groups="itz_base.group_itz_financial" invisible="parent_id">
+                    <div class="o_field_widget o_stat_info">
+                        <span class="o_stat_value"><field name="itz_balance_due" widget="monetary" options="{'currency_field': 'itz_currency_id'}"/></span>
+                        <span class="o_stat_text">Balance due</span>
+                    </div>
+                </button>
+                <button name="action_view_itz_payments" type="object" class="oe_stat_button" icon="fa-credit-card"
+                        groups="itz_base.group_itz_financial" invisible="parent_id">
+                    <field name="itz_payment_count" widget="statinfo" string="Payments"/>
+                </button>
+            </xpath>
+            <xpath expr="//notebook" position="inside">
+                <page string="Finance" name="itz_finance" groups="itz_base.group_itz_financial" invisible="parent_id">
+                    <group>
+                        <group>
+                            <field name="itz_currency_id" invisible="1"/>
+                            <field name="itz_balance_due"/>
+                            <field name="itz_overdue_amount" decoration-danger="itz_overdue_amount &gt; 0"/>
+                            <field name="itz_overdue_count"/>
+                            <field name="itz_last_payment_date"/>
+                        </group>
+                    </group>
+                    <button name="action_itz_statement" type="object" string="Customer statement" class="btn-primary"/>
+                </page>
+            </xpath>
+        </field>
+    </record>
+    <record id="res_partner_list_itz_finance" model="ir.ui.view">
+        <field name="name">res.partner.list.itz.finance</field>
+        <field name="model">res.partner</field>
+        <field name="arch" type="xml">
+            <list>
+                <field name="display_name"/>
+                <field name="phone"/>
+                <field name="itz_currency_id" column_invisible="1"/>
+                <field name="itz_balance_due" sum="Total due"/>
+                <field name="itz_overdue_amount" sum="Total overdue" decoration-danger="itz_overdue_amount &gt; 0"/>
+                <field name="itz_overdue_count"/>
+                <field name="itz_last_payment_date"/>
+            </list>
+        </field>
+    </record>
+    <record id="action_itz_customer_balances" model="ir.actions.act_window">
+        <field name="name">Customer Balances</field>
+        <field name="res_model">res.partner</field>
+        <field name="view_mode">list,form</field>
+        <field name="domain">[('parent_id', '=', False), ('customer_rank', '>', 0)]</field>
+        <field name="view_ids" eval="[(5, 0, 0), (0, 0, {'view_mode': 'list', 'view_id': ref('res_partner_list_itz_finance')}), (0, 0, {'view_mode': 'form'})]"/>
+    </record>
+</odoo>
