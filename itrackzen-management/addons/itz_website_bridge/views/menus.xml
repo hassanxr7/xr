@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <menuitem id="menu_itz_website" name="Website" parent="itz_base.menu_itz_config" sequence="20" groups="itz_base.group_itz_ops_manager"/>
+    <menuitem id="menu_itz_website_connection" name="Connection and Sign-in" parent="menu_itz_website" sequence="10" action="action_itz_website_config"/>
+    <menuitem id="menu_itz_website_events" name="Events from the Website" parent="menu_itz_website" sequence="20" action="action_itz_website_events"/>
+</odoo>

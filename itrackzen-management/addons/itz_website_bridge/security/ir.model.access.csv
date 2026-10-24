@@ -1,0 +1,5 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_itz_website_config_owner,itz.website.config owner,model_itz_website_config,itz_base.group_itz_owner,1,1,1,0
+access_itz_website_config_ops,itz.website.config ops,model_itz_website_config,itz_base.group_itz_ops_manager,1,0,0,0
+access_itz_website_event_owner,itz.website.event owner,model_itz_website_event,itz_base.group_itz_owner,1,0,0,0
+access_itz_website_event_ops,itz.website.event ops,model_itz_website_event,itz_base.group_itz_ops_manager,1,0,0,0

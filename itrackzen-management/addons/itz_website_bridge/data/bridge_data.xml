@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo noupdate="1">
+    <record id="website_config_default" model="itz.website.config">
+        <field name="name">ITrackZen website</field>
+    </record>
+    <!-- Links used by the "Website Admin" menu and the dashboard -->
+    <function model="ir.config_parameter" name="set_param" eval="('itz.website_url', 'https://itrackzen.net')"/>
+    <function model="ir.config_parameter" name="set_param" eval="('itz.website_admin_url', 'https://itrackzen.net/admin/')"/>
+</odoo>

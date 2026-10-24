@@ -1,7 +1,7 @@
 import json
 import logging
 
-from odoo import http, _
+from odoo import SUPERUSER_ID, http, _
 from odoo.http import request
 
 _logger = logging.getLogger(__name__)
@@ -13,7 +13,7 @@ class ItzPlatformController(http.Controller):
     @http.route('/itz/platform/webhook', type='http', auth='none', methods=['POST'], csrf=False, save_session=False, readonly=False)
     def webhook(self, **kw):
         body = request.httprequest.get_data()
-        env = request.env(su=True)
+        env = request.env(user=SUPERUSER_ID)
         cfg = env['itz.platform.config'].search([], limit=1)
         signature = request.httprequest.headers.get('X-ITZ-Signature', '')
         if not cfg or cfg.mode in ('disabled',) or not cfg.verify(body, signature):
