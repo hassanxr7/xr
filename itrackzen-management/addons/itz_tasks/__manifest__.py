@@ -1,0 +1,21 @@
+{
+    'name': 'ITrackZen Employees and Tasks',
+    'version': '18.0.1.0.0',
+    'summary': 'Employee profiles and task management linked to customers, vehicles, installations and invoices',
+    'author': 'LibDex Ltd (ITrackZen)',
+    'website': 'https://itrackzen.net',
+    'category': 'ITrackZen',
+    'license': 'LGPL-3',
+    'depends': ['itz_subscription', 'hr'],
+    'data': [
+        'security/itz_tasks_security.xml',
+        'security/ir.model.access.csv',
+        'data/itz_tasks_data.xml',
+        'views/task_views.xml',
+        'views/hr_views.xml',
+        'views/links_views.xml',
+        'views/menus.xml',
+    ],
+    'installable': True,
+    'application': False,
+}

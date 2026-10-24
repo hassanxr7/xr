@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <menuitem id="menu_itz_work" name="Tasks" parent="itz_base.menu_itz_root" sequence="25"/>
+    <menuitem id="menu_itz_my_tasks" name="My Tasks" parent="menu_itz_work" sequence="10" action="action_itz_my_tasks"/>
+    <menuitem id="menu_itz_all_tasks" name="All Tasks" parent="menu_itz_work" sequence="20" action="action_itz_tasks"
+              groups="itz_base.group_itz_ops_manager,itz_base.group_itz_readonly"/>
+
+    <menuitem id="menu_itz_people" name="Employees" parent="itz_base.menu_itz_root" sequence="60"
+              groups="itz_base.group_itz_ops_manager,itz_base.group_itz_readonly"/>
+    <menuitem id="menu_itz_employees" name="Employees" parent="menu_itz_people" sequence="10" action="action_itz_employees"/>
+    <menuitem id="menu_itz_departments" name="Departments" parent="menu_itz_people" sequence="20" action="hr.hr_department_kanban_action"
+              groups="itz_base.group_itz_ops_manager"/>
+    <menuitem id="menu_itz_jobs" name="Job Positions" parent="menu_itz_people" sequence="30" action="hr.action_hr_job"
+              groups="itz_base.group_itz_ops_manager"/>
+</odoo>

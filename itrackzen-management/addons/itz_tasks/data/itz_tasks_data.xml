@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo noupdate="1">
+    <record id="seq_itz_task" model="ir.sequence">
+        <field name="name">ITrackZen task</field>
+        <field name="code">itz.task</field>
+        <field name="prefix">TSK/</field>
+        <field name="padding">5</field>
+    </record>
+
+    <!-- Departments and job positions for the employee profiles -->
+    <record id="dept_management" model="hr.department"><field name="name">Management</field></record>
+    <record id="dept_operations" model="hr.department"><field name="name">Operations</field></record>
+    <record id="dept_installation" model="hr.department"><field name="name">Installation</field></record>
+    <record id="dept_sales" model="hr.department"><field name="name">Sales</field></record>
+    <record id="dept_finance" model="hr.department"><field name="name">Finance</field></record>
+    <record id="dept_store" model="hr.department"><field name="name">Store</field></record>
+    <record id="dept_support" model="hr.department"><field name="name">Customer Support</field></record>
+
+    <record id="job_owner" model="hr.job"><field name="name">Owner / Director</field><field name="department_id" ref="dept_management"/></record>
+    <record id="job_ops_manager" model="hr.job"><field name="name">Operations Manager</field><field name="department_id" ref="dept_operations"/></record>
+    <record id="job_technician" model="hr.job"><field name="name">Installation Technician</field><field name="department_id" ref="dept_installation"/></record>
+    <record id="job_sales_officer" model="hr.job"><field name="name">Sales Officer</field><field name="department_id" ref="dept_sales"/></record>
+    <record id="job_accountant" model="hr.job"><field name="name">Accountant / Cashier</field><field name="department_id" ref="dept_finance"/></record>
+    <record id="job_storekeeper" model="hr.job"><field name="name">Storekeeper</field><field name="department_id" ref="dept_store"/></record>
+    <record id="job_support_agent" model="hr.job"><field name="name">Customer Support Agent</field><field name="department_id" ref="dept_support"/></record>
+
+    <record id="cron_itz_collection_tasks" model="ir.cron">
+        <field name="name">ITrackZen: payment collection tasks</field>
+        <field name="model_id" ref="model_itz_task"/>
+        <field name="state">code</field>
+        <field name="code">model._cron_collection_tasks()</field>
+        <field name="interval_number">1</field>
+        <field name="interval_type">days</field>
+    </record>
+</odoo>

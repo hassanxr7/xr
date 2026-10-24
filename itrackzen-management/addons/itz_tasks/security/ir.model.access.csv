@@ -1,0 +1,9 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_itz_task_see_all,itz.task see all,model_itz_task,itz_base.group_itz_see_all,1,0,0,0
+access_itz_task_technician,itz.task technician,model_itz_task,itz_base.group_itz_technician,1,1,1,0
+access_itz_task_sales,itz.task sales,model_itz_task,itz_base.group_itz_sales,1,1,1,0
+access_itz_task_support,itz.task support,model_itz_task,itz_base.group_itz_support,1,1,1,0
+access_itz_task_store,itz.task storekeeper,model_itz_task,itz_base.group_itz_storekeeper,1,1,1,0
+access_itz_task_accountant,itz.task accountant,model_itz_task,itz_base.group_itz_accountant,1,1,1,0
+access_itz_task_ops,itz.task ops,model_itz_task,itz_base.group_itz_ops_manager,1,1,1,0
+access_itz_task_delete,itz.task delete,model_itz_task,itz_base.group_itz_delete,1,1,1,1

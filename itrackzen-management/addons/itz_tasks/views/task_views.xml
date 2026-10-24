@@ -1,0 +1,159 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="itz_task_list" model="ir.ui.view">
+        <field name="name">itz.task.list</field>
+        <field name="model">itz.task</field>
+        <field name="arch" type="xml">
+            <list decoration-danger="is_overdue" decoration-muted="state in ('completed', 'cancelled')" multi_edit="1">
+                <field name="ref" optional="hide"/>
+                <field name="name"/>
+                <field name="task_type" optional="show"/>
+                <field name="partner_id" optional="show"/>
+                <field name="vehicle_id" optional="show"/>
+                <field name="assigned_user_id" widget="many2one_avatar_user"/>
+                <field name="priority" widget="priority" optional="show"/>
+                <field name="date_deadline"/>
+                <field name="display_status" widget="badge" decoration-success="display_status == 'completed'" decoration-danger="display_status == 'overdue'" decoration-info="display_status == 'in_progress'"/>
+                <field name="is_overdue" column_invisible="1"/>
+                <field name="state" column_invisible="1"/>
+            </list>
+        </field>
+    </record>
+    <record id="itz_task_form" model="ir.ui.view">
+        <field name="name">itz.task.form</field>
+        <field name="model">itz.task</field>
+        <field name="arch" type="xml">
+            <form>
+                <header>
+                    <button name="action_start" type="object" string="Start" class="btn-primary" invisible="state != 'pending'"/>
+                    <button name="action_done" type="object" string="Mark done" class="btn-primary" invisible="state not in ('pending', 'in_progress')"/>
+                    <button name="action_cancel" type="object" string="Cancel" invisible="state in ('completed', 'cancelled')"/>
+                    <button name="action_reopen" type="object" string="Reopen" invisible="state not in ('completed', 'cancelled')"/>
+                    <field name="state" widget="statusbar" statusbar_visible="pending,in_progress,completed"/>
+                </header>
+                <sheet>
+                    <div class="alert alert-danger" role="alert" invisible="not is_overdue">This task is past its deadline.</div>
+                    <field name="is_overdue" invisible="1"/>
+                    <div class="oe_title">
+                        <field name="priority" widget="priority"/>
+                        <h1><field name="name" placeholder="What needs to be done?"/></h1>
+                    </div>
+                    <group>
+                        <group>
+                            <field name="task_type"/>
+                            <field name="assigned_user_id" options="{'no_create': True}" widget="many2one_avatar_user"/>
+                            <field name="date_deadline"/>
+                            <field name="ref"/>
+                        </group>
+                        <group>
+                            <field name="partner_id" options="{'no_create': True}"/>
+                            <field name="vehicle_id" options="{'no_create': True}" context="{'default_partner_id': partner_id}"/>
+                            <field name="installation_id" options="{'no_create': True}" groups="itz_base.group_itz_see_all,itz_base.group_itz_technician"/>
+                            <field name="subscription_id" options="{'no_create': True}" groups="itz_base.group_itz_see_all"/>
+                            <field name="invoice_id" options="{'no_create': True}" groups="itz_base.group_itz_financial"/>
+                            <field name="company_id" groups="base.group_multi_company"/>
+                        </group>
+                    </group>
+                    <notebook>
+                        <page string="Details" name="details"><field name="description"/></page>
+                        <page string="Outcome" name="outcome"><field name="result_note" placeholder="What was done?"/><group><field name="date_done"/></group></page>
+                        <page string="Attachments" name="attachments"><field name="attachment_ids" widget="many2many_binary"/></page>
+                    </notebook>
+                </sheet>
+                <chatter/>
+            </form>
+        </field>
+    </record>
+    <record id="itz_task_kanban" model="ir.ui.view">
+        <field name="name">itz.task.kanban</field>
+        <field name="model">itz.task</field>
+        <field name="arch" type="xml">
+            <kanban default_group_by="state" records_draggable="1" group_create="0">
+                <field name="state"/><field name="is_overdue"/><field name="color"/>
+                <templates>
+                    <t t-name="card">
+                        <div class="d-flex justify-content-between">
+                            <strong><field name="name"/></strong>
+                            <field name="priority" widget="priority"/>
+                        </div>
+                        <div class="text-muted"><field name="partner_id"/> <field name="vehicle_id"/></div>
+                        <div class="mt-2 d-flex justify-content-between align-items-center">
+                            <field name="date_deadline" widget="remaining_days" invisible="state in ('completed', 'cancelled')"/>
+                            <field name="assigned_user_id" widget="many2one_avatar_user"/>
+                        </div>
+                        <span t-if="record.is_overdue.raw_value" class="badge text-bg-danger mt-1">Overdue</span>
+                    </t>
+                </templates>
+            </kanban>
+        </field>
+    </record>
+    <record id="itz_task_calendar" model="ir.ui.view">
+        <field name="name">itz.task.calendar</field>
+        <field name="model">itz.task</field>
+        <field name="arch" type="xml">
+            <calendar date_start="date_deadline" mode="week" color="assigned_user_id" quick_create="0">
+                <field name="name"/><field name="assigned_user_id" filters="1"/>
+            </calendar>
+        </field>
+    </record>
+    <record id="itz_task_pivot" model="ir.ui.view">
+        <field name="name">itz.task.pivot</field>
+        <field name="model">itz.task</field>
+        <field name="arch" type="xml">
+            <pivot><field name="assigned_user_id" type="row"/><field name="display_status" type="col"/></pivot>
+        </field>
+    </record>
+    <record id="itz_task_graph" model="ir.ui.view">
+        <field name="name">itz.task.graph</field>
+        <field name="model">itz.task</field>
+        <field name="arch" type="xml">
+            <graph type="bar" stacked="1"><field name="assigned_user_id"/><field name="display_status"/></graph>
+        </field>
+    </record>
+    <record id="itz_task_search" model="ir.ui.view">
+        <field name="name">itz.task.search</field>
+        <field name="model">itz.task</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="name" filter_domain="['|', '|', '|', ('name', 'ilike', self), ('ref', 'ilike', self), ('partner_id.name', 'ilike', self), ('vehicle_id.plate', 'ilike', self)]"/>
+                <field name="assigned_user_id"/>
+                <field name="partner_id"/>
+                <field name="vehicle_id"/>
+                <filter name="f_mine" string="My tasks" domain="[('assigned_user_id', '=', uid)]"/>
+                <filter name="f_open" string="Open" domain="[('state', 'in', ('pending', 'in_progress'))]"/>
+                <filter name="f_pending" string="Pending" domain="[('state', '=', 'pending')]"/>
+                <filter name="f_prog" string="In progress" domain="[('state', '=', 'in_progress')]"/>
+                <filter name="f_done" string="Completed" domain="[('state', '=', 'completed')]"/>
+                <filter name="f_overdue" string="Overdue" domain="[('is_overdue', '=', True)]"/>
+                <separator/>
+                <filter name="f_urgent" string="High or urgent" domain="[('priority', 'in', ('2', '3'))]"/>
+                <separator/>
+                <filter name="t_install" string="Installation" domain="[('task_type', '=', 'installation')]"/>
+                <filter name="t_maint" string="Maintenance" domain="[('task_type', '=', 'maintenance')]"/>
+                <filter name="t_support" string="Support" domain="[('task_type', '=', 'support')]"/>
+                <filter name="t_sales" string="Sales follow-up" domain="[('task_type', '=', 'sales_followup')]"/>
+                <filter name="t_collect" string="Payment collection" domain="[('task_type', '=', 'payment_collection')]"/>
+                <group expand="0" string="Group By">
+                    <filter name="g_owner" string="Owner" context="{'group_by': 'assigned_user_id'}"/>
+                    <filter name="g_type" string="Type" context="{'group_by': 'task_type'}"/>
+                    <filter name="g_status" string="Status" context="{'group_by': 'display_status'}"/>
+                    <filter name="g_dept" string="Department" context="{'group_by': 'department_id'}"/>
+                    <filter name="g_cust" string="Customer" context="{'group_by': 'partner_id'}"/>
+                    <filter name="g_dl" string="Deadline" context="{'group_by': 'date_deadline:week'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+    <record id="action_itz_tasks" model="ir.actions.act_window">
+        <field name="name">Tasks</field>
+        <field name="res_model">itz.task</field>
+        <field name="view_mode">kanban,list,form,calendar,pivot,graph</field>
+        <field name="context">{'search_default_f_open': 1}</field>
+    </record>
+    <record id="action_itz_my_tasks" model="ir.actions.act_window">
+        <field name="name">My Tasks</field>
+        <field name="res_model">itz.task</field>
+        <field name="view_mode">kanban,list,form,calendar</field>
+        <field name="context">{'search_default_f_mine': 1, 'search_default_f_open': 1}</field>
+    </record>
+</odoo>
