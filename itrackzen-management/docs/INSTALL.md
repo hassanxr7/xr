@@ -87,7 +87,9 @@ Settings > Users > New. Pick **one role** (more only if the person really has tw
 Then tick **Installation technician** on the employee record of every technician (Employees > ITrackZen tab) and link the employee to the user.
 Optional extra privileges (Settings > Users > the person): *Financial information*, *Approve quotations and requests*, *Delete records*, *Export data*.
 
-## 7. Connect the tracking platform (when the platform side is ready)
+## 7. Connect the tracking platform (GPSWOX)
+
+The platform is GPSWOX; follow [integration-gpswox](integration-gpswox.md) (service account, Dry run first). The generic steps below describe the same safe order.
 
 **Management > Configuration > Tracking Platform > Connection.** Only the Owner can change the mode. Fill in the platform's web addresses for customer, vehicle and live-map pages, then:
 

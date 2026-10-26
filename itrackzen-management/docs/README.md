@@ -14,6 +14,7 @@ from the **website admin area** (`itrackzen.net/admin/`), so staff use one sign-
 | [BACKUP-AND-RESTORE](BACKUP-AND-RESTORE.md) | Nightly backups and the tested restore |
 | [USER-GUIDE](USER-GUIDE.md) | Short guide for each role, and the daily workflow |
 | [integration-contract](integration-contract.md) | How the tracking platform connects (APIs, webhooks, links, field ownership) |
+| [integration-gpswox](integration-gpswox.md) | Connecting GPSWOX, the platform ITrackZen uses: what is sent, safe switch-on steps |
 | [STAGING-DEMO](STAGING-DEMO.md) | The demo walk-through and sample logins |
 | [SECURITY](SECURITY.md) | HTTPS, sign-in, logs, what is and is not protected |
 | [TEST-REPORT](TEST-REPORT.md) | What was tested and the results |

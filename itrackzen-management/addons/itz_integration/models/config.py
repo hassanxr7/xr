@@ -14,7 +14,7 @@ class ItzPlatformConfig(models.Model):
     _inherit = ['mail.thread', 'itz.audit.mixin']
     _rec_name = 'company_id'
 
-    _itz_audit_fields = ['mode', 'base_url', 'api_base_url', 'auth_type']
+    _itz_audit_fields = ['mode', 'platform_type', 'base_url', 'api_base_url', 'auth_type', 'gpswox_create_clients', 'gpswox_push_expiry', 'gpswox_deactivate_expired']
     _itz_audit_category = 'integration'
 
     company_id = fields.Many2one('res.company', default=lambda self: self.env.company, required=True, ondelete='cascade')
@@ -25,6 +25,19 @@ class ItzPlatformConfig(models.Model):
         ('live', 'Live: send to the tracking platform'),
     ], default='disabled', required=True, tracking=True,
         help='Always test in Dry run, then Staging simulator, and only then switch to Live.')
+    platform_type = fields.Selection([
+        ('generic', 'ITrackZen integration layer (JSON API)'), ('gpswox', 'GPSWOX / GPS-Server (its own API)')],
+        default='generic', required=True, tracking=True,
+        help='GPSWOX: the management system signs in with a service account and uses the platform API (api/login, add_device, ...).')
+    gpswox_email = fields.Char(string='Service account email', groups='itz_base.group_itz_owner',
+                               help='A dedicated platform account for this connection (not a person\'s account).')
+    gpswox_password = fields.Char(string='Service account password', groups='itz_base.group_itz_owner')
+    gpswox_hash = fields.Char(string='Session key (automatic)', groups='itz_base.group_itz_owner', copy=False, readonly=True)
+    gpswox_create_clients = fields.Boolean(string='Create customer accounts in the platform', default=False,
+                                           help='Off by default: creating an account can make the platform email the customer. Devices are always created.')
+    gpswox_push_expiry = fields.Boolean(string='Send subscription expiry date to the platform', default=True)
+    gpswox_deactivate_expired = fields.Boolean(string='Deactivate the device when the subscription expires', default=False,
+                                               help='Off by default: switching a device off stops its tracking in the platform.')
     base_url = fields.Char(string='Platform web address', default='https://itrackzen.com',
                            help='Used to build the "Open in tracking platform" links.')
     customer_url_tpl = fields.Char(string='Customer page link', help='Placeholders: {base} {id} {email}. Example: {base}/admin/clients/{id}')
@@ -69,11 +82,13 @@ class ItzPlatformConfig(models.Model):
             cfg = self.sudo().create({'company_id': company.id})
         return cfg
 
-    @api.constrains('mode', 'api_base_url')
+    @api.constrains('mode', 'api_base_url', 'platform_type', 'gpswox_email')
     def _check_live(self):
         for cfg in self:
             if cfg.mode == 'live' and not cfg.api_base_url:
                 raise ValidationError(_('Enter the platform API address before switching to Live.'))
+            if cfg.mode == 'live' and cfg.platform_type == 'gpswox' and not cfg.sudo().gpswox_email:
+                raise ValidationError(_('Enter the platform service account before switching to Live.'))
 
     def write(self, vals):
         if 'mode' in vals and not self.env.su:

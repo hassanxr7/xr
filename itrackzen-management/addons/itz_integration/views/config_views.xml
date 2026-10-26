@@ -28,6 +28,7 @@
                     <group>
                         <group string="Mode">
                             <field name="mode" widget="radio"/>
+                            <field name="platform_type"/>
                         </group>
                         <group string="What to send">
                             <field name="sync_customers"/>
@@ -44,7 +45,17 @@
                             <field name="device_url_tpl"/>
                             <field name="live_map_url_tpl"/>
                         </group>
-                        <group string="Integration layer (API)">
+                        <group string="GPSWOX connection" invisible="platform_type != 'gpswox'">
+                            <field name="api_base_url" placeholder="https://itrackzen.com/api"/>
+                            <field name="gpswox_email" groups="itz_base.group_itz_owner"/>
+                            <field name="gpswox_password" password="True" groups="itz_base.group_itz_owner"/>
+                            <field name="gpswox_push_expiry"/>
+                            <field name="gpswox_deactivate_expired"/>
+                            <field name="gpswox_create_clients"/>
+                            <field name="timeout"/>
+                            <field name="max_attempts"/>
+                        </group>
+                        <group string="Integration layer (API)" invisible="platform_type != 'generic'">
                             <field name="api_base_url"/>
                             <field name="auth_type"/>
                             <field name="auth_header" invisible="auth_type != 'header'"/>
@@ -54,7 +65,7 @@
                             <field name="max_attempts"/>
                         </group>
                     </group>
-                    <group string="Endpoints">
+                    <group string="Endpoints" invisible="platform_type == 'gpswox'">
                         <group>
                             <field name="ep_customer"/>
                             <field name="ep_vehicle"/>

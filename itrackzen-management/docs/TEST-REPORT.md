@@ -7,7 +7,8 @@ with Odoo 18.0 Community (pinned commit), PostgreSQL 16 and the demo data, not o
 
 | Test | Result |
 |---|---|
-| Automated Odoo tests (`--test-tags itz`), all add-ons installed together | **82 tests, 0 failures, 0 errors** |
+| Automated Odoo tests (`--test-tags itz`), all add-ons installed together | **90 tests, 0 failures, 0 errors** (82 before the GPSWOX adapter, 8 added for it) |
+| GPSWOX adapter against a test double of the documented GPSWOX API, and over real HTTP against `integration-layer/mock_gpswox.py` (sign-in, find-or-create device by IMEI, expiry date) | Passed |
 | Single sign-on from the website admin, in a real browser (owner, sales, technician, accountant) | 21 checks passed. Unauthorized sections return 403. |
 | Role smoke test: every menu screen opened as each demo role | 203 screens, no access errors and no blank screens |
 | Full workflow journey in the browser (quotation to subscription renewal) | Passed |
@@ -33,8 +34,8 @@ redirect allow-list), and the tracking sync queue.
 
 ## Not tested, and why
 
-- **The real tracking platform.** It was not reachable from the build environment and no API documentation or test account was
-  available. The connection is built, tested against a simulator and the mock HTTP platform, and shipped switched off.
+- **The real GPSWOX platform.** It was not reachable from the build environment and no test account was available. The GPSWOX
+  connection follows the API reference you exported, is tested only against test doubles, and is shipped switched off.
 - **Your production server.** `deploy/install-ubuntu.sh` passed a syntax check and its steps were run by hand, but the script
   has not been run end to end on a clean server.
 - **Docker files** in `deploy/docker/` are untested.

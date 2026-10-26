@@ -98,15 +98,21 @@ class ItzSyncJob(models.Model):
         if cfg.mode == 'disabled':
             self.write({'state': 'skipped', 'last_error': _('Integration is disabled.')})
             return
-        if cfg.mode == 'dry_run':
-            self.write({'state': 'dry_run', 'payload': json.dumps(payload, sort_keys=True, default=str, indent=2),
-                        'response': _('DRY RUN. Would POST to %(ep)s', ep=endpoint), 'attempts': self.attempts + 1})
-            return
         adapter = self.env['itz.platform.adapter'].adapter_for(cfg)
+        if cfg.mode == 'dry_run':
+            note = _('DRY RUN. Would POST to %(ep)s', ep=endpoint)
+            if hasattr(adapter, 'plan'):
+                note = _('DRY RUN. Nothing was sent. The platform calls would be:') + '\n' + '\n'.join(adapter.plan(payload))
+            self.write({'state': 'dry_run', 'payload': json.dumps(payload, sort_keys=True, default=str, indent=2),
+                        'response': note, 'attempts': self.attempts + 1})
+            return
         try:
             response = adapter.send(endpoint, payload, self.idempotency_key)
         except AdapterError as exc:
             self._register_failure(str(exc), retry=exc.retry, cfg=cfg)
+            return
+        if (response or {}).get('noop'):
+            self.write({'state': 'skipped', 'last_error': response['noop'], 'response': json.dumps(response, default=str)[:2000]})
             return
         self._apply_response(record, response)
         self.write({
@@ -170,7 +176,7 @@ class ItzSyncJob(models.Model):
                 'version': 1, 'external_id': 'dev-%s' % record.id, 'platform_id': record.itz_platform_device_id or None,
                 'imei': record.itz_imei or record.name, 'serial': record.name, 'model': record.product_id.display_name,
                 'vehicle_id': vehicle.itz_platform_vehicle_id or None, 'vehicle_external_id': ('veh-%s' % vehicle.id) if vehicle else None,
-                'plate': vehicle.plate if vehicle else None,
+                'plate': vehicle.plate if vehicle else None, 'customer_name': vehicle.partner_id.name if vehicle else None,
                 'customer_id': vehicle.partner_id.itz_platform_customer_id or None if vehicle else None,
                 'sim': {'iccid': sim.name, 'msisdn': sim.itz_msisdn or None, 'carrier': sim.itz_carrier or None, 'apn': sim.itz_apn or None} if sim else None,
                 'status': record.itz_state,
@@ -201,3 +207,6 @@ class ItzSyncJob(models.Model):
         field = {'customer': 'itz_platform_customer_id', 'vehicle': 'itz_platform_vehicle_id', 'device': 'itz_platform_device_id'}.get(self.operation)
         if field and getattr(record, field, False) != str(platform_id):
             record.with_context(itz_platform_internal=True).write({field: str(platform_id), 'itz_platform_synced_at': fields.Datetime.now()})
+        vehicle_id = (response or {}).get('vehicle_platform_id')
+        if self.operation == 'device' and vehicle_id and record.itz_vehicle_id and record.itz_vehicle_id.itz_platform_vehicle_id != str(vehicle_id):
+            record.itz_vehicle_id.with_context(itz_platform_internal=True).write({'itz_platform_vehicle_id': str(vehicle_id), 'itz_platform_synced_at': fields.Datetime.now()})
