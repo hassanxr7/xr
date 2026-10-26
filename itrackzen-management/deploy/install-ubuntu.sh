@@ -36,6 +36,7 @@ echo "==> service user and folders"
 id itrackzen &>/dev/null || useradd --system --home "$ODOO_HOME" --shell /usr/sbin/nologin itrackzen
 mkdir -p "$ODOO_HOME" /etc/itrackzen /var/lib/itrackzen/odoo /var/log/itrackzen /var/backups/itrackzen
 chown itrackzen:itrackzen "$ODOO_HOME" /var/lib/itrackzen/odoo /var/log/itrackzen
+chown root:itrackzen /etc/itrackzen   # the service user must be able to enter the folder to read odoo.conf (secrets.env stays root-only)
 chmod 750 /etc/itrackzen /var/backups/itrackzen
 
 echo "==> secrets"
