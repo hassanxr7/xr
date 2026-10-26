@@ -2,7 +2,7 @@
     padding: 24px;
     max-width: 1280px;
     margin: 0 auto;
-    overflow: auto;
+    overflow-y: auto;
     height: 100%;
 
     .o_itz_loading { padding: 40px; text-align: center; color: #6b7ea3; }
@@ -55,3 +55,6 @@
     .o_itz_dashboard { padding: 12px; .o_itz_hero { padding: 16px; } .o_itz_tiles { grid-template-columns: repeat(2, 1fr); } }
 }
 .o_itz_report_preview { max-width: 100%; overflow-x: auto; }
+
+// Odoo's own .o_action rule hides overflow, which stopped the page scrolling; this wins on specificity.
+html .o_web_client > .o_action_manager > .o_action.o_itz_dashboard { overflow-y: auto; overflow-x: hidden; }
