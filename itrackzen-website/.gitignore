@@ -12,3 +12,4 @@ public_html/assets/uploads/*
 
 public_html/data/*.sqlite
 public_html/data/*.sqlite-*
+public_html/data/catalog-cache.json
