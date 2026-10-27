@@ -7,7 +7,7 @@ with Odoo 18.0 Community (pinned commit), PostgreSQL 16 and the demo data, not o
 
 | Test | Result |
 |---|---|
-| Automated Odoo tests (`--test-tags itz`), all add-ons installed together | **90 tests, 0 failures, 0 errors** (82 before the GPSWOX adapter, 8 added for it) |
+| Automated Odoo tests (`--test-tags itz`), all add-ons installed together | **92 tests, 0 failures, 0 errors** (82 originally, 8 added for the GPSWOX adapter, 2 for the user-form role check boxes) |
 | GPSWOX adapter against a test double of the documented GPSWOX API, and over real HTTP against `integration-layer/mock_gpswox.py` (sign-in, find-or-create device by IMEI, expiry date) | Passed |
 | Single sign-on from the website admin, in a real browser (owner, sales, technician, accountant) | 21 checks passed. Unauthorized sections return 403. |
 | Role smoke test: every menu screen opened as each demo role | 203 screens, no access errors and no blank screens |

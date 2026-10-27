@@ -13,6 +13,7 @@
         'data/itz_base_data.xml',
         'views/itz_audit_views.xml',
         'views/res_company_views.xml',
+        'views/res_users_views.xml',
         'views/menus.xml',
     ],
     'installable': True,

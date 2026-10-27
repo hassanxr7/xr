@@ -38,6 +38,14 @@ class ResUsers(models.Model):
 class ResGroups(models.Model):
     _inherit = 'res.groups'
 
+    @api.depends('full_name')
+    @api.depends_context('itz_short_group_name')
+    def _compute_display_name(self):
+        super()._compute_display_name()
+        if self.env.context.get('itz_short_group_name'):
+            for group in self:
+                group.display_name = group.name
+
     def write(self, vals):
         watch = {'implied_ids', 'users', 'name'}
         before = {}

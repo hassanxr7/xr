@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_users_form_itz_roles" model="ir.ui.view">
+        <field name="name">res.users.form.itz.roles</field>
+        <field name="model">res.users</field>
+        <field name="inherit_id" ref="base.view_users_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//notebook[@colspan='4']" position="before">
+                <group string="ITrackZen access">
+                    <group>
+                        <field name="itz_role_ids" widget="many2many_checkboxes" context="{'itz_short_group_name': True}"/>
+                    </group>
+                    <group>
+                        <field name="itz_privilege_ids" widget="many2many_checkboxes" context="{'itz_short_group_name': True}"/>
+                    </group>
+                </group>
+            </xpath>
+        </field>
+    </record>
+</odoo>

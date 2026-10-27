@@ -84,6 +84,8 @@ Settings > Users > New. Pick **one role** (more only if the person really has tw
 | Customer Support | Customers, vehicles, subscriptions, tasks |
 | Read-only user | Can view, cannot change anything |
 
+The roles are check boxes in the **ITrackZen access** block at the top of the user form. Leave the standard Odoo access rights (Sales, Inventory, Purchase, Employees, Administration) empty.
+
 Then tick **Installation technician** on the employee record of every technician (Employees > ITrackZen tab) and link the employee to the user.
 Optional extra privileges (Settings > Users > the person): *Financial information*, *Approve quotations and requests*, *Delete records*, *Export data*.
 
