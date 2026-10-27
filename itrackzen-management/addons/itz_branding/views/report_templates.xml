@@ -1,9 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
-    <!-- Branded document footer line shown on all PDFs using the standard layout -->
-    <template id="external_layout_standard_itz" inherit_id="web.external_layout_standard" name="ITrackZen PDF footer">
+    <!-- Quotations, invoices, receipts and statements carry the LibDex logo and name (the company record) -->
+    <template id="external_layout_standard_itz" inherit_id="web.external_layout_standard" name="LibDex PDF header and footer">
+        <xpath expr="//img[hasclass('o_company_logo_small')]" position="attributes">
+            <attribute name="style">max-height: 95px; max-width: 280px;</attribute>
+        </xpath>
         <xpath expr="//div[hasclass('text-muted')]" position="before">
-            <div class="text-center small" style="color:#1e6bff;font-weight:600;">ITrackZen &#183; LibDex Logistics Solution</div>
+            <div class="text-center small" style="color:#111111;font-weight:600;">LibDex Merchants Ltd &#183; ITrackZen GPS tracking</div>
         </xpath>
     </template>
 </odoo>

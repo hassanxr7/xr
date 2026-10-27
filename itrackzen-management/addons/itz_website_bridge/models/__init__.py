@@ -1,1 +1,1 @@
-from . import bridge
+from . import bridge, product

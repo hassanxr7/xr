@@ -362,3 +362,6 @@ h1,h2,h3{letter-spacing:-.025em;font-weight:800;color:var(--ink)}h2{font-size:cl
 .shots{display:grid;grid-template-columns:repeat(3,1fr);gap:22px}.shot{margin:0;display:flex;flex-direction:column;gap:12px;align-items:center}.shot figcaption{display:flex;flex-direction:column;text-align:center;font-size:.92rem}.shot figcaption strong{color:var(--ink)}
 .del-callout{margin:0 0 22px}
 @media (max-width:900px){.shots{grid-template-columns:1fr 1fr}.stage-real-phone{width:34%;left:-6px}}@media (max-width:620px){.shots{grid-template-columns:1fr}}
+.sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+.compare .yes{font-weight:700;font-size:.9rem}
+.price+.small,.plan .small{font-size:.85rem}

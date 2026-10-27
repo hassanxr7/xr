@@ -19,7 +19,7 @@
        <strong><t t-out="object.next_renewal_date"/></strong>. To keep live tracking, reports and alerts running without interruption, please make your payment before that date.</p>
     <p t-if="object.company_id.itz_payment_instructions"><t t-out="object.company_id.itz_payment_instructions"/></p>
     <p>If you have already paid, thank you, and please ignore this message.</p>
-    <p>ITrackZen &#183; LibDex Logistics Solution</p>
+    <p>LibDex Merchants Ltd &#183; ITrackZen GPS tracking</p>
 </div>
         </field>
         <field name="auto_delete" eval="True"/>
@@ -36,7 +36,7 @@
     <p>The tracking plan for vehicle <strong><t t-out="object.vehicle_id.plate"/></strong> expired on <t t-out="object.next_renewal_date"/> and was not renewed within the grace period.
        Please contact us to renew and restore service.</p>
     <p t-if="object.company_id.itz_payment_instructions"><t t-out="object.company_id.itz_payment_instructions"/></p>
-    <p>ITrackZen &#183; LibDex Logistics Solution</p>
+    <p>LibDex Merchants Ltd &#183; ITrackZen GPS tracking</p>
 </div>
         </field>
         <field name="auto_delete" eval="True"/>

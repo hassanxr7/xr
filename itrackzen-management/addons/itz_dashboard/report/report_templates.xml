@@ -9,7 +9,7 @@
                 </div>
             </t>
             <table class="table table-sm table-striped">
-                <thead style="background:#0a1f44;color:#fff;">
+                <thead style="background:#111111;color:#fff;">
                     <tr><th t-foreach="data['columns']" t-as="col" style="color:#ffffff;" t-att-class="'text-end' if col['type'] in ('money', 'int', 'float') else ''"><t t-out="col['label']"/></th></tr>
                 </thead>
                 <tbody>
@@ -23,7 +23,7 @@
                             </td>
                         </t>
                     </tr>
-                    <tr t-if="data['totals']" style="font-weight:bold;border-top:2px solid #0a1f44;">
+                    <tr t-if="data['totals']" style="font-weight:bold;border-top:2px solid #111111;">
                         <t t-foreach="range(len(data['totals']))" t-as="i">
                             <td t-att-class="'text-end' if data['columns'][i]['type'] in ('money', 'int', 'float') else ''">
                                 <t t-set="v" t-value="data['totals'][i]"/>
@@ -53,7 +53,7 @@
                 <t t-set="data" t-value="o.get_report()"/>
                 <t t-call="web.external_layout">
                     <div class="page">
-                        <h2 style="color:#0a1f44;"><t t-out="data['title']"/></h2>
+                        <h2 style="color:#111111;"><t t-out="data['title']"/></h2>
                         <div class="text-muted mb-3"><t t-out="data['subtitle']"/> &#183; Generated <t t-out="data['generated']"/> by <t t-out="data['generated_by']"/></div>
                         <t t-call="itz_dashboard.report_table"><t t-set="limit" t-value="0"/></t>
                     </div>

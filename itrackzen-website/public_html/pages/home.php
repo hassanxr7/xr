@@ -78,6 +78,32 @@ $ov = $home['overview'];
   </div>
 </section>
 
+<?php
+$homePlans = [];
+foreach (array_filter(data('pricing')['plans'], fn($x) => ($x['active'] ?? true)) as $pl) {
+    $lp = catalog_plan_price($pl['name']);
+    if ($lp) { $homePlans[] = $pl + ['_live' => $lp]; }
+}
+if ($homePlans): ?>
+<section class="section tight">
+  <div class="container">
+    <?php section_head('Plans and prices', 'Simple tracking plans, priced per vehicle', 'Current prices from our team. Hardware and installation are listed on the pricing page.'); ?>
+    <div class="plans">
+      <?php foreach ($homePlans as $pl): ?>
+      <article class="plan reveal<?= !empty($pl['highlight']) ? ' hl' : '' ?>">
+        <?php if (!empty($pl['badge'])): ?><span class="badge"><?= e($pl['badge']) ?></span><?php endif; ?>
+        <h3><?= e($pl['name']) ?> Plan</h3>
+        <p class="tag"><?= e($pl['tagline']) ?></p>
+        <p class="price"><strong><?= e($pl['_live']['price']) ?></strong><small><?= e($pl['_live']['period']) ?></small></p>
+        <a class="btn <?= !empty($pl['highlight']) ? 'btn-primary' : 'btn-outline' ?> btn-block" href="/pricing">See what is included</a>
+      </article>
+      <?php endforeach; ?>
+    </div>
+    <p class="center mt-lg"><a class="btn btn-outline" href="/pricing">All plans, hardware and prices</a></p>
+  </div>
+</section>
+<?php endif; ?>
+
 <section class="section alt">
   <div class="container">
     <?php section_head('What we do', $home['overview_heading'], $home['overview_text']); ?>

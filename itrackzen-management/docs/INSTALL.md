@@ -110,10 +110,20 @@ sudo -u itrackzen /opt/itrackzen/venv/bin/python /opt/itrackzen/odoo/odoo-bin -c
 ```
 Sample logins are in [STAGING-DEMO](STAGING-DEMO.md). Use a separate domain such as `staging.itrackzen.net` or run it on a laptop.
 
+## 8b. Prices and stock on the website
+
+Finance sets the price and the store enters the units; the website follows by itself.
+
+1. Management > Inventory > Products and Stock: open the product, set the **Sales Price**, tick **Show on the website** (Finance, Accountant, Operations and Owner can do this). Only products with a price above zero are shown.
+2. For a **tracking plan** also choose the **Website plan card** (Starter, Business or Enterprise). Several billing cycles can share one card: the shortest is the main price and the others appear as "Also: ...". Only one published plan per card and cycle.
+3. The store receives the units as usual (Receipts). The website shows **In stock** or **Out of stock, ask for lead time**; it never shows exact quantities, costs or margins.
+4. The website asks the management system for the list every 5 minutes. If the management system is down, the last list (up to 7 days old) keeps showing. Un-tick **Show on the website** to remove a product.
+5. Needs the website connection from section 5 (the same shared secret). Nothing else to set up.
+
 ## 9. Updating later
 
-Copy the new `addons/` folder, re-run `install-ubuntu.sh` (it updates modules) or run
-`odoo-bin -c /etc/itrackzen/odoo.conf -d itrackzen -u all --stop-after-init` and restart the service. **Take a backup first** (`sudo itz-backup`).
+Unzip the new source on the server, then run `sudo ./deploy/update.sh <path to the unzipped addons folder>`. It takes a backup, copies the add-ons, updates every installed ITrackZen module and restarts the service.
+Website files (`itrackzen-website/public_html`) are copied over the old ones on Hostinger, keeping `data/` and `includes/config.local.php`.
 
 ## 10. Docker alternative (not tested)
 

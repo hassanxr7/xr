@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="product_template_form_itz_web" model="ir.ui.view">
+        <field name="name">product.template.form.itz.website</field>
+        <field name="model">product.template</field>
+        <field name="inherit_id" ref="itz_inventory.product_template_form_itz"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='itz_model']" position="after">
+                <field name="itz_web_publish" groups="itz_base.group_itz_financial"/>
+                <field name="itz_web_plan" invisible="itz_category != 'plan' or not itz_web_publish" groups="itz_base.group_itz_financial"/>
+                <field name="itz_web_note" invisible="not itz_web_publish" groups="itz_base.group_itz_financial"
+                       placeholder="One short line for the website, for example: 4G tracker with SOS button"/>
+            </xpath>
+        </field>
+    </record>
+</odoo>

@@ -166,3 +166,65 @@ class TestBridgeHttp(HttpCase):
         self.assertEqual(res.headers['Location'], 'https://itrackzen.net/admin/')
         res = self.url_open('/itz/sso/logout?redirect=https://evil.example/', allow_redirects=False)
         self.assertEqual(res.headers['Location'], 'https://itrackzen.net/admin/')
+
+
+@tagged('post_install', '-at_install', 'itz')
+class TestWebsiteCatalog(HttpCase):
+
+    def setUp(self):
+        super().setUp()
+        self.cfg = self.env['itz.website.config'].get_config()
+        self.cfg.sudo().enabled = True
+        P = self.env['product.template']
+        self.tracker = P.create({'name': 'Web Tracker', 'itz_category': 'tracker', 'type': 'consu', 'is_storable': True, 'list_price': 85.0,
+                                 'itz_web_publish': True, 'itz_web_note': '4G tracker with SOS'})
+        self.plan = P.create({'name': 'Web Plan Business', 'itz_category': 'plan', 'type': 'service', 'list_price': 12.0, 'itz_plan_cycle': 'monthly',
+                              'itz_web_publish': True, 'itz_web_plan': 'business'})
+        self.hidden = P.create({'name': 'Hidden Relay', 'itz_category': 'relay', 'type': 'consu', 'is_storable': True, 'list_price': 30.0})
+        self.free = P.create({'name': 'Zero Price Cable', 'itz_category': 'cable', 'type': 'consu', 'list_price': 0.0, 'itz_web_publish': True})
+
+    def _url(self, ts=None, sig=None):
+        ts = str(ts or int(time.time()))
+        return '/itz/api/catalog?ts=%s&sig=%s' % (ts, sig or self.cfg.sign('catalog|%s' % ts))
+
+    def test_catalog_lists_only_published_priced_products_without_costs(self):
+        res = self.url_open(self._url())
+        self.assertEqual(res.status_code, 200)
+        data = res.json()
+        names = {i['name'] for i in data['items']} | {p['name'] for p in data['plans']}
+        self.assertIn('Web Tracker', names)
+        self.assertIn('Web Plan Business', names)
+        self.assertNotIn('Hidden Relay', names)
+        self.assertNotIn('Zero Price Cable', names)
+        row = next(i for i in data['items'] if i['name'] == 'Web Tracker')
+        self.assertEqual(row['price'], 85.0)
+        self.assertEqual(row['blurb'], '4G tracker with SOS')
+        self.assertFalse(row['in_stock'])                       # nothing received yet
+        self.assertNotIn('standard_price', json.dumps(data))
+        plan = data['plans'][0]
+        self.assertEqual((plan['plan'], plan['cycle'], plan['price']), ('business', 'monthly', 12.0))
+
+    def test_catalog_stock_flag_follows_the_store(self):
+        cable = self.env['product.template'].create({'name': 'Web Cable', 'itz_category': 'cable', 'type': 'consu', 'is_storable': True,
+                                                     'list_price': 4.0, 'itz_web_publish': True})
+        find = lambda: next(i for i in self.url_open(self._url()).json()['items'] if i['name'] == 'Web Cable')  # noqa: E731
+        self.assertFalse(find()['in_stock'])
+        wh = self.env['stock.warehouse'].search([], limit=1)
+        self.env['stock.quant'].with_context(inventory_mode=True).create({
+            'product_id': cable.product_variant_id.id, 'location_id': wh.lot_stock_id.id, 'inventory_quantity': 3}).action_apply_inventory()
+        self.assertTrue(find()['in_stock'])
+
+    def test_catalog_requires_a_valid_signature(self):
+        self.assertEqual(self.url_open('/itz/api/catalog?ts=%s&sig=bad' % int(time.time())).status_code, 401)
+        old = int(time.time()) - 1000
+        self.assertEqual(self.url_open(self._url(ts=old, sig=self.cfg.sign('catalog|%s' % old))).status_code, 401)
+        self.cfg.sudo().enabled = False
+        self.assertEqual(self.url_open(self._url()).status_code, 403)
+
+    def test_one_published_plan_per_card_and_cycle(self):
+        from odoo.exceptions import ValidationError
+        with self.assertRaises(ValidationError):
+            self.env['product.template'].create({'name': 'Second Business', 'itz_category': 'plan', 'type': 'service', 'list_price': 11.0,
+                                                 'itz_plan_cycle': 'monthly', 'itz_web_publish': True, 'itz_web_plan': 'business'})
+        with self.assertRaises(ValidationError):
+            self.env['product.template'].create({'name': 'Tracker as plan', 'itz_category': 'tracker', 'type': 'consu', 'itz_web_plan': 'starter'})

@@ -1,6 +1,6 @@
 {
     'name': 'ITrackZen Branding',
-    'version': '18.0.1.0.0',
+    'version': '18.0.1.1.0',
     'summary': 'ITrackZen colors, logo, login page and document layout for the management system',
     'author': 'LibDex Ltd (ITrackZen)',
     'website': 'https://itrackzen.net',

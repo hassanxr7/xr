@@ -169,12 +169,101 @@ class ItzDashboard(models.AbstractModel):
         return {
             'user': {'name': user.name, 'id': user.id},
             'roles': self._role_names(),
+            'quick_actions': self._quick_actions(),
+            'attention': self._attention(sections),
             'currency': {'symbol': currency.symbol, 'position': currency.position, 'decimals': currency.decimal_places},
             'sections': sections,
             'lists': self._lists(today),
             'links': self._links(),
             'date': fields.Date.to_string(today),
         }
+
+    # ------------------------------------------------------------------ the simple front page
+    # (key, label, help, icon, kind, target, extra) - kind: 'action' (xml id), 'new' (blank form of a model), 'search'
+    QUICK = {
+        'new_quote': ('New quotation', 'Prepare a price for a customer', 'fa-file-text-o', 'new', 'sale.order', {}),
+        'new_customer': ('Add a customer', 'Name, phone and email', 'fa-user-plus', 'new', 'res.partner', {}),
+        'new_install': ('Plan an installation', 'Choose the vehicle, tracker and technician', 'fa-wrench', 'new', 'itz.installation', {}),
+        'enquiries': ('Website enquiries', 'People who wrote to us from the website', 'fa-inbox', 'action', 'itz_sales.action_itz_enquiries', {}),
+        'approvals': ('Approve quotations', 'Quotations waiting for a decision', 'fa-gavel', 'action', 'itz_sales.action_itz_approvals', {}),
+        'vehicles': ('Find a vehicle', 'By plate, customer, phone or IMEI', 'fa-car', 'action', 'itz_fleet.action_itz_vehicles', {}),
+        'renewals': ('Renewals due', 'Subscriptions to renew or follow up', 'fa-refresh', 'action', 'itz_subscription.action_itz_renewals_due', {}),
+        'my_jobs': ('My installation jobs', 'The jobs given to me', 'fa-wrench', 'action', 'itz_fleet.action_itz_my_jobs', {}),
+        'my_equipment': ('Equipment with me', 'Trackers and SIM cards I hold', 'fa-microchip', 'action', 'itz_inventory.action_itz_my_equipment', {}),
+        'my_tasks': ('My tasks', 'What I must do next', 'fa-tasks', 'action', 'itz_tasks.action_itz_my_tasks', {}),
+        'issue': ('Give equipment to a technician', 'Hand trackers or SIM cards to a technician', 'fa-share-square-o', 'action', 'itz_inventory.action_itz_issue_technician', {}),
+        'devices': ('Find a tracker or SIM', 'By IMEI, serial or phone number', 'fa-microchip', 'action', 'itz_inventory.action_itz_devices', {}),
+        'receipts': ('Receive stock', 'Record trackers and SIM cards that arrived', 'fa-download', 'action', 'stock.action_picking_tree_all', {}),
+        'payment': ('Record a payment', 'A customer has paid', 'fa-credit-card', 'new', 'account.payment',
+                    {'default_payment_type': 'inbound', 'default_partner_type': 'customer'}),
+        'invoices': ('Invoices', 'See and send invoices', 'fa-file-text', 'action', 'account.action_move_out_invoice_type', {}),
+        'overdue': ('Overdue invoices', 'Customers who have not paid on time', 'fa-exclamation-triangle', 'action', 'itz_finance.action_itz_overdue_invoices', {}),
+        'statement': ('Customer statement', 'Print what a customer owes', 'fa-list-alt', 'action', 'itz_finance.action_itz_statement_wizard', {}),
+        'reports': ('Reports', 'Sales, stock, installations and more', 'fa-bar-chart', 'action', 'itz_dashboard.action_itz_reports', {}),
+    }
+    QUICK_BY_ROLE = {
+        'owner': ['new_quote', 'new_install', 'payment', 'approvals', 'renewals', 'reports'],
+        'ops': ['new_install', 'approvals', 'new_quote', 'my_tasks', 'renewals', 'reports'],
+        'technician': ['my_jobs', 'my_equipment', 'my_tasks'],
+        'storekeeper': ['issue', 'receipts', 'devices', 'my_tasks'],
+        'accountant': ['payment', 'invoices', 'overdue', 'statement', 'reports'],
+        'sales': ['new_quote', 'new_customer', 'vehicles', 'enquiries', 'renewals', 'my_tasks'],
+        'support': ['vehicles', 'new_customer', 'renewals', 'enquiries', 'my_tasks'],
+        'readonly': ['vehicles', 'my_tasks', 'reports'],
+    }
+
+    def _quick_actions(self):
+        user = self.env.user
+        roles = [r for r in ('owner', 'ops', 'technician', 'storekeeper', 'accountant', 'sales', 'support', 'readonly')
+                 if user.has_group('itz_base.group_itz_%s' % ({'ops': 'ops_manager'}.get(r, r)))]
+        if 'owner' in roles:
+            roles = ['owner']
+        elif 'ops' in roles:
+            roles = ['ops']
+        keys = []
+        for role in roles:
+            keys += [k for k in self.QUICK_BY_ROLE[role] if k not in keys]
+        if 'my_tasks' not in keys:
+            keys.append('my_tasks')
+        out = []
+        for key in keys:
+            label, hint, icon, kind, target, ctx = self.QUICK[key]
+            item = {'key': key, 'label': _(label), 'hint': _(hint), 'icon': icon, 'kind': kind}
+            try:
+                if kind == 'new':
+                    if not self.env[target].has_access('create'):
+                        continue
+                    item.update({'model': target, 'context': ctx})
+                else:
+                    act_id = self.env['ir.model.data'].sudo()._xmlid_to_res_id(target, raise_if_not_found=False)
+                    if not act_id:
+                        continue
+                    base = self.env['ir.actions.actions'].sudo().browse(act_id)
+                    res_model = getattr(self.env[base.type].sudo().browse(act_id), 'res_model', False)
+                    if res_model and not self.env[res_model].has_access('read'):
+                        continue
+                    item['action'] = act_id
+            except Exception:  # noqa: BLE001 - an action this person cannot use is left out
+                continue
+            out.append(item)
+            if len(out) == 6:
+                break
+        return out
+
+    def _attention(self, sections):
+        """Only the figures that need someone to act, so a quiet day shows nothing."""
+        items = []
+        for sec in sections:
+            for tile in sec['tiles']:
+                if tile['tone'] in ('danger', 'warning') and not tile['money'] and tile['value'] and tile.get('res_model'):
+                    items.append({k: tile[k] for k in ('key', 'label', 'value', 'tone', 'res_model', 'domain')})
+        items.sort(key=lambda t: 0 if t['tone'] == 'danger' else 1)
+        seen, out = set(), []
+        for it in items:
+            if it['key'] not in seen:
+                seen.add(it['key'])
+                out.append(it)
+        return out[:6]
 
     def _role_names(self):
         if self.env.user.has_group('itz_base.group_itz_owner'):

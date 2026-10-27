@@ -87,6 +87,20 @@ class ItzBridgeController(http.Controller):
             'menus': cfg.menus_of(user), 'generated': int(time.time()),
         })
 
+    @http.route('/itz/api/catalog', type='http', auth='none', methods=['GET'], csrf=False, save_session=False)
+    def catalog(self, **kw):
+        """Prices and stock status of the products marked "Show on the website". Signed like the dashboard summary; no personal data."""
+        env = request.env(user=SUPERUSER_ID)
+        cfg = env['itz.website.config'].get_config()
+        if not cfg.enabled:
+            return request.make_json_response({'error': 'disabled'}, status=403)
+        ts = request.params.get('ts', '')
+        if not ts.isdigit() or abs(time.time() - int(ts)) > 120 or not cfg.verify('catalog|%s' % ts, request.params.get('sig', '')):
+            return request.make_json_response({'error': 'unauthorized'}, status=401)
+        data = env['product.template'].itz_website_catalog()
+        data['generated'] = int(time.time())
+        return request.make_json_response(data)
+
     @http.route('/itz/website/event', type='http', auth='none', methods=['POST'], csrf=False, save_session=False, readonly=False)
     def event(self, **kw):
         env = request.env(user=SUPERUSER_ID)

@@ -11,7 +11,7 @@ export class ItzDashboard extends Component {
     setup() {
         this.orm = useService("orm");
         this.action = useService("action");
-        this.state = useState({ loading: true, data: null, query: "", results: null, searching: false });
+        this.state = useState({ loading: true, data: null, query: "", results: null, searching: false, showFigures: false });
         this._timer = null;
         onWillStart(async () => {
             await this.load();
@@ -50,6 +50,33 @@ export class ItzDashboard extends Component {
                 target: "current",
             });
         }
+    }
+
+    openQuick(item) {
+        if (item.kind === "new") {
+            this.action.doAction({
+                type: "ir.actions.act_window",
+                name: item.label,
+                res_model: item.model,
+                views: [[false, "form"]],
+                target: "current",
+                context: item.context || {},
+            });
+        } else {
+            this.action.doAction(item.action);
+        }
+    }
+
+    openAttention(item) {
+        this.openTile({ label: item.label, res_model: item.res_model, domain: item.domain });
+    }
+
+    toggleFigures() {
+        this.state.showFigures = !this.state.showFigures;
+    }
+
+    get today() {
+        return new Date().toLocaleDateString(undefined, { weekday: "long", day: "numeric", month: "long" });
     }
 
     openRecord(model, id) {

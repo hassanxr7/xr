@@ -6,6 +6,8 @@ declare(strict_types=1);
 require __DIR__ . '/includes/bootstrap.php';
 require __DIR__ . '/includes/layout.php';
 require __DIR__ . '/includes/forms.php';
+require_once __DIR__ . '/includes/odoo.php';
+require_once __DIR__ . '/includes/catalog.php';
 
 $path = request_path();
 if ($path === '/index.php') { header('Location: /', true, 301); exit; }

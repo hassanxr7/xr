@@ -11,6 +11,7 @@
         'security/ir.model.access.csv',
         'data/bridge_data.xml',
         'views/bridge_views.xml',
+        'views/product_views.xml',
         'views/menus.xml',
     ],
     'installable': True,

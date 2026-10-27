@@ -47,3 +47,10 @@ installations by technician, maintenance/removals/replacements by technician, em
 * Scan or type the IMEI **exactly**; never reuse a device record for another physical unit.
 * When a device is removed, use a **removal or replacement job**, not an edit on the vehicle, so the history stays complete.
 * Do not share logins. Everything important is recorded under the signed-in person's name.
+
+
+## Showing prices on the website (Finance and Store)
+
+* **Finance:** open the product (Inventory > Products and Stock), enter the **Sales Price**, tick **Show on the website**. For a tracking plan choose the **Website plan card** too. Untick it to take the product off the website.
+* **Store:** receive the units as usual. The website shows **In stock** when units are available and **Out of stock, ask for lead time** when none are left. Customers never see quantities or costs.
+* The website refreshes within 5 minutes. The Pricing page shows the plan prices and a hardware price table; the home page shows the plan cards.

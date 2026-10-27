@@ -1,11 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo noupdate="1">
     <record id="base.main_company" model="res.company">
-        <field name="name">ITrackZen (LibDex Ltd)</field>
-        <field name="primary_color">#1e6bff</field>
-        <field name="secondary_color">#0a1f44</field>
+        <field name="name">LibDex Merchants Ltd</field>
+        <field name="primary_color">#3aaa35</field>
+        <field name="secondary_color">#111111</field>
         <field name="font">Montserrat</field>
-        <field name="logo" type="base64" file="itz_branding/static/img/itrackzen-logo.png"/>
+        <field name="logo" type="base64" file="itz_branding/static/img/libdex-logo.png"/>
+        <field name="country_id" ref="base.ke"/>
         <field name="email">info@libdexltd.com</field>
         <field name="website">https://itrackzen.net</field>
     </record>

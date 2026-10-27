@@ -10,7 +10,7 @@
             <div class="row mt-3" t-if="doc.itz_amount_recurring" name="itz_breakdown">
                 <div class="col-6">
                     <table class="table table-sm" style="font-size:0.95em;">
-                        <thead><tr><th colspan="2" style="color:#0a1f44;">Summary of charges (before tax)</th></tr></thead>
+                        <thead><tr><th colspan="2" style="color:#111111;">Summary of charges (before tax)</th></tr></thead>
                         <tbody>
                             <tr t-if="doc.itz_amount_hardware"><td>Hardware (one-time)</td><td class="text-end"><span t-out="doc.itz_amount_hardware" t-options="{'widget': 'monetary', 'display_currency': doc.currency_id}"/></td></tr>
                             <tr t-if="doc.itz_amount_installation"><td>Installation and services (one-time)</td><td class="text-end"><span t-out="doc.itz_amount_installation" t-options="{'widget': 'monetary', 'display_currency': doc.currency_id}"/></td></tr>

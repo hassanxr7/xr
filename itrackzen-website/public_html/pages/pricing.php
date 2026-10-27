@@ -14,8 +14,14 @@ page_hero($m['h1'], $p['intro'], 'Pricing & Plans', '', 'iveco-delivery-van');
         <?php if (!empty($pl['badge'])): ?><span class="badge"><?= e($pl['badge']) ?></span><?php endif; ?>
         <h2><?= e($pl['name']) ?> Plan</h2>
         <p class="tag"><?= e($pl['tagline']) ?></p>
-        <?php $priced = !empty($pl['price_approved']) && trim((string)($pl['price'] ?? '')) !== ''; ?>
-        <p class="price"><strong><?= $priced ? e(trim(($pl['currency'] ?? '') . ' ' . $pl['price'])) : 'Contact Sales' ?></strong><small><?= $priced ? e($pl['billing_period'] ?? '') : 'for current pricing' ?></small></p>
+        <?php
+        $live = catalog_plan_price($pl['name']);   // the price set by finance in the management system wins
+        $priced = $live || (!empty($pl['price_approved']) && trim((string)($pl['price'] ?? '')) !== '');
+        $priceText = $live ? $live['price'] : trim(($pl['currency'] ?? '') . ' ' . ($pl['price'] ?? ''));
+        $periodText = $live ? $live['period'] : ($pl['billing_period'] ?? '');
+        ?>
+        <p class="price"><strong><?= $priced ? e($priceText) : 'Contact Sales' ?></strong><small><?= $priced ? e($periodText) : 'for current pricing' ?></small></p>
+        <?php if ($live && $live['others']): ?><p class="muted small">Also: <?= e(implode(' · ', $live['others'])) ?></p><?php endif; ?>
         <?php if (!empty($pl['description'])): ?><p class="plan-desc"><?= e($pl['description']) ?></p><?php endif; ?>
         <a class="btn <?= !empty($pl['highlight']) ? 'btn-primary' : 'btn-outline' ?> btn-block" href="/request-quote?service=<?= rawurlencode('GPS vehicle tracking') ?>&amp;topic=<?= rawurlencode($pl['name'] . ' Plan') ?>"><?= e($pl['cta']) ?></a>
         <?php check_list($pl['features']); ?>
@@ -40,6 +46,28 @@ page_hero($m['h1'], $p['intro'], 'Pricing & Plans', '', 'iveco-delivery-van');
       </tbody></table></div>
   </div>
 </section>
+<?php $hw = catalog_items_grouped(); $hwCur = $hw ? catalog_get()['currency'] : []; if ($hw): ?>
+<section class="section">
+  <div class="container narrow">
+    <?php section_head('Hardware & installation prices', 'What we supply and install', 'Prices are current and come straight from our store and finance team. Installation and tax are confirmed in your written quote.'); ?>
+    <?php foreach ($hw as $items): ?>
+    <h3 class="mt-lg"><?= e($items[0]['category_label'] ?? 'Other') ?></h3>
+    <div class="table-wrap reveal"><table class="compare">
+      <thead><tr><th scope="col">Item</th><th scope="col">Price</th><th scope="col">Availability</th><th scope="col"><span class="sr-only">Quote</span></th></tr></thead>
+      <tbody>
+      <?php foreach ($items as $it): ?>
+        <tr>
+          <th scope="row"><?= e($it['name']) ?><?php if (!empty($it['blurb'])): ?><br><small class="muted"><?= e($it['blurb']) ?></small><?php endif; ?></th>
+          <td><strong><?= e(catalog_money((float)$it['price'], $hwCur)) ?></strong></td>
+          <td><?php if ($it['in_stock'] === true): ?><span class="yes">In stock</span><?php elseif ($it['in_stock'] === false): ?><span class="opt">Out of stock, ask for lead time</span><?php else: ?><span class="muted">&ndash;</span><?php endif; ?></td>
+          <td><a class="btn btn-outline" href="/request-quote?service=<?= rawurlencode('Tracker hardware & installation') ?>&amp;topic=<?= rawurlencode($it['name']) ?>">Request quote</a></td>
+        </tr>
+      <?php endforeach; ?>
+      </tbody></table></div>
+    <?php endforeach; ?>
+  </div>
+</section>
+<?php endif; ?>
 <section class="section">
   <div class="container split">
     <div class="split-copy reveal"><p class="eyebrow">Hardware &amp; installation</p><h2><?= e($p['addons_heading']) ?></h2><p><?= e($p['addons_text']) ?></p>

@@ -19,7 +19,7 @@
                     <div class="page">
                         <div class="row mb-3">
                             <div class="col-7">
-                                <h2 style="color:#0a1f44;">Statement of Account</h2>
+                                <h2 style="color:#111111;">Statement of Account</h2>
                                 <div>Period: <span t-field="o.date_from"/> to <span t-field="o.date_to"/></div>
                             </div>
                             <div class="col-5">
@@ -28,7 +28,7 @@
                             </div>
                         </div>
                         <table class="table table-sm o_main_table">
-                            <thead style="background:#0a1f44;">
+                            <thead style="background:#111111;">
                                 <tr style="color:#ffffff;">
                                     <th style="color:#fff;">Date</th><th style="color:#fff;">Reference</th><th style="color:#fff;">Description</th><th style="color:#fff;">Due</th>
                                     <th class="text-end" style="color:#fff;">Charges</th><th class="text-end" style="color:#fff;">Payments</th><th class="text-end" style="color:#fff;">Balance</th>
@@ -48,7 +48,7 @@
                                     <td class="text-end"><span t-if="r['credit']" t-out="r['credit']" t-options="{'widget': 'monetary', 'display_currency': data['currency']}"/></td>
                                     <td class="text-end"><span t-out="r['balance']" t-options="{'widget': 'monetary', 'display_currency': data['currency']}"/></td>
                                 </tr>
-                                <tr style="font-weight:bold;border-top:2px solid #0a1f44;">
+                                <tr style="font-weight:bold;border-top:2px solid #111111;">
                                     <td colspan="4">Closing balance</td>
                                     <td class="text-end"><span t-out="data['total_debit']" t-options="{'widget': 'monetary', 'display_currency': data['currency']}"/></td>
                                     <td class="text-end"><span t-out="data['total_credit']" t-options="{'widget': 'monetary', 'display_currency': data['currency']}"/></td>
@@ -56,7 +56,7 @@
                                 </tr>
                             </tbody>
                         </table>
-                        <h5 class="mt-4" style="color:#0a1f44;">Ageing of amounts due</h5>
+                        <h5 class="mt-4" style="color:#111111;">Ageing of amounts due</h5>
                         <table class="table table-sm" style="max-width:100%;">
                             <thead><tr>
                                 <th class="text-end">Not yet due</th><th class="text-end">1-30 days</th><th class="text-end">31-60 days</th>
