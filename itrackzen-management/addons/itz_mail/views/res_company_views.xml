@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_company_form_itz_mail" model="ir.ui.view">
+        <field name="name">res.company.form.itz.mail</field>
+        <field name="model">res.company</field>
+        <field name="inherit_id" ref="itz_base.view_company_form_itz"/>
+        <field name="arch" type="xml">
+            <xpath expr="//page[@name='itz_settings']/group" position="inside">
+                <group string="Emails to customers">
+                    <field name="itz_sales_email"/>
+                    <field name="itz_phones"/>
+                    <field name="itz_office_address"/>
+                </group>
+                <group string="AI-assisted replies">
+                    <field name="itz_ai_enabled"/>
+                    <field name="itz_ai_api_key" password="True" invisible="not itz_ai_enabled"/>
+                    <field name="itz_ai_model" invisible="not itz_ai_enabled"/>
+                    <field name="itz_ai_brief" invisible="not itz_ai_enabled"/>
+                </group>
+            </xpath>
+        </field>
+    </record>
+</odoo>

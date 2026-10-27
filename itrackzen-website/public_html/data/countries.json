@@ -455,7 +455,957 @@
       "image": "",
       "image_alt": "Fleet vehicles on a road in DR Congo",
       "photo": "kinshasa-fuel-station"
+    },
+    {
+      "slug": "gps-tracking-tanzania",
+      "name": "Tanzania",
+      "title": "GPS Tracking Tanzania | Vehicle & Fleet Tracking | ITrackZen",
+      "description": "GPS tracking and fleet management in Tanzania: live location, route history, fuel and driver safety tools for trucks, buses, vans and motorcycles with ITrackZ",
+      "keywords": "GPS tracking Tanzania, vehicle tracking Tanzania, fleet management Tanzania, truck tracking Tanzania, GPS tracker Tanzania, ITrackZen Tanzania",
+      "h1": "GPS Tracking & Fleet Management in Tanzania",
+      "hero_text": "Follow trucks leaving the port of Dar es Salaam, buses on long-distance routes, bajaj and boda boda riders and project vehicles across Tanzania with ITrackZen.",
+      "snapshot": "Tanzania's port of Dar es Salaam is the gateway for much of the cargo bound for Rwanda, Burundi, eastern DR Congo, Zambia and Malawi. Trucks run the Central Corridor towards Dodoma, Mwanza and Kigoma and the southern route through Mbeya to Tunduma, while Dar es Salaam, Arusha and Mwanza keep busy bus, delivery and motorcycle taxi networks. Operators usually need visibility over very long hauls as well as congested city streets.",
+      "cities": [
+        "Dar es Salaam",
+        "Dodoma",
+        "Arusha",
+        "Mwanza",
+        "Mbeya",
+        "Morogoro"
+      ],
+      "corridors": "Dar es Salaam to Morogoro and Dodoma, then the Central Corridor towards Isaka, Rusumo and Kigoma, or south through Mbeya to Tunduma and into Zambia.",
+      "use_cases": [
+        {
+          "title": "Port-to-border haulage",
+          "text": "Track containers and bulk cargo from Dar es Salaam to border posts, set geofences around yards, ports and weighbridges and measure waiting time."
+        },
+        {
+          "title": "Long-distance bus operators",
+          "text": "Watch speed, stops and route adherence on intercity services and alert supervisors when a bus leaves its route or exceeds a limit."
+        },
+        {
+          "title": "Bajaj and boda boda fleets",
+          "text": "Fit compact trackers to three-wheelers and motorcycles to see where each vehicle is and review completed trips."
+        },
+        {
+          "title": "Mining, farming and project vehicles",
+          "text": "Control fuel use and after-hours movement of tippers, tankers and plant working on remote sites."
+        }
+      ],
+      "connectivity": "Trackers need a data SIM from a local mobile network. Coverage is good in towns and along main highways and thinner in national parks, border zones and rural areas, where devices keep logging positions and upload them when they reconnect.",
+      "steps": [
+        {
+          "title": "Tell us about your fleet",
+          "text": "Share your vehicle types, how many you run and the routes you cover so we can judge what is practical."
+        },
+        {
+          "title": "Choose the hardware path",
+          "text": "Use trackers you already own if the model is supported, or ask us to recommend OBD, hardwired, motorcycle or dashcam devices."
+        },
+        {
+          "title": "Confirm supply and activation",
+          "text": "We confirm how devices can be supplied and installed for your location and then set up your account, vehicles and alerts."
+        }
+      ],
+      "conditions": [
+        "Supply and installation are confirmed for each request. We do not assume a local team in every city.",
+        "Live updates depend on mobile data coverage along your routes; devices store positions and upload them when signal returns.",
+        "Specialised hardware such as satellite trackers, where needed, is quoted separately."
+      ],
+      "partners": "If you run a logistics company, transport association, equipment dealer or installer in Tanzania and want to cooperate on supply, installation or resale, send us a partnership enquiry.",
+      "faq": [
+        {
+          "q": "Can I track a truck from Dar es Salaam to Zambia or Rwanda?",
+          "a": "Yes, provided the tracker has data roaming or a SIM that works in each country on the route. Tell us the border crossings you use and we will suggest a suitable setup."
+        },
+        {
+          "q": "Do you track motorcycles and bajaj in Tanzania?",
+          "a": "Yes. Compact motorcycle and three-wheeler trackers report location, ignition and movement. We confirm hardware availability for your location when you ask for a quote."
+        },
+        {
+          "q": "Can I use trackers I already own?",
+          "a": "Often yes. Send us the brand and model and we will confirm whether it is supported before you commit."
+        }
+      ],
+      "related": [
+        "gps-tracking-kenya",
+        "gps-tracking-rwanda",
+        "gps-tracking-zambia"
+      ],
+      "image": "",
+      "image_alt": "Fleet vehicles on a road in Tanzania"
+    },
+    {
+      "slug": "gps-tracking-rwanda",
+      "name": "Rwanda",
+      "title": "GPS Tracking Rwanda | Vehicle & Fleet Tracking | ITrackZen",
+      "description": "GPS tracking and fleet management in Rwanda: live location, route history, fuel and driver safety tools for trucks, buses, vans and motorcycles with ITrackZen",
+      "keywords": "GPS tracking Rwanda, vehicle tracking Rwanda, fleet management Rwanda, truck tracking Rwanda, GPS tracker Rwanda, ITrackZen Rwanda",
+      "h1": "GPS Tracking & Fleet Management in Rwanda",
+      "hero_text": "Track delivery vans, buses, trucks and motorcycle taxis in Kigali and on the corridors that link Rwanda to Kenya, Uganda and Tanzania with ITrackZen.",
+      "snapshot": "Rwanda is a compact, landlocked market where nearly all cargo arrives by road from Mombasa through Kenya and Uganda or from Dar es Salaam through Tanzania. Kigali runs dense networks of motorcycle taxis, buses and courier vans, and distributors supply the hills and provincial towns from the capital. Operators tend to want tight control of city fleets together with visibility of trucks that are days away on the Northern or Central Corridor.",
+      "cities": [
+        "Kigali",
+        "Huye",
+        "Musanze",
+        "Rubavu",
+        "Rusizi",
+        "Muhanga"
+      ],
+      "corridors": "Kigali to the Gatuna and Katuna border for the Northern Corridor, or east to Rusumo for the Central Corridor through Tanzania.",
+      "use_cases": [
+        {
+          "title": "Corridor trucking",
+          "text": "Follow trucks on the way in from Mombasa or Dar es Salaam, share location with customers and measure border waiting time."
+        },
+        {
+          "title": "Motorcycle taxi and courier fleets",
+          "text": "Monitor riders and delivery vans across Kigali with compact trackers and trip history."
+        },
+        {
+          "title": "Distribution and retail",
+          "text": "Plan and verify routes from Kigali to provincial towns and see when vehicles stop outside agreed locations."
+        },
+        {
+          "title": "Bus and shuttle operators",
+          "text": "Keep an eye on speed, route adherence and timetables for city and intercity services."
+        }
+      ],
+      "connectivity": "Trackers need a data SIM from a local mobile network. Coverage is generally good in towns and along main roads; mountainous areas and border zones can have gaps, and devices store positions until they reconnect.",
+      "steps": [
+        {
+          "title": "Tell us about your fleet",
+          "text": "Share your vehicle types, how many you run and the routes you cover so we can judge what is practical."
+        },
+        {
+          "title": "Choose the hardware path",
+          "text": "Use trackers you already own if the model is supported, or ask us to recommend OBD, hardwired, motorcycle or dashcam devices."
+        },
+        {
+          "title": "Confirm supply and activation",
+          "text": "We confirm how devices can be supplied and installed for your location and then set up your account, vehicles and alerts."
+        }
+      ],
+      "conditions": [
+        "Supply and installation are confirmed for each request. We do not assume a local team in every city.",
+        "Live updates depend on mobile data coverage along your routes; devices store positions and upload them when signal returns.",
+        "Specialised hardware such as satellite trackers, where needed, is quoted separately."
+      ],
+      "partners": "If you operate in Rwanda as a transport company, equipment supplier or installer and want to cooperate with us, send a partnership enquiry.",
+      "faq": [
+        {
+          "q": "Can I follow my trucks from the port to Kigali?",
+          "a": "Yes, if the tracker keeps a working data connection across the countries on the route. Tell us the corridor and we will advise on SIM and roaming options."
+        },
+        {
+          "q": "Is tracking suitable for motorcycle taxis in Kigali?",
+          "a": "Yes. Small motorcycle trackers report position and movement and let you review trips."
+        },
+        {
+          "q": "Do you install devices in Rwanda?",
+          "a": "Installation is confirmed for each request. If we cannot install in your location we can still support devices installed by you or a local partner."
+        }
+      ],
+      "related": [
+        "gps-tracking-uganda",
+        "gps-tracking-tanzania",
+        "gps-tracking-burundi"
+      ],
+      "image": "",
+      "image_alt": "Fleet vehicles on a road in Rwanda"
+    },
+    {
+      "slug": "gps-tracking-burundi",
+      "name": "Burundi",
+      "title": "GPS Tracking Burundi | Vehicle & Fleet Tracking | ITrackZen",
+      "description": "GPS tracking and fleet management in Burundi: live location, route history, fuel and driver safety tools for trucks, buses, vans and motorcycles with ITrackZe",
+      "keywords": "GPS tracking Burundi, vehicle tracking Burundi, fleet management Burundi, truck tracking Burundi, GPS tracker Burundi, ITrackZen Burundi",
+      "h1": "GPS Tracking & Fleet Management in Burundi",
+      "hero_text": "Track trucks, buses, vans and motorcycles in Bujumbura and on the long routes linking Burundi to Tanzania and Rwanda with ITrackZen.",
+      "snapshot": "Burundi is a landlocked country whose goods travel long distances: most import cargo comes through Dar es Salaam and Tanzania, with other flows through Rwanda. Bujumbura, on Lake Tanganyika, is the main commercial centre, and Gitega is the political capital. Because trucks spend many days outside the country, visibility of vehicles and fuel along the route is often what operators value most.",
+      "cities": [
+        "Bujumbura",
+        "Gitega",
+        "Ngozi",
+        "Rumonge",
+        "Kayanza",
+        "Muyinga"
+      ],
+      "corridors": "Bujumbura to the Kobero and Kabanga border with Tanzania, onwards to Dar es Salaam, or north through Rwanda.",
+      "use_cases": [
+        {
+          "title": "Import and transit haulage",
+          "text": "Follow trucks from Dar es Salaam to Bujumbura, record stops and detect unusual detours or after-hours movement."
+        },
+        {
+          "title": "Fuel and tanker tracking",
+          "text": "Use fuel sensors and geofences to watch tankers and fuel deliveries."
+        },
+        {
+          "title": "Passenger and delivery vehicles",
+          "text": "Review trips, speed and idle time for buses, vans and motorcycles around Bujumbura and provincial towns."
+        },
+        {
+          "title": "NGO and project vehicles",
+          "text": "Keep a clear log of where project vehicles go and how long they stay, for accountability and safety."
+        }
+      ],
+      "connectivity": "Trackers need a data SIM from a local mobile network. Coverage is best in Bujumbura and larger towns; rural and hilly areas can be patchy, and devices keep logging positions until they can upload them.",
+      "steps": [
+        {
+          "title": "Tell us about your fleet",
+          "text": "Share your vehicle types, how many you run and the routes you cover so we can judge what is practical."
+        },
+        {
+          "title": "Choose the hardware path",
+          "text": "Use trackers you already own if the model is supported, or ask us to recommend OBD, hardwired, motorcycle or dashcam devices."
+        },
+        {
+          "title": "Confirm supply and activation",
+          "text": "We confirm how devices can be supplied and installed for your location and then set up your account, vehicles and alerts."
+        }
+      ],
+      "conditions": [
+        "Supply and installation are confirmed for each request. We do not assume a local team in every city.",
+        "Live updates depend on mobile data coverage along your routes; devices store positions and upload them when signal returns.",
+        "Specialised hardware such as satellite trackers, where needed, is quoted separately."
+      ],
+      "partners": "If you are a logistics operator, equipment dealer or installer in Burundi and would like to cooperate with us, send a partnership enquiry.",
+      "faq": [
+        {
+          "q": "Can you track vehicles that travel between Burundi and Tanzania?",
+          "a": "Yes, if the tracker has a SIM that works in both countries. We will advise on the right option for your route."
+        },
+        {
+          "q": "Is fuel monitoring available?",
+          "a": "Fuel sensors can be added to supported trackers to watch levels, refuelling and possible losses, subject to the vehicle and sensor type."
+        },
+        {
+          "q": "Can I use my existing trackers?",
+          "a": "Often. Send the brand and model and we will confirm compatibility."
+        }
+      ],
+      "related": [
+        "gps-tracking-rwanda",
+        "gps-tracking-tanzania",
+        "gps-tracking-dr-congo"
+      ],
+      "image": "",
+      "image_alt": "Fleet vehicles on a road in Burundi"
+    },
+    {
+      "slug": "gps-tracking-djibouti",
+      "name": "Djibouti",
+      "title": "GPS Tracking Djibouti | Vehicle & Fleet Tracking | ITrackZen",
+      "description": "GPS tracking and fleet management in Djibouti: live location, route history, fuel and driver safety tools for trucks, buses, vans and motorcycles with ITrackZ",
+      "keywords": "GPS tracking Djibouti, vehicle tracking Djibouti, fleet management Djibouti, truck tracking Djibouti, GPS tracker Djibouti, ITrackZen Djibouti",
+      "h1": "GPS Tracking & Fleet Management in Djibouti",
+      "hero_text": "Track containers, tankers and transit trucks from the port of Djibouti to Ethiopia, and city and project vehicles, with ITrackZen.",
+      "snapshot": "Djibouti's port is the main sea outlet for Ethiopia, so a large share of its road traffic is transit cargo heading up the Djibouti-Addis Ababa corridor. Tankers, container trucks and bulk haulers move between port terminals, yards and the Galafi and Dewele crossings. Operators care about turnaround time, security of cargo in transit and proof of where a vehicle has been.",
+      "cities": [
+        "Djibouti City",
+        "Ali Sabieh",
+        "Dikhil",
+        "Tadjoura",
+        "Obock",
+        "Arta"
+      ],
+      "corridors": "Port of Djibouti to Ali Sabieh and Dewele, then on to Dire Dawa and Addis Ababa; and the northern route through Galafi.",
+      "use_cases": [
+        {
+          "title": "Transit containers and dry bulk",
+          "text": "Follow trucks from the port gate to the border and beyond, with geofences on terminals, yards and checkpoints."
+        },
+        {
+          "title": "Tanker operations",
+          "text": "Watch tanker stops, door and fuel-level signals and unplanned detours."
+        },
+        {
+          "title": "Port and yard equipment",
+          "text": "Track trucks, loaders and trailers inside the port area to understand utilisation and waiting time."
+        },
+        {
+          "title": "Staff and project vehicles",
+          "text": "See where company and contractor vehicles are during the day, and review trips after the fact."
+        }
+      ],
+      "connectivity": "Trackers need a data SIM that works in Djibouti and, for corridor trucks, in Ethiopia. Coverage is good around the capital and main road but weaker in remote desert areas, where positions are stored and uploaded later.",
+      "steps": [
+        {
+          "title": "Tell us about your fleet",
+          "text": "Share your vehicle types, how many you run and the routes you cover so we can judge what is practical."
+        },
+        {
+          "title": "Choose the hardware path",
+          "text": "Use trackers you already own if the model is supported, or ask us to recommend OBD, hardwired, motorcycle or dashcam devices."
+        },
+        {
+          "title": "Confirm supply and activation",
+          "text": "We confirm how devices can be supplied and installed for your location and then set up your account, vehicles and alerts."
+        }
+      ],
+      "conditions": [
+        "Supply and installation are confirmed for each request. We do not assume a local team in every city.",
+        "Live updates depend on mobile data coverage along your routes; devices store positions and upload them when signal returns.",
+        "Specialised hardware such as satellite trackers, where needed, is quoted separately."
+      ],
+      "partners": "If you are a shipping agent, haulier, port services company or installer in Djibouti and want to cooperate with us, send a partnership enquiry.",
+      "faq": [
+        {
+          "q": "Can I track a truck from Djibouti port to Addis Ababa?",
+          "a": "Yes, if the tracker has connectivity in both countries. Tell us your fleet and we will suggest a setup that keeps reporting across the border."
+        },
+        {
+          "q": "Do you support tankers?",
+          "a": "Tankers can be tracked with location, ignition and, where the vehicle allows, fuel and door sensors."
+        },
+        {
+          "q": "Is a local installation team available?",
+          "a": "Installation is confirmed per request. We do not assume a local team, so tell us what you need and we will answer honestly."
+        }
+      ],
+      "related": [
+        "gps-tracking-ethiopia",
+        "gps-tracking-somalia",
+        "gps-tracking-kenya"
+      ],
+      "image": "",
+      "image_alt": "Fleet vehicles on a road in Djibouti",
+      "photo": "djibouti-tanker"
+    },
+    {
+      "slug": "gps-tracking-zambia",
+      "name": "Zambia",
+      "title": "GPS Tracking Zambia | Vehicle & Fleet Tracking | ITrackZen",
+      "description": "GPS tracking and fleet management in Zambia: live location, route history, fuel and driver safety tools for trucks, buses, vans and motorcycles with ITrackZen",
+      "keywords": "GPS tracking Zambia, vehicle tracking Zambia, fleet management Zambia, truck tracking Zambia, GPS tracker Zambia, ITrackZen Zambia",
+      "h1": "GPS Tracking & Fleet Management in Zambia",
+      "hero_text": "Track copper and cobalt haulage, long-distance trucks, buses and project vehicles across Zambia and its cross-border corridors with ITrackZen.",
+      "snapshot": "Zambia sits at the centre of the North-South Corridor. Copper and cobalt from the Copperbelt and DR Congo travel by road to ports in Tanzania, Mozambique and South Africa, while fuel, fertiliser and general cargo run the other way. Lusaka, Ndola, Kitwe and Livingstone concentrate the fleets. Operators typically want proof of where valuable cargo is, fuel control and clear border-crossing records.",
+      "cities": [
+        "Lusaka",
+        "Ndola",
+        "Kitwe",
+        "Livingstone",
+        "Kabwe",
+        "Chipata"
+      ],
+      "corridors": "Copperbelt to Lusaka, Kapiri Mposhi and Chirundu towards Zimbabwe and South Africa, Tunduma towards Tanzania, and Kasumbalesa towards DR Congo.",
+      "use_cases": [
+        {
+          "title": "Mining and ore haulage",
+          "text": "Geofence mines, smelters and depots, detect unplanned stops and keep a trip record for every load."
+        },
+        {
+          "title": "Cross-border trucking",
+          "text": "Follow trucks across Kasumbalesa, Chirundu and Tunduma and measure how long each border takes."
+        },
+        {
+          "title": "Fuel control",
+          "text": "Add fuel sensors to track refuelling and possible losses on long hauls and plant."
+        },
+        {
+          "title": "Buses and company fleets",
+          "text": "Monitor speed and driver behaviour and see where company vehicles are during the working day."
+        }
+      ],
+      "connectivity": "Trackers need a data SIM from a local mobile network, or a multi-country SIM for corridor trucks. Coverage is solid in towns and along main roads; remote areas can be patchy, and devices keep logging positions until they reconnect.",
+      "steps": [
+        {
+          "title": "Tell us about your fleet",
+          "text": "Share your vehicle types, how many you run and the routes you cover so we can judge what is practical."
+        },
+        {
+          "title": "Choose the hardware path",
+          "text": "Use trackers you already own if the model is supported, or ask us to recommend OBD, hardwired, motorcycle or dashcam devices."
+        },
+        {
+          "title": "Confirm supply and activation",
+          "text": "We confirm how devices can be supplied and installed for your location and then set up your account, vehicles and alerts."
+        }
+      ],
+      "conditions": [
+        "Supply and installation are confirmed for each request. We do not assume a local team in every city.",
+        "Live updates depend on mobile data coverage along your routes; devices store positions and upload them when signal returns.",
+        "Specialised hardware such as satellite trackers, where needed, is quoted separately."
+      ],
+      "partners": "If you are a transport company, mining contractor, equipment dealer or installer in Zambia and want to cooperate with us, send a partnership enquiry.",
+      "faq": [
+        {
+          "q": "Can I track trucks between the Copperbelt and a port?",
+          "a": "Yes, as long as the tracker keeps a data connection along the route. Tell us your corridor and borders and we will advise on SIM and roaming."
+        },
+        {
+          "q": "Can fuel theft be detected?",
+          "a": "Fuel sensors on supported trackers record levels and sudden drops, and alerts can be sent to a manager. Results depend on the vehicle and tank."
+        },
+        {
+          "q": "Do you support mixed fleets?",
+          "a": "Yes. Trucks, buses, light vehicles and plant can be managed in one account."
+        }
+      ],
+      "related": [
+        "gps-tracking-dr-congo",
+        "gps-tracking-tanzania",
+        "gps-tracking-zimbabwe"
+      ],
+      "image": "",
+      "image_alt": "Fleet vehicles on a road in Zambia"
+    },
+    {
+      "slug": "gps-tracking-malawi",
+      "name": "Malawi",
+      "title": "GPS Tracking Malawi | Vehicle & Fleet Tracking | ITrackZen",
+      "description": "GPS tracking and fleet management in Malawi: live location, route history, fuel and driver safety tools for trucks, buses, vans and motorcycles with ITrackZen",
+      "keywords": "GPS tracking Malawi, vehicle tracking Malawi, fleet management Malawi, truck tracking Malawi, GPS tracker Malawi, ITrackZen Malawi",
+      "h1": "GPS Tracking & Fleet Management in Malawi",
+      "hero_text": "Track trucks, buses and delivery vehicles in Malawi and on the routes to the ports of Nacala, Beira and Dar es Salaam with ITrackZen.",
+      "snapshot": "Malawi is landlocked, so imports and exports such as tobacco, sugar, maize and fuel travel long distances by road to the ports of Nacala and Beira in Mozambique or to Dar es Salaam in Tanzania. Lilongwe and Blantyre are the main commercial hubs. Transporters generally need to control costs on long hauls and give customers confidence about where their goods are.",
+      "cities": [
+        "Lilongwe",
+        "Blantyre",
+        "Mzuzu",
+        "Zomba",
+        "Kasungu",
+        "Salima"
+      ],
+      "corridors": "Lilongwe and Blantyre to the Nacala and Beira corridors through Mozambique, and north through Karonga towards Tanzania.",
+      "use_cases": [
+        {
+          "title": "Port-linked haulage",
+          "text": "Follow trucks to and from Nacala, Beira and Dar es Salaam with trip history and stop reports."
+        },
+        {
+          "title": "Agricultural logistics",
+          "text": "Track produce collection and delivery routes, and see how long vehicles wait at depots and warehouses."
+        },
+        {
+          "title": "Fuel distribution",
+          "text": "Use geofences and, where fitted, fuel and door sensors on tankers."
+        },
+        {
+          "title": "Buses and company vehicles",
+          "text": "Keep an eye on speed, route adherence and idle time across your fleet."
+        }
+      ],
+      "connectivity": "Trackers need a data SIM from a local mobile network. Coverage is best in cities and along main roads, and positions are stored until they can be uploaded where signal is weak.",
+      "steps": [
+        {
+          "title": "Tell us about your fleet",
+          "text": "Share your vehicle types, how many you run and the routes you cover so we can judge what is practical."
+        },
+        {
+          "title": "Choose the hardware path",
+          "text": "Use trackers you already own if the model is supported, or ask us to recommend OBD, hardwired, motorcycle or dashcam devices."
+        },
+        {
+          "title": "Confirm supply and activation",
+          "text": "We confirm how devices can be supplied and installed for your location and then set up your account, vehicles and alerts."
+        }
+      ],
+      "conditions": [
+        "Supply and installation are confirmed for each request. We do not assume a local team in every city.",
+        "Live updates depend on mobile data coverage along your routes; devices store positions and upload them when signal returns.",
+        "Specialised hardware such as satellite trackers, where needed, is quoted separately."
+      ],
+      "partners": "If you are a haulier, agricultural business, equipment dealer or installer in Malawi and want to cooperate with us, send a partnership enquiry.",
+      "faq": [
+        {
+          "q": "Can I track a truck to Nacala or Beira?",
+          "a": "Yes, provided the device has coverage in Malawi and Mozambique. We will advise on a SIM option that works on your route."
+        },
+        {
+          "q": "Can I track both trucks and light vehicles?",
+          "a": "Yes. Trucks, buses, pickups and motorcycles can sit in one account with separate groups and alerts."
+        },
+        {
+          "q": "How do I get started?",
+          "a": "Send us your fleet size, vehicle types and routes with the quote form and we will reply with the best next step."
+        }
+      ],
+      "related": [
+        "gps-tracking-tanzania",
+        "gps-tracking-mozambique",
+        "gps-tracking-zambia"
+      ],
+      "image": "",
+      "image_alt": "Fleet vehicles on a road in Malawi"
+    },
+    {
+      "slug": "gps-tracking-mozambique",
+      "name": "Mozambique",
+      "title": "GPS Tracking Mozambique | Vehicle & Fleet Tracking | ITrackZen",
+      "description": "GPS tracking and fleet management in Mozambique: live location, route history, fuel and driver safety tools for trucks, buses, vans and motorcycles with ITrac",
+      "keywords": "GPS tracking Mozambique, vehicle tracking Mozambique, fleet management Mozambique, truck tracking Mozambique, GPS tracker Mozambique, ITrackZen Mozambique",
+      "h1": "GPS Tracking & Fleet Management in Mozambique",
+      "hero_text": "Track trucks, tankers, buses and project vehicles in Mozambique and on the corridors from Maputo, Beira and Nacala to the interior with ITrackZen.",
+      "snapshot": "Mozambique's ports of Maputo, Beira and Nacala serve both the country and several landlocked neighbours, and long corridors run to South Africa, Zimbabwe, Zambia and Malawi. Coal from Tete, general cargo, fuel and agricultural produce all move by road. Distances are long and conditions vary, so operators value reliable trip records, fuel control and clear alerts for unplanned stops.",
+      "cities": [
+        "Maputo",
+        "Beira",
+        "Nacala",
+        "Tete",
+        "Matola",
+        "Pemba"
+      ],
+      "corridors": "Maputo to the Ressano Garcia border with South Africa, Beira to Machipanda towards Zimbabwe, Tete towards Zambia and Malawi, and Nacala towards Malawi.",
+      "use_cases": [
+        {
+          "title": "Port and corridor haulage",
+          "text": "Follow trucks from Maputo, Beira and Nacala to border posts and inland depots with full trip history."
+        },
+        {
+          "title": "Mining and coal logistics",
+          "text": "Geofence mines, rail loading points and ports and watch for off-route stops."
+        },
+        {
+          "title": "Fuel and tanker fleets",
+          "text": "Monitor stops, refuelling and, where fitted, fuel levels and door sensors."
+        },
+        {
+          "title": "Project and construction vehicles",
+          "text": "Control after-hours movement and idle time for plant and company vehicles."
+        }
+      ],
+      "connectivity": "Trackers need a data SIM from a local mobile network. Coverage is good around Maputo, Beira and on main roads and weaker in remote regions, where positions are stored and uploaded when the device reconnects.",
+      "steps": [
+        {
+          "title": "Tell us about your fleet",
+          "text": "Share your vehicle types, how many you run and the routes you cover so we can judge what is practical."
+        },
+        {
+          "title": "Choose the hardware path",
+          "text": "Use trackers you already own if the model is supported, or ask us to recommend OBD, hardwired, motorcycle or dashcam devices."
+        },
+        {
+          "title": "Confirm supply and activation",
+          "text": "We confirm how devices can be supplied and installed for your location and then set up your account, vehicles and alerts."
+        }
+      ],
+      "conditions": [
+        "Supply and installation are confirmed for each request. We do not assume a local team in every city.",
+        "Live updates depend on mobile data coverage along your routes; devices store positions and upload them when signal returns.",
+        "Specialised hardware such as satellite trackers, where needed, is quoted separately."
+      ],
+      "partners": "If you are a transport company, port services provider, equipment dealer or installer in Mozambique and want to cooperate with us, send a partnership enquiry.",
+      "faq": [
+        {
+          "q": "Do you support Portuguese-speaking teams?",
+          "a": "Our website and platform are in English today. Tell us about your team and we will explain how we can support you."
+        },
+        {
+          "q": "Can I track trucks across the border?",
+          "a": "Yes, if the tracker has a SIM that works on both sides of the border. We will advise on options for your route."
+        },
+        {
+          "q": "Can I bring my own devices?",
+          "a": "Often. Send the brand and model and we will confirm compatibility."
+        }
+      ],
+      "related": [
+        "gps-tracking-malawi",
+        "gps-tracking-zimbabwe",
+        "gps-tracking-zambia"
+      ],
+      "image": "",
+      "image_alt": "Fleet vehicles on a road in Mozambique"
+    },
+    {
+      "slug": "gps-tracking-zimbabwe",
+      "name": "Zimbabwe",
+      "title": "GPS Tracking Zimbabwe | Vehicle & Fleet Tracking | ITrackZen",
+      "description": "GPS tracking and fleet management in Zimbabwe: live location, route history, fuel and driver safety tools for trucks, buses, vans and motorcycles with ITrackZ",
+      "keywords": "GPS tracking Zimbabwe, vehicle tracking Zimbabwe, fleet management Zimbabwe, truck tracking Zimbabwe, GPS tracker Zimbabwe, ITrackZen Zimbabwe",
+      "h1": "GPS Tracking & Fleet Management in Zimbabwe",
+      "hero_text": "Track long-haul trucks, buses, fuel tankers and company vehicles in Zimbabwe and on the Beitbridge, Beira and Chirundu corridors with ITrackZen.",
+      "snapshot": "Zimbabwe is a transit country as well as a destination: trucks cross at Beitbridge to and from South Africa, at Chirundu to Zambia and through Mutare to the port of Beira in Mozambique. Harare and Bulawayo concentrate the fleets that supply mines, farms and retailers. Operators are usually focused on fuel control, security of loads and accountability for company vehicles.",
+      "cities": [
+        "Harare",
+        "Bulawayo",
+        "Mutare",
+        "Gweru",
+        "Masvingo",
+        "Victoria Falls"
+      ],
+      "corridors": "Harare to Beitbridge for South Africa, Harare to Chirundu for Zambia, and Harare to Mutare for the Beira corridor.",
+      "use_cases": [
+        {
+          "title": "Cross-border trucking",
+          "text": "Follow loads through Beitbridge, Chirundu and Forbes and record waiting time at every crossing."
+        },
+        {
+          "title": "Mining and agricultural haulage",
+          "text": "Watch ore, grain and equipment movements with geofences on farms, mines and depots."
+        },
+        {
+          "title": "Fuel and tanker tracking",
+          "text": "Detect unplanned stops and, with sensors, sudden drops in fuel level."
+        },
+        {
+          "title": "Company and rental vehicles",
+          "text": "Keep a trip log and set alerts for after-hours use and speeding."
+        }
+      ],
+      "connectivity": "Trackers need a data SIM from a local mobile network or a multi-country SIM for corridor trucks. Coverage is reliable in cities and along main roads; remote farmland and border stretches can be weaker, and positions are uploaded when signal returns.",
+      "steps": [
+        {
+          "title": "Tell us about your fleet",
+          "text": "Share your vehicle types, how many you run and the routes you cover so we can judge what is practical."
+        },
+        {
+          "title": "Choose the hardware path",
+          "text": "Use trackers you already own if the model is supported, or ask us to recommend OBD, hardwired, motorcycle or dashcam devices."
+        },
+        {
+          "title": "Confirm supply and activation",
+          "text": "We confirm how devices can be supplied and installed for your location and then set up your account, vehicles and alerts."
+        }
+      ],
+      "conditions": [
+        "Supply and installation are confirmed for each request. We do not assume a local team in every city.",
+        "Live updates depend on mobile data coverage along your routes; devices store positions and upload them when signal returns.",
+        "Specialised hardware such as satellite trackers, where needed, is quoted separately."
+      ],
+      "partners": "If you are a logistics operator, equipment dealer or installer in Zimbabwe and want to cooperate with us, send a partnership enquiry.",
+      "faq": [
+        {
+          "q": "Can I follow trucks through Beitbridge?",
+          "a": "Yes, as long as the tracker keeps connectivity in both countries. We will advise on SIM options for your route."
+        },
+        {
+          "q": "Can I monitor fuel use?",
+          "a": "Fuel sensors on supported trackers record levels and refuelling, and alerts can warn you of sudden drops."
+        },
+        {
+          "q": "Can I manage staff vehicles and trucks together?",
+          "a": "Yes. Use groups and permissions to separate fleets inside one account."
+        }
+      ],
+      "related": [
+        "gps-tracking-zambia",
+        "gps-tracking-mozambique",
+        "gps-tracking-south-africa"
+      ],
+      "image": "",
+      "image_alt": "Fleet vehicles on a road in Zimbabwe"
+    },
+    {
+      "slug": "gps-tracking-nigeria",
+      "name": "Nigeria",
+      "title": "GPS Tracking Nigeria | Vehicle & Fleet Tracking | ITrackZen",
+      "description": "GPS tracking and fleet management in Nigeria: live location, route history, fuel and driver safety tools for trucks, buses, vans and motorcycles with ITrackZe",
+      "keywords": "GPS tracking Nigeria, vehicle tracking Nigeria, fleet management Nigeria, truck tracking Nigeria, GPS tracker Nigeria, ITrackZen Nigeria",
+      "h1": "GPS Tracking & Fleet Management in Nigeria",
+      "hero_text": "Track trucks, tankers, delivery vans, buses and motorcycles in Lagos, Abuja and across Nigeria with live location, alerts and reports from ITrackZen.",
+      "snapshot": "Nigeria is Africa's most populous country, and its ports of Lagos, Apapa and Tin Can feed trucking routes to Ibadan, Abuja, Kano and the north, while Port Harcourt serves the oil and gas sector. Lagos has large delivery, ride-hailing and bus fleets in heavy traffic. Operators commonly want to reduce fuel loss, verify trip claims and keep drivers accountable on long routes.",
+      "cities": [
+        "Lagos",
+        "Abuja",
+        "Kano",
+        "Port Harcourt",
+        "Ibadan",
+        "Kaduna"
+      ],
+      "corridors": "Lagos ports to Ibadan, Abuja and Kano, and the Port Harcourt to Enugu and Onitsha routes.",
+      "use_cases": [
+        {
+          "title": "Port and long-haul trucking",
+          "text": "Follow trucks from Lagos ports to inland destinations, with geofences on terminals, depots and customer sites."
+        },
+        {
+          "title": "Tankers and fuel distribution",
+          "text": "Watch tanker stops and, where fitted, fuel and door sensors to reduce diversion."
+        },
+        {
+          "title": "Delivery, ride-hailing and logistics vans",
+          "text": "Review routes, idle time and delivery windows in congested city traffic."
+        },
+        {
+          "title": "Company and staff vehicles",
+          "text": "Set working-hour and speed alerts and keep an auditable trip history."
+        }
+      ],
+      "connectivity": "Trackers need a data SIM from a local mobile network. Coverage is strong in major cities and along main routes and weaker in remote areas, where devices keep logging and upload positions later.",
+      "steps": [
+        {
+          "title": "Tell us about your fleet",
+          "text": "Share your vehicle types, how many you run and the routes you cover so we can judge what is practical."
+        },
+        {
+          "title": "Choose the hardware path",
+          "text": "Use trackers you already own if the model is supported, or ask us to recommend OBD, hardwired, motorcycle or dashcam devices."
+        },
+        {
+          "title": "Confirm supply and activation",
+          "text": "We confirm how devices can be supplied and installed for your location and then set up your account, vehicles and alerts."
+        }
+      ],
+      "conditions": [
+        "Supply and installation are confirmed for each request. We do not assume a local team in every city.",
+        "Live updates depend on mobile data coverage along your routes; devices store positions and upload them when signal returns.",
+        "Specialised hardware such as satellite trackers, where needed, is quoted separately."
+      ],
+      "partners": "If you are a logistics company, vehicle dealer, installer or reseller in Nigeria and want to cooperate with us, send a partnership enquiry.",
+      "faq": [
+        {
+          "q": "Do you support trackers I already own in Nigeria?",
+          "a": "Often. Send the brand and model and we will confirm whether it is supported before you commit."
+        },
+        {
+          "q": "Can I track motorcycles and tricycles?",
+          "a": "Yes. Compact trackers report position, ignition and movement for motorcycles and three-wheelers."
+        },
+        {
+          "q": "Do you have a local office in Nigeria?",
+          "a": "We do not currently claim a local office. Supply and installation are confirmed for each request, and local partners are welcome to contact us."
+        }
+      ],
+      "related": [
+        "gps-tracking-ghana",
+        "gps-tracking-republic-of-congo",
+        "gps-tracking-kenya"
+      ],
+      "image": "",
+      "image_alt": "Fleet vehicles on a road in Nigeria"
+    },
+    {
+      "slug": "gps-tracking-ghana",
+      "name": "Ghana",
+      "title": "GPS Tracking Ghana | Vehicle & Fleet Tracking | ITrackZen",
+      "description": "GPS tracking and fleet management in Ghana: live location, route history, fuel and driver safety tools for trucks, buses, vans and motorcycles with ITrackZen.",
+      "keywords": "GPS tracking Ghana, vehicle tracking Ghana, fleet management Ghana, truck tracking Ghana, GPS tracker Ghana, ITrackZen Ghana",
+      "h1": "GPS Tracking & Fleet Management in Ghana",
+      "hero_text": "Track taxis, trotro minibuses, trucks, cocoa haulage and company vehicles in Accra, Kumasi, Tema and across Ghana with ITrackZen.",
+      "snapshot": "Ghana's port of Tema and the port of Takoradi supply Accra, Kumasi and the north, and trucks continue to Burkina Faso and Mali through Paga and Tamale. Accra and Kumasi have large taxi, trotro and delivery fleets, and cocoa, mining and construction need heavy haulage. Operators often look for ways to curb fuel loss, prove trips and keep drivers accountable.",
+      "cities": [
+        "Accra",
+        "Kumasi",
+        "Tema",
+        "Takoradi",
+        "Tamale",
+        "Cape Coast"
+      ],
+      "corridors": "Tema to Accra and Kumasi, then north through Tamale to Paga for Burkina Faso; Takoradi to Kumasi.",
+      "use_cases": [
+        {
+          "title": "Taxi and ride fleets",
+          "text": "See where each vehicle is, review trips and set speed and zone alerts."
+        },
+        {
+          "title": "Port and cocoa haulage",
+          "text": "Follow trucks from Tema and Takoradi to depots, mines and farms with geofences and stop reports."
+        },
+        {
+          "title": "Construction and mining vehicles",
+          "text": "Control after-hours movement, idle time and fuel use of heavy equipment."
+        },
+        {
+          "title": "Delivery and sales fleets",
+          "text": "Verify visits and routes for vans and motorcycles in congested cities."
+        }
+      ],
+      "connectivity": "Trackers need a data SIM from a local mobile network. Coverage is strong in cities and along main roads, and positions are stored until upload where signal is weak.",
+      "steps": [
+        {
+          "title": "Tell us about your fleet",
+          "text": "Share your vehicle types, how many you run and the routes you cover so we can judge what is practical."
+        },
+        {
+          "title": "Choose the hardware path",
+          "text": "Use trackers you already own if the model is supported, or ask us to recommend OBD, hardwired, motorcycle or dashcam devices."
+        },
+        {
+          "title": "Confirm supply and activation",
+          "text": "We confirm how devices can be supplied and installed for your location and then set up your account, vehicles and alerts."
+        }
+      ],
+      "conditions": [
+        "Supply and installation are confirmed for each request. We do not assume a local team in every city.",
+        "Live updates depend on mobile data coverage along your routes; devices store positions and upload them when signal returns.",
+        "Specialised hardware such as satellite trackers, where needed, is quoted separately."
+      ],
+      "partners": "If you are a fleet operator, vehicle dealer, installer or reseller in Ghana and want to cooperate with us, send a partnership enquiry.",
+      "faq": [
+        {
+          "q": "Can I track taxis and trotro vehicles?",
+          "a": "Yes. Small hardwired or plug-in trackers report location, ignition and speed, and you can review trips afterwards."
+        },
+        {
+          "q": "Can I follow trucks to Burkina Faso?",
+          "a": "Yes, if the tracker has a SIM that works across the border. Tell us the route and we will advise."
+        },
+        {
+          "q": "Is installation available?",
+          "a": "Installation is confirmed per request. We can also support devices installed by you or a local partner."
+        }
+      ],
+      "related": [
+        "gps-tracking-nigeria",
+        "gps-tracking-republic-of-congo",
+        "gps-tracking-kenya"
+      ],
+      "image": "",
+      "image_alt": "Fleet vehicles on a road in Ghana",
+      "photo": "ghana-taxis"
+    },
+    {
+      "slug": "gps-tracking-republic-of-congo",
+      "name": "Republic of the Congo",
+      "title": "GPS Tracking Republic of the Congo | Vehicle & Fleet Tracking | ITrackZen",
+      "description": "GPS tracking and fleet management in Republic of the Congo: live location, route history, fuel and driver safety tools for trucks, buses, vans and motorcycles",
+      "keywords": "GPS tracking Republic of the Congo, vehicle tracking Republic of the Congo, fleet management Republic of the Congo, truck tracking Republic of the Congo, GPS tracker Republic of the Congo, ITrackZen Republic of the Congo",
+      "h1": "GPS Tracking & Fleet Management in Republic of the Congo",
+      "hero_text": "Track trucks, oil and gas service vehicles, buses and company cars in Brazzaville, Pointe-Noire and across the Republic of the Congo with ITrackZen.",
+      "snapshot": "The Republic of the Congo (Congo-Brazzaville) has its main sea port at Pointe-Noire and a road and rail link to the capital Brazzaville, which lies across the river from Kinshasa in DR Congo. Oil and gas services, forestry, construction and general cargo all depend on road transport over long, sometimes difficult distances. Operators typically want clear trip records, safety alerts and control of after-hours use.",
+      "cities": [
+        "Brazzaville",
+        "Pointe-Noire",
+        "Dolisie",
+        "Oyo",
+        "Ouesso",
+        "Owando"
+      ],
+      "corridors": "Pointe-Noire to Dolisie and Brazzaville, and onward routes to the north and across the river to Kinshasa.",
+      "use_cases": [
+        {
+          "title": "Oil and gas support vehicles",
+          "text": "Keep a record of where service vehicles go, how long they stay on site and whether they leave approved zones."
+        },
+        {
+          "title": "Port and general cargo haulage",
+          "text": "Follow trucks from Pointe-Noire to inland destinations with geofences and stop reports."
+        },
+        {
+          "title": "Forestry and project fleets",
+          "text": "Watch remote vehicles and equipment with stored positions that upload when coverage returns."
+        },
+        {
+          "title": "Company cars and buses",
+          "text": "Set speed and working-hour alerts and review trips when you need to."
+        }
+      ],
+      "connectivity": "Trackers need a data SIM from a local mobile network. Coverage is good around Brazzaville, Pointe-Noire and main roads and limited in forest and remote areas, where positions are stored and uploaded when the device reconnects.",
+      "steps": [
+        {
+          "title": "Tell us about your fleet",
+          "text": "Share your vehicle types, how many you run and the routes you cover so we can judge what is practical."
+        },
+        {
+          "title": "Choose the hardware path",
+          "text": "Use trackers you already own if the model is supported, or ask us to recommend OBD, hardwired, motorcycle or dashcam devices."
+        },
+        {
+          "title": "Confirm supply and activation",
+          "text": "We confirm how devices can be supplied and installed for your location and then set up your account, vehicles and alerts."
+        }
+      ],
+      "conditions": [
+        "Supply and installation are confirmed for each request. We do not assume a local team in every city.",
+        "Live updates depend on mobile data coverage along your routes; devices store positions and upload them when signal returns.",
+        "Specialised hardware such as satellite trackers, where needed, is quoted separately."
+      ],
+      "partners": "If you are a transport company, oil and gas contractor, equipment dealer or installer in the Republic of the Congo and want to cooperate with us, send a partnership enquiry.",
+      "faq": [
+        {
+          "q": "Is the platform available in French?",
+          "a": "Our website and platform are in English today. Tell us about your team and we will explain how we can support you."
+        },
+        {
+          "q": "Can I track vehicles between Brazzaville and Kinshasa?",
+          "a": "Yes, if the tracker has a SIM that works in both countries. We will advise on options for your route."
+        },
+        {
+          "q": "Do you have a local team?",
+          "a": "We do not currently claim local offices. Supply and installation are confirmed for each request."
+        }
+      ],
+      "related": [
+        "gps-tracking-dr-congo",
+        "gps-tracking-nigeria",
+        "gps-tracking-zambia"
+      ],
+      "image": "",
+      "image_alt": "Fleet vehicles on a road in Republic of the Congo"
+    },
+    {
+      "slug": "gps-tracking-south-africa",
+      "name": "South Africa",
+      "title": "GPS Tracking South Africa | Vehicle & Fleet Tracking | ITrackZen",
+      "description": "GPS tracking and fleet management in South Africa: live location, route history, fuel and driver safety tools for trucks, buses, vans and motorcycles with ITr",
+      "keywords": "GPS tracking South Africa, vehicle tracking South Africa, fleet management South Africa, truck tracking South Africa, GPS tracker South Africa, ITrackZen South Africa",
+      "h1": "GPS Tracking & Fleet Management in South Africa",
+      "hero_text": "Track cross-border trucks, buses and company fleets that run into South Africa and Southern Africa with ITrackZen live tracking, alerts and reports.",
+      "snapshot": "South Africa has Africa's most developed road network and a large, competitive local tracking market, with ports at Durban and Cape Town and the N3 and N1 corridors linking them to Johannesburg and to Zimbabwe, Zambia, Mozambique and beyond. We are most relevant to operators with cross-border or regional fleets who want one platform across several countries, rather than to those who only need a local, in-country installer network.",
+      "cities": [
+        "Johannesburg",
+        "Durban",
+        "Cape Town",
+        "Pretoria",
+        "Gqeberha",
+        "Polokwane"
+      ],
+      "corridors": "Durban to Johannesburg on the N3, and Johannesburg to Beitbridge on the N1 for Zimbabwe, Zambia and the rest of the region.",
+      "use_cases": [
+        {
+          "title": "Cross-border fleets",
+          "text": "Manage trucks that run between South Africa and neighbouring countries in one account, with border and depot geofences."
+        },
+        {
+          "title": "Regional distribution",
+          "text": "Plan and verify long routes between hubs and see when vehicles stop outside agreed locations."
+        },
+        {
+          "title": "Buses and charter operators",
+          "text": "Monitor speed, route adherence and idle time for passenger services."
+        },
+        {
+          "title": "Fleet owners with mixed operations",
+          "text": "Combine trucks, light vehicles and plant in one dashboard with alerts and reports."
+        }
+      ],
+      "connectivity": "Trackers need a data SIM from a local mobile network, or a multi-country SIM for cross-border trucks. Coverage is extensive on main routes and in cities, with gaps in remote areas where positions are stored and uploaded later.",
+      "steps": [
+        {
+          "title": "Tell us about your fleet",
+          "text": "Share your vehicle types, how many you run and the routes you cover so we can judge what is practical."
+        },
+        {
+          "title": "Choose the hardware path",
+          "text": "Use trackers you already own if the model is supported, or ask us to recommend OBD, hardwired, motorcycle or dashcam devices."
+        },
+        {
+          "title": "Confirm supply and activation",
+          "text": "We confirm how devices can be supplied and installed for your location and then set up your account, vehicles and alerts."
+        }
+      ],
+      "conditions": [
+        "Installation and hardware supply are confirmed for each request. We do not currently claim a local installer network in South Africa.",
+        "Local requirements for devices and installers can differ, so we confirm what applies for your project.",
+        "Satellite or specialised hardware, where needed, is quoted separately."
+      ],
+      "partners": "If you are an installer, reseller or logistics operator in South Africa and want to cooperate with us on regional fleets, send a partnership enquiry.",
+      "faq": [
+        {
+          "q": "Is ITrackZen a good fit for a South Africa only fleet?",
+          "a": "The local market has many established providers. We are strongest for businesses with cross-border or regional operations, and we will tell you honestly if another provider suits you better."
+        },
+        {
+          "q": "Can I track trucks into Zimbabwe, Zambia or Mozambique?",
+          "a": "Yes, if the tracker keeps connectivity across the border. Tell us the route and we will advise on SIM options."
+        },
+        {
+          "q": "Can I use my existing trackers?",
+          "a": "Often. Send the brand and model and we will confirm compatibility."
+        }
+      ],
+      "related": [
+        "gps-tracking-zimbabwe",
+        "gps-tracking-mozambique",
+        "gps-tracking-zambia"
+      ],
+      "image": "",
+      "image_alt": "Fleet vehicles on a road in South Africa"
     }
   ],
-  "intro": "Choose your country to see how ITrackZen supports transport and logistics operators there. If your country is not listed, contact us. We expand only where we can genuinely support customers."
+  "intro": "Choose your country to see how ITrackZen supports transport and logistics operators there. Our focus markets are Somalia, Kenya, Uganda, Ethiopia, South Sudan and DR Congo, and the guides below also cover other African countries where we can support your hardware, connectivity and installation. If your country is not listed, contact us. We expand only where we can genuinely support customers."
 }

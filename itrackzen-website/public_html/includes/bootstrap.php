@@ -44,9 +44,38 @@ function data(string $name): array
             $json = is_file($file) ? file_get_contents($file) : '';
             $arr = $json !== '' ? json_decode($json, true) : null;
         }
+        if ($name === 'countries' && is_array($arr)) { $arr = merge_new_default_items($name, $arr, 'slug'); }
         $cache[$name] = is_array($arr) ? $arr : [];
     }
     return $cache[$name];
+}
+
+/**
+ * Country guides added in a newer version of the website appear on sites whose content is already stored in the database,
+ * without touching pages that were edited or removed on purpose: each default item is offered once (remembered in `meta`).
+ */
+function merge_new_default_items(string $name, array $stored, string $key): array
+{
+    try {
+        $default = data_default($name)['items'] ?? [];
+        if (!$default || !isset($stored['items']) || !is_array($stored['items']) || db_val('SELECT body FROM content WHERE name=?', [$name]) === false) { return $stored; }
+        $metaKey = 'offered_' . $name;
+        $offered = json_decode((string)(db_val('SELECT v FROM meta WHERE k=?', [$metaKey]) ?: '[]'), true) ?: [];
+        $have = array_column($stored['items'], $key);
+        $added = false;
+        foreach ($default as $item) {
+            $id = $item[$key] ?? null;
+            if ($id === null || in_array($id, $offered, true)) { continue; }
+            $offered[] = $id;
+            if (!in_array($id, $have, true)) { $stored['items'][] = $item; $added = true; }
+        }
+        if ($added || count($offered) !== count(json_decode((string)(db_val('SELECT v FROM meta WHERE k=?', [$metaKey]) ?: '[]'), true) ?: [])) {
+            db_run('DELETE FROM meta WHERE k=?', [$metaKey]);
+            db_insert_named('meta', ['k' => $metaKey, 'v' => json_encode($offered)]);
+            if ($added) { data_save($name, $stored, 'system'); }
+        }
+    } catch (Throwable $e) { error_log('[ITrackZen] merge defaults: ' . $e->getMessage()); }
+    return $stored;
 }
 
 function data_default(string $name): array

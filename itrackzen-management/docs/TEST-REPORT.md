@@ -7,7 +7,7 @@ with Odoo 18.0 Community (pinned commit), PostgreSQL 16 and the demo data, not o
 
 | Test | Result |
 |---|---|
-| Automated Odoo tests (`--test-tags itz`), all add-ons installed together | **96 tests, 0 failures, 0 errors** (82 originally, 8 for the GPSWOX adapter, 2 for the user-form role check boxes, 4 for the website price list) |
+| Automated Odoo tests (`--test-tags itz`), all add-ons installed together | **107 tests, 0 failures, 0 errors** (82 originally, 8 for the GPSWOX adapter, 2 for the user-form role check boxes, 5 for the website product list, 10 for emails and AI-assisted replies) |
 | GPSWOX adapter against a test double of the documented GPSWOX API, and over real HTTP against `integration-layer/mock_gpswox.py` (sign-in, find-or-create device by IMEI, expiry date) | Passed |
 | Single sign-on from the website admin, in a real browser (owner, sales, technician, accountant) | 21 checks passed. Unauthorized sections return 403. |
 | Role smoke test: every menu screen opened as each demo role | 203 screens, no access errors and no blank screens |
@@ -25,6 +25,8 @@ redirect allow-list), and the tracking sync queue.
 
 ## Bugs found by testing, and fixed
 
+- A local variable named `user` in the AI-reply code made Odoo's translation helper crash on every error message. Found by the error-path test and fixed.
+
 - The restore script could overwrite the live file store. Fixed, and the recovery was re-tested.
 - Several roles were missing access rights that only showed up when clicking through the real screens: sale options, stock
   transfers, the advance-payment wizard, employee fields on the avatar card. Fixed and covered by the smoke test.
@@ -33,6 +35,10 @@ redirect allow-list), and the tracking sync queue.
 - Menu and action id collisions between server actions and window actions. Fixed.
 
 ## Not tested, and why
+
+- **The AI service itself.** The reply helper is tested against a stand-in for the Anthropic library (request contents, error handling, refusal handling). No real call was made: there was no key and no outbound access to the service from the build environment.
+- **Real email delivery.** The server that sends mail is configured on your side. Branding, layout and wording were checked on the rendered HTML, not in Gmail or Outlook.
+- **Receiving customer replies.** Replies go to the sales mailbox; reading that mailbox from the management system (IMAP) is not set up.
 
 - **The real GPSWOX platform.** It was not reachable from the build environment and no test account was available. The GPSWOX
   connection follows the API reference you exported, is tested only against test doubles, and is shipped switched off.

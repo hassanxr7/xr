@@ -101,6 +101,23 @@ class ItzBridgeController(http.Controller):
         data['generated'] = int(time.time())
         return request.make_json_response(data)
 
+    @http.route('/itz/api/catalog/image/<int:template_id>', type='http', auth='none', methods=['GET'], csrf=False, save_session=False)
+    def catalog_image(self, template_id, **kw):
+        """Photo of a published product (512 px). Signed like the catalog; unpublished products return 404."""
+        env = request.env(user=SUPERUSER_ID)
+        cfg = env['itz.website.config'].get_config()
+        ts = request.params.get('ts', '')
+        if not cfg.enabled or not ts.isdigit() or abs(time.time() - int(ts)) > 120 \
+                or not cfg.verify('catalog-image|%s|%s' % (template_id, ts), request.params.get('sig', '')):
+            return request.make_response('', status=401)
+        tmpl = env['product.template'].browse(template_id).exists()
+        if not tmpl or not tmpl.itz_web_publish or not tmpl.image_512:
+            return request.make_response('', status=404)
+        import base64
+        raw = base64.b64decode(tmpl.image_512)
+        mime = 'image/jpeg' if raw[:2] == b'\xff\xd8' else 'image/webp' if raw[8:12] == b'WEBP' else 'image/png'
+        return request.make_response(raw, headers=[('Content-Type', mime), ('Cache-Control', 'no-store')])
+
     @http.route('/itz/website/event', type='http', auth='none', methods=['POST'], csrf=False, save_session=False, readonly=False)
     def event(self, **kw):
         env = request.env(user=SUPERUSER_ID)

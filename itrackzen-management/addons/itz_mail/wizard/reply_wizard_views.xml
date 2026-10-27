@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="itz_enquiry_reply_form" model="ir.ui.view">
+        <field name="name">itz.enquiry.reply.form</field>
+        <field name="model">itz.enquiry.reply</field>
+        <field name="arch" type="xml">
+            <form string="Reply by email">
+                <field name="enquiry_id" invisible="1"/>
+                <field name="ai_ready" invisible="1"/>
+                <group>
+                    <field name="customer_message" readonly="1" nolabel="0" string="Their message"/>
+                </group>
+                <group>
+                    <field name="email_to"/>
+                    <field name="subject"/>
+                </group>
+                <group string="Help me write it">
+                    <field name="language"/>
+                    <field name="instructions" placeholder="Short notes are enough, in any language, for example: thank them, we can supply the trackers, ask how many vehicles and in which countries."/>
+                </group>
+                <div class="mb-2">
+                    <button name="action_draft" type="object" string="Write it for me" class="btn btn-secondary"/>
+                    <span class="text-muted ms-2" invisible="ai_ready">AI is off: your notes are placed in a simple template.</span>
+                </div>
+                <div class="alert alert-info" role="alert" invisible="not drafted_by"><field name="drafted_by" nolabel="1"/></div>
+                <field name="body" placeholder="The email text appears here. You can type or edit it."/>
+                <footer>
+                    <button name="action_send" type="object" string="Send" class="btn btn-primary" data-hotkey="q"/>
+                    <button string="Cancel" class="btn btn-secondary" special="cancel" data-hotkey="x"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+</odoo>

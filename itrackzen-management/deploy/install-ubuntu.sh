@@ -60,7 +60,7 @@ sudo -u itrackzen git -C "$ODOO_HOME/odoo" fetch --depth 1 origin "$ODOO_SHA"
 sudo -u itrackzen git -C "$ODOO_HOME/odoo" checkout -q --force FETCH_HEAD
 [[ -d "$ODOO_HOME/venv" ]] || sudo -u itrackzen python3 -m venv "$ODOO_HOME/venv"
 sudo -u itrackzen "$ODOO_HOME/venv/bin/pip" install -q --upgrade pip wheel
-sudo -u itrackzen "$ODOO_HOME/venv/bin/pip" install -q -r "$ODOO_HOME/odoo/requirements.txt" xlsxwriter
+sudo -u itrackzen "$ODOO_HOME/venv/bin/pip" install -q -r "$ODOO_HOME/odoo/requirements.txt" xlsxwriter anthropic
 
 echo "==> ITrackZen addons"
 mkdir -p "$ODOO_HOME/addons"
@@ -76,11 +76,11 @@ cp "$HERE/systemd/itrackzen-odoo.service" /etc/systemd/system/itrackzen-odoo.ser
 echo "==> create the database and install the ITrackZen modules (this takes several minutes)"
 if ! sudo -u postgres psql -lqt | cut -d'|' -f1 | grep -qw "$DB_NAME"; then
   sudo -u itrackzen "$ODOO_HOME/venv/bin/python" "$ODOO_HOME/odoo/odoo-bin" -c /etc/itrackzen/odoo.conf -d "$DB_NAME" \
-     -i itz_website_bridge --without-demo=all --stop-after-init
+     -i itz_website_bridge,itz_mail --without-demo=all --stop-after-init
 else
   echo "database $DB_NAME exists: updating modules instead"
   sudo -u itrackzen "$ODOO_HOME/venv/bin/python" "$ODOO_HOME/odoo/odoo-bin" -c /etc/itrackzen/odoo.conf -d "$DB_NAME" \
-     -u itz_website_bridge --stop-after-init
+     -u itz_website_bridge,itz_mail --stop-after-init
 fi
 
 echo "==> first administrator password and website connection"

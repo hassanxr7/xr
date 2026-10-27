@@ -1,0 +1,20 @@
+{
+    'name': 'ITrackZen Email and Replies',
+    'version': '18.0.1.0.0',
+    'summary': 'Branded emails (no Odoo name), automatic acknowledgement of website enquiries, and replies drafted with AI from the enquiry screen',
+    'author': 'LibDex Ltd (ITrackZen)',
+    'website': 'https://itrackzen.net',
+    'category': 'ITrackZen',
+    'license': 'LGPL-3',
+    'depends': ['itz_website_bridge', 'itz_branding', 'auth_signup', 'mail'],
+    'data': [
+        'security/ir.model.access.csv',
+        'views/res_company_views.xml',
+        'views/enquiry_views.xml',
+        'views/mail_layouts.xml',
+        'wizard/reply_wizard_views.xml',
+        'data/setup.xml',
+    ],
+    'installable': True,
+    'application': False,
+}

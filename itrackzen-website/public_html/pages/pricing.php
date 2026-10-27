@@ -46,28 +46,7 @@ page_hero($m['h1'], $p['intro'], 'Pricing & Plans', '', 'iveco-delivery-van');
       </tbody></table></div>
   </div>
 </section>
-<?php $hw = catalog_items_grouped(); $hwCur = $hw ? catalog_get()['currency'] : []; if ($hw): ?>
-<section class="section">
-  <div class="container narrow">
-    <?php section_head('Hardware & installation prices', 'What we supply and install', 'Prices are current and come straight from our store and finance team. Installation and tax are confirmed in your written quote.'); ?>
-    <?php foreach ($hw as $items): ?>
-    <h3 class="mt-lg"><?= e($items[0]['category_label'] ?? 'Other') ?></h3>
-    <div class="table-wrap reveal"><table class="compare">
-      <thead><tr><th scope="col">Item</th><th scope="col">Price</th><th scope="col">Availability</th><th scope="col"><span class="sr-only">Quote</span></th></tr></thead>
-      <tbody>
-      <?php foreach ($items as $it): ?>
-        <tr>
-          <th scope="row"><?= e($it['name']) ?><?php if (!empty($it['blurb'])): ?><br><small class="muted"><?= e($it['blurb']) ?></small><?php endif; ?></th>
-          <td><strong><?= e(catalog_money((float)$it['price'], $hwCur)) ?></strong></td>
-          <td><?php if ($it['in_stock'] === true): ?><span class="yes">In stock</span><?php elseif ($it['in_stock'] === false): ?><span class="opt">Out of stock, ask for lead time</span><?php else: ?><span class="muted">&ndash;</span><?php endif; ?></td>
-          <td><a class="btn btn-outline" href="/request-quote?service=<?= rawurlencode('Tracker hardware & installation') ?>&amp;topic=<?= rawurlencode($it['name']) ?>">Request quote</a></td>
-        </tr>
-      <?php endforeach; ?>
-      </tbody></table></div>
-    <?php endforeach; ?>
-  </div>
-</section>
-<?php endif; ?>
+<?php catalog_hardware_section('Hardware & installation', 'What we supply and install', 'Each item is supplied and installed by our team. We do not publish fixed hardware prices: tell us your vehicles and we send you a clear written quotation.'); ?>
 <section class="section">
   <div class="container split">
     <div class="split-copy reveal"><p class="eyebrow">Hardware &amp; installation</p><h2><?= e($p['addons_heading']) ?></h2><p><?= e($p['addons_text']) ?></p>

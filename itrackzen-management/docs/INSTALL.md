@@ -120,6 +120,15 @@ Finance sets the price and the store enters the units; the website follows by it
 4. The website asks the management system for the list every 5 minutes. If the management system is down, the last list (up to 7 days old) keeps showing. Un-tick **Show on the website** to remove a product.
 5. Needs the website connection from section 5 (the same shared secret). Nothing else to set up.
 
+## 8c. Emails, the sales mailbox and AI replies
+
+1. **Sending addresses.** Settings > Technical > Outgoing Mail Servers: one server for `no-reply@itrackzen.net` (system emails and the automatic acknowledgement) and a second for `sales@itrackzen.net` (replies from the Reply button). Give each its own mailbox login and set **From Filtering** to the address. Without the sales server, replies are sent from the no-reply address with Reply-To set to sales.
+2. **Company details in every email.** Settings > Companies > ITrackZen Management > Emails to customers: sales address, phone numbers and the Nairobi office address. The email footer shows them.
+3. **Who sees enquiries.** Sales officers see their own and unassigned enquiries; Operations Manager and Owner see all. Choose who new enquiries go to in Management > Configuration > Website.
+4. **AI replies (optional).** Create a key at console.anthropic.com, then in the same company page tick **Draft replies with AI** and paste the key (only the Owner sees it). Usage is billed by the AI provider per draft. The customer's message and the writer's notes are sent to the AI service. Without a key the Reply button still works with a simple template.
+5. The invitation, password-reset and notification emails no longer mention Odoo; they carry the ITrackZen logo and "ITrackZen by LibDex".
+6. Customer replies arrive in the sales mailbox (webmail). Showing them inside the system needs an incoming mail server (IMAP) and is not set up.
+
 ## 9. Updating later
 
 Unzip the new source on the server, then run `sudo ./deploy/update.sh <path to the unzipped addons folder>`. It takes a backup, copies the add-ons, updates every installed ITrackZen module and restarts the service.

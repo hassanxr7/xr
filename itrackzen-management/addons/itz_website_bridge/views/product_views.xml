@@ -10,6 +10,8 @@
                 <field name="itz_web_plan" invisible="itz_category != 'plan' or not itz_web_publish" groups="itz_base.group_itz_financial"/>
                 <field name="itz_web_note" invisible="not itz_web_publish" groups="itz_base.group_itz_financial"
                        placeholder="One short line for the website, for example: 4G tracker with SOS button"/>
+                <field name="itz_web_features" invisible="not itz_web_publish or itz_category == 'plan'" groups="itz_base.group_itz_financial"
+                       placeholder="One capability per line:&#10;Live tracking&#10;SOS button&#10;Fuel monitoring"/>
             </xpath>
         </field>
     </record>

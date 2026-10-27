@@ -177,7 +177,8 @@ class TestWebsiteCatalog(HttpCase):
         self.cfg.sudo().enabled = True
         P = self.env['product.template']
         self.tracker = P.create({'name': 'Web Tracker', 'itz_category': 'tracker', 'type': 'consu', 'is_storable': True, 'list_price': 85.0,
-                                 'itz_web_publish': True, 'itz_web_note': '4G tracker with SOS'})
+                                 'itz_web_publish': True, 'itz_web_note': '4G tracker with SOS', 'itz_model': 'T100',
+                                 'itz_web_features': 'Live tracking\n\n SOS button '})
         self.plan = P.create({'name': 'Web Plan Business', 'itz_category': 'plan', 'type': 'service', 'list_price': 12.0, 'itz_plan_cycle': 'monthly',
                               'itz_web_publish': True, 'itz_web_plan': 'business'})
         self.hidden = P.create({'name': 'Hidden Relay', 'itz_category': 'relay', 'type': 'consu', 'is_storable': True, 'list_price': 30.0})
@@ -195,14 +196,32 @@ class TestWebsiteCatalog(HttpCase):
         self.assertIn('Web Tracker', names)
         self.assertIn('Web Plan Business', names)
         self.assertNotIn('Hidden Relay', names)
-        self.assertNotIn('Zero Price Cable', names)
+        self.assertIn('Zero Price Cable', names)                 # hardware needs no price to be shown
         row = next(i for i in data['items'] if i['name'] == 'Web Tracker')
-        self.assertEqual(row['price'], 85.0)
+        self.assertNotIn('price', row)                           # hardware is quoted, never priced on the website
         self.assertEqual(row['blurb'], '4G tracker with SOS')
+        self.assertEqual(row['features'], ['Live tracking', 'SOS button'])
+        self.assertEqual(row['model'], 'T100')
         self.assertFalse(row['in_stock'])                       # nothing received yet
         self.assertNotIn('standard_price', json.dumps(data))
         plan = data['plans'][0]
         self.assertEqual((plan['plan'], plan['cycle'], plan['price']), ('business', 'monthly', 12.0))
+
+    def test_catalog_image_is_signed_and_only_for_published_products(self):
+        import base64
+        png = base64.b64encode(bytes.fromhex('89504e470d0a1a0a0000000d49484452000000010000000108060000001f15c4890000000d49444154789c6360000000020001e221bc330000000049454e44ae426082'))
+        self.tracker.write({'image_1920': png})
+        ts = str(int(time.time()))
+        good = '/itz/api/catalog/image/%s?ts=%s&sig=%s' % (self.tracker.id, ts, self.cfg.sign('catalog-image|%s|%s' % (self.tracker.id, ts)))
+        res = self.url_open(good)
+        self.assertEqual(res.status_code, 200)
+        self.assertEqual(res.headers['Content-Type'], 'image/png')
+        row = next(i for i in self.url_open(self._url()).json()['items'] if i['name'] == 'Web Tracker')
+        self.assertTrue(row['image'])
+        self.assertEqual(self.url_open('/itz/api/catalog/image/%s?ts=%s&sig=bad' % (self.tracker.id, ts)).status_code, 401)
+        self.hidden.write({'image_1920': png})
+        sig = self.cfg.sign('catalog-image|%s|%s' % (self.hidden.id, ts))
+        self.assertEqual(self.url_open('/itz/api/catalog/image/%s?ts=%s&sig=%s' % (self.hidden.id, ts, sig)).status_code, 404)
 
     def test_catalog_stock_flag_follows_the_store(self):
         cable = self.env['product.template'].create({'name': 'Web Cable', 'itz_category': 'cable', 'type': 'consu', 'is_storable': True,

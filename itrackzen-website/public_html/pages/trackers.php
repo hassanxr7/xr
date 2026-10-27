@@ -8,6 +8,7 @@ add_ld(['@type' => 'ItemList', 'name' => 'Supported GPS tracker brands', 'itemLi
 layout_start(['title' => $m['title'], 'description' => $m['description'], 'keywords' => $m['keywords'], 'path' => '/supported-gps-trackers']);
 page_hero($m['h1'], 'Use the GPS trackers you prefer. ITrackZen works with leading brands, protocols and device types, from OBD plug-ins and motorcycle trackers to 4G fleet units and AI dashcams.', 'Device compatibility', '', 'ghana-taxis');
 ?>
+<?php catalog_hardware_section('Supplied by ITrackZen', 'Trackers and dashcams we supply and install', 'Photo, model and what each device does. Ask for a quotation and we will confirm the right setup for your vehicles.', ['tracker', 'dashcam', 'fuel_sensor', 'relay', 'rfid']); ?>
 <section class="section tight">
   <div class="container">
     <div class="notice reveal"><?= icon('chip') ?><p><strong><?= e($t['notice']) ?></strong> Our team will confirm compatibility and help you configure it.</p><a class="btn btn-primary btn-sm" href="/request-quote?service=Bring+my+own+trackers">Check my device</a></div>

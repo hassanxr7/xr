@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="itz_enquiry_form_mail" model="ir.ui.view">
+        <field name="name">itz.enquiry.form.mail</field>
+        <field name="model">itz.enquiry</field>
+        <field name="inherit_id" ref="itz_sales.itz_enquiry_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//button[@name='action_create_quotation']" position="before">
+                <button name="action_reply" type="object" string="Reply by email" class="btn-primary" invisible="not email or state == 'spam'"/>
+            </xpath>
+            <xpath expr="//field[@name='website_ref']" position="after">
+                <field name="ack_sent" readonly="1"/>
+                <field name="last_reply_date" readonly="1" invisible="not last_reply_date"/>
+            </xpath>
+        </field>
+    </record>
+    <record id="itz_enquiry_list_mail" model="ir.ui.view">
+        <field name="name">itz.enquiry.list.mail</field>
+        <field name="model">itz.enquiry</field>
+        <field name="inherit_id" ref="itz_sales.itz_enquiry_list"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='contact_name']" position="after">
+                <field name="email" optional="show"/>
+                <field name="phone" optional="show"/>
+            </xpath>
+        </field>
+    </record>
+</odoo>

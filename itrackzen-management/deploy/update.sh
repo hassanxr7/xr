@@ -15,11 +15,14 @@ echo "==> copy add-ons"
 rsync -a --delete "$SRC/" "$ODOO_HOME/addons/"
 chown -R itrackzen:itrackzen "$ODOO_HOME/addons"
 
-echo "==> update the installed ITrackZen modules"
+echo "==> libraries (AI-assisted replies)"
+sudo -u itrackzen "$ODOO_HOME/venv/bin/pip" install -q anthropic || echo "!! could not install the AI library; replies still work without AI"
+
+echo "==> update the installed ITrackZen modules (and install itz_mail, the email module, if it is new)"
 MODULES="$(sudo -u postgres psql -d "$DB" -Atc "select string_agg(name, ',' order by name) from ir_module_module where name like 'itz\_%' and state='installed'")"
 echo "modules: $MODULES"
 systemctl stop itrackzen-odoo
-sudo -u itrackzen "$ODOO_HOME/venv/bin/python" "$ODOO_HOME/odoo/odoo-bin" -c /etc/itrackzen/odoo.conf -d "$DB" -u "$MODULES" --stop-after-init
+sudo -u itrackzen "$ODOO_HOME/venv/bin/python" "$ODOO_HOME/odoo/odoo-bin" -c /etc/itrackzen/odoo.conf -d "$DB" -u "$MODULES" -i itz_mail --stop-after-init
 systemctl start itrackzen-odoo
 sleep 3
 systemctl --no-pager --lines=0 status itrackzen-odoo | head -4

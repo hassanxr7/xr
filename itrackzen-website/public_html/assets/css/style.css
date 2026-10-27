@@ -365,3 +365,9 @@ h1,h2,h3{letter-spacing:-.025em;font-weight:800;color:var(--ink)}h2{font-size:cl
 .sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
 .compare .yes{font-weight:700;font-size:.9rem}
 .price+.small,.plan .small{font-size:.85rem}
+.hw-group{margin:2rem 0 1rem;font-size:1.2rem}
+.hw-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:22px}
+.hw-card{background:#fff;border:1px solid var(--line);border-radius:20px;overflow:hidden;display:flex;flex-direction:column;transition:.22s}.hw-card:hover{box-shadow:var(--sh);transform:translateY(-3px)}
+.hw-photo{aspect-ratio:4/3;background:#f4f7fd;display:flex;align-items:center;justify-content:center;color:#9bb0d8}.hw-photo img{width:100%;height:100%;object-fit:contain;padding:12px}.hw-photo svg{width:64px;height:64px}
+.hw-body{padding:18px 20px 22px;display:flex;flex-direction:column;gap:6px;flex:1}.hw-body h4{margin:0;font-size:1.08rem}.hw-model{margin:0;font-weight:600;color:var(--blue-d);font-size:.9rem}
+.hw-body .checks{margin:.4rem 0;font-size:.92rem}.hw-body .btn{margin-top:auto}.hw-stock{margin:0;font-weight:700;font-size:.88rem}

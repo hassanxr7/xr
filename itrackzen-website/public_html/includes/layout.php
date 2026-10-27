@@ -34,7 +34,8 @@ function ld_org(): array
 function ld_area(): array
 {
     $out = [];
-    foreach (['Somalia', 'Kenya', 'Uganda', 'Ethiopia', 'South Sudan', 'Democratic Republic of the Congo'] as $c) { $out[] = ['@type' => 'Country', 'name' => $c]; }
+    $names = ['DR Congo' => 'Democratic Republic of the Congo'];
+    foreach (data('countries')['items'] ?? [] as $c) { $out[] = ['@type' => 'Country', 'name' => $names[$c['name']] ?? $c['name']]; }
     $out[] = ['@type' => 'AdministrativeArea', 'name' => 'East Africa'];
     $out[] = ['@type' => 'AdministrativeArea', 'name' => 'Central Africa'];
     $out[] = ['@type' => 'Continent', 'name' => 'Africa'];
@@ -135,6 +136,8 @@ function layout_start(array $m): void
 <meta name="author" content="<?= e(site('company')) ?>">
 <meta name="theme-color" content="#0a1f44">
 <link rel="canonical" href="<?= e($canon) ?>">
+<link rel="alternate" hreflang="en" href="<?= e($canon) ?>">
+<link rel="alternate" hreflang="x-default" href="<?= e($canon) ?>">
 <meta property="og:type" content="<?= e($m['og_type'] ?? 'website') ?>">
 <meta property="og:site_name" content="<?= e($brand) ?>">
 <meta property="og:title" content="<?= e($title) ?>">

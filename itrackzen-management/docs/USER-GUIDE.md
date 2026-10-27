@@ -51,6 +51,18 @@ installations by technician, maintenance/removals/replacements by technician, em
 
 ## Showing prices on the website (Finance and Store)
 
-* **Finance:** open the product (Inventory > Products and Stock), enter the **Sales Price**, tick **Show on the website**. For a tracking plan choose the **Website plan card** too. Untick it to take the product off the website.
+* **Tracking plans (Finance):** open the plan product (Inventory > Products and Stock), enter the **Sales Price**, tick **Show on the website** and choose the **Website plan card** (Starter, Business or Enterprise). The plan price appears on the Pricing page and the home page.
+* **Hardware (Finance or Store):** open the tracker, dashcam or sensor, add its **photo**, **Brand** and **Model**, tick **Show on the website**, write one line under **Website description** and list what it does under **What it does** (one capability per line). The website shows the photo, model and capabilities with a **Request a quotation** button. **No price is published for hardware.**
 * **Store:** receive the units as usual. The website shows **In stock** when units are available and **Out of stock, ask for lead time** when none are left. Customers never see quantities or costs.
 * The website refreshes within 5 minutes. The Pricing page shows the plan prices and a hardware price table; the home page shows the plan cards.
+
+
+## Replying to customers (Sales, Operations, Owner)
+
+1. A message from the website arrives in **Sales > Website Enquiries**, with the customer's name, company, country, phone and email. The customer automatically receives an email from the no-reply address saying the message was received.
+2. Open the enquiry and press **Reply by email**.
+3. Under **What do you want to tell them?** write a few short notes in any language, choose the language of the reply, and press **Write it for me**. With AI switched on, a professional email is drafted; without it, your notes are placed in a simple template.
+4. Read the text, change anything, and press **Send**. It goes out from the sales address with the ITrackZen by LibDex frame and your name, a copy is kept in the enquiry, and replies come to the sales mailbox.
+5. The AI only knows what is in the customer message, your notes and the company facts the owner entered. It is told never to invent prices, dates or promises. **Always read it before sending.**
+
+The owner switches AI on, enters the key and edits the company facts in **Settings > Companies > ITrackZen Management**. The customer's message and your notes are sent to the AI service to write the draft.

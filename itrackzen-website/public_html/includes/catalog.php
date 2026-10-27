@@ -81,3 +81,51 @@ function catalog_items_grouped(): array
     uksort($groups, fn($a, $b) => (array_search($a, $order, true) === false ? 99 : array_search($a, $order, true)) <=> (array_search($b, $order, true) === false ? 99 : array_search($b, $order, true)));
     return $groups;
 }
+
+
+/** Local copy of a product photo (downloaded once from the management system, replaced when the photo changes). '' if there is none. */
+function catalog_image_url(array $it): string
+{
+    if (empty($it['image']) || empty($it['id'])) { return ''; }
+    $dir = ROOT . '/assets/uploads/catalog';
+    $base = (int)$it['id'] . '-' . preg_replace('/[^a-f0-9]/', '', (string)$it['image']);
+    foreach (['jpg', 'png', 'webp'] as $ext) { if (is_file("$dir/$base.$ext")) { return "/assets/uploads/catalog/$base.$ext"; } }
+    if (!is_dir($dir) && !@mkdir($dir, 0755, true)) { return ''; }
+    $ts = (string)time();
+    $sig = hash_hmac('sha256', 'catalog-image|' . (int)$it['id'] . '|' . $ts, ODOO_SSO_SECRET);
+    [$code, $body] = odoo_http('GET', odoo_url('/itz/api/catalog/image/' . (int)$it['id'] . '?ts=' . $ts . '&sig=' . $sig), null, []);
+    if ($code !== 200 || strlen($body) < 100 || strlen($body) > 3_000_000) { return ''; }
+    $ext = str_starts_with($body, "\xFF\xD8") ? 'jpg' : (substr($body, 8, 4) === 'WEBP' ? 'webp' : (str_starts_with($body, "\x89PNG") ? 'png' : ''));
+    if ($ext === '') { return ''; }
+    foreach (glob($dir . '/' . (int)$it['id'] . '-*') ?: [] as $old) { @unlink($old); }
+    return @file_put_contents("$dir/$base.$ext", $body) ? "/assets/uploads/catalog/$base.$ext" : '';
+}
+
+/** Cards for the hardware and services we supply: photo, model, what it does, availability. No prices: visitors ask for a quotation. */
+function catalog_hardware_section(string $eyebrow, string $title, string $text, array $categories = []): void
+{
+    $groups = catalog_items_grouped();
+    $groups = $categories ? array_intersect_key($groups, array_flip($categories)) : $groups;
+    if (!$groups) { return; }
+    echo '<section class="section"><div class="container">';
+    section_head($eyebrow, $title, $text);
+    foreach ($groups as $items) {
+        echo '<h3 class="hw-group">' . e($items[0]['category_label'] ?? 'Other') . '</h3><div class="hw-grid">';
+        foreach ($items as $it) {
+            $img = catalog_image_url($it);
+            $model = trim(($it['brand'] ?? '') . ' ' . ($it['model'] ?? ''));
+            echo '<article class="hw-card reveal"><div class="hw-photo">';
+            echo $img ? '<img src="' . e($img) . '" alt="' . e($it['name'] . ($model ? ' (' . $model . ')' : '')) . '" loading="lazy" width="512" height="512">' : icon('chip');
+            echo '</div><div class="hw-body"><h4>' . e($it['name']) . '</h4>';
+            if ($model !== '') { echo '<p class="hw-model">Model: ' . e($model) . '</p>'; }
+            if (!empty($it['blurb'])) { echo '<p class="muted">' . e($it['blurb']) . '</p>'; }
+            if (!empty($it['features'])) { echo '<ul class="checks">'; foreach ($it['features'] as $f) { echo '<li>' . icon('check') . ' ' . e($f) . '</li>'; } echo '</ul>'; }
+            $stock = $it['in_stock'] ?? null;
+            if ($stock === true) { echo '<p class="hw-stock yes">In stock</p>'; } elseif ($stock === false) { echo '<p class="hw-stock opt">Available on order</p>'; }
+            echo '<a class="btn btn-outline btn-block" href="/request-quote?service=' . rawurlencode('Tracker hardware & installation') . '&amp;topic=' . rawurlencode($it['name']) . '">Request a quotation</a>';
+            echo '</div></article>';
+        }
+        echo '</div>';
+    }
+    echo '</div></section>';
+}

@@ -1,0 +1,4 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_itz_enquiry_reply_sales,itz.enquiry.reply sales,model_itz_enquiry_reply,itz_base.group_itz_sales,1,1,1,1
+access_itz_enquiry_reply_support,itz.enquiry.reply support,model_itz_enquiry_reply,itz_base.group_itz_support,1,1,1,1
+access_itz_enquiry_reply_ops,itz.enquiry.reply ops,model_itz_enquiry_reply,itz_base.group_itz_ops_manager,1,1,1,1

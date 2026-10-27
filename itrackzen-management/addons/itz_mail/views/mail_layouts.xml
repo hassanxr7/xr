@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- the real content is written by itz.mail.setup (data/setup.xml) -->
+    <template id="mail_layout" name="ITrackZen email frame"><t t-name="itz_mail.mail_layout"/></template>
+    <!-- Notification emails (task assigned, comments, reminders) must not say "Powered by Odoo" -->
+    <template id="mail_notification_layout_itz" inherit_id="mail.mail_notification_layout" name="ITrackZen: no Odoo footer">
+        <xpath expr="//a[contains(@href, 'odoo.com')]/parent::div" position="replace">
+            <div t-if="show_footer" style="color: #555555; font-size:11px;">
+                ITrackZen by LibDex
+                <span id="mail_unfollow">
+                    | <a href="/mail/unfollow" style="text-decoration:none; color:#555555;">Unfollow</a>
+                </span>
+            </div>
+        </xpath>
+    </template>
+    <template id="mail_notification_light_itz" inherit_id="mail.mail_notification_light" name="ITrackZen: no Odoo footer (light)">
+        <xpath expr="//a[contains(@href, 'odoo.com')]/ancestor::td[1]" position="replace">
+            <td align="center" style="min-width: 590px; color:#555555; font-size:11px;">
+                ITrackZen by LibDex
+                <span id="mail_unfollow">
+                    | <a href="/mail/unfollow" style="text-decoration:none; color:#555555;">Unfollow</a>
+                </span>
+            </td>
+        </xpath>
+    </template>
+</odoo>
