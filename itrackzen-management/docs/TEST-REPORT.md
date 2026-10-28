@@ -7,7 +7,7 @@ with Odoo 18.0 Community (pinned commit), PostgreSQL 16 and the demo data, not o
 
 | Test | Result |
 |---|---|
-| Automated Odoo tests (`--test-tags itz`), all add-ons installed together | **107 tests, 0 failures, 0 errors** (82 originally, 8 for the GPSWOX adapter, 2 for the user-form role check boxes, 5 for the website product list, 10 for emails and AI-assisted replies) |
+| Automated Odoo tests (`--test-tags itz`), all add-ons installed together | **114 tests, 0 failures, 0 errors** (82 originally, 8 for the GPSWOX adapter, 2 for the user-form role check boxes, 5 for the website product list, 10 for emails and AI-assisted replies, 4 for hours online, 2 for the Guide, 1 more role check) |
 | GPSWOX adapter against a test double of the documented GPSWOX API, and over real HTTP against `integration-layer/mock_gpswox.py` (sign-in, find-or-create device by IMEI, expiry date) | Passed |
 | Single sign-on from the website admin, in a real browser (owner, sales, technician, accountant) | 21 checks passed. Unauthorized sections return 403. |
 | Role smoke test: every menu screen opened as each demo role | 203 screens, no access errors and no blank screens |
@@ -49,3 +49,9 @@ redirect allow-list), and the tracking sync queue.
 - **No independent penetration test.** Security controls are tested functionally only.
 - **Load testing**: none. Sizing in the plan is an estimate.
 - **Your real data and prices**: the system was tested only with demo data.
+
+## Dashboard, hours online, dark mode and Guide
+
+* Checked in a real browser (Chromium) as the owner: the dashboard in light and dark mode, the Guide in English and Somali, the language choice and the theme choice staying after a switch, the Guide search, with no browser console errors. The dark mode was adjusted after screenshots (forms, lists, kanban, breadcrumbs, chat panel, report preview).
+* Hours online use a once-a-minute signal; the automated tests cover counting, ignoring long gaps, per-person separation and who may see the team. The demo hours in the screenshots are made-up sample data.
+* **Not tested:** the dark mode on every Odoo screen (the main ones were checked; some rarely used Odoo screens may still show a light patch); real use by several people for a full day; the pictures in the Guide show the English screens.
