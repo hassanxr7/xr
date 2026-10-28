@@ -1,27 +1,37 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <templates xml:space="preserve">
+    <t t-name="itz_dashboard.CountUp"><span t-out="text"/></t>
+
     <t t-name="itz_dashboard.Main">
         <div class="o_itz_dashboard o_action">
-            <div t-if="state.loading" class="o_itz_loading"><i class="fa fa-spinner fa-spin"/> Loading...</div>
+            <div t-if="state.loading" class="o_itz_skeleton">
+                <div class="o_itz_sk o_itz_sk_hero"/><div class="o_itz_sk o_itz_sk_bar"/>
+                <div class="o_itz_sk_row"><div class="o_itz_sk"/><div class="o_itz_sk"/><div class="o_itz_sk"/><div class="o_itz_sk"/></div>
+            </div>
             <t t-else="">
                 <div class="o_itz_hero">
-                    <div>
+                    <div class="o_itz_hero_main">
+                        <p class="o_itz_when"><i t-att-class="'fa ' + dayIcon"/> <t t-out="today"/> &#183; <t t-out="clock"/></p>
                         <h1 t-out="greeting"/>
-                        <p class="o_itz_sub"><t t-out="today"/> &#183; What would you like to do?</p>
                         <p class="o_itz_roles">
                             <span t-foreach="state.data.roles" t-as="role" t-key="role" class="o_itz_chip" t-out="role"/>
                         </p>
                     </div>
-                    <div class="o_itz_hero_actions">
-                        <a t-if="state.data.links.website_admin" class="btn btn-light" t-att-href="state.data.links.website_admin">
-                            <i class="fa fa-globe"/> Website admin
-                        </a>
+                    <div class="o_itz_hero_side">
+                        <button class="o_itz_online_pill" t-on-click="openHours" title="Your active time in the system today">
+                            <span class="o_itz_dot o_itz_dot_on"/>
+                            <span><strong t-out="minutes(state.data.presence.me.today_minutes)"/> active today</span>
+                        </button>
+                        <div class="o_itz_hero_actions">
+                            <button class="btn btn-light" t-on-click="openGuide"><i class="fa fa-graduation-cap"/> Guide</button>
+                            <a t-if="state.data.links.website_admin" class="btn btn-light" t-att-href="state.data.links.website_admin"><i class="fa fa-globe"/> Website admin</a>
+                        </div>
                     </div>
                 </div>
 
                 <div class="o_itz_search">
                     <i class="fa fa-search"/>
-                    <input type="search" placeholder="Search anything: customer name, plate, phone number, IMEI or serial" t-att-value="state.query"
+                    <input t-ref="searchInput" type="search" placeholder="Search anything: customer name, plate, phone number, IMEI or serial  (press / to start)" t-att-value="state.query"
                            t-on-input="onSearchInput" autocomplete="off"/>
                     <button t-if="state.query" class="btn btn-link" t-on-click="clearSearch"><i class="fa fa-times"/></button>
                 </div>
@@ -36,66 +46,105 @@
                     </div>
                 </div>
 
-                <div t-if="!state.results" class="o_itz_block">
-                    <h2>Start here</h2>
-                    <div class="o_itz_quick">
-                        <a t-foreach="state.data.quick_actions" t-as="item" t-key="item.key" href="#" class="o_itz_quick_item"
-                           t-on-click.prevent="() => this.openQuick(item)">
-                            <span class="o_itz_quick_icon"><i t-att-class="'fa ' + item.icon"/></span>
-                            <span class="o_itz_quick_text">
-                                <strong t-out="item.label"/>
-                                <small t-out="item.hint"/>
-                            </span>
+                <t t-if="!state.results">
+                    <div t-if="kpis.length" class="o_itz_kpis">
+                        <a t-foreach="kpis" t-as="tile" t-key="tile.key" href="#" t-attf-class="o_itz_kpi o_itz_tone_{{tile.tone}}" t-on-click.prevent="() => this.openTile(tile)">
+                            <span class="o_itz_kpi_icon"><i t-att-class="'fa ' + tile.icon"/></span>
+                            <span class="o_itz_kpi_value"><CountUp value="tile.value" money="tile.money" currency="state.data.currency"/></span>
+                            <span class="o_itz_label" t-out="tile.label"/>
+                            <t t-set="sp" t-value="spark(tile.key)"/>
+                            <svg t-if="sp" class="o_itz_spark" t-att-viewBox="'0 0 ' + sp.w + ' ' + sp.h" preserveAspectRatio="none" aria-hidden="true">
+                                <polygon t-att-points="sp.area" class="o_itz_spark_area"/>
+                                <polyline t-att-points="sp.line" class="o_itz_spark_line"/>
+                            </svg>
+                            <span t-if="sp" class="o_itz_spark_note">last 7 days</span>
                         </a>
                     </div>
-                </div>
 
-                <div t-if="!state.results" class="o_itz_block">
-                    <h2>Needs your attention</h2>
-                    <div t-if="state.data.attention.length" class="o_itz_attention">
-                        <a t-foreach="state.data.attention" t-as="item" t-key="item.key" href="#" t-attf-class="o_itz_att o_itz_tone_{{item.tone}}"
-                           t-on-click.prevent="() => this.openAttention(item)">
-                            <span class="o_itz_att_value" t-out="item.value"/>
-                            <span class="o_itz_att_label" t-out="item.label"/>
-                            <i class="fa fa-angle-right"/>
-                        </a>
-                    </div>
-                    <div t-else="" class="o_itz_clear"><i class="fa fa-check-circle"/> Nothing urgent. You are all caught up.</div>
-                </div>
-
-                <div t-if="!state.results and state.data.lists.length" class="o_itz_block">
-                    <h2>Coming up</h2>
-                    <div class="o_itz_lists">
-                        <div t-foreach="state.data.lists" t-as="list" t-key="list.key" class="o_itz_list">
-                            <h3 t-out="list.title"/>
-                            <a t-foreach="list.rows" t-as="row" t-key="row.id" href="#" t-attf-class="o_itz_row {{row.late ? 'o_itz_late' : ''}}"
-                               t-on-click.prevent="() => this.openRecord(list.model, row.id)">
-                                <span class="o_itz_row_title" t-out="row.title"/>
-                                <span class="o_itz_row_sub" t-out="row.sub"/>
+                    <div class="o_itz_block">
+                        <h2>Start here</h2>
+                        <div class="o_itz_quick">
+                            <a t-foreach="state.data.quick_actions" t-as="item" t-key="item.key" href="#" class="o_itz_quick_item" t-on-click.prevent="() => this.openQuick(item)">
+                                <span class="o_itz_quick_icon"><i t-att-class="'fa ' + item.icon"/></span>
+                                <span class="o_itz_quick_text">
+                                    <strong t-out="item.label"/>
+                                    <small t-out="item.hint"/>
+                                </span>
                             </a>
                         </div>
                     </div>
-                </div>
 
-                <div t-if="!state.results and state.data.sections.length" class="o_itz_block">
-                    <button class="o_itz_more" t-on-click="toggleFigures">
-                        <i t-att-class="'fa ' + (state.showFigures ? 'fa-angle-down' : 'fa-angle-right')"/>
-                        <t t-if="state.showFigures">Hide all figures</t><t t-else="">Show all figures</t>
-                    </button>
-                    <t t-if="state.showFigures">
-                        <div t-foreach="state.data.sections" t-as="section" t-key="section.key" class="o_itz_section">
-                            <h3><i t-att-class="'fa ' + section.icon"/> <t t-out="section.title"/></h3>
-                            <div class="o_itz_tiles">
-                                <a t-foreach="section.tiles" t-as="tile" t-key="tile.key" href="#" t-attf-class="o_itz_tile o_itz_tone_{{tile.tone}}"
-                                   t-on-click.prevent="() => this.openTile(tile)">
-                                    <i t-att-class="'fa ' + tile.icon"/>
-                                    <span class="o_itz_value" t-out="formatValue(tile)"/>
-                                    <span class="o_itz_label" t-out="tile.label"/>
-                                </a>
+                    <div t-attf-class="o_itz_cols {{state.data.presence.team.length ? 'o_itz_has_team' : ''}}">
+                        <div class="o_itz_col_main">
+                            <div class="o_itz_block">
+                                <h2>Needs your attention</h2>
+                                <div t-if="state.data.attention.length" class="o_itz_attention">
+                                    <a t-foreach="state.data.attention" t-as="item" t-key="item.key" href="#" t-attf-class="o_itz_att o_itz_tone_{{item.tone}}" t-on-click.prevent="() => this.openAttention(item)">
+                                        <span class="o_itz_att_value"><CountUp value="item.value"/></span>
+                                        <span class="o_itz_att_label" t-out="item.label"/>
+                                        <i class="fa fa-angle-right"/>
+                                    </a>
+                                </div>
+                                <div t-else="" class="o_itz_clear"><i class="fa fa-check-circle"/> Nothing urgent. You are all caught up.</div>
+                            </div>
+                            <div t-if="state.data.lists.length" class="o_itz_block">
+                                <h2>Coming up</h2>
+                                <div class="o_itz_lists">
+                                    <div t-foreach="state.data.lists" t-as="list" t-key="list.key" class="o_itz_list">
+                                        <h3 t-out="list.title"/>
+                                        <a t-foreach="list.rows" t-as="row" t-key="row.id" href="#" t-attf-class="o_itz_row {{row.late ? 'o_itz_late' : ''}}" t-on-click.prevent="() => this.openRecord(list.model, row.id)">
+                                            <span class="o_itz_row_title" t-out="row.title"/>
+                                            <span class="o_itz_row_sub" t-out="row.sub"/>
+                                        </a>
+                                    </div>
+                                </div>
                             </div>
                         </div>
-                    </t>
-                </div>
+
+                        <aside t-if="state.data.presence.team.length" class="o_itz_col_side">
+                            <div class="o_itz_block o_itz_team">
+                                <h2>Team online <button class="btn btn-link" t-on-click="openHours">Hours report</button></h2>
+                                <ul>
+                                    <li t-foreach="state.data.presence.team" t-as="p" t-key="p.id" class="o_itz_person">
+                                        <span class="o_itz_avatar"><img t-att-src="p.avatar" alt=""/><span t-attf-class="o_itz_dot {{p.online ? 'o_itz_dot_on' : ''}}"/></span>
+                                        <span class="o_itz_person_main">
+                                            <strong t-out="p.name"/>
+                                            <small t-if="p.online">Online now</small>
+                                            <small t-elif="p.last_seen">Last seen <t t-out="shortTime(p.last_seen)"/></small>
+                                            <small t-else="">Not seen yet</small>
+                                            <span class="o_itz_bar"><span t-att-style="'width:' + dayPercent(p.today_minutes) + '%'"/></span>
+                                        </span>
+                                        <span class="o_itz_person_hours">
+                                            <strong t-out="minutes(p.today_minutes)"/>
+                                            <small><t t-out="minutes(p.week_minutes)"/> this week</small>
+                                        </span>
+                                    </li>
+                                </ul>
+                                <p class="o_itz_fine">Hours are the time a person has the system open and active (mouse or keyboard), not attendance.</p>
+                            </div>
+                        </aside>
+                    </div>
+
+                    <div t-if="state.data.sections.length" class="o_itz_block">
+                        <button class="o_itz_more" t-on-click="toggleFigures">
+                            <i t-att-class="'fa ' + (state.showFigures ? 'fa-angle-down' : 'fa-angle-right')"/>
+                            <t t-if="state.showFigures">Hide all figures</t><t t-else="">Show all figures</t>
+                        </button>
+                        <t t-if="state.showFigures">
+                            <div t-foreach="state.data.sections" t-as="section" t-key="section.key" class="o_itz_section">
+                                <h3><i t-att-class="'fa ' + section.icon"/> <t t-out="section.title"/></h3>
+                                <div class="o_itz_tiles">
+                                    <a t-foreach="section.tiles" t-as="tile" t-key="tile.key" href="#" t-attf-class="o_itz_tile o_itz_tone_{{tile.tone}}" t-on-click.prevent="() => this.openTile(tile)">
+                                        <i t-att-class="'fa ' + tile.icon"/>
+                                        <span class="o_itz_value" t-out="formatValue(tile)"/>
+                                        <span class="o_itz_label" t-out="tile.label"/>
+                                    </a>
+                                </div>
+                            </div>
+                        </t>
+                    </div>
+                    <p class="o_itz_fine o_itz_updated">Updates by itself every minute<t t-if="state.refreshedAt"> &#183; last update <t t-out="state.refreshedAt.toLocaleTimeString(undefined, {hour: '2-digit', minute: '2-digit'})"/></t>.</p>
+                </t>
             </t>
         </div>
     </t>

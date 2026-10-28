@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+    <t t-name="itz_dashboard.Guide">
+        <div class="o_itz_guide">
+            <div class="o_itz_guide_head">
+                <div>
+                    <h1><i class="fa fa-graduation-cap"/> <t t-esc="ui.title"/></h1>
+                    <p t-esc="ui.subtitle"/>
+                </div>
+                <div class="o_itz_guide_actions">
+                    <button class="btn btn-light" t-on-click="backToDashboard"><i class="fa fa-arrow-left"/> <t t-esc="ui.back"/></button>
+                    <button class="btn btn-primary" t-on-click="toggleLang"><i class="fa fa-language"/> <t t-esc="ui.lang"/></button>
+                </div>
+            </div>
+            <div class="o_itz_guide_body">
+                <nav class="o_itz_guide_nav">
+                    <input type="search" class="form-control" t-att-placeholder="ui.search" t-model="state.query"/>
+                    <div class="o_itz_guide_topics">
+                        <t t-foreach="topics" t-as="t" t-key="t.id">
+                            <button t-attf-class="o_itz_guide_topic #{t.id === current.id ? 'active' : ''}" t-on-click="() => this.open(t.id)">
+                                <i t-attf-class="fa #{t.icon}"/> <t t-esc="tr(t.title)"/>
+                            </button>
+                        </t>
+                        <p t-if="!topics.length" class="text-muted" t-esc="ui.none"/>
+                    </div>
+                </nav>
+                <article class="o_itz_guide_lesson">
+                    <h2><i t-attf-class="fa #{current.icon}"/> <t t-esc="tr(current.title)"/></h2>
+                    <p class="o_itz_guide_intro" t-esc="tr(current.intro)"/>
+                    <figure class="o_itz_guide_figure">
+                        <img t-att-src="image(current)" t-att-alt="tr(current.title)" loading="lazy"/>
+                    </figure>
+                    <h3 t-esc="ui.steps"/>
+                    <ol class="o_itz_guide_steps">
+                        <li t-foreach="current.steps" t-as="s" t-key="s_index"><span t-esc="tr(s)"/></li>
+                    </ol>
+                    <div class="o_itz_guide_tip" t-if="current.tip"><i class="fa fa-lightbulb-o"/> <strong t-esc="ui.tip"/>: <t t-esc="tr(current.tip)"/></div>
+                    <button t-if="next" class="btn btn-outline-primary mt-3" t-on-click="() => this.open(next.id)">
+                        <t t-esc="ui.next"/>: <t t-esc="tr(next.title)"/> <i class="fa fa-arrow-right"/>
+                    </button>
+                </article>
+            </div>
+        </div>
+    </t>
+</templates>

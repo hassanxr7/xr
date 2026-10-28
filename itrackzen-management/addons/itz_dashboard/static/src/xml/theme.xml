@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+    <t t-name="itz_dashboard.ThemeToggle">
+        <button class="o_itz_theme_toggle btn" t-att-title="title" t-att-aria-label="title" t-on-click="toggle">
+            <i t-att-class="'fa ' + (isDark ? 'fa-sun-o' : 'fa-moon-o')"/>
+        </button>
+    </t>
+</templates>

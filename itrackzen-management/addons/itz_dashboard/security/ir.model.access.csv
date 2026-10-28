@@ -1,2 +1,3 @@
 id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
 access_itz_report_wizard,itz.report.wizard,model_itz_report_wizard,base.group_user,1,1,1,1
+access_itz_presence_ops,itz.presence ops,model_itz_presence,itz_base.group_itz_ops_manager,1,0,0,0

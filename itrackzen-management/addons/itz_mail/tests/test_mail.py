@@ -140,3 +140,30 @@ class TestItzMail(TransactionCase):
     def test_key_is_hidden_from_non_owners(self):
         self.company.itz_ai_api_key = 'sk-ant-secret'
         self.assertNotIn('itz_ai_api_key', self.env['res.company'].with_user(self.sales).fields_get(['itz_ai_api_key']))
+
+    def test_choosing_a_role_clears_standard_odoo_rights_but_not_for_owner_or_self(self):
+        std = [self.env.ref(x) for x in ('sales_team.group_sale_salesman_all_leads', 'stock.group_stock_manager', 'base.group_erp_manager',
+                                         'hr.group_hr_manager', 'account.group_account_invoice')]
+        user = self.env['res.users'].create({'name': 'Std Rights', 'login': 'std.rights@example.com', 'groups_id': [(4, g.id) for g in std]})
+        user.itz_role_ids = self.env.ref('itz_base.group_itz_accountant')
+        accountant = self.env.ref('itz_base.group_itz_accountant')
+        for g in std:
+            if g in accountant.trans_implied_ids:                       # what the role itself needs is kept
+                self.assertIn(g, user.groups_id, g.name)
+            else:
+                self.assertNotIn(g, user.groups_id, g.name)
+        self.assertIn(accountant, user.groups_id)
+        self.assertNotIn(self.env.ref('stock.group_stock_manager'), user.groups_id)
+        self.assertNotIn(self.env.ref('base.group_erp_manager'), user.groups_id)
+        # extras added afterwards by hand stay
+        user.write({'groups_id': [(4, std[0].id)]})
+        self.assertIn(std[0], user.groups_id)
+        # the owner role implies Settings, so it is never stripped
+        boss = self.env['res.users'].create({'name': 'Boss', 'login': 'boss.rights@example.com', 'groups_id': [(4, std[2].id)]})
+        boss.itz_role_ids = self.env.ref('itz_base.group_itz_owner')
+        self.assertIn(self.env.ref('base.group_system'), boss.groups_id)
+        # the person editing never loses their own rights by picking a role on themselves
+        editor = self.env['res.users'].create({'name': 'Editor', 'login': 'editor.rights@example.com',
+                                               'groups_id': [(4, std[2].id), (4, self.env.ref('base.group_system').id)]})
+        editor.with_user(editor).itz_role_ids = self.env.ref('itz_base.group_itz_sales')
+        self.assertIn(self.env.ref('base.group_system'), editor.groups_id)

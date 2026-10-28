@@ -66,3 +66,15 @@ installations by technician, maintenance/removals/replacements by technician, em
 5. The AI only knows what is in the customer message, your notes and the company facts the owner entered. It is told never to invent prices, dates or promises. **Always read it before sending.**
 
 The owner switches AI on, enters the key and edits the company facts in **Settings > Companies > ITrackZen Management**. The customer's message and your notes are sent to the AI service to write the draft.
+
+
+## Dashboard, hours online, dark mode and the Guide
+
+* **Dashboard.** The page you land on. Big numbers at the top (click one to open the list), **Start here** buttons for your role, **Needs your attention** (red = late), what is coming up, and a search box (press `/`). It refreshes itself every minute.
+* **Hours online (managers and owners).** The **Team online** panel shows who is online now and how long each person was active today and this week. The full list is in **Employees > Hours Online**. The hours are the time a person has the system open **and is using the mouse or keyboard**. A page left open and idle, or a closed page, adds nothing. This is *not* a timesheet or attendance record: someone working on the road with the page closed is not counted.
+* **Dark mode / light mode.** Press the moon or sun button at the top right of any page. The choice is remembered on that computer and browser. Reports and PDFs always stay white.
+* **Guide.** Press **Guide** on the dashboard (or open **Guide** in the menu). It has short lessons with pictures: the dashboard, searching, registering a new customer or company, adding a vehicle, making a quotation, approving and sending it, installing a tracker, invoices and payments, renewals, replying to website messages, roles, and dark mode. Press the language button at the top to read every lesson in **Somali** or **English**; the choice is remembered. The pictures show the system in English.
+
+![Dashboard, light](screenshots/dashboard-light.png)
+![Dashboard, dark](screenshots/dashboard-dark.png)
+![Guide in Somali](screenshots/guide-somali.png)

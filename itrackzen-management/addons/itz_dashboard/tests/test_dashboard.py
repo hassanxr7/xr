@@ -1,8 +1,10 @@
 import io
+from datetime import datetime, timedelta
+from unittest.mock import patch
 
 from odoo import fields
 from odoo.exceptions import AccessError
-from odoo.tests import HttpCase, tagged
+from odoo.tests import HttpCase, TransactionCase, tagged
 from odoo.addons.itz_sales.tests.common import ItzSalesCommon
 
 
@@ -119,3 +121,83 @@ class TestReportDownload(HttpCase):
         self.assertEqual(res.status_code, 200)
         self.assertTrue(res.content.startswith(b'PK'))
         self.assertIn('spreadsheetml', res.headers['Content-Type'])
+
+
+@tagged('post_install', '-at_install', 'itz')
+class TestPresence(TransactionCase):
+
+    def setUp(self):
+        super().setUp()
+        self.Presence = self.env['itz.presence']
+        self.sales = self.env['res.users'].create({'name': 'Pres Sales', 'login': 'pres.sales@example.com', 'email': 'pres.sales@example.com',
+                                                   'groups_id': [(6, 0, [self.env.ref('itz_base.group_itz_sales').id])]})
+        self.ops = self.env['res.users'].create({'name': 'Pres Ops', 'login': 'pres.ops@example.com', 'email': 'pres.ops@example.com',
+                                                 'groups_id': [(6, 0, [self.env.ref('itz_base.group_itz_ops_manager').id])]})
+
+    def _ping_at(self, user, when):
+        with patch('odoo.fields.Datetime.now', return_value=when):
+            self.Presence.with_user(user).ping()
+
+    def test_pings_add_up_only_while_the_person_stays_active(self):
+        t0 = datetime(2026, 10, 28, 8, 0, 0)
+        self._ping_at(self.sales, t0)
+        self._ping_at(self.sales, t0 + timedelta(seconds=60))
+        self._ping_at(self.sales, t0 + timedelta(seconds=120))
+        rec = self.Presence.search([('user_id', '=', self.sales.id)])
+        self.assertEqual(rec.seconds, 120)
+        self._ping_at(self.sales, t0 + timedelta(hours=2))               # a long silence (lunch, closed page) adds nothing
+        self.assertEqual(rec.seconds, 120)
+        self._ping_at(self.sales, t0 + timedelta(hours=2, seconds=60))
+        self.assertEqual(rec.seconds, 180)
+        self.assertEqual(rec.first_seen, t0)
+
+    def test_people_are_counted_separately(self):
+        t0 = datetime(2026, 10, 28, 8, 0, 0)
+        for user in (self.sales, self.ops):
+            self._ping_at(user, t0)
+            self._ping_at(user, t0 + timedelta(seconds=60))
+        self.assertEqual(self.Presence.search([('user_id', '=', self.ops.id)]).seconds, 60)
+        self.assertEqual(self.Presence.search_count([('user_id', 'in', (self.sales.id, self.ops.id))]), 2)
+
+    def test_only_managers_see_the_team(self):
+        self.Presence.with_user(self.sales).ping()
+        self.Presence.with_user(self.ops).ping()
+        own = self.Presence.with_user(self.sales).dashboard_data()
+        self.assertEqual(own['me']['id'], self.sales.id)
+        self.assertEqual(own['team'], [])
+        team = self.Presence.with_user(self.ops).dashboard_data()['team']
+        names = {t['name'] for t in team}
+        self.assertTrue({'Pres Sales', 'Pres Ops'} <= names)
+        me = next(t for t in team if t['name'] == 'Pres Sales')
+        self.assertTrue(me['online'])
+        with self.assertRaises(AccessError):
+            self.env['itz.presence'].with_user(self.sales).search([])
+        self.assertEqual(len(self.env['itz.presence'].with_user(self.ops).search([])), 2)
+
+    def test_dashboard_carries_presence(self):
+        data = self.env['itz.dashboard'].with_user(self.ops).get_data()
+        self.assertIn('me', data['presence'])
+        self.assertIn('team', data['presence'])
+
+
+@tagged('post_install', '-at_install', 'itz')
+class TestGuide(TransactionCase):
+
+    def test_guide_action_and_menu_exist(self):
+        action = self.env.ref('itz_dashboard.action_itz_guide')
+        self.assertEqual(action.tag, 'itz_guide')
+        menu = self.env.ref('itz_dashboard.menu_itz_guide')
+        self.assertEqual(menu.action, action)
+
+    def test_every_lesson_picture_is_shipped_and_has_both_languages(self):
+        import os
+        import re
+        base = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'static', 'src')
+        with open(os.path.join(base, 'js', 'guide_data.js'), encoding='utf-8') as fh:
+            source = fh.read()
+        images = re.findall(r'img: "([^"]+)"', source)
+        self.assertGreaterEqual(len(images), 10)
+        for name in images:
+            self.assertTrue(os.path.isfile(os.path.join(base, 'img', 'guide', name)), name)
+        # each English text has a Somali partner: the counts of en: and so: keys match
+        self.assertEqual(len(re.findall(r'\ben: "', source)), len(re.findall(r'\bso: "', source)))

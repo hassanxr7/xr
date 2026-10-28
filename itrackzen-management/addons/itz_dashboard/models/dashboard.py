@@ -1,4 +1,4 @@
-from datetime import timedelta
+from datetime import datetime, timedelta
 
 from odoo import api, fields, models, _
 
@@ -170,6 +170,9 @@ class ItzDashboard(models.AbstractModel):
             'user': {'name': user.name, 'id': user.id},
             'roles': self._role_names(),
             'quick_actions': self._quick_actions(),
+            'presence': self.env['itz.presence'].dashboard_data(),
+            'trends': self._trends(today),
+            'kpis': self._kpis(sections),
             'attention': self._attention(sections),
             'currency': {'symbol': currency.symbol, 'position': currency.position, 'decimals': currency.decimal_places},
             'sections': sections,
@@ -249,6 +252,56 @@ class ItzDashboard(models.AbstractModel):
             if len(out) == 6:
                 break
         return out
+
+    def _daily(self, model, domain, field, days, kind='count', amount=None):
+        """Totals per day for the last `days` days (oldest first) for a small chart. None when the person may not read the model."""
+        today = fields.Date.context_today(self)
+        start = today - timedelta(days=days - 1)
+        try:
+            Model = self.env[model]
+            if not Model.has_access('read'):
+                return None
+            low = fields.Datetime.to_datetime(start) - timedelta(days=1)
+            recs = Model.search(domain + [(field, '>=', low)])
+        except Exception:  # noqa: BLE001
+            return None
+        buckets = [0.0] * days
+        for rec in recs:
+            value = rec[field]
+            day = fields.Date.context_today(self, value) if isinstance(value, datetime) else value
+            idx = (day - start).days if day else -1
+            if 0 <= idx < days:
+                buckets[idx] += (rec[amount] if amount else 1)
+        return [round(b, 2) for b in buckets]
+
+    def _trends(self, today):
+        user = self.env.user
+        out = {}
+        if self._has('itz_base.group_itz_see_all', 'itz_base.group_itz_technician'):
+            done = self._daily('itz.installation', [('state', '=', 'done')], 'date_done', 7)
+            if done is not None:
+                out['inst_done'] = done
+        if user.has_group('itz_base.group_itz_financial'):
+            paid = self._daily('account.payment', [('payment_type', '=', 'inbound'), ('partner_type', '=', 'customer'), ('state', 'in', ('in_process', 'paid'))],
+                               'date', 7, amount='amount')
+            if paid is not None:
+                out['paid_month'] = paid
+        if self._has('itz_base.group_itz_sales', 'itz_base.group_itz_ops_manager', 'itz_base.group_itz_support'):
+            enq = self._daily('itz.enquiry', [], 'create_date', 7)
+            if enq is not None:
+                out['enq_new'] = enq
+            orders = self._daily('sale.order', [('state', '=', 'sale')], 'date_order', 7)
+            if orders is not None:
+                out['orders_month'] = orders
+        return out
+
+    PREFERRED_KPIS = ('inv_due', 'paid_month', 'quotes', 'orders_month', 'enq_new', 'inst_active', 'inst_done', 'sub_active', 'my_jobs', 'my_equipment',
+                      'dev_avail', 'my_tasks')
+
+    def _kpis(self, sections):
+        """The four big numbers across the top: the first of a fixed priority list that this person can see."""
+        tiles = {t['key']: t for sec in sections for t in sec['tiles']}
+        return [tiles[k]['key'] for k in self.PREFERRED_KPIS if k in tiles][:4]
 
     def _attention(self, sections):
         """Only the figures that need someone to act, so a quiet day shows nothing."""
