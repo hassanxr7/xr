@@ -25,6 +25,9 @@ $lock = fopen(STORAGE_PATH . '/cron.lock', 'c');
 if (!$lock || !flock($lock, LOCK_EX | LOCK_NB)) {
     exit("Another cron run is still working.\n");
 }
+// Heartbeat at the start too: long AI steps can keep one run busy for several minutes.
+save_setting('cron_last_run', now());
+save_setting('cron_last_source', $cli ? 'cli' : 'url');
 
 $log = function (string $msg) {
     echo date('H:i:s') . ' ' . $msg . "\n";
