@@ -203,7 +203,8 @@ function alex_research(?array $assignment): int
     $task = "Today is " . date('l, F j, Y, H:i T') . ".\nFind $want.\n"
         . ($assignment ? "<owner_request>\n" . $assignment['brief'] . "\n</owner_request>\n" : '')
         . "Already published recently (do not repeat):\n- " . implode("\n- ", array_slice($recent, 0, 140) ?: ['(none)']);
-    $out = agent_run($system, $task, $tool, true, 'medium');
+    // More searches when the cron job runs it (no time limit) than from a web request.
+    $out = agent_run($system, $task, $tool, true, 'medium', 16000, PHP_SAPI === 'cli' ? 14 : 6, PHP_SAPI === 'cli' ? 8 : 4);
     $n = 0;
     foreach ($out['stories'] ?? [] as $st) {
         $idea = trim((string) ($st['headline_idea'] ?? ''));
