@@ -452,6 +452,23 @@ function contact_submit(): void
     redirect('contact?sent=1');
 }
 
+/**
+ * Backup for hosts without a working cron job: when the real cron has not run for 10 minutes,
+ * a reader's page view starts cron.php in the background (it answers at once and keeps working).
+ */
+function maybe_pseudo_cron(): void
+{
+    $last = setting('cron_last_run');
+    if (setting('pseudo_cron', '1') !== '1' || ($last !== '' && strtotime($last) > time() - 600) || cache_get('pseudo_cron') !== null) {
+        return;
+    }
+    cache_set('pseudo_cron', 1, 300);
+    $ch = curl_init(abs_url('cron.php') . '?key=' . rawurlencode(setting('cron_key')));
+    curl_setopt_array($ch, [CURLOPT_RETURNTRANSFER => true, CURLOPT_TIMEOUT => 4, CURLOPT_CONNECTTIMEOUT => 3, CURLOPT_NOSIGNAL => true]);
+    curl_exec($ch);
+    curl_close($ch);
+}
+
 function manifest(): void
 {
     header('Content-Type: application/manifest+json');
@@ -473,6 +490,7 @@ function api_route(string $path, string $method): void
 {
     if ($path === 'track' && $method === 'POST') {
         track_hit(json_input(8192));
+        maybe_pseudo_cron();
         http_response_code(204);
         exit;
     }

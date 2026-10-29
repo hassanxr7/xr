@@ -101,6 +101,9 @@ return [
     'The cron job is not running yet — the team only works while this page is open.' => 'Cron job-ku weli ma shaqeynayo — kooxdu waxay shaqeysaa oo kaliya marka boggan furan yahay.',
     'hPanel → Advanced → Cron Jobs → Custom → Command to run:' => 'hPanel → Advanced → Cron Jobs → Custom → Command to run:',
     'Schedule: minute */10, every hour, every day, every month, every weekday → Save.' => 'Jadwalka: minute */10, hour *, day *, month *, weekday * (10-kii daqiiqo kasta) → Save.',
+    'The newsroom is paused.' => 'Qolka wararka wuu joogsaday.',
+    'Tick “Work automatically every day” in Newsroom settings below and save.' => 'Hoos ka calaamadee “Work automatically every day” (Newsroom settings) kadib riix Save settings.',
+    'started by a visitor or a URL cron — works, but a Hostinger cron job is more reliable' => 'waxaa kiciyay booqde ama URL cron — wuu shaqeeyaa, laakiin cron job-ka Hostinger ayaa ka kalsooni badan',
     'Save settings' => 'Keydi dejinta', 'Nothing to do right now — the newsroom is up to date.' => 'Hadda wax la qabto ma jiro — qolka wararku waa cusub yahay.',
 
     // Sections, tags, pages, media

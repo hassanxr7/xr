@@ -77,4 +77,5 @@ foreach ($jobs as $name => $job) {
     }
 }
 save_setting('cron_last_run', now());
+save_setting('cron_last_source', $cli ? 'cli' : 'url');
 flock($lock, LOCK_UN);
