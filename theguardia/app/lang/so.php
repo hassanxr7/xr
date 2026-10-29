@@ -104,6 +104,7 @@ return [
     'The newsroom is paused.' => 'Qolka wararka wuu joogsaday.',
     'Tick “Work automatically every day” in Newsroom settings below and save.' => 'Hoos ka calaamadee “Work automatically every day” (Newsroom settings) kadib riix Save settings.',
     'started by a visitor or a URL cron — works, but a Hostinger cron job is more reliable' => 'waxaa kiciyay booqde ama URL cron — wuu shaqeeyaa, laakiin cron job-ka Hostinger ayaa ka kalsooni badan',
+    'If you choose the type “PHP” instead, enter only:' => 'Haddii aad doorato nooca “PHP”, ku qor kaliya:',
     'Save settings' => 'Keydi dejinta', 'Nothing to do right now — the newsroom is up to date.' => 'Hadda wax la qabto ma jiro — qolka wararku waa cusub yahay.',
 
     // Sections, tags, pages, media

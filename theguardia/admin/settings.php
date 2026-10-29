@@ -172,6 +172,7 @@ admin_header(__('Settings'));
   <section class="card" id="cron"><h2><?= __('Cron job (automatic tasks)') ?></h2>
     <p><?= __('hPanel → Advanced → Cron Jobs → Custom: run every 10 minutes:') ?></p>
     <p><code class="break"><?= e($cronCmd) ?></code> <button type="button" class="a-btn a-btn-sm js-copy" data-copy="<?= e($cronCmd) ?>"><?= __('Copy') ?></button></p>
+    <?php if (preg_match('~^/home/[^/]+/(.+)$~', BASE_PATH, $hm)): ?><p class="hint"><?= __('If you choose the type “PHP” instead, enter only:') ?> <code class="break"><?= e($hm[1] . '/cron.php') ?></code></p><?php endif; ?>
     <p class="hint"><?= __('Or, if only URL cron is possible:') ?> <code class="break"><?= e($cronUrl) ?></code></p>
     <p class="hint"><?= __('Last run') ?>: <?= $s('cron_last_run') ? e(time_ago($s('cron_last_run'))) : __('never') ?></p>
     <?= checkbox('imports_auto', __('Import new official stories on every cron run'), $s('imports_auto', '1') === '1') ?>

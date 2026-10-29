@@ -68,6 +68,7 @@ admin_header(__('AI Newsroom'));
     <strong><?= __('The cron job is not running yet — the team only works while this page is open.') ?></strong><br>
     <?= __('hPanel → Advanced → Cron Jobs → Custom → Command to run:') ?> <code class="break"><?= e($cronCmd) ?></code>
     <button type="button" class="a-btn a-btn-sm js-copy" data-copy="<?= e($cronCmd) ?>"><?= __('Copy') ?></button><br>
+    <?php if (preg_match('~^/home/[^/]+/(.+)$~', BASE_PATH, $hm)): ?><?= __('If you choose the type “PHP” instead, enter only:') ?> <code class="break"><?= e($hm[1] . '/cron.php') ?></code><br><?php endif; ?>
     <?= __('Schedule: minute */10, every hour, every day, every month, every weekday → Save.') ?>
     <?= $cronAt ? ' ' . __('Last run') . ': ' . e(time_ago($cronAt)) . (setting('cron_last_source') === 'url' ? ' (' . __('started by a visitor or a URL cron — works, but a Hostinger cron job is more reliable') . ')' : '') . '.' : '' ?>
   </div>
