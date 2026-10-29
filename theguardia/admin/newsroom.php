@@ -9,9 +9,9 @@ if (is_post()) {
     $do = (string) input('do');
     if ($do === 'chat') {
         $brief = trim((string) ($_POST['brief'] ?? ''));
-        if (mb_strlen($brief) >= 5) {
+        if (mb_strlen($brief) >= 2) {
             newsroom_assign($brief);
-            flash('success', __('Sent to Alex. The team starts on the next run (or press “Run next step now”).'));
+            redirect('admin/newsroom.php?kick=1#chat-log'); // the page starts the team right away
         }
     } elseif ($do === 'settings' && can('admin')) {
         $min = max(1, min(50, (int) input('ai_daily_min', 7)));
@@ -48,7 +48,6 @@ foreach (['alex', 'kristov', 'david'] as $k) {
 }
 $stageLabels = ['researched' => __('Researched — waiting for Kristov'), 'written' => __('Written — waiting for David'), 'revise' => __('Sent back for changes'),
     'published' => __('Published'), 'rejected' => __('Rejected'), 'failed' => __('Failed')];
-$names = ['owner' => __('You'), 'alex' => 'Alex', 'kristov' => 'Kristov Joi', 'david' => 'David Mario', 'system' => __('System')];
 $allowed = array_filter(array_map('intval', explode(',', setting('ai_sections'))));
 
 admin_header(__('AI Newsroom'));
@@ -58,7 +57,8 @@ admin_header(__('AI Newsroom'));
   <button type="button" class="a-btn a-btn-primary js-newsroom-step"<?= ai_enabled() ? '' : ' disabled' ?>>▶ <?= __('Run next step now') ?></button></div>
 </div>
 <?php if (!ai_enabled()): ?><div class="a-flash a-flash-error"><?= __('Add your Anthropic API key in Settings → AI assistant to start the newsroom.') ?></div><?php endif; ?>
-<p class="hint newsroom-status" aria-live="polite"></p>
+<?php $cur = newsroom_current(); ?>
+<p class="newsroom-status<?= $cur ? ' busy' : '' ?>" aria-live="polite"><?= $cur ? e($cur['text']) : '' ?></p>
 
 <div class="tiles">
   <?= stat_tile(__('Published today'), $stats['today'] . ' / ' . $stats['target'], __('daily target')) ?>
@@ -82,16 +82,15 @@ admin_header(__('AI Newsroom'));
 <div class="grid-2">
   <section class="card chat">
     <h2><?= __('Chat with the newsroom') ?></h2>
-    <div class="chat-log" id="chat-log">
+    <div class="chat-log" id="chat-log" data-last="<?= (int) (end($messages)['id'] ?? 0) ?>" data-kick="<?= isset($_GET['kick']) && ai_enabled() ? '1' : '' ?>">
       <?php foreach ($messages as $msg): ?>
-        <div class="msg msg-<?= e($msg['sender']) ?>"><b><?= e($names[$msg['sender']] ?? $msg['sender']) ?></b> <small><?= e(fmt_date($msg['created_at'], 'M j, H:i')) ?></small>
-          <p><?= nl2br(preg_replace('~(https?://[^\s<]+)~', '<a href="$1" target="_blank" rel="noopener">$1</a>', e($msg['body']))) ?></p></div>
+        <?= newsroom_message_html($msg) ?>
       <?php endforeach; ?>
       <?php if (!$messages): ?><p class="hint"><?= __('Tell the team what to work on, e.g. “Find the 3 most important stories about Somalia today” or “Write about the Bank of Canada rate decision”.') ?></p><?php endif; ?>
     </div>
     <form method="post" class="chat-form">
       <?= csrf_field() ?><input type="hidden" name="do" value="chat">
-      <textarea name="brief" rows="3" required minlength="5" placeholder="<?= e(__('Message Alex: what should the team cover?')) ?>"></textarea>
+      <textarea name="brief" rows="3" required minlength="2" placeholder="<?= e(__('Message Alex: what should the team cover?')) ?>"></textarea>
       <button class="a-btn a-btn-primary"><?= __('Send') ?></button>
     </form>
   </section>

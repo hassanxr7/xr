@@ -94,6 +94,8 @@ return [
     'Language of AI stories' => 'Luqadda wararka AI', 'Sections the team may write for (none ticked = all)' => 'Qaybaha kooxdu u qori karto (haddii aan midna la calaamadeyn = dhammaan)', 'Photos' => 'Sawirro',
     'Kristov first looks for free-licence photos (CC0, public domain, CC BY, CC BY-SA) on Openverse and credits them. If none fits and you add an OpenAI key, he generates an illustration that is labelled “AI-generated illustration”. Otherwise the section image is used.' => 'Kristov marka hore wuxuu Openverse ka raadiyaa sawirro liisan bilaash ah leh (CC0, public domain, CC BY, CC BY-SA), wuxuuna magacaabaa qofka iska leh. Haddii mid ku habboon la waayo oo aad geliso furaha OpenAI, wuxuu sameeyaa sawir loo calaamadeeyay “Sawir AI sameysay”. Haddii kale sawirka qaybta ayaa la isticmaalayaa.',
     'OpenAI API key for illustrations (optional)' => 'Furaha OpenAI API ee sawir-sameynta (ikhtiyaari)', 'saved' => 'waa la keydiyay', 'Remove the saved image key' => 'Tirtir furaha sawirka ee la keydiyay',
+    'The team has started. Progress appears below as they work.' => 'Kooxdu way bilowday. Horumarka shaqada hoos ayuu ka muuqan doonaa.',
+    'The team is already working — follow the progress below.' => 'Kooxdu hadda way shaqeynaysaa — hoos kala soco horumarka.',
     'Save settings' => 'Keydi dejinta', 'Nothing to do right now — the newsroom is up to date.' => 'Hadda wax la qabto ma jiro — qolka wararku waa cusub yahay.',
 
     // Sections, tags, pages, media

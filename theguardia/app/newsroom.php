@@ -56,7 +56,9 @@ function newsroom_assign(string $brief): int
 {
     $brief = trim($brief);
     newsroom_say('owner', $brief);
-    return insert('ai_assignments', ['brief' => mb_substr($brief, 0, 2000), 'status' => 'open', 'created_by' => user()['id'] ?? null, 'created_at' => now()]);
+    $id = insert('ai_assignments', ['brief' => mb_substr($brief, 0, 2000), 'status' => 'open', 'created_by' => user()['id'] ?? null, 'created_at' => now()]);
+    newsroom_say('alex', 'Got it — I am starting on this now. I will post here what I find, then Kristov writes and David checks before anything is published.');
+    return $id;
 }
 
 /** Today's target (a random number between the configured minimum and maximum, fixed for the day). */
@@ -105,8 +107,8 @@ function agent_run(string $system, string $task, array $submitTool, bool $web, s
 {
     $tools = [];
     if ($web) {
-        $tools[] = ['type' => 'web_search_20260209', 'name' => 'web_search', 'max_uses' => 12];
-        $tools[] = ['type' => 'web_fetch_20260209', 'name' => 'web_fetch', 'max_uses' => 8];
+        $tools[] = ['type' => 'web_search_20260209', 'name' => 'web_search', 'max_uses' => 8];
+        $tools[] = ['type' => 'web_fetch_20260209', 'name' => 'web_fetch', 'max_uses' => 5];
     }
     $submitTool['strict'] = true;
     $tools[] = $submitTool;
@@ -157,6 +159,7 @@ function schema_obj(array $props): array
 
 function alex_research(?array $assignment): int
 {
+    newsroom_status('Alex is searching news sources' . ($assignment ? ' for your request' : '') . '…');
     $s = ['type' => 'string'];
     $tool = [
         'name' => 'submit_research',
@@ -233,6 +236,7 @@ function alex_research(?array $assignment): int
 
 function kristov_write(array $job): void
 {
+    newsroom_status('Kristov Joi is writing “' . $job['topic'] . '”…');
     $research = json_decode((string) $job['research'], true) ?: [];
     $review = json_decode((string) $job['review'], true) ?: [];
     $schema = ai_story_schema();
@@ -348,6 +352,7 @@ function newsroom_find_image(string $query, string $prompt, string $title): ?int
 
 function david_review(array $job): void
 {
+    newsroom_status('David Mario is fact-checking “' . $job['topic'] . '”…');
     $research = json_decode((string) $job['research'], true) ?: [];
     $draft = json_decode((string) $job['draft'], true) ?: [];
     $s = ['type' => 'string'];
@@ -489,7 +494,7 @@ function newsroom_step(bool $manual = false): string
     if ($assignment || (newsroom_enabled() && $needed)) {
         try {
             $n = alex_research($assignment);
-            return 'Alex found ' . $n . ' stories';
+            return $n ? 'Alex found ' . $n . ' stories' : ''; // nothing new: stop until the next run
         } catch (Throwable $e) {
             newsroom_say('system', 'Alex could not finish the research: ' . $e->getMessage());
             if ($assignment) {
@@ -501,19 +506,76 @@ function newsroom_step(bool $manual = false): string
     return '';
 }
 
-/** Cron: keep working while time remains (each step can take a few minutes). */
+/** What the newsroom is doing right now (shown live in the dashboard). */
+function newsroom_status(string $text): void
+{
+    save_setting('newsroom_status', $text === '' ? '' : json_encode(['text' => $text, 'ts' => time()]));
+}
+
+/** Current activity, or null when idle (a status older than 20 minutes is stale: that run died). */
+function newsroom_current(): ?array
+{
+    $s = json_decode(setting('newsroom_status'), true);
+    return is_array($s) && $s['ts'] > time() - 1200 ? $s : null;
+}
+
+/**
+ * Run several steps in a row (research → write → review → publish) under a lock, so cron and
+ * the dashboard never work on the same story twice. If PHP is stopped mid-step (time limit),
+ * the chat says so and the next run continues.
+ */
+function newsroom_work(bool $manual, int $maxSteps = 6, int $budget = 900): string
+{
+    $fh = fopen(STORAGE_PATH . '/newsroom.lock', 'c');
+    if (!$fh || !flock($fh, LOCK_EX | LOCK_NB)) {
+        return 'busy';
+    }
+    @set_time_limit(0);
+    ignore_user_abort(true);
+    $GLOBALS['newsroom_finished'] = false;
+    register_shutdown_function(function () {
+        if (!empty($GLOBALS['newsroom_finished'])) {
+            return;
+        }
+        $err = error_get_last();
+        $cur = newsroom_current();
+        newsroom_say('system', ($cur ? $cur['text'] . ' — ' : '') . 'the server stopped this step'
+            . ($err && in_array($err['type'], [E_ERROR, E_CORE_ERROR, E_COMPILE_ERROR], true) ? ' (' . $err['message'] . ')' : '')
+            . '. It will continue on the next run. Tip: set max_execution_time to 600 in hPanel → PHP Configuration → PHP options, and make sure the cron job runs.');
+        newsroom_status('');
+    });
+    $end = time() + $budget;
+    $last = '';
+    for ($i = 0; $i < $maxSteps && time() < $end - 120; $i++) {
+        $did = newsroom_step($manual);
+        if ($did !== '') {
+            $last = $did;
+        }
+        if ($did === '' || strpos($did, 'Error:') === 0) {
+            break; // nothing left to do, or a problem the next run can retry
+        }
+    }
+    newsroom_status('');
+    $GLOBALS['newsroom_finished'] = true;
+    flock($fh, LOCK_UN);
+    return $last;
+}
+
+/** Cron entry point. */
 function newsroom_cron(int $budget = 420): void
 {
     if (!ai_enabled() || (setting('ai_newsroom_enabled', '0') !== '1' && !val("SELECT 1 FROM ai_assignments WHERE status = 'open'"))) {
         return;
     }
-    $end = time() + $budget;
-    for ($i = 0; $i < 6 && time() < $end - 180; $i++) {
-        $did = newsroom_step();
-        if ($did === '' || strpos($did, 'Error:') === 0) {
-            break; // nothing to do, or a problem the next run can retry
-        }
-    }
+    newsroom_work(false, 6, $budget);
+}
+
+/** One chat message as HTML (used by the page and the live update). */
+function newsroom_message_html(array $msg): string
+{
+    $names = ['owner' => __('You'), 'alex' => 'Alex', 'kristov' => 'Kristov Joi', 'david' => 'David Mario', 'system' => __('System')];
+    return '<div class="msg msg-' . e($msg['sender']) . '" data-id="' . (int) $msg['id'] . '"><b>' . e($names[$msg['sender']] ?? $msg['sender']) . '</b> <small>' . e(fmt_date($msg['created_at'], 'M j, H:i')) . '</small>'
+        . '<p>' . nl2br(preg_replace('~(https?://[^\s<]+)~', '<a href="$1" target="_blank" rel="noopener">$1</a>', e($msg['body']))) . '</p></div>';
 }
 
 /** Numbers for the dashboard. */

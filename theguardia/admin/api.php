@@ -74,8 +74,20 @@ try {
             if (!ai_enabled()) {
                 throw new RuntimeException(__('Add your Anthropic API key in Settings → AI assistant first.'));
             }
-            $did = newsroom_step(true);
-            json_out(['ok' => true, 'did' => $did ?: __('Nothing to do right now — the newsroom is up to date.')]);
+            if (newsroom_current()) {
+                json_out(['ok' => true, 'started' => false, 'did' => __('The team is already working — follow the progress below.')]);
+            }
+            respond_and_continue(['ok' => true, 'started' => true, 'did' => __('The team has started. Progress appears below as they work.')]);
+            newsroom_work(true, 6, 1500);
+            exit;
+
+        case 'newsroom_poll':
+            require_role('editor');
+            session_write_close();
+            $msgs = rows('SELECT * FROM ai_messages WHERE id > ? ORDER BY id LIMIT 50', [(int) input('after')]);
+            $cur = newsroom_current();
+            json_out(['ok' => true, 'messages' => array_map(fn ($m) => ['id' => (int) $m['id'], 'html' => newsroom_message_html($m)], $msgs),
+                'status' => $cur ? $cur['text'] . ' (' . time_ago(date('Y-m-d H:i:s', $cur['ts'])) . ')' : '', 'busy' => (bool) $cur]);
 
         default:
             json_out(['error' => 'Unknown action'], 400);

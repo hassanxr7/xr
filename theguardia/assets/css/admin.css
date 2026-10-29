@@ -284,3 +284,7 @@ fieldset.f { border: 0; padding: 0; }
   .seo-checks { columns: 1; }
   .a-brand span { display: none; }
 }
+
+.newsroom-status { min-height: 22px; font-size: 14px; color: var(--muted); margin: 0 0 12px; }
+.newsroom-status.busy { color: var(--ink); font-weight: 600; }
+.newsroom-status.busy::before { content: ""; display: inline-block; width: 12px; height: 12px; border: 2px solid var(--line-2); border-top-color: var(--blue); border-radius: 50%; animation: spin .8s linear infinite; margin-right: 8px; vertical-align: -1px; }

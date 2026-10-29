@@ -264,6 +264,35 @@ function json_out($data, int $code = 200): void
     exit;
 }
 
+/**
+ * Send a JSON reply now and keep running afterwards (long AI work must not hit the
+ * web server's request timeout). Releases the session lock so other pages stay usable.
+ */
+function respond_and_continue(array $data): void
+{
+    ignore_user_abort(true);
+    @set_time_limit(0);
+    $body = json_encode($data, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
+    if (session_status() === PHP_SESSION_ACTIVE) {
+        session_write_close();
+    }
+    while (ob_get_level() > 0) {
+        ob_end_clean();
+    }
+    header('Content-Type: application/json; charset=utf-8');
+    header('Cache-Control: no-store');
+    header('Content-Encoding: none');
+    header('Content-Length: ' . strlen($body));
+    header('Connection: close');
+    echo $body;
+    flush();
+    if (function_exists('fastcgi_finish_request')) {
+        fastcgi_finish_request();
+    } elseif (function_exists('litespeed_finish_request')) {
+        litespeed_finish_request();
+    }
+}
+
 /** Read a JSON request body (beacons, push subscriptions). */
 function json_input(int $max = 65536): array
 {

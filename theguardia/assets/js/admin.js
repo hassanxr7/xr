@@ -319,19 +319,41 @@
     });
   });
 
-  // ---- AI newsroom: run one step on demand ----
-  var stepBtn = $('.js-newsroom-step');
-  stepBtn && stepBtn.addEventListener('click', function () {
-    var st = $('.newsroom-status');
-    stepBtn.disabled = true;
-    st.textContent = 'Working… a research or review step can take 1–4 minutes.';
-    api('newsroom_step', {}).then(function (j) {
-      st.textContent = j.did;
-      setTimeout(function () { location.reload(); }, 1200);
-    }).catch(function (e) { st.textContent = e.message; stepBtn.disabled = false; });
-  });
+  // ---- AI newsroom: start the team in the background and follow progress live ----
   var log = $('#chat-log');
-  if (log) log.scrollTop = log.scrollHeight;
+  var stepBtn = $('.js-newsroom-step');
+  var statusEl = $('.newsroom-status');
+  function setStatus(text, busy) {
+    if (!statusEl) return;
+    statusEl.textContent = text || '';
+    statusEl.classList.toggle('busy', !!busy);
+    if (stepBtn) stepBtn.disabled = !!busy;
+  }
+  function startTeam() {
+    setStatus('Starting the team…', true);
+    api('newsroom_step', {}).then(function (j) { setStatus(j.did, true); poll(); })
+      .catch(function (e) { setStatus(e.message, false); });
+  }
+  var pollTimer = null, idleRounds = 0;
+  function poll() {
+    clearTimeout(pollTimer);
+    if (!log) return;
+    api('newsroom_poll', { after: log.getAttribute('data-last') || 0 }).then(function (j) {
+      j.messages.forEach(function (m) {
+        log.insertAdjacentHTML('beforeend', m.html);
+        log.setAttribute('data-last', m.id);
+      });
+      if (j.messages.length) log.scrollTop = log.scrollHeight;
+      setStatus(j.status, j.busy);
+      idleRounds = j.busy ? 0 : idleRounds + 1;
+      pollTimer = setTimeout(poll, j.busy ? 5000 : (idleRounds > 6 ? 30000 : 10000));
+    }).catch(function () { pollTimer = setTimeout(poll, 20000); });
+  }
+  if (log) {
+    log.scrollTop = log.scrollHeight;
+    if (log.getAttribute('data-kick') === '1') { history.replaceState(null, '', location.pathname); startTeam(); } else { poll(); }
+  }
+  stepBtn && stepBtn.addEventListener('click', startTeam);
 
   // ---- Push sending progress ----
   var pushBox = $('[data-push-message]');
