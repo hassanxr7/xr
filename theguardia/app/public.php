@@ -459,7 +459,10 @@ function contact_submit(): void
 function maybe_pseudo_cron(): void
 {
     $last = setting('cron_last_run');
-    if (setting('pseudo_cron', '1') !== '1' || ($last !== '' && strtotime($last) > time() - 600) || cache_get('pseudo_cron') !== null) {
+    $cli = setting('cron_last_cli');
+    if (setting('pseudo_cron', '1') !== '1' || ($last !== '' && strtotime($last) > time() - 600)
+        || ($cli !== '' && strtotime($cli) > time() - 1800) // a real cron job is working: never compete with it
+        || cache_get('pseudo_cron') !== null) {
         return;
     }
     cache_set('pseudo_cron', 1, 300);

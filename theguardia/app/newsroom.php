@@ -103,12 +103,12 @@ function newsroom_sections(): array
  * Agent loop for one task: the model may use server-side web tools, then must call $submit.
  * Handles pause_turn (long server-side searches) and a missing final call.
  */
-function agent_run(string $system, string $task, array $submitTool, bool $web, string $effort = 'medium', int $maxTokens = 16000): array
+function agent_run(string $system, string $task, array $submitTool, bool $web, string $effort = 'medium', int $maxTokens = 16000, int $searches = 8, int $fetches = 5): array
 {
     $tools = [];
     if ($web) {
-        $tools[] = ['type' => 'web_search_20260209', 'name' => 'web_search', 'max_uses' => 8];
-        $tools[] = ['type' => 'web_fetch_20260209', 'name' => 'web_fetch', 'max_uses' => 5];
+        $tools[] = ['type' => 'web_search_20260209', 'name' => 'web_search', 'max_uses' => $searches];
+        $tools[] = ['type' => 'web_fetch_20260209', 'name' => 'web_fetch', 'max_uses' => $fetches];
     }
     $submitTool['strict'] = true;
     $tools[] = $submitTool;
@@ -236,7 +236,7 @@ function alex_research(?array $assignment): int
 
 function kristov_write(array $job): void
 {
-    newsroom_status('Kristov Joi is writing “' . $job['topic'] . '”…');
+    newsroom_status('Kristov Joi is writing “' . $job['topic'] . '”…', (int) $job['id']);
     $research = json_decode((string) $job['research'], true) ?: [];
     $review = json_decode((string) $job['review'], true) ?: [];
     $schema = ai_story_schema();
@@ -352,7 +352,7 @@ function newsroom_find_image(string $query, string $prompt, string $title): ?int
 
 function david_review(array $job): void
 {
-    newsroom_status('David Mario is fact-checking “' . $job['topic'] . '”…');
+    newsroom_status('David Mario is fact-checking “' . $job['topic'] . '”…', (int) $job['id']);
     $research = json_decode((string) $job['research'], true) ?: [];
     $draft = json_decode((string) $job['draft'], true) ?: [];
     $s = ['type' => 'string'];
@@ -380,7 +380,7 @@ function david_review(array $job): void
         . "Also reject clickbait headlines that the story does not support. Be strict: a rejected story costs nothing, a wrong one damages the newspaper.";
     $task = "<research>\n" . json_encode($research, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) . "\n</research>\n<draft>\nHEADLINE: " . ($draft['headline'] ?? '')
         . "\nSUBTITLE: " . ($draft['standfirst'] ?? '') . "\nBODY:\n" . ($draft['body_html'] ?? '') . "\n</draft>\nToday: " . date('F j, Y H:i T') . '. Review it, then call submit_review.';
-    $review = agent_run($system, $task, $tool, true, 'high');
+    $review = agent_run($system, $task, $tool, true, 'high', 16000, 5, 3);
     $decision = $review['decision'] ?? 'reject';
     if ($decision === 'approve' && (int) ($review['confidence'] ?? 0) < (int) setting('ai_min_confidence', '75')) {
         $decision = 'reject';
@@ -507,9 +507,9 @@ function newsroom_step(bool $manual = false): string
 }
 
 /** What the newsroom is doing right now (shown live in the dashboard). */
-function newsroom_status(string $text): void
+function newsroom_status(string $text, ?int $jobId = null): void
 {
-    save_setting('newsroom_status', $text === '' ? '' : json_encode(['text' => $text, 'ts' => time()]));
+    save_setting('newsroom_status', $text === '' ? '' : json_encode(['text' => $text, 'ts' => time(), 'job' => $jobId]));
 }
 
 /** Current activity, or null when idle (a status older than 20 minutes is stale: that run died). */
@@ -539,9 +539,12 @@ function newsroom_work(bool $manual, int $maxSteps = 6, int $budget = 900): stri
         }
         $err = error_get_last();
         $cur = newsroom_current();
+        if ($cur && !empty($cur['job'])) {
+            q("UPDATE ai_jobs SET attempts = attempts + 1, stage = CASE WHEN attempts >= 2 THEN 'failed' ELSE stage END, error = 'Interrupted by the server', updated_at = ? WHERE id = ?", [now(), (int) $cur['job']]);
+        }
         newsroom_say('system', ($cur ? $cur['text'] . ' — ' : '') . 'the server stopped this step'
             . ($err && in_array($err['type'], [E_ERROR, E_CORE_ERROR, E_COMPILE_ERROR], true) ? ' (' . $err['message'] . ')' : '')
-            . '. It will continue on the next run. Tip: set max_execution_time to 600 in hPanel → PHP Configuration → PHP options, and make sure the cron job runs.');
+            . '. The cron job will continue it in a moment.');
         newsroom_status('');
     });
     $end = time() + $budget;
@@ -562,12 +565,12 @@ function newsroom_work(bool $manual, int $maxSteps = 6, int $budget = 900): stri
 }
 
 /** Cron entry point. */
-function newsroom_cron(int $budget = 420): void
+function newsroom_cron(int $budget = 420, int $maxSteps = 6): void
 {
     if (!ai_enabled() || (setting('ai_newsroom_enabled', '0') !== '1' && !val("SELECT 1 FROM ai_assignments WHERE status = 'open'"))) {
         return;
     }
-    newsroom_work(false, 6, $budget);
+    newsroom_work(false, $maxSteps, $budget);
 }
 
 /** One chat message as HTML (used by the page and the live update). */

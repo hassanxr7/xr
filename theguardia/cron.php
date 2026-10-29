@@ -21,6 +21,9 @@ if (!$cli) {
 }
 @set_time_limit(600);
 
+if ($cli) {
+    save_setting('cron_last_cli', now()); // the Hostinger cron job is alive (even if another run holds the lock)
+}
 $lock = fopen(STORAGE_PATH . '/cron.lock', 'c');
 if (!$lock || !flock($lock, LOCK_EX | LOCK_NB)) {
     exit("Another cron run is still working.\n");
@@ -45,12 +48,13 @@ $jobs = [
     },
     'imports' => function () use ($log) {
         if (setting('imports_auto', '1') === '1') {
-            import_cron((int) setting('imports_budget', '150'));
+            import_cron($cli ? (int) setting('imports_budget', '150') : 40);
             $log('imports done');
         }
     },
     'newsroom' => function () use ($log) {
-        newsroom_cron((int) setting('ai_cron_budget', '420'));
+        // Web servers cut long requests (about 5 minutes on Hostinger): web-started runs do one AI step.
+        $cli ? newsroom_cron((int) setting('ai_cron_budget', '420'), 6) : newsroom_cron(280, 1);
         $log('AI newsroom checked');
     },
     'geoip' => function () use ($log) {

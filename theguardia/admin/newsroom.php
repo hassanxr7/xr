@@ -57,7 +57,7 @@ admin_header(__('AI Newsroom'));
   <button type="button" class="a-btn a-btn-primary js-newsroom-step"<?= ai_enabled() ? '' : ' disabled' ?>>▶ <?= __('Run next step now') ?></button></div>
 </div>
 <?php if (!ai_enabled()): ?><div class="a-flash a-flash-error"><?= __('Add your Anthropic API key in Settings → AI assistant to start the newsroom.') ?></div><?php endif; ?>
-<?php $cronAt = setting('cron_last_run'); $cronOk = $cronAt !== '' && strtotime($cronAt) > time() - 1800 && setting('cron_last_source') === 'cli'; $cronCmd = '/usr/bin/php ' . BASE_PATH . '/cron.php'; ?>
+<?php $cronAt = setting('cron_last_run'); $cronOk = setting('cron_last_cli') !== '' && strtotime(setting('cron_last_cli')) > time() - 1800; $cronCmd = '/usr/bin/php ' . BASE_PATH . '/cron.php'; ?>
 <?php if (!newsroom_enabled() && ai_enabled()): ?>
   <div class="a-flash a-flash-error"><strong><?= __('The newsroom is paused.') ?></strong> <?= __('Tick “Work automatically every day” in Newsroom settings below and save.') ?></div>
 <?php endif; ?>

@@ -78,7 +78,8 @@ try {
                 json_out(['ok' => true, 'started' => false, 'did' => __('The team is already working — follow the progress below.')]);
             }
             respond_and_continue(['ok' => true, 'started' => true, 'did' => __('The team has started. Progress appears below as they work.')]);
-            newsroom_work(true, 6, 1500);
+            // One step per click: the web server stops requests after a few minutes; cron does the rest.
+            newsroom_work(true, 1, 280);
             exit;
 
         case 'newsroom_poll':
