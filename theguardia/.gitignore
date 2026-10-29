@@ -1,0 +1,13 @@
+# Created on the server by the installer — never commit
+app/config.php
+app/storage/*.sqlite*
+app/storage/installed.lock
+app/storage/cron.lock
+app/storage/cache/*
+app/storage/logs/*
+app/storage/photos/*
+app/storage/geoip/*
+uploads/*
+!app/storage/**/.gitkeep
+!uploads/.gitkeep
+!uploads/.htaccess
