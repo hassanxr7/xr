@@ -11,3 +11,4 @@ uploads/*
 !app/storage/**/.gitkeep
 !uploads/.gitkeep
 !uploads/.htaccess
+app/storage/newsroom.lock
