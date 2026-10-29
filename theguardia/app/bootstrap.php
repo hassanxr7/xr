@@ -76,6 +76,9 @@ upgrade_schema();
 header_remove('X-Powered-By');
 if (PHP_SAPI !== 'cli') {
     header('X-Content-Type-Options: nosniff');
+    // Hostinger's LiteSpeed server cache must not keep its own copies: the site has its own page
+    // cache that is cleared on every edit, and a server copy would hide new stories and photos.
+    header('X-LiteSpeed-Cache-Control: no-cache');
     header('Referrer-Policy: strict-origin-when-cross-origin');
     if (is_https()) {
         header('Strict-Transport-Security: max-age=31536000');

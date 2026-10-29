@@ -93,7 +93,7 @@ function page_cache_serve(): void
     $nonce = csp_nonce();
     send_public_headers($nonce);
     header('Content-Type: ' . ($meta['type'] ?? 'text/html; charset=utf-8'));
-    header('Cache-Control: public, max-age=60');
+    header('Cache-Control: public, max-age=0, must-revalidate'); // edits show at once; our own page cache keeps it fast
     header('X-Cache: HIT');
     echo str_replace(NONCE_PLACEHOLDER, $nonce, substr($raw, $nl + 1));
     exit;

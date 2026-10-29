@@ -126,7 +126,7 @@ function render(string $view, array $vars, int $status = 200): void
     send_public_headers();
     header('Content-Type: text/html; charset=utf-8');
     if ($status === 200 && session_status() !== PHP_SESSION_ACTIVE) {
-        header('Cache-Control: public, max-age=60');
+        header('Cache-Control: public, max-age=0, must-revalidate'); // edits show at once; our own page cache keeps it fast
         page_cache_store($html);
     } else {
         header('Cache-Control: no-store');
