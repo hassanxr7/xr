@@ -15,8 +15,9 @@ if (!$cli) {
         http_response_code(403);
         exit('Forbidden');
     }
-    header('Content-Type: text/plain; charset=utf-8');
-    ignore_user_abort(true);
+    // External URL cron services give up after ~30 s: answer now, keep working afterwards.
+    respond_and_continue(['ok' => true, 'started' => now()]);
+    ob_start(); // swallow the job log (the connection is already closed)
 }
 @set_time_limit(600);
 

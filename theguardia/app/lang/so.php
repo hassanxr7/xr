@@ -96,6 +96,11 @@ return [
     'OpenAI API key for illustrations (optional)' => 'Furaha OpenAI API ee sawir-sameynta (ikhtiyaari)', 'saved' => 'waa la keydiyay', 'Remove the saved image key' => 'Tirtir furaha sawirka ee la keydiyay',
     'The team has started. Progress appears below as they work.' => 'Kooxdu way bilowday. Horumarka shaqada hoos ayuu ka muuqan doonaa.',
     'The team is already working — follow the progress below.' => 'Kooxdu hadda way shaqeynaysaa — hoos kala soco horumarka.',
+    'Automatic mode is on: the server runs the team every few minutes, even when your computer is off.' => 'Habka tooska ah wuu shidan yahay: server-ka ayaa kooxda shaqeysiiya dhowr daqiiqo kasta, xitaa marka kombiyuutarkaagu dansan yahay.',
+    'Last automatic run' => 'Wareeggii tooska ahaa ee u dambeeyay',
+    'The cron job is not running yet — the team only works while this page is open.' => 'Cron job-ku weli ma shaqeynayo — kooxdu waxay shaqeysaa oo kaliya marka boggan furan yahay.',
+    'hPanel → Advanced → Cron Jobs → Custom → Command to run:' => 'hPanel → Advanced → Cron Jobs → Custom → Command to run:',
+    'Schedule: minute */10, every hour, every day, every month, every weekday → Save.' => 'Jadwalka: minute */10, hour *, day *, month *, weekday * (10-kii daqiiqo kasta) → Save.',
     'Save settings' => 'Keydi dejinta', 'Nothing to do right now — the newsroom is up to date.' => 'Hadda wax la qabto ma jiro — qolka wararku waa cusub yahay.',
 
     // Sections, tags, pages, media

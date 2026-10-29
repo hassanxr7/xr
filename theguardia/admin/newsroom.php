@@ -57,6 +57,18 @@ admin_header(__('AI Newsroom'));
   <button type="button" class="a-btn a-btn-primary js-newsroom-step"<?= ai_enabled() ? '' : ' disabled' ?>>▶ <?= __('Run next step now') ?></button></div>
 </div>
 <?php if (!ai_enabled()): ?><div class="a-flash a-flash-error"><?= __('Add your Anthropic API key in Settings → AI assistant to start the newsroom.') ?></div><?php endif; ?>
+<?php $cronAt = setting('cron_last_run'); $cronOk = $cronAt !== '' && strtotime($cronAt) > time() - 1800; $cronCmd = '/usr/bin/php ' . BASE_PATH . '/cron.php'; ?>
+<?php if ($cronOk): ?>
+  <div class="a-flash a-flash-success"><?= __('Automatic mode is on: the server runs the team every few minutes, even when your computer is off.') ?> <?= __('Last automatic run') ?>: <?= e(time_ago($cronAt)) ?>.</div>
+<?php else: ?>
+  <div class="a-flash a-flash-error">
+    <strong><?= __('The cron job is not running yet — the team only works while this page is open.') ?></strong><br>
+    <?= __('hPanel → Advanced → Cron Jobs → Custom → Command to run:') ?> <code class="break"><?= e($cronCmd) ?></code>
+    <button type="button" class="a-btn a-btn-sm js-copy" data-copy="<?= e($cronCmd) ?>"><?= __('Copy') ?></button><br>
+    <?= __('Schedule: minute */10, every hour, every day, every month, every weekday → Save.') ?>
+    <?= $cronAt ? ' ' . __('Last run') . ': ' . e(time_ago($cronAt)) . '.' : '' ?>
+  </div>
+<?php endif; ?>
 <?php $cur = newsroom_current(); ?>
 <p class="newsroom-status<?= $cur ? ' busy' : '' ?>" aria-live="polite"><?= $cur ? e($cur['text']) : '' ?></p>
 
